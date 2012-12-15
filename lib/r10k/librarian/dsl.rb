@@ -15,6 +15,6 @@ class R10K::Librarian::DSL
   end
 
   def method_missing(method, *args)
-    raise Exception, "unrecognized declaration '#{method}'"
+    raise NoMethodError, "unrecognized declaration '#{method}'"
   end
 end
