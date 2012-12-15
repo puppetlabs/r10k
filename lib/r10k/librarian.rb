@@ -4,11 +4,14 @@ class R10K::Librarian
 
   def initialize(puppetfile)
     @puppetfile = puppetfile
+    @modules    = []
   end
 
   def load
     dsl = R10K::Librarian::DSL.new(self)
     dsl.instance_eval(File.read(@puppetfile), @puppetfile)
+
+    @modules
   end
 
   # This method only exists because people tried being excessively clever.
@@ -17,7 +20,7 @@ class R10K::Librarian
   end
 
   def add_module(*args)
-    puts "YAY #{args.inspect}"
+    @modules << args
   end
 end
 
