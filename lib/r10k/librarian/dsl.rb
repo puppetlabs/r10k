@@ -1,4 +1,4 @@
-require 'r10k'
+require 'r10k/librarian'
 
 class R10K::Librarian::DSL
 
