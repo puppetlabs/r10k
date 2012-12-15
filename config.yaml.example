@@ -1,0 +1,10 @@
+---
+
+:cachedir: /var/cache/r10k
+
+:envdir: /etc/puppet/environments
+:basedir: /etc/puppet/base
+
+:sources:
+  plops: git@github.com:puppetlabs/plops-modules
+  qa:    git@github.com:puppetlabs/qa-modules
