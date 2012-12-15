@@ -26,6 +26,7 @@ class R10K::Synchro::Git
   private
 
   def clone(path, branch)
+    puts("git clone #{source} #{path}")
     system("git clone #{source} #{path}")
     reset(path, branch)
   end
@@ -35,6 +36,7 @@ class R10K::Synchro::Git
   end
 
   def reset(path, branch)
-    system("git --git-dir #{path}/.git reset --hard #{branch}")
+    puts("git --work-tree #{path} --git-dir #{path}/.git reset --hard #{branch}")
+    system("git --work-tree #{path} --git-dir #{path}/.git reset --hard #{branch}")
   end
 end

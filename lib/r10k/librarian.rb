@@ -19,8 +19,8 @@ class R10K::Librarian
 
   end
 
-  def add_module(*args)
-    @modules << args
+  def add_module(name, args)
+    @modules << [name, args[0]]
   end
 end
 
