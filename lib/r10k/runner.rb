@@ -1,6 +1,5 @@
 require 'r10k'
 require 'r10k/root'
-require 'r10k/librarian'
 require 'yaml'
 
 class R10K::Runner; end
@@ -18,17 +17,18 @@ class << R10K::Runner
 
   def run
     c = config("../config.yaml")
-    base = R10K::Root.new(c[:baserepo], c[:basedir], 'master')
+    base = R10K::Root.new(c[:basedir], c[:installdir], c[:baserepo], 'master')
     base.sync!
 
-    modules     = base.modules
-    git_modules = modules.select { |mod| mod[1].is_a? Hash }
+    threads = []
+    base.modules.each do |mod|
+      threads << Thread.new do
+        mod.sync!
+      end
+    end
 
-    git_modules.each do |mod|
-      name, hash = mod[0], mod[1]
-
-      modmaker = R10K::Synchro::Git.new(hash[:git])
-      modmaker.sync("modules/#{name}", (hash[:ref] || 'master'))
+    threads.each do |thr|
+      thr.join
     end
   end
 end
