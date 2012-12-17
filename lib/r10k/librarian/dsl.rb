@@ -6,8 +6,8 @@ class R10K::Librarian::DSL
     @librarian = librarian
   end
 
-  def mod(name, args)
-    @librarian.add_module(name, args = [])
+  def mod(name, args = [])
+    @librarian.add_module(name, args)
   end
 
   def forge(location)
