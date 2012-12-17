@@ -15,6 +15,8 @@ class R10K::Synchro::Git
   # @param [String] branch The git branch to instantiate at the destination path
   def sync(path, branch)
 
+    path = File.expand_path(path)
+
     if File.directory?(File.join(path, '.git'))
       fetch(path)
       reset(path, branch)
