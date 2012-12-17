@@ -1,4 +1,6 @@
 require 'r10k'
+require 'r10k/module'
+require 'r10k/synchro/git'
 
 class R10K::Root
 
@@ -27,8 +29,13 @@ class R10K::Root
 
   def modules
     librarian = R10K::Librarian.new("#{path}/Puppetfile")
-    @modules  = librarian.load
+
+    module_data = librarian.load
+
+    @modules = module_data.map do |mod|
+      name = mod[0]
+      args = mod[1]
+      R10K::Module.new(name, "#{path}/modules", args)
+    end
   end
 end
-
-require 'r10k/synchro/git'
