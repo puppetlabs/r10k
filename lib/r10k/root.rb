@@ -14,6 +14,8 @@ class R10K::Root
   #   The git branch to instantiate into the path
   attr_reader :branch
 
+  attr_reader :modules
+
   def initialize(source, path, branch)
     @source, @path, @branch = source, path, branch
   end
@@ -21,6 +23,11 @@ class R10K::Root
   def sync!
     synchro = R10K::Synchro::Git.new(@source)
     synchro.sync(@path, @branch)
+  end
+
+  def modules
+    librarian = R10K::Librarian.new("#{path}/Puppetfile")
+    @modules  = librarian.load
   end
 end
 

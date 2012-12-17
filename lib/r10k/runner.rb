@@ -21,9 +21,7 @@ class << R10K::Runner
     base = R10K::Root.new(c[:baserepo], c[:basedir], 'master')
     base.sync!
 
-    l = R10K::Librarian.new("base/Puppetfile")
-
-    modules     = l.load
+    modules     = base.modules
     git_modules = modules.select { |mod| mod[1].is_a? Hash }
 
     git_modules.each do |mod|
