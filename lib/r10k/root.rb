@@ -4,38 +4,46 @@ require 'r10k/synchro/git'
 
 class R10K::Root
 
+  # @!attribute [r] name
+  #   The directory name of this root
+  attr_reader :name
+
+  # @!attribute [r] path
+  #   The path to clone the root into
+  attr_reader :path
+
   # @!attribute [r] source
   #   The location of the remote git repository
   attr_reader :source
-
-  # @!attribute [r] path
-  #   The destination path of the root
-  attr_reader :path
 
   # @!attribute [r] branch
   #   The git branch to instantiate into the path
   attr_reader :branch
 
-  attr_reader :modules
-
-  def initialize(source, path, branch)
-    @source, @path, @branch = source, path, branch
+  def initialize(name, path, source, branch)
+    @name, @path, @source, @branch = name, path, source, branch
   end
 
   def sync!
     synchro = R10K::Synchro::Git.new(@source)
-    synchro.sync(@path, @branch)
+    synchro.sync(full_path, @branch)
   end
 
   def modules
-    librarian = R10K::Librarian.new("#{path}/Puppetfile")
+    librarian = R10K::Librarian.new("#{full_path}/Puppetfile")
 
     module_data = librarian.load
 
     @modules = module_data.map do |mod|
       name = mod[0]
       args = mod[1]
-      R10K::Module.new(name, "#{path}/modules", args)
+      R10K::Module.new(name, "#{full_path}/modules", args)
     end
+  end
+
+  private
+
+  def full_path
+    File.join @path, @name
   end
 end

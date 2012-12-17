@@ -1,4 +1,5 @@
 require 'r10k'
+require 'r10k/module'
 
 class R10K::Librarian
 
