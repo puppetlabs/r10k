@@ -13,9 +13,19 @@ module R10K::CLI
         complex environments.
       EOD
 
+      flag :h, :help,  'show help for this command' do |value, cmd|
+        puts cmd.help
+        exit 0
+      end
+
+      option :c, :config, 'Specify a configuration file', :argument => :required
+
       run do |opts, args, cmd|
         puts cmd.help
+        exit 0
       end
     end
   end
 end
+
+require 'r10k/cli/deploy'
