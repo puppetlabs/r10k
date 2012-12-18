@@ -48,6 +48,7 @@ class R10K::Synchro::Git
       commit = "origin/#{ref}"
     end
     git "reset --hard #{commit}", path
+    git "clean -f", path
   end
 
   def git(str, path = nil)
