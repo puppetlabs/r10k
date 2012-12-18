@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require 'r10k/cli'
+
+R10K::CLI.root_command.run(ARGV)
