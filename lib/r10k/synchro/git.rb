@@ -1,4 +1,8 @@
 require 'r10k'
+require 'cocaine'
+require 'logger'
+
+Cocaine::CommandLine.logger = ::Logger.new(STDOUT)
 
 module R10K::Synchro; end
 
@@ -12,33 +16,43 @@ class R10K::Synchro::Git
   # loldox
   #
   # @param [String] path The destination path for the files
-  # @param [String] branch The git branch to instantiate at the destination path
-  def sync(path, branch)
+  # @param [String] ref The git ref to instantiate at the destination path
+  def sync(path, ref)
 
     path = File.expand_path(path)
 
     if File.directory?(File.join(path, '.git'))
       fetch(path)
-      reset(path, branch)
+      reset(path, ref)
     else
-      clone(path, branch)
+      clone(path, ref)
     end
   end
 
   private
 
-  def clone(path, branch)
-    puts("git clone #{source} #{path}")
-    system("git clone #{source} #{path}")
-    reset(path, branch)
+  def clone(path, ref)
+    git "clone #{source} #{path}"
+    reset(path, ref)
   end
 
   def fetch(path)
-    system("git --git-dir #{path}/.git fetch")
+    git "fetch", path
   end
 
-  def reset(path, branch)
-    puts("git --work-tree #{path} --git-dir #{path}/.git reset --hard #{branch}")
-    system("git --work-tree #{path} --git-dir #{path}/.git reset --hard #{branch}")
+  def reset(path, ref)
+    # THIS IS A TOTAL HACK.
+    begin
+      commit = git "rev-parse #{ref}^{commit}", path
+    rescue Cocaine::ExitStatusError
+      commit = "origin/#{ref}"
+    end
+    git "reset --hard #{commit}", path
+  end
+
+  def git(str, path = nil)
+    git_str = path ? "git --work-tree #{path} --git-dir #{path}/.git" : "git"
+    cmd = Cocaine::CommandLine.new("#{git_str} #{str}")
+    cmd.run
   end
 end
