@@ -8,11 +8,13 @@ module R10K::CLI::Deploy
       name 'deploy'
       usage 'deploy <environment>'
 
+      flag :p, :parallel, 'Try to fetch modules in parallel.'
+
       run do |opts, args, cmd|
         R10K::Runner.run
       end
     end
   end
-end
 
-R10K::CLI.root_command.add_command(R10K::CLI::Deploy.command)
+  R10K::CLI.command.add_command(self.command)
+end
