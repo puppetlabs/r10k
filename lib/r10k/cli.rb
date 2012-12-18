@@ -17,7 +17,9 @@ module R10K::CLI
         exit 0
       end
 
-      option :c, :config, 'Specify a configuration file', :argument => :required
+      required :c, :config, 'Specify a configuration file' do |value, cmd|
+        R10K::Runner.instance.load(value)
+      end
 
       run do |opts, args, cmd|
         puts cmd.help

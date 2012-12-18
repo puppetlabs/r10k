@@ -2,22 +2,25 @@ require 'r10k'
 require 'r10k/root'
 require 'yaml'
 
-class R10K::Runner; end
+class R10K::Runner
 
-class << R10K::Runner
+  def self.instance
+    @myself ||= self.new
+  end
 
-  def config(configfile)
-    yaml = nil
-    File.open(configfile) { |fh| yaml = YAML.load(fh.read) }
-
-    yaml
+  def load(configfile)
+    File.open(configfile) { |fh| @config = YAML.load(fh.read) }
   rescue => e
     raise "Couldn't load #{configfile}: #{e}"
   end
 
+  # Serve up the loaded config if it's already been loaded, otherwise try to
+  # load a config in the current wd.
+  def config
+    @config ||= self.load(File.join(Dir.getwd, "config.yaml"))
+  end
+
   def run
-    c = config("../config.yaml")
-    base = R10K::Root.new(c[:basedir], c[:installdir], c[:baserepo], 'master')
     base.sync!
 
     threads = []
@@ -30,5 +33,20 @@ class << R10K::Runner
     threads.each do |thr|
       thr.join
     end
+  end
+
+  # Load up all module roots
+  def roots
+    environments = []
+
+    environments << common_root
+  end
+
+  def common_root
+    @base ||= R10K::Root.new(
+      config[:basedir],
+      config[:installdir],
+      config[:baserepo],
+      'master')
   end
 end

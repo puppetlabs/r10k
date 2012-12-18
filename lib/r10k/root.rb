@@ -41,9 +41,7 @@ class R10K::Root
     end
   end
 
-  private
-
   def full_path
-    File.join @path, @name
+    File.expand_path(File.join @path, @name)
   end
 end
