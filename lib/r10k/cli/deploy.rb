@@ -13,9 +13,6 @@ module R10K::CLI::Deploy
       end
     end
   end
-
-
 end
 
 R10K::CLI.root_command.add_command(R10K::CLI::Deploy.command)
-
