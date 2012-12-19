@@ -11,7 +11,7 @@ module R10K::CLI::Deploy
       flag :p, :parallel, 'Try to fetch modules in parallel.'
 
       run do |opts, args, cmd|
-        R10K::Runner.run
+        R10K::Runner.instance.run
       end
     end
   end

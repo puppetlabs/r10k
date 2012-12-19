@@ -21,17 +21,29 @@ class R10K::Runner
   end
 
   def run
-    base.sync!
+    R10K::Synchro::Git.cache_root = config[:cachedir]
+    roots.each do |root|
 
-    threads = []
-    base.modules.each do |mod|
-      threads << Thread.new do
-        mod.sync!
+      root.sync!
+
+      threads = []
+      root.modules.each do |mod|
+        threads << Thread.new do
+          mod.sync!
+        end
+      end
+
+      threads.each do |thr|
+        thr.join
       end
     end
+  end
 
-    threads.each do |thr|
-      thr.join
+  def cache_sources
+    R10K::Synchro::Git.cache_root = config[:cachedir]
+    config[:sources].each_pair do |name, source|
+      synchro = R10K::Synchro::Git.new(source)
+      synchro.cache
     end
   end
 
