@@ -9,6 +9,22 @@ class R10K::Synchro::Git
 
   class << self
     attr_accessor :cache_root
+
+    def synchros
+      @synchros ||= {}
+    end
+
+    def new(source)
+      if synchros[source]
+        puts "Object cache hit on #{source}".green
+      else
+        puts "Object cache miss on #{source}".red
+        obj = self.allocate
+        obj.send :initialize, source
+        synchros[source] = obj
+      end
+      synchros[source]
+    end
   end
 
   attr_reader :source
