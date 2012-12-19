@@ -18,6 +18,8 @@ class R10K::Runner
     if @config[:cachedir]
       R10K::Synchro::Git.cache_root = @config[:cachedir]
     end
+
+    @config
   rescue => e
     raise "Couldn't load #{configfile}: #{e}"
   end
@@ -26,7 +28,6 @@ class R10K::Runner
   # load a config in the current wd.
   def config
     self.load(File.join(Dir.getwd, "config.yaml")) unless @config
-
     @config
   end
 
