@@ -39,6 +39,8 @@ class R10K::Root
       args = mod[1]
       R10K::Module.new(name, "#{full_path}/modules", args)
     end
+  rescue Errno::ENOENT
+    []
   end
 
   def full_path
