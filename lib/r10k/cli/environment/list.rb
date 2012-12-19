@@ -25,4 +25,3 @@ module R10K::CLI::Environment::List
 
   R10K::CLI::Environment.command.add_command(self.command)
 end
-

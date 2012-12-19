@@ -21,3 +21,4 @@ module R10K::CLI::Environment
 end
 
 require 'r10k/cli/environment/list'
+require 'r10k/cli/environment/cache'

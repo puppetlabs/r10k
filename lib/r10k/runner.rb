@@ -1,5 +1,6 @@
 require 'r10k'
 require 'r10k/root'
+require 'r10k/synchro/git'
 require 'yaml'
 
 class R10K::Runner

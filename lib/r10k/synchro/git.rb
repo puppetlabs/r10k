@@ -2,15 +2,23 @@ require 'r10k'
 require 'cocaine'
 require 'logger'
 
-Cocaine::CommandLine.logger = ::Logger.new(STDOUT)
 
 module R10K::Synchro; end
 
 class R10K::Synchro::Git
+
+  class << self
+    attr_accessor :cache_root
+  end
+
   attr_reader :source
 
   def initialize(source)
     @source = source
+
+    if (cache_root = self.class.cache_root)
+      @cache_path = File.join(cache_root, @source.gsub(/[^@\w-]/, '-'))
+    end
   end
 
   # loldox
@@ -25,18 +33,34 @@ class R10K::Synchro::Git
       fetch(path)
       reset(path, ref)
     else
-      clone(path, ref)
+      clone(path)
+      reset(path, ref)
+    end
+  end
+
+  def cache
+    if @cache_path and File.directory? @cache_path
+      git "fetch", @cache_path
+    else
+      FileUtils.mkdir_p File.join(@cache_path)
+      git "clone --mirror #{@source} #{cachedir}"
     end
   end
 
   private
 
-  def clone(path, ref)
-    git "clone #{source} #{path}"
-    reset(path, ref)
+  def clone(path)
+    if @cache_path and File.directory? @cache_path
+      git "clone --reference #{@cache_path} #{@source} #{path}"
+    else
+      git "clone #{@source} #{path}"
+    end
   end
 
   def fetch(path)
+    if @cache_path and File.directory? @cache_path
+      git "--git-dir #{@cache_path} fetch"
+    end
     git "fetch", path
   end
 
@@ -50,6 +74,11 @@ class R10K::Synchro::Git
     git "reset --hard #{commit}", path
     git "clean -f", path
   end
+
+  logger = ::Logger.new(STDOUT)
+  logger.datetime_format = "%I:%M %p"
+  Cocaine::CommandLine.logger = logger
+
 
   def git(str, path = nil)
     git_str = path ? "git --work-tree #{path} --git-dir #{path}/.git" : "git"
