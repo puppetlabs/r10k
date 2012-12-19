@@ -29,9 +29,7 @@ class R10K::Synchro::Git
 
     path = File.expand_path(path)
 
-    if self.class.cache_root
-      cache
-    end
+    cache if should_cache?
 
     if File.directory?(File.join(path, '.git'))
       fetch(path)
@@ -42,8 +40,18 @@ class R10K::Synchro::Git
     reset(path, ref)
   end
 
+  # @return [TrueClass] if the git repository is cached
+  def has_cache?
+    @cache_path and File.directory? @cache_path
+  end
+
+  def should_cache?
+    !!(self.class.cache_root)
+  end
+
+  # Ensure that the git repo cache is present and up to date
   def cache
-    if @cache_path and File.directory? @cache_path
+    if has_cache?
       git "--git-dir #{@cache_path} fetch"
     else
       FileUtils.mkdir_p File.dirname(File.join(@cache_path))
@@ -60,7 +68,10 @@ class R10K::Synchro::Git
   #
   # @param [String] path The directory to create the repo working directory
   def clone(path)
-    if @cache_path and File.directory? @cache_path
+    if has_cache?
+      git "clone --reference #{@cache_path} #{@source} #{path}"
+    elsif should_cache?
+      cache
       git "clone --reference #{@cache_path} #{@source} #{path}"
     else
       git "clone #{@source} #{path}"
