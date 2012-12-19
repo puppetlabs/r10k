@@ -21,7 +21,7 @@ class R10K::Synchro::Git
     end
   end
 
-  # loldox
+  # Synchronize the local git repository.
   #
   # @param [String] path The destination path for the files
   # @param [String] ref The git ref to instantiate at the destination path
@@ -53,6 +53,12 @@ class R10K::Synchro::Git
 
   private
 
+  # Perform a non-bare clone of a git repository.
+  #
+  # If a cachedir is available and the repo is already cached, it will be
+  # used as an object reference to speed up the clone.
+  #
+  # @param [String] path The directory to create the repo working directory
   def clone(path)
     if @cache_path and File.directory? @cache_path
       git "clone --reference #{@cache_path} #{@source} #{path}"
@@ -65,6 +71,10 @@ class R10K::Synchro::Git
     git "fetch", path
   end
 
+  # Reset a git repo with a working directory to a specific ref
+  #
+  # @param [String] path The path to the working directory of the git repo
+  # @param [String] ref The git reference to reset to.
   def reset(path, ref)
     # THIS IS A TOTAL HACK.
     begin
