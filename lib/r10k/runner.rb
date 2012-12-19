@@ -9,8 +9,15 @@ class R10K::Runner
     @myself ||= self.new
   end
 
+  # Load and store a config file, and set relevant options
+  #
+  # @param [String] configfile The path to the YAML config file
   def load(configfile)
     File.open(configfile) { |fh| @config = YAML.load(fh.read) }
+
+    if @config[:cachedir]
+      R10K::Synchro::Git.cache_root = @config[:cachedir]
+    end
   rescue => e
     raise "Couldn't load #{configfile}: #{e}"
   end
@@ -18,11 +25,12 @@ class R10K::Runner
   # Serve up the loaded config if it's already been loaded, otherwise try to
   # load a config in the current wd.
   def config
-    @config ||= self.load(File.join(Dir.getwd, "config.yaml"))
+    self.load(File.join(Dir.getwd, "config.yaml")) unless @config
+
+    @config
   end
 
   def run
-    R10K::Synchro::Git.cache_root = config[:cachedir]
     roots.each do |root|
       root.sync!
 
@@ -43,7 +51,6 @@ class R10K::Runner
   end
 
   def cache_sources
-    R10K::Synchro::Git.cache_root = config[:cachedir]
     config[:sources].each_pair do |name, source|
       synchro = R10K::Synchro::Git.new(source)
       synchro.cache
@@ -55,13 +62,18 @@ class R10K::Runner
     environments = []
 
     environments << common_root
+
+    config[:sources].each_pair do |name, source|
+      synchro = R10K::Synchro::Git.new(source)
+      synchro.cache
+    end
   end
 
   def common_root
     @base ||= R10K::Root.new(
-      config[:basedir],
-      config[:installdir],
-      config[:baserepo],
+      self.config[:basedir],
+      self.config[:installdir],
+      self.config[:baserepo],
       'master')
   end
 end
