@@ -2,7 +2,6 @@ require 'r10k'
 require 'cocaine'
 require 'logger'
 
-
 module R10K::Synchro; end
 
 class R10K::Synchro::Git
@@ -14,10 +13,15 @@ class R10K::Synchro::Git
       @synchros ||= {}
     end
 
+    # Memoize class instances and return existing instances.
+    #
+    # This allows objects to mark themselves as cached to prevent unnecessary
+    # cache refreshes.
+    #
+    # @param [String] source A git remote URL
+    # @return [R10K::Synchro::Git]
     def new(source)
-      if synchros[source]
-        puts "Object cache hit on #{source}".green
-      else
+      unless synchros[source]
         puts "Object cache miss on #{source}".red
         obj = self.allocate
         obj.send :initialize, source
@@ -29,6 +33,9 @@ class R10K::Synchro::Git
 
   attr_reader :source
 
+  # Instantiates a new git synchro and optionally prepares for caching
+  #
+  # @param [String] source A git remote URL
   def initialize(source)
     @source = source
 
