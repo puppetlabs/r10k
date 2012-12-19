@@ -16,5 +16,9 @@ module R10K::CLI::Deploy
     end
   end
 
+  def self.run_parallel
+
+  end
+
   R10K::CLI.command.add_command(self.command)
 end
