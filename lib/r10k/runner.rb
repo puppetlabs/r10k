@@ -24,7 +24,6 @@ class R10K::Runner
   def run
     R10K::Synchro::Git.cache_root = config[:cachedir]
     roots.each do |root|
-
       root.sync!
 
       pids = []

@@ -29,21 +29,25 @@ class R10K::Synchro::Git
 
     path = File.expand_path(path)
 
+    if self.class.cache_root
+      cache
+    end
+
     if File.directory?(File.join(path, '.git'))
       fetch(path)
-      reset(path, ref)
     else
       clone(path)
-      reset(path, ref)
     end
+
+    reset(path, ref)
   end
 
   def cache
     if @cache_path and File.directory? @cache_path
-      git "fetch", @cache_path
+      git "--git-dir #{@cache_path} fetch"
     else
-      FileUtils.mkdir_p File.join(@cache_path)
-      git "clone --mirror #{@source} #{cachedir}"
+      FileUtils.mkdir_p File.dirname(File.join(@cache_path))
+      git "clone --mirror #{@source} #{@cache_path}"
     end
   end
 
@@ -58,9 +62,6 @@ class R10K::Synchro::Git
   end
 
   def fetch(path)
-    if @cache_path and File.directory? @cache_path
-      git "--git-dir #{@cache_path} fetch"
-    end
     git "fetch", path
   end
 
