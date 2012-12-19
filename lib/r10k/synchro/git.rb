@@ -9,6 +9,7 @@ class R10K::Synchro::Git
   class << self
     attr_accessor :cache_root
 
+    # @return [Hash<R10K::Synchro::Git>] A hash of the memoized instances
     def synchros
       @synchros ||= {}
     end
