@@ -27,15 +27,18 @@ class R10K::Runner
 
       root.sync!
 
-      threads = []
+      pids = []
       root.modules.each do |mod|
-        threads << Thread.new do
+        if (pid = Process.fork)
+          pids << pid
+        else
           mod.sync!
+          exit!(0)
         end
       end
 
-      threads.each do |thr|
-        thr.join
+      pids.each do |pid|
+        Process.waitpid(pid)
       end
     end
   end
