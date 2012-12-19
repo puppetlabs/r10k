@@ -66,14 +66,35 @@ class R10K::Runner
     config[:sources].each_pair do |name, source|
       synchro = R10K::Synchro::Git.new(source)
       synchro.cache
+
+      synchro.branches.each do |branch|
+        environments << R10K::Root.new(
+          "#{name}_#{branch}",
+          config[:envdir],
+          source,
+          branch,
+        )
+      end
+    end
+
+    environments
+  end
+
+  def root(root_name)
+    if source = config[:sources][root_name]
+      synchro = R10K::Synchro::Git.new(source)
+      synchro.cache
+      synchro.branches
+    else
+      puts "No such thingy #{root_name}"
     end
   end
 
   def common_root
     @base ||= R10K::Root.new(
-      self.config[:basedir],
-      self.config[:installdir],
-      self.config[:baserepo],
+      config[:basedir],
+      config[:installdir],
+      config[:baserepo],
       'master')
   end
 end

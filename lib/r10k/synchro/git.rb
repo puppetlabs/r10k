@@ -26,9 +26,7 @@ class R10K::Synchro::Git
   # @param [String] path The destination path for the files
   # @param [String] ref The git ref to instantiate at the destination path
   def sync(path, ref)
-
     path = File.expand_path(path)
-
     cache if should_cache?
 
     if File.directory?(File.join(path, '.git'))
@@ -51,12 +49,24 @@ class R10K::Synchro::Git
 
   # Ensure that the git repo cache is present and up to date
   def cache
+    if @cached
+      return
+    end
+
     if has_cache?
       git "--git-dir #{@cache_path} fetch"
     else
       FileUtils.mkdir_p File.dirname(File.join(@cache_path))
       git "clone --mirror #{@source} #{@cache_path}"
     end
+
+    @cached = true
+  end
+
+  def branches
+    cache
+    output = git "--git-dir #{@cache_path} branch"
+    output.split("\n").map { |str| str[2..-1] }
   end
 
   private
