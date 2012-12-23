@@ -35,10 +35,6 @@ class R10K::Config
     @config
   end
 
-  def sources
-
-  end
-
   private
 
   # Apply config settings to the relevant classes after a config has been loaded.
