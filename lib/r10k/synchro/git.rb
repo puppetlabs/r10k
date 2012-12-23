@@ -39,6 +39,7 @@ class R10K::Synchro::Git
   # @param [String] source A git remote URL
   def initialize(source)
     @source = source
+    @update_cache = true
 
     if (cache_root = self.class.cache_root)
       @cache_path = File.join(cache_root, @source.gsub(/[^@\w-]/, '-'))
@@ -51,7 +52,7 @@ class R10K::Synchro::Git
   # @param [String] ref The git ref to instantiate at the destination path
   def sync(path, ref)
     path = File.expand_path(path)
-    cache if should_cache?
+    cache if should_update_cache?
 
     if File.directory?(File.join(path, '.git'))
       fetch(path)
@@ -67,15 +68,13 @@ class R10K::Synchro::Git
     @cache_path and File.directory? @cache_path
   end
 
-  def should_cache?
-    !!(self.class.cache_root)
+  def should_update_cache?
+    @update_cache
   end
 
   # Ensure that the git repo cache is present and up to date
   def cache
-    if @cached
-      return
-    end
+    return unless @update_cache
 
     if has_cache?
       git "--git-dir #{@cache_path} fetch"
@@ -84,7 +83,7 @@ class R10K::Synchro::Git
       git "clone --mirror #{@source} #{@cache_path}"
     end
 
-    @cached = true
+    @update_cache = true
   end
 
   def branches
@@ -104,7 +103,7 @@ class R10K::Synchro::Git
   def clone(path)
     if has_cache?
       git "clone --reference #{@cache_path} #{@source} #{path}"
-    elsif should_cache?
+    elsif should_update_cache?
       cache
       git "clone --reference #{@cache_path} #{@source} #{path}"
     else
