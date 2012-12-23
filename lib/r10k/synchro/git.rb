@@ -72,6 +72,10 @@ class R10K::Synchro::Git
     @update_cache
   end
 
+  def should_update_cache(bool)
+    @update_cache = !!(bool)
+  end
+
   # Ensure that the git repo cache is present and up to date
   def cache
     return unless @update_cache
