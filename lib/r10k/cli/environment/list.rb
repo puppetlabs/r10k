@@ -1,7 +1,5 @@
-require 'r10k'
-require 'r10k/cli'
 require 'r10k/cli/environment'
-require 'r10k/runner'
+require 'r10k/deployment'
 require 'cri'
 
 module R10K::CLI::Environment::List
@@ -12,9 +10,10 @@ module R10K::CLI::Environment::List
       summary 'List all available environments'
 
       run do |opts, args, cmd|
-        output = R10K::Runner.instance.roots.inject('') do |str, root|
+        deployment = R10K::Deployment.new(R10K::Config.instance)
+        output = deployment.environments.inject('') do |str, root|
           str << "  - "
-          str << "#{root.name}: #{root.full_path} | #{root.source}:#{root.branch}"
+          str << "#{root.name}: #{root.full_path}"
           str << "\n"
         end
 

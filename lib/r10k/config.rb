@@ -5,6 +5,9 @@ require 'yaml'
 
 class R10K::Config
 
+  extend Forwardable
+  def_delegator :@config, :[]
+
   def self.instance
     @myself ||= self.new
   end
@@ -33,6 +36,10 @@ class R10K::Config
       end
     end
     @config
+  end
+
+  def setting(key)
+    config[key]
   end
 
   private
