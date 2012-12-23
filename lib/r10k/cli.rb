@@ -29,5 +29,4 @@ module R10K::CLI
   end
 end
 
-require 'r10k/cli/deploy'
 require 'r10k/cli/environment'
