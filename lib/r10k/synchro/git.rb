@@ -81,13 +81,13 @@ class R10K::Synchro::Git
     return unless @update_cache
 
     if has_cache?
-      git "--git-dir #{@cache_path} fetch"
+      git "--git-dir #{@cache_path} fetch --prune"
     else
       FileUtils.mkdir_p File.dirname(File.join(@cache_path))
       git "clone --mirror #{@source} #{@cache_path}"
     end
 
-    @update_cache = true
+    @update_cache = false
   end
 
   def branches
@@ -116,7 +116,7 @@ class R10K::Synchro::Git
   end
 
   def fetch(path)
-    git "fetch", path
+    git "fetch --prune", path
   end
 
   # Reset a git repo with a working directory to a specific ref
