@@ -1,5 +1,3 @@
-require 'r10k'
-require 'r10k/cli'
 require 'r10k/cli/environment'
 require 'r10k/runner'
 require 'cri'

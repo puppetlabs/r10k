@@ -1,7 +1,6 @@
-require 'r10k'
-require 'r10k/cli'
 require 'r10k/cli/environment'
-require 'r10k/runner'
+require 'r10k/synchro/git'
+require 'r10k/config'
 require 'cri'
 
 module R10K::CLI::Environment::Cache
