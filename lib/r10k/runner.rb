@@ -9,19 +9,25 @@ class R10K::Runner
     roots.each do |root|
       root.sync!
 
-      pids = []
       root.modules.each do |mod|
-        if (pid = Process.fork)
-          pids << pid
-        else
-          mod.sync!
-          exit!(0)
-        end
+        mod.sync!
       end
+    end
+  end
 
-      pids.each do |pid|
-        Process.waitpid(pid)
+  def parallel_fetch_mods
+    pids = []
+    root.modules.each do |mod|
+      if (pid = Process.fork)
+        pids << pid
+      else
+        mod.sync!
+        exit!(0)
       end
+    end
+
+    pids.each do |pid|
+      Process.waitpid(pid)
     end
   end
 
