@@ -12,6 +12,8 @@ module R10K::CLI::Environment::Deploy
       usage 'deploy'
       summary 'Deploy an environment'
 
+      flag :r, :recurse, 'Recursively update submodules'
+
       run do |opts, args, cmd|
         deployment = R10K::Deployment.new(R10K::Config.instance)
 
