@@ -1,8 +1,8 @@
 require 'r10k'
 
-module R10K::Module
+class R10K::Module
 
-  def self.register(klass)
+  def self.inherited(klass)
     @klasses ||= []
     @klasses << klass
   end
@@ -13,6 +13,16 @@ module R10K::Module
     else
       raise "Module #{name} with args #{args.inspect} can't be recognized."
     end
+  end
+
+  attr_accessor :name, :path
+
+  def initialize(name, path, args)
+    @name, @path, @args = name, path, args
+  end
+
+  def full_path
+    File.join(@path, @name)
   end
 end
 

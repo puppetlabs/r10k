@@ -2,9 +2,7 @@ require 'r10k'
 require 'r10k/module'
 require 'r10k/synchro/git'
 
-class R10K::Module::Git
-
-  R10K::Module.register(self)
+class R10K::Module::Git < R10K::Module
 
   def self.implements(name, args)
     args.is_a? Hash and args.has_key?(:git)
@@ -13,7 +11,7 @@ class R10K::Module::Git
   end
 
   def initialize(name, path, args)
-    @name, @path, @args = name, path, args
+    super
 
     @remote = @args[:git]
     @ref    = (@args[:ref] || 'master')
@@ -22,11 +20,5 @@ class R10K::Module::Git
   def sync!(options = {})
     synchro = R10K::Synchro::Git.new(@remote)
     synchro.sync(full_path, @ref, options)
-  end
-
-  private
-
-  def full_path
-    File.join(@path, @name)
   end
 end
