@@ -19,3 +19,6 @@ module R10K::CLI::Module
 
   R10K::CLI.command.add_command(self.command)
 end
+
+require 'r10k/cli/module/deploy'
+require 'r10k/cli/module/list'
