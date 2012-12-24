@@ -1,4 +1,5 @@
 source :rubygems
 
 gem 'cri'
-gem 'cocaine'
+gem 'shellter'
+gem 'popen4' # Needed for shellter

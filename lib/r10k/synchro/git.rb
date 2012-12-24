@@ -1,6 +1,5 @@
 require 'r10k'
-require 'cocaine'
-require 'logger'
+require 'shellter'
 
 module R10K::Synchro; end
 
@@ -69,7 +68,9 @@ class R10K::Synchro::Git
     @cache_path and File.directory? @cache_path
   end
 
-  # Ensure that the git repo cache is present and up to date
+  # Update the git object cache repository if it hasn't been done
+  #
+  # @return [true, nil] If the cache was actually updated
   def cache
     unless @cached
       cache!
@@ -122,24 +123,45 @@ class R10K::Synchro::Git
   # @param [String] path The path to the working directory of the git repo
   # @param [String] ref The git reference to reset to.
   def reset(path, ref)
-    # THIS IS A TOTAL HACK.
+
+    # Helloooo, hackery. Try to parse the ref as a commit object. If that fails
+    # this probably means that the ref is a remote branch. For the sake of
+    # brevity this code blindly makes that assumption on the failure of 
+    # `git rev-parse`.
     begin
       commit = git "rev-parse #{ref}^{commit}", path
-    rescue Cocaine::ExitStatusError
+    rescue RuntimeError => e
       commit = "origin/#{ref}"
     end
+
     git "reset --hard #{commit}", path
-    git "clean -f", path
   end
 
-  logger = ::Logger.new(STDOUT)
-  logger.datetime_format = "%I:%M %p"
-  Cocaine::CommandLine.logger = logger
+  # Wrap git commands
+  #
+  # @param [String] command_line_args The arguments for the git prompt
+  # @param [String] git_dir An optional git working directory
+  #
+  # @return [String] The git command output
+  def git(command_line_args, git_dir = nil)
+    args = []
 
+    if git_dir
+      args << "--work-tree" << git_dir
+      args << "--git-dir"   << "#{git_dir}/.git"
+    end
 
-  def git(str, path = nil)
-    git_str = path ? "git --work-tree #{path} --git-dir #{path}/.git" : "git"
-    cmd = Cocaine::CommandLine.new("#{git_str} #{str}",'', :swallow_stderr => true)
-    cmd.run
+    args << command_line_args.split(/\s+/)
+
+    result = Shellter.run!('git', args.join(' '))
+    puts "Execute: #{result.last_command}".green
+
+    stderr = result.stderr.read
+    stdout = result.stdout.read
+
+    puts stdout.blue unless stdout.empty?
+    puts stderr.red  unless stderr.empty?
+
+    stdout
   end
 end
