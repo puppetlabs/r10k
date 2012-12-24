@@ -30,3 +30,4 @@ module R10K::CLI
 end
 
 require 'r10k/cli/environment'
+require 'r10k/cli/module'

@@ -1,12 +1,12 @@
 require 'r10k/cli'
 require 'cri'
 
-module R10K::CLI::Environment
+module R10K::CLI::Module
   def self.command
     @cmd ||= Cri::Command.define do
-      name  'environment'
-      usage 'environment <subcommand>'
-      summary 'Operate on a specific environment'
+      name  'module'
+      usage 'module <subcommand>'
+      summary 'Operate on a specific puppet module'
 
       required :e, :environment, 'Specify a particular environment'
 
@@ -19,7 +19,3 @@ module R10K::CLI::Environment
 
   R10K::CLI.command.add_command(self.command)
 end
-
-require 'r10k/cli/environment/list'
-require 'r10k/cli/environment/deploy'
-require 'r10k/cli/environment/cache'
