@@ -19,9 +19,9 @@ class R10K::Module::Git
     @ref    = (@args[:ref] || 'master')
   end
 
-  def sync!
+  def sync!(options = {})
     synchro = R10K::Synchro::Git.new(@remote)
-    synchro.sync(full_path, @ref)
+    synchro.sync(full_path, @ref, options)
   end
 
   private
