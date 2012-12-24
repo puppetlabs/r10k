@@ -13,13 +13,13 @@ module R10K::CLI::Environment::Deploy
 
       flag :r, :recurse, 'Recursively update submodules'
 
-      flag :u, :update, "Don't update module cache data"
+      required :u, :update, "Enable or disable cache updating"
 
       run do |opts, args, cmd|
         deployment = R10K::Deployment.instance
         env_list   = deployment.environments
 
-        update_cache = (defined? opts[:update]) ? opts[:update] : true
+        update_cache = (defined? opts[:update]) ? (opts[:update] == 'true') : false
 
         if opts[:environment]
           environments = env_list.select {|env| env.name == opts[:environment]}
@@ -28,9 +28,14 @@ module R10K::CLI::Environment::Deploy
         end
 
         environments.each do |env|
-          puts "Synchronizing environment #{env.name}"
           FileUtils.mkdir_p env.full_path
           env.sync! :update_cache => update_cache
+
+          if opts[:recurse]
+            env.modules.each do |mod|
+              mod.sync! :update_cache => update_cache
+            end
+          end
         end
       end
     end
