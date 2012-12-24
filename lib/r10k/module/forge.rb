@@ -15,7 +15,7 @@ class R10K::Module::Forge
     @version = args
   end
 
-  def sync!
+  def sync!(options = {})
     puts "#{self.class.name}#sync! is not implemented. Doing nothing."
   end
 
