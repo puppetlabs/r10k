@@ -1,4 +1,5 @@
 require 'r10k'
+require 'r10k/synchro/git'
 
 class R10K::Deployment
   # Model a full installation of module directories and modules.
@@ -9,9 +10,9 @@ class R10K::Deployment
 
   def initialize
     @configfile = File.join(Dir.getwd, "config.yaml")
+    @update_cache = true
   end
 
-  attr_accessor :updatecache
   attr_accessor :configfile
 
   # Load up all module roots
@@ -20,14 +21,14 @@ class R10K::Deployment
   def environments
     environments = []
 
-    @config.setting(:sources).each_pair do |name, source|
+    setting(:sources).each_pair do |name, source|
       synchro = R10K::Synchro::Git.new(source)
       synchro.cache
 
       synchro.branches.each do |branch|
         environments << R10K::Root.new(
           "#{name}_#{branch}",
-          @config.setting(:envdir),
+          setting(:envdir),
           source,
           branch,
         )
