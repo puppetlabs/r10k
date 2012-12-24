@@ -24,9 +24,9 @@ class R10K::Root
     @name, @path, @source, @branch = name, path, source, branch
   end
 
-  def sync!
+  def sync!(options = {})
     synchro = R10K::Synchro::Git.new(@source)
-    synchro.sync(full_path, @branch)
+    synchro.sync(full_path, @branch, options)
   end
 
   def modules
