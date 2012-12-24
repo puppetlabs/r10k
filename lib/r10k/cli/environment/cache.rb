@@ -1,6 +1,5 @@
 require 'r10k/cli/environment'
 require 'r10k/synchro/git'
-require 'r10k/config'
 require 'cri'
 
 module R10K::CLI::Environment::Cache
@@ -11,7 +10,7 @@ module R10K::CLI::Environment::Cache
       summary 'Update cache for all sources'
 
       run do |opts, args, cmd|
-        R10K::Config.instance.config[:sources].each_pair do |name, source|
+        R10K::Deployment.instance[:sources].each_pair do |name, source|
           synchro = R10K::Synchro::Git.new(source)
           synchro.cache
         end

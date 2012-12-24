@@ -18,11 +18,11 @@ module R10K::CLI
       end
 
       required :c, :config, 'Specify a configuration file' do |value, cmd|
-        R10K::Config.instance.load(value)
+        R10K::Deployment.instance.configfile = value
       end
 
       flag :u, :updatecache, 'Update cache when running' do
-        R10K::Config.instance.updatecache(true)
+        R10K::deployment.instance.updatecache = true
       end
 
       run do |opts, args, cmd|

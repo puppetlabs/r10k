@@ -1,6 +1,5 @@
 require 'r10k/cli/environment'
 require 'r10k/deployment'
-require 'r10k/config'
 require 'cri'
 
 require 'fileutils'
@@ -15,7 +14,7 @@ module R10K::CLI::Environment::Deploy
       flag :r, :recurse, 'Recursively update submodules'
 
       run do |opts, args, cmd|
-        deployment = R10K::Deployment.new(R10K::Config.instance)
+        deployment = R10K::Deployment.instance
 
         if opts[:environment]
           environments = deployment.environments.select {|env| env.name == opts[:environment]}
