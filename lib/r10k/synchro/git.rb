@@ -36,7 +36,6 @@ class R10K::Synchro::Git
     # @return [R10K::Synchro::Git]
     def new(source)
       unless synchros[source]
-        puts "Object cache miss on #{source}".red
         obj = self.allocate
         obj.send :initialize, source
         synchros[source] = obj
