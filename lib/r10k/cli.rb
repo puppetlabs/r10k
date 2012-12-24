@@ -21,10 +21,6 @@ module R10K::CLI
         R10K::Deployment.instance.configfile = value
       end
 
-      flag :u, :updatecache, 'Update cache when running' do
-        R10K::deployment.instance.updatecache = true
-      end
-
       run do |opts, args, cmd|
         puts cmd.help
         exit 0
