@@ -1,23 +1,24 @@
 require 'r10k/cli'
 require 'cri'
 
-module R10K::CLI::Environment
-  def self.command
-    @cmd ||= Cri::Command.define do
-      name  'environment'
-      usage 'environment <subcommand>'
-      summary 'Operate on a specific environment'
+module R10K::CLI
+  module Environment
+    def self.command
+      @cmd ||= Cri::Command.define do
+        name  'environment'
+        usage 'environment <subcommand>'
+        summary 'Operate on a specific environment'
 
-      required :e, :environment, 'Specify a particular environment'
+        required :e, :environment, 'Specify a particular environment'
 
-      run do |opts, args, cmd|
-        puts cmd.help
-        exit 0
+        run do |opts, args, cmd|
+          puts cmd.help
+          exit 0
+        end
       end
     end
   end
-
-  R10K::CLI.command.add_command(self.command)
+  self.command.add_command(Environment.command)
 end
 
 require 'r10k/cli/environment/list'
