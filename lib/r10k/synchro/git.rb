@@ -8,6 +8,19 @@ class R10K::Synchro::Git
 
   class << self
     attr_accessor :cache_root
+    attr_accessor :should_update_cache
+
+    def should_update_cache
+      if defined? @should_update_cache
+        @should_update_cache
+      else
+        true
+      end
+    end
+
+    def should_update_cache=(bool)
+      @should_update_cache = !!(bool)
+    end
 
     # @return [Hash<R10K::Synchro::Git>] A hash of the memoized instances
     def synchros
@@ -39,10 +52,10 @@ class R10K::Synchro::Git
   # @param [String] source A git remote URL
   def initialize(source)
     @source = source
-    @update_cache = true
+    @should_update_cache = self.class.should_update_cache
 
-    if (cache_root = self.class.cache_root)
-      @cache_path = File.join(cache_root, @source.gsub(/[^@\w-]/, '-'))
+    if self.class.cache_root
+      @cache_path = File.join(self.class.cache_root, @source.gsub(/[^@\w-]/, '-'))
     end
   end
 
@@ -78,8 +91,6 @@ class R10K::Synchro::Git
 
   # Ensure that the git repo cache is present and up to date
   def cache
-    return unless @update_cache
-
     if has_cache?
       git "--git-dir #{@cache_path} fetch --prune"
     else
