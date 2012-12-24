@@ -8,21 +8,8 @@ class R10K::Synchro::Git
 
   class << self
     attr_accessor :cache_root
-    attr_accessor :should_update_cache
 
-    def should_update_cache
-      if defined? @should_update_cache
-        @should_update_cache
-      else
-        true
-      end
-    end
-
-    def should_update_cache=(bool)
-      @should_update_cache = !!(bool)
-    end
-
-    # @return [Hash<R10K::Synchro::Git>] A hash of the memoized instances
+    # @return [Hash<R10K::Synchro::Git>] A hash of memoized class instances
     def synchros
       @synchros ||= {}
     end
@@ -37,7 +24,7 @@ class R10K::Synchro::Git
     def new(source)
       unless synchros[source]
         obj = self.allocate
-        obj.send :initialize, source
+        obj.send(:initialize, source)
         synchros[source] = obj
       end
       synchros[source]
@@ -51,7 +38,6 @@ class R10K::Synchro::Git
   # @param [String] source A git remote URL
   def initialize(source)
     @source = source
-    @should_update_cache = self.class.should_update_cache
 
     if self.class.cache_root
       @cache_path = File.join(self.class.cache_root, @source.gsub(/[^@\w-]/, '-'))
@@ -62,9 +48,12 @@ class R10K::Synchro::Git
   #
   # @param [String] path The destination path for the files
   # @param [String] ref The git ref to instantiate at the destination path
-  def sync(path, ref)
+  def sync(path, ref, options = {:update_cache => true})
     path = File.expand_path(path)
-    cache if should_update_cache?
+
+    if options[:update_cache]
+      cache
+    end
 
     if File.directory?(File.join(path, '.git'))
       fetch(path)
@@ -80,24 +69,22 @@ class R10K::Synchro::Git
     @cache_path and File.directory? @cache_path
   end
 
-  def should_update_cache?
-    @update_cache
-  end
-
-  def should_update_cache(bool)
-    @update_cache = !!(bool)
-  end
-
   # Ensure that the git repo cache is present and up to date
   def cache
+    unless @cached
+      cache!
+      @cached = true
+    end
+  end
+
+  # Force a cache refresh
+  def cache!
     if has_cache?
       git "--git-dir #{@cache_path} fetch --prune"
     else
       FileUtils.mkdir_p File.dirname(File.join(@cache_path))
       git "clone --mirror #{@source} #{@cache_path}"
     end
-
-    @update_cache = false
   end
 
   def branches
@@ -117,16 +104,17 @@ class R10K::Synchro::Git
   def clone(path)
     if has_cache?
       git "clone --reference #{@cache_path} #{@source} #{path}"
-    elsif should_update_cache?
-      cache
-      git "clone --reference #{@cache_path} #{@source} #{path}"
     else
       git "clone #{@source} #{path}"
     end
   end
 
   def fetch(path)
-    git "fetch --prune", path
+    if has_cache?
+      git "fetch --prune #{@cache_path}", path
+    else
+      git "fetch --prune", path
+    end
   end
 
   # Reset a git repo with a working directory to a specific ref
@@ -151,7 +139,7 @@ class R10K::Synchro::Git
 
   def git(str, path = nil)
     git_str = path ? "git --work-tree #{path} --git-dir #{path}/.git" : "git"
-    cmd = Cocaine::CommandLine.new("#{git_str} #{str}")
+    cmd = Cocaine::CommandLine.new("#{git_str} #{str}",'', :swallow_stderr => true)
     cmd.run
   end
 end
