@@ -12,20 +12,20 @@ class R10K::Root
   #   The basedir to clone the root into
   attr_reader :basedir
 
-  # @!attribute [r] source
+  # @!attribute [r] remote
   #   The location of the remote git repository
-  attr_reader :source
+  attr_reader :remote
 
   # @!attribute [r] branch
   #   The git branch to instantiate into the basedir
   attr_reader :branch
 
-  def initialize(name, basedir, source, branch)
-    @name, @basedir, @source, @branch = name, basedir, source, branch
+  def initialize(name, basedir, remote, branch)
+    @name, @basedir, @remote, @branch = name, basedir, remote, branch
   end
 
   def sync!(options = {})
-    synchro = R10K::Synchro::Git.new(@source)
+    synchro = R10K::Synchro::Git.new(@remote)
     synchro.sync(full_path, @branch, options)
   end
 
