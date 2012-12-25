@@ -8,20 +8,20 @@ class R10K::Root
   #   The directory name of this root
   attr_reader :name
 
-  # @!attribute [r] path
-  #   The path to clone the root into
-  attr_reader :path
+  # @!attribute [r] basedir
+  #   The basedir to clone the root into
+  attr_reader :basedir
 
   # @!attribute [r] source
   #   The location of the remote git repository
   attr_reader :source
 
   # @!attribute [r] branch
-  #   The git branch to instantiate into the path
+  #   The git branch to instantiate into the basedir
   attr_reader :branch
 
-  def initialize(name, path, source, branch)
-    @name, @path, @source, @branch = name, path, source, branch
+  def initialize(name, basedir, source, branch)
+    @name, @basedir, @source, @branch = name, basedir, source, branch
   end
 
   def sync!(options = {})
@@ -44,6 +44,6 @@ class R10K::Root
   end
 
   def full_path
-    File.expand_path(File.join @path, @name)
+    File.expand_path(File.join @basedir, @name)
   end
 end
