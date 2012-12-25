@@ -9,7 +9,7 @@ class R10K::Deployment
   end
 
   def initialize
-    @configfile = File.join(Dir.getwd, "config.yaml")
+    @configfile   = File.join(Dir.getwd, "config.yaml")
     @update_cache = true
   end
 
@@ -21,17 +21,16 @@ class R10K::Deployment
   def environments
     environments = []
 
-    setting(:sources).each_pair do |name, source|
-      synchro = R10K::Synchro::Git.new(source)
+    setting(:sources).each_pair do |name, config|
+      synchro = R10K::Synchro::Git.new(config['remote'])
       synchro.cache
 
-      synchro.branches.each do |branch|
-        environments << R10K::Root.new(
-          "#{name}_#{branch}",
-          setting(:envdir),
-          source,
-          branch,
-        )
+      if config['ref']
+        environments << R10K::Root.new(config)
+      else
+        synchro.branches.each do |branch|
+          environments << R10K::Root.new(config.merge({'ref' => branch}))
+        end
       end
     end
 
