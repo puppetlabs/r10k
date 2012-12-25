@@ -9,7 +9,7 @@ class R10K::Synchro::Git
   # This class is built to be a general purpose mechanism for syncing and
   # caching git repositories.
   #
-  # Class instances are memoized based on the git source path. This way if a
+  # Class instances are memoized based on the git remote path. This way if a
   # single git repository is instantiated multiple times, the object cache
   # will only be updated once.
 
@@ -26,28 +26,28 @@ class R10K::Synchro::Git
     # This allows objects to mark themselves as cached to prevent unnecessary
     # cache refreshes.
     #
-    # @param [String] source A git remote URL
+    # @param [String] remote A git remote URL
     # @return [R10K::Synchro::Git]
-    def new(source)
-      unless synchros[source]
+    def new(remote)
+      unless synchros[remote]
         obj = self.allocate
-        obj.send(:initialize, source)
-        synchros[source] = obj
+        obj.send(:initialize, remote)
+        synchros[remote] = obj
       end
-      synchros[source]
+      synchros[remote]
     end
   end
 
-  attr_reader :source
+  attr_reader :remote
 
   # Instantiates a new git synchro and optionally prepares for caching
   #
-  # @param [String] source A git remote URL
-  def initialize(source)
-    @source = source
+  # @param [String] remote A git remote URL
+  def initialize(remote)
+    @remote = remote
 
     if self.class.cache_root
-      @cache_path = File.join(self.class.cache_root, @source.gsub(/[^@\w-]/, '-'))
+      @cache_path = File.join(self.class.cache_root, @remote.gsub(/[^@\w-]/, '-'))
     end
   end
 
@@ -88,7 +88,7 @@ class R10K::Synchro::Git
       git "--git-dir #{@cache_path} fetch --prune"
     else
       FileUtils.mkdir_p File.dirname(File.join(@cache_path))
-      git "clone --mirror #{@source} #{@cache_path}"
+      git "clone --mirror #{@remote} #{@cache_path}"
     end
   end
 
@@ -112,9 +112,9 @@ class R10K::Synchro::Git
   # @param [String] path The directory to create the repo working directory
   def clone(path)
     if has_cache?
-      git "clone --reference #{@cache_path} #{@source} #{path}"
+      git "clone --reference #{@cache_path} #{@remote} #{path}"
     else
-      git "clone #{@source} #{path}"
+      git "clone #{@remote} #{path}"
     end
   end
 
