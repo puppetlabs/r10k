@@ -11,7 +11,7 @@ module R10K::CLI::Environment
         summary 'List all available environments'
 
         run do |opts, args, cmd|
-          deployment = R10K::Deployment.new(R10K::Config.instance)
+          deployment = R10K::Deployment.instance
           output = deployment.environments.inject('') do |str, root|
             str << "  - "
             str << "#{root.name}: #{root.full_path}"
