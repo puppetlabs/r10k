@@ -57,17 +57,13 @@ class R10K::Synchro::Git
   # @param [String] ref The git ref to instantiate at the destination path
   def sync(path, ref, options = {:update_cache => true})
     path = File.expand_path(path)
-
-    if options[:update_cache]
-      cache
-    end
+    cache if options[:update_cache]
 
     if File.directory?(File.join(path, '.git'))
       fetch(path)
     else
       clone(path)
     end
-
     reset(path, ref)
   end
 
