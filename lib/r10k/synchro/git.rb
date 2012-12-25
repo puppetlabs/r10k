@@ -4,6 +4,14 @@ require 'shellter'
 module R10K::Synchro; end
 
 class R10K::Synchro::Git
+  # Define a thingy that can synchronize git repositories.
+  #
+  # This class is built to be a general purpose mechanism for syncing and
+  # caching git repositories.
+  #
+  # Class instances are memoized based on the git source path. This way if a
+  # single git repository is instantiated multiple times, the object cache
+  # will only be updated once.
 
   class << self
     attr_accessor :cache_root
@@ -88,6 +96,10 @@ class R10K::Synchro::Git
     end
   end
 
+  # Retrieve a list of cached branches for the git repo associated with this
+  # object.
+  #
+  # @return [Array<String>] A list of all cached remote branches
   def branches
     cache
     output = git "--git-dir #{@cache_path} branch"
