@@ -147,17 +147,7 @@ class R10K::Synchro::Git
   # @param [String] path The path to the working directory of the git repo
   # @param [String] ref The git reference to reset to.
   def reset(path, ref)
-
-    # Helloooo, hackery. Try to parse the ref as a commit object. If that fails
-    # this probably means that the ref is a remote branch. For the sake of
-    # brevity this code blindly makes that assumption on the failure of 
-    # `git rev-parse`.
-    begin
-      commit = git "--git-dir #{@cache_path} rev-parse #{ref}^{commit}"
-    rescue RuntimeError => e
-      commit = "origin/#{ref}"
-    end
-
+    commit = git "--git-dir #{@cache_path} rev-parse #{ref}^{commit}"
     git "reset --hard #{commit}", path
   end
 
