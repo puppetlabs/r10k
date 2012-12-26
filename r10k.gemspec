@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
 
   s.authors     = "Adrien Thebo"
-  s.authors     = "adrien@somethingsinistral.net"
+  s.email       = "adrien@somethingsinistral.net"
   s.homepage    = "http://github.com/adrienthebo/r10k"
   s.summary     = "Dynamic Puppet environments with Git"
   s.description = <<-DESCRIPTION
