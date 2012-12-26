@@ -1,5 +1,6 @@
 require 'r10k'
 require 'shellter'
+require 'fileutils'
 
 module R10K::Synchro; end
 
@@ -114,6 +115,7 @@ class R10K::Synchro::Git
     if has_cache?
       git "clone --reference #{@cache_path} #{@remote} #{path}"
     else
+      FileUtils.mkdir_p path unless File.directory? path
       git "clone #{@remote} #{path}"
     end
   end
