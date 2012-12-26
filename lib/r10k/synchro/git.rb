@@ -60,7 +60,7 @@ class R10K::Synchro::Git
     path = File.expand_path(path)
     cache if options[:update_cache]
 
-    if File.directory?(File.join(path, '.git'))
+    if self.cloned?(path)
       fetch(path)
     else
       clone(path)
@@ -71,6 +71,15 @@ class R10K::Synchro::Git
   # @return [TrueClass] if the git repository is cached
   def has_cache?
     @cache_path and File.directory? @cache_path
+  end
+
+  # Determine if repo has been cloned into a specific dir
+  #
+  # @param [String] dirname The directory to check
+  #
+  # @return [true, false] If the repo has already been cloned
+  def cloned?(directory)
+    File.directory?(File.join(path, '.git'))
   end
 
   # Update the git object cache repository if it hasn't been done
