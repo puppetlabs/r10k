@@ -26,7 +26,16 @@ class R10K::Root
 
   def sync!(options = {})
     synchro = R10K::Synchro::Git.new(@remote)
+    recursive_needed = !(synchro.cloned?(full_path))
     synchro.sync(full_path, @ref, options)
+
+    sync_modules!(options) if recursive_needed
+  end
+
+  def sync_modules!(options = {})
+    modules.each do |mod|
+      mod.sync!(options)
+    end
   end
 
   def modules
