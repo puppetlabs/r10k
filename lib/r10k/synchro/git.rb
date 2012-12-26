@@ -148,7 +148,7 @@ class R10K::Synchro::Git
     # brevity this code blindly makes that assumption on the failure of 
     # `git rev-parse`.
     begin
-      commit = git "rev-parse #{ref}^{commit}", path
+      commit = git "--git-dir #{@cache_path} rev-parse #{ref}^{commit}"
     rescue RuntimeError => e
       commit = "origin/#{ref}"
     end
