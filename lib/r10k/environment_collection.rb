@@ -29,7 +29,7 @@ class R10K::EnvironmentCollection
 
   # @return [Array<R10K::Root>]
   def to_a
-    load_all
+    @environments
   end
 
   private
