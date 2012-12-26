@@ -97,7 +97,7 @@ class R10K::Synchro::Git
     if has_cache?
       git "--git-dir #{@cache_path} fetch --prune"
     else
-      FileUtils.mkdir_p File.dirname(File.join(@cache_path))
+      mk_cache_root
       git "clone --mirror #{@remote} #{@cache_path}"
     end
   end
@@ -113,6 +113,11 @@ class R10K::Synchro::Git
   end
 
   private
+
+  def mk_cache_root
+    cache_root = self.class.cache_root
+    FileUtils.mkdir_p cache_root unless File.exist? cache_root
+  end
 
   # Perform a non-bare clone of a git repository.
   #
