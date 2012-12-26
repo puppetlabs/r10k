@@ -1,6 +1,7 @@
 require 'r10k'
 require 'r10k/synchro/git'
 require 'r10k/environment_collection'
+require 'yaml'
 
 class R10K::Deployment
   # Model a full installation of module directories and modules.
