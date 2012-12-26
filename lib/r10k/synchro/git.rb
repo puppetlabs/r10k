@@ -79,7 +79,7 @@ class R10K::Synchro::Git
   #
   # @return [true, false] If the repo has already been cloned
   def cloned?(directory)
-    File.directory?(File.join(path, '.git'))
+    File.directory?(File.join(directory, '.git'))
   end
 
   # Update the git object cache repository if it hasn't been done
