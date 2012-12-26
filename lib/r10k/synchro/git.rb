@@ -48,7 +48,7 @@ class R10K::Synchro::Git
     @remote = remote
 
     if self.class.cache_root
-      @cache_path = File.join(self.class.cache_root, @remote.gsub(/[^@\w-]/, '-'))
+      @cache_path = File.join(self.class.cache_root, @remote.gsub(/[^@\w\.-]/, '-'))
     end
   end
 
