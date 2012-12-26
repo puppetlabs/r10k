@@ -27,13 +27,7 @@ class R10K::Deployment
   # Serve up the loaded config if it's already been loaded, otherwise try to
   # load a config in the current wd.
   def config
-    unless @config
-      begin
-        load_config
-      rescue => e
-        raise "Couldn't load default config #{default_config}: #{e}"
-      end
-    end
+    load_config unless @config
     @config
   end
 
