@@ -40,6 +40,7 @@ class R10K::Root
       R10K::Module.new(name, "#{full_path}/modules", args)
     end
   rescue Errno::ENOENT
+    puts "#{self}: #{full_path} does not exist, cannot enumerate modules."
     []
   end
 
