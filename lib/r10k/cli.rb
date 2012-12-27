@@ -21,6 +21,8 @@ module R10K::CLI
         R10K::Deployment.instance.configfile = value
       end
 
+      flag :t, :trace, 'Display stack traces on application crash'
+
       run do |opts, args, cmd|
         puts cmd.help
         exit 0

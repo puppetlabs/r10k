@@ -1,5 +1,13 @@
 #!/usr/bin/env ruby
 
 require 'r10k/cli'
+require 'colored'
 
-R10K::CLI.command.run(ARGV)
+begin
+  cmd = R10K::CLI.command
+  cmd.run(ARGV)
+rescue Exception => e
+  $stderr.puts "Runtime error: #{e.inspect}".red
+  $stderr.puts e.backtrace.join("\n").red if ARGV.include? '--trace'
+  exit 1
+end
