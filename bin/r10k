@@ -4,8 +4,7 @@ require 'r10k/cli'
 require 'colored'
 
 begin
-  cmd = R10K::CLI.command
-  cmd.run(ARGV)
+  R10K::CLI.command.run(ARGV)
 rescue Exception => e
   $stderr.puts "Runtime error: #{e.inspect}".red
   $stderr.puts e.backtrace.join("\n").red if ARGV.include? '--trace'
