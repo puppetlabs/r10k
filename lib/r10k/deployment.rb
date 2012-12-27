@@ -21,8 +21,7 @@ class R10K::Deployment
   #
   # @return [Array<R10K::Root>]
   def environments
-    collection = R10K::EnvironmentCollection.new(config)
-    collection.to_a
+    @collection.to_a
   end
 
   # Serve up the loaded config if it's already been loaded, otherwise try to
@@ -56,5 +55,6 @@ class R10K::Deployment
     if @config[:cachedir]
       R10K::Synchro::Git.cache_root = @config[:cachedir]
     end
+    @collection = R10K::EnvironmentCollection.new(@config)
   end
 end
