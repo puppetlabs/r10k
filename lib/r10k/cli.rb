@@ -33,3 +33,4 @@ end
 
 require 'r10k/cli/environment'
 require 'r10k/cli/module'
+require 'r10k/cli/cache'
