@@ -21,6 +21,7 @@ class R10K::Deployment
   #
   # @return [Array<R10K::Root>]
   def environments
+    load_config unless @config
     @collection.to_a
   end
 
