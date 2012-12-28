@@ -5,6 +5,8 @@ require 'colored'
 
 begin
   R10K::CLI.command.run(ARGV)
+rescue SystemExit => e
+  exit(e.status)
 rescue Exception => e
   $stderr.puts "Runtime error: #{e.inspect}".red
   $stderr.puts e.backtrace.join("\n").red if ARGV.include? '--trace'
