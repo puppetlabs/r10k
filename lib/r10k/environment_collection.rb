@@ -4,13 +4,20 @@ class R10K::EnvironmentCollection
 
   attr_reader :update_cache
 
-  def initialize(config, options = {:update_cache => true})
+  def initialize(config, options = {:update_cache => false})
     @config       = config
     @environments = []
 
     @update_cache = options.delete(:update_cache)
-
     load_all
+  end
+
+  def current(basedir)
+    basedir = File.expand_path(basedir)
+    tracked_envs = @environments.select do |env|
+      envdir = File.expand_path(env.basedir)
+      envdir == basedir
+    end
   end
 
   # List subdirectories that aren't associated with an env
@@ -23,8 +30,15 @@ class R10K::EnvironmentCollection
   # @param [String] basedir The directory to scan
   #
   # @return [Array<String>] A list of filenames
-  def untracked_environments(basedir)
-    raise NotImplementedError
+  def stale(basedir)
+    basedir = File.expand_path(basedir)
+
+    all_dirs = Dir.glob("#{basedir}/*").map do |file|
+      File.basename(file) if File.directory?(file)
+    end.compact
+    current_dirs = current(basedir).map(&:name)
+
+    all_dirs - current_dirs
   end
 
   # @return [Array<R10K::Root>]

@@ -21,8 +21,12 @@ class R10K::Deployment
   #
   # @return [Array<R10K::Root>]
   def environments
+    collection.to_a
+  end
+
+  def collection
     load_config unless @config
-    @collection.to_a
+    @collection
   end
 
   # Serve up the loaded config if it's already been loaded, otherwise try to

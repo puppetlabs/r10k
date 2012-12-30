@@ -23,3 +23,4 @@ end
 
 require 'r10k/cli/environment/list'
 require 'r10k/cli/environment/deploy'
+require 'r10k/cli/environment/stale'
