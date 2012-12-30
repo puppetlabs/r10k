@@ -167,14 +167,14 @@ class R10K::Synchro::Git
 
     args << command_line_args.split(/\s+/)
 
-    puts "Execute: git #{args.join(' ')}"
+    #puts "Execute: git #{args.join(' ')}"
     result = Shellter.run!('git', args.join(' '))
 
     stderr = result.stderr.read
     stdout = result.stdout.read
 
-    puts stdout.blue unless stdout.empty?
-    puts stderr.red  unless stderr.empty?
+    #puts stdout.blue unless stdout.empty?
+    #puts stderr.red  unless stderr.empty?
 
     stdout
   end
