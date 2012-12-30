@@ -106,8 +106,8 @@ class R10K::Synchro::Git
   # object.
   #
   # @return [Array<String>] A list of all cached remote branches
-  def branches
-    cache
+  def branches(options = {:update_cache => false})
+    cache if options[:update_cache]
     output = git "--git-dir #{@cache_path} branch"
     output.split("\n").map { |str| str[2..-1] }
   end
