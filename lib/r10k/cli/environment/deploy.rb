@@ -1,6 +1,8 @@
 require 'r10k/cli/environment'
 require 'r10k/deployment'
 require 'cri'
+require 'middleware'
+require 'r10k/action/environment/deploy'
 
 require 'fileutils'
 
@@ -28,16 +30,19 @@ module R10K::CLI::Environment
             environments = env_list
           end
 
-          environments.each do |env|
-            FileUtils.mkdir_p env.full_path
-            env.sync! :update_cache => update_cache
-
-            if opts[:recurse]
-              env.modules.each do |mod|
-                mod.sync! :update_cache => update_cache
-              end
+          stack = Middleware::Builder.new do
+            environments.each do |env|
+              use R10K::Action::Environment::Deploy, env
             end
           end
+
+          # Prepare middleware environment
+          stack_env = {
+            :update_cache => update_cache,
+            :recurse      => opts[:recurse],
+          }
+
+          stack.call(stack_env)
         end
       end
     end
