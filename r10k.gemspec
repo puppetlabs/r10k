@@ -19,9 +19,10 @@ Gem::Specification.new do |s|
     deployment is as fast as possible.
     DESCRIPTION
 
-  s.add_dependency 'cri',      '~> 2.3.0'
-  s.add_dependency 'shellter', '~> 0.9.6'
-  s.add_dependency 'popen4',   '~> 0.1.2'
+  s.add_dependency 'cri',       '~> 2.3.0'
+  s.add_dependency 'shellter',  '~> 0.9.6'
+  s.add_dependency 'popen4',    '~> 0.1.2'
+  s.add_dependency 'middleware','~> 0.1.0'
 
   #s.add_development_dependency 'rspec', '~> 2.10.0'
   #s.add_development_dependency 'mocha', '~> 0.10.5'
