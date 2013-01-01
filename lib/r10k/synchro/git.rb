@@ -177,5 +177,7 @@ class R10K::Synchro::Git
     #puts stderr.red  unless stderr.empty?
 
     stdout
+  rescue RuntimeError => e
+    raise RuntimeError, "Command #{Shellter.last_command.inspect} exited with value #{e.value}"
   end
 end
