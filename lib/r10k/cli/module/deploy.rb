@@ -21,8 +21,7 @@ module R10K::CLI::Module
             exit 1
           end
 
-          deployment = R10K::Deployment.instance
-          env_list   = deployment.environments
+          env_list = R10K::Deployment.instance.environments
 
           if opts[:environment]
             environments = env_list.select {|env| env.name == opts[:environment]}
@@ -31,7 +30,6 @@ module R10K::CLI::Module
           end
 
           environments.each do |env|
-
             mods = env.modules.select { |mod| mod.name == module_name }
 
             if mods.empty?
@@ -40,9 +38,7 @@ module R10K::CLI::Module
             end
 
             stack = Middleware::Builder.new
-            mods.each do |mod|
-              stack.use R10K::Action::Module::Deploy, mod
-            end
+            mods.each { |mod| stack.use R10K::Action::Module::Deploy, mod }
 
             stack_env = { :update_cache => opts[:update] }
 
