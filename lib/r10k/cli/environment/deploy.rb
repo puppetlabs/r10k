@@ -21,8 +21,8 @@ module R10K::CLI::Environment
           deployment = R10K::Deployment.instance
           env_list   = deployment.environments
 
-          if opts[:environment]
-            environments = env_list.select {|env| env.name == opts[:environment]}
+          if not args.empty?
+            environments = env_list.select {|env| args.include? env.name }
           else
             environments = env_list
           end
