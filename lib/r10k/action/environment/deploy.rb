@@ -28,9 +28,7 @@ class R10K::Action::Environment::Deploy
     if @env[:recurse]
       # Build a new middleware chain and run it
       stack = Middleware::Builder.new
-
       @root.modules.each { |mod| stack.use R10K::Action::Module::Deploy, mod }
-
       stack.call(@env)
     end
 
