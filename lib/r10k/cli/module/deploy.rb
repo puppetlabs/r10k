@@ -9,10 +9,10 @@ module R10K::CLI::Module
     def self.command
       @cmd ||= Cri::Command.define do
         name  'deploy'
-        usage 'deploy <module name>'
+        usage 'deploy [module name] <module name> ...'
         summary 'Deploy a module'
 
-        required :u, :update, "Enable or disable cache updating"
+        flag :u, :update, "Update module cache"
 
         run do |opts, args, cmd|
 
@@ -24,8 +24,6 @@ module R10K::CLI::Module
           deployment = R10K::Deployment.instance
           env_list   = deployment.environments
 
-          update_cache = (defined? opts[:update]) ? (opts[:update] == 'true') : false
-
           if opts[:environment]
             environments = env_list.select {|env| env.name == opts[:environment]}
           else
@@ -33,8 +31,6 @@ module R10K::CLI::Module
           end
 
           environments.each do |env|
-            FileUtils.mkdir_p env.full_path
-            env.sync! :update_cache => update_cache
 
             mods = env.modules.select { |mod| mod.name == module_name }
 
@@ -43,9 +39,14 @@ module R10K::CLI::Module
               exit 1
             end
 
+            stack = Middleware::Builder.new
             mods.each do |mod|
-              mod.sync! :update_cache => update_cache
+              stack.use R10K::Action::Module::Deploy, mod
             end
+
+            stack_env = { :update_cache => opts[:update] }
+
+            stack.call(stack_env)
           end
         end
       end
