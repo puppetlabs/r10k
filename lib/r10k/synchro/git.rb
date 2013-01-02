@@ -58,7 +58,7 @@ class R10K::Synchro::Git
   # @param [String] ref The git ref to instantiate at the destination path
   def sync(path, ref, options = {:update_cache => true})
     path = File.expand_path(path)
-    cache if options[:update_cache]
+    sync_cache(options)
 
     if self.cloned?(path)
       fetch(path)
@@ -107,12 +107,22 @@ class R10K::Synchro::Git
   #
   # @return [Array<String>] A list of all cached remote branches
   def branches(options = {:update_cache => false})
-    cache if options[:update_cache] or not has_cache?
+    sync_cache(options)
     output = git "--git-dir #{@cache_path} branch"
     output.split("\n").map { |str| str[2..-1] }
   end
 
   private
+
+  # XXX The use of options[:update_cache] is getting ugly. Consider refactor
+  def sync_cache(options)
+    if options[:update_cache]
+      cache
+    elsif not cached?
+      puts "Forcing cache build for #{@remote}"
+      cache
+    end
+  end
 
   def mk_cache_root
     cache_root = self.class.cache_root
