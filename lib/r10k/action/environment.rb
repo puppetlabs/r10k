@@ -7,6 +7,10 @@ require 'middleware'
 module R10K::Action::Environment
 
   class Deploy
+    # Middleware action to deploy an environment
+
+    # @param [Object] app The next application in the middlware stack
+    # @param [R10K::Module] mod The module to deploy
     def initialize(app, root)
       @app, @root = app, root
     end
@@ -34,11 +38,15 @@ module R10K::Action::Environment
   end
 
   class Purge
-    # Middleware action to purge stale environments
+    # Middleware action to purge stale environments from a directory
+
+    # @param [Object] app The next application in the middlware stack
+    # @param [String] path The directory path to purge
     def initialize(app, path)
       @app, @path = app, path
     end
 
+    # @param [Hash] env
     def call(env)
       @env = env
 
