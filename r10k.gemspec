@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'shellter',  '~> 0.9.6'
   s.add_dependency 'popen4',    '~> 0.1.2'
   s.add_dependency 'middleware','~> 0.1.0'
+  s.add_dependency 'json',      '~> 1.7.6'
 
   #s.add_development_dependency 'rspec', '~> 2.10.0'
   #s.add_development_dependency 'mocha', '~> 0.10.5'
