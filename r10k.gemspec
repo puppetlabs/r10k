@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
     deployment is as fast as possible.
     DESCRIPTION
 
+  s.add_dependency 'colored',   '>= 1.2'
   s.add_dependency 'cri',       '~> 2.3.0'
   s.add_dependency 'shellter',  '~> 0.9.6'
   s.add_dependency 'popen4',    '~> 0.1.2'
