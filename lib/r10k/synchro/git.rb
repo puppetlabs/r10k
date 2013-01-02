@@ -168,7 +168,8 @@ class R10K::Synchro::Git
     args << command_line_args.split(/\s+/)
 
     #puts "Execute: git #{args.join(' ')}"
-    if (result = Shellter.run('git', args.join(' '))).success?
+    result = Shellter.run('git', args.join(' '))
+    if result.success?
       stderr = result.stderr.read
       stdout = result.stdout.read
 
@@ -177,7 +178,7 @@ class R10K::Synchro::Git
 
       stdout
     else
-      raise RuntimeError, "Command #{result.last_command.inspect} exited with value #{e.value}"
+      raise RuntimeError, "Command #{result.last_command.inspect} exited with value #{result.exit_code}"
     end
   end
 end
