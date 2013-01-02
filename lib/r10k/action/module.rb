@@ -22,6 +22,9 @@ module R10K::Action::Module
       @mod.sync! :update_cache => @env[:update_cache]
 
       @app.call(@env)
+    rescue RuntimeError => e
+      puts "Failed with #{e.inspect} while synchronizing #{@mod.inspect}, moving on".red
+      @app.call(@env)
     end
   end
 end

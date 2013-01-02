@@ -34,6 +34,9 @@ module R10K::Action::Environment
       end
 
       @app.call(@env)
+    rescue RuntimeError => e
+      puts "Failed with #{e.inspect} while synchronizing #{@root.inspect}, moving on".red
+      @app.call(@env)
     end
   end
 
