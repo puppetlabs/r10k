@@ -69,7 +69,7 @@ class R10K::Synchro::Git
   end
 
   # @return [TrueClass] if the git repository is cached
-  def has_cache?
+  def cached?
     @cache_path and File.directory? @cache_path
   end
 
@@ -94,7 +94,7 @@ class R10K::Synchro::Git
 
   # Force a cache refresh
   def cache!
-    if has_cache?
+    if cached?
       git "--git-dir #{@cache_path} fetch --prune"
     else
       mk_cache_root
@@ -126,7 +126,7 @@ class R10K::Synchro::Git
   #
   # @param [String] path The directory to create the repo working directory
   def clone(path)
-    if has_cache?
+    if cached?
       git "clone --reference #{@cache_path} #{@remote} #{path}"
     else
       FileUtils.mkdir_p path unless File.directory? path
@@ -135,7 +135,7 @@ class R10K::Synchro::Git
   end
 
   def fetch(path)
-    if has_cache?
+    if cached?
       git "fetch --prune #{@cache_path}", path
     else
       git "fetch --prune", path
