@@ -1,10 +1,9 @@
 require 'r10k/cli/environment'
 require 'r10k/deployment'
+require 'r10k/action'
+
 require 'cri'
 require 'middleware'
-require 'r10k/action/environment/deploy'
-
-require 'fileutils'
 
 module R10K::CLI::Environment
   module Deploy

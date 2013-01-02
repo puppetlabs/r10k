@@ -32,4 +32,3 @@ module R10K::CLI::Environment
   end
   self.command.add_command(Stale.command)
 end
-
