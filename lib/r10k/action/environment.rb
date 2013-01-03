@@ -64,7 +64,8 @@ module R10K::Action::Environment
       stale_directories = R10K::Deployment.instance.collection.stale(@path)
 
       stale_directories.each do |dir|
-        puts "Would purge #{dir.inspect}".green
+        logger.notice "Purging stale environment #{dir.inspect}"
+        FileUtils.rm_rf(dir, :secure => true)
       end
 
       @app.call(@env)
