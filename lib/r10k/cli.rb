@@ -22,7 +22,7 @@ module R10K::CLI
         R10K::Deployment.instance.configfile = value
       end
 
-      optional :v, :verbose, 'Set verbosity level' do |value, cmd|
+      required :v, :verbose, 'Set verbosity level' do |value, cmd|
         R10K::Logging.level = value.to_i
       end
 
