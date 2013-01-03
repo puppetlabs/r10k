@@ -214,8 +214,8 @@ class R10K::Synchro::Git
 
     status, stdout, stderr = systemu(cmd)
 
-    logger.debug "STDOUT: #{stdout}".green unless stdout.empty?
-    logger.debug "STDERR: #{stderr}".red   unless stderr.empty?
+    logger.debug "[#{cmd}] STDOUT: #{stdout}" unless stdout.empty?
+    logger.debug "[#{cmd}] STDERR: #{stderr}" unless stderr.empty?
 
     unless status == 0
       msg = "#{cmd.inspect} returned with non-zero exit value #{status.exitstatus}"

@@ -1,4 +1,5 @@
 require 'r10k'
+require 'r10k/logging'
 require 'cri'
 
 module R10K::CLI
@@ -19,6 +20,11 @@ module R10K::CLI
 
       required :c, :config, 'Specify a configuration file' do |value, cmd|
         R10K::Deployment.instance.configfile = value
+      end
+
+      flag :v, :verbose, 'Increase verbosity' do |value, cmd|
+        current = R10K::Logging.level
+        R10K::Logging.level = current - 1
       end
 
       # This is actually a noop action; we only add the '--trace' flag here
