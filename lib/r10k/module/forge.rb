@@ -62,7 +62,7 @@ class R10K::Module::Forge < R10K::Module
 
   def pmt(args)
     cmd = "puppet module --modulepath '#{@path}' #{args.join(' ')}"
-    logger.debug cmd
+    logger.debug1 "Execute: #{cmd}"
     status, stdout, stderr = systemu(cmd)
     unless status == 0
       e = R10K::ExecutionFailure.new("#{cmd.inspect} returned with non-zero exit value #{status.inspect}")
