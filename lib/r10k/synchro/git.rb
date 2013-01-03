@@ -140,6 +140,7 @@ class R10K::Synchro::Git
   def clone(path)
     if cached?
       git "clone --reference #{@cache_path} #{@remote} #{path}"
+      git "remote add cache #{@cache_path}", path
     else
       FileUtils.mkdir_p path unless File.directory? path
       git "clone #{@remote} #{path}"
@@ -148,9 +149,9 @@ class R10K::Synchro::Git
 
   def fetch(path)
     if cached?
-      git "fetch --prune #{@cache_path}", path
+      git "fetch --prune cache", path
     else
-      git "fetch --prune", path
+      git "fetch --prune origin", path
     end
   end
 
