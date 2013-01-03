@@ -206,12 +206,12 @@ class R10K::Synchro::Git
     args << command_line_args
 
     cmd = args.join(' ')
-    logger.info "Execute: #{cmd}"
+    logger.debug "Execute: #{cmd}"
 
     status, stdout, stderr = systemu(cmd)
 
-    logger.debug "[#{cmd}] STDOUT: #{stdout}" unless stdout.empty?
-    logger.debug "[#{cmd}] STDERR: #{stderr}" unless stderr.empty?
+    logger.debug1 "[#{cmd}] STDOUT: #{stdout}" unless stdout.empty?
+    logger.debug1 "[#{cmd}] STDERR: #{stderr}" unless stderr.empty?
 
     unless status == 0
       msg = "#{cmd.inspect} returned with non-zero exit value #{status.exitstatus}"

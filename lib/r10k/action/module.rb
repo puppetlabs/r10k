@@ -29,12 +29,7 @@ module R10K::Action::Module
       @app.call(@env)
     rescue R10K::ExecutionFailure => e
       logger.error "Could not synchronize #{@mod.full_path}: #{e}".red
-
-      if @env[:trace]
-        $stderr.puts "stdout: #{e.stdout}"
-        $stderr.puts "stderr: #{e.stderr}"
-        $stderr.puts "Stacktrace\n---\n#{e.backtrace.join("\n")}".red
-      end
+      $stderr.puts e.backtrace.join("\n").red if @env[:trace]
       @app.call(@env)
     end
   end
