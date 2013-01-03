@@ -34,7 +34,7 @@ module R10K::CLI::Environment
 
           # Prepare middleware environment
           stack_env = {
-            :update_cache => (opts[:update] == 'true'),
+            :update_cache => opts[:update],
             :recurse      => opts[:recurse],
             :trace        => opts[:trace],
           }
