@@ -1,5 +1,7 @@
 require 'r10k'
-require 'shellter'
+require 'r10k/errors'
+
+require 'systemu'
 require 'fileutils'
 
 module R10K::Synchro; end
@@ -168,27 +170,26 @@ class R10K::Synchro::Git
   #
   # @return [String] The git command output
   def git(command_line_args, git_dir = nil)
-    args = []
+    args = %w{git}
 
     if git_dir
       args << "--work-tree" << git_dir
       args << "--git-dir"   << "#{git_dir}/.git"
     end
+    args << command_line_args
 
-    args << command_line_args.split(/\s+/)
+    cmd = args.join(' ')
+    puts cmd
 
-    #puts "Execute: git #{args.join(' ')}"
-    result = Shellter.run('git', args.join(' '))
-    if result.success?
-      stderr = result.stderr.read
-      stdout = result.stdout.read
+    status, stdout, stderr = systemu(cmd)
 
-      #puts stdout.blue unless stdout.empty?
-      #puts stderr.red  unless stderr.empty?
-
-      stdout
-    else
-      raise RuntimeError, "Command #{result.last_command.inspect} exited with value #{result.exit_code}"
+    unless status == 0
+      e = R10K::ExecutionFailure.new("#{cmd.inspect} returned with non-zero exit value #{status.inspect}")
+      e.exit_code = status
+      e.stdout    = stdout
+      e.stderr    = stderr
+      raise e
     end
+    stdout
   end
 end

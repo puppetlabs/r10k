@@ -1,5 +1,6 @@
 require 'r10k'
 require 'r10k/module'
+require 'r10k/errors'
 
 require 'systemu'
 require 'semver'
@@ -62,30 +63,16 @@ class R10K::Module::Forge < R10K::Module
   end
 
   def pmt(args)
-
     cmd = "puppet module --modulepath '#{@path}' #{args.join(' ')}"
-
     puts cmd
     status, stdout, stderr = systemu(cmd)
-
-    if status == 0
-      puts "YAY!".cyan
-    else
-      puts "NO!".red
+    unless status == 0
+      e = R10K::ExecutionFailure.new("#{cmd.inspect} returned with non-zero exit value #{status.inspect}")
+      e.exit_code = status
+      e.stdout    = stdout
+      e.stderr    = stderr
+      raise e
     end
-
-    #Shellter.run('puppet' ,args.join(' '))
-    #result = Shellter.run('puppet' ,args.join(' '))
-    #if result.success?
-    #  stderr = result.stderr.read
-    #  stdout = result.stdout.read
-
-    #  #puts stdout.blue unless stdout.empty?
-    #  #puts stderr.red  unless stderr.empty?
-
-    #  stdout
-    #else
-    #  raise RuntimeError, "Command #{result.last_command.inspect} exited with value #{result.exit_code}"
-    #end
+    stdout
   end
 end

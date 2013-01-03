@@ -1,4 +1,6 @@
 require 'r10k/action'
+require 'r10k/errors'
+
 require 'middleware'
 
 module R10K::Action::Module
@@ -22,8 +24,8 @@ module R10K::Action::Module
       @mod.sync! :update_cache => @env[:update_cache]
 
       @app.call(@env)
-    rescue RuntimeError => e
-      $stderr.puts "Could not synchronize #{@mod.full_path}: #{e}"
+    rescue R10K::ExecutionFailure => e
+      $stderr.puts "Could not synchronize #{@mod.full_path}: #{e}".red
       $stderr.puts e.backtrace.join("\n").red if @env[:trace]
       @app.call(@env)
     end

@@ -1,4 +1,5 @@
 require 'r10k/action'
+require 'r10k/errors'
 require 'r10k/action/module'
 require 'r10k/deployment'
 
@@ -35,7 +36,7 @@ module R10K::Action::Environment
       end
 
       @app.call(@env)
-    rescue RuntimeError => e
+    rescue R10K::ExecutionFailure => e
       $stderr.puts "Could not synchronize #{@root.full_path}: #{e}".red
       $stderr.puts e.backtrace.join("\n").red if @env[:trace]
       @app.call(@env)
