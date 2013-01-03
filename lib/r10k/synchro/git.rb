@@ -187,32 +187,31 @@ class R10K::Synchro::Git
   def git(command_line_args, opts = {})
     args = %w{git}
 
+    log_event = "git #{command_line_args}"
+    log_event << ", args: #{opts.inspect}" unless opts.empty?
+
+
     if opts[:path]
-      args << "--git-dir"
-      args << "#{opts[:path]}/.git"
-      args << "--work-tree"
-      args << opts[:path]
+      args << "--git-dir #{opts[:path]}/.git"
+      args << "--work-tree #{opts[:path]}"
     else
       if opts[:git_dir]
-        args << "--git-dir"
-        args << opts[:git_dir]
+        args << "--git-dir #{opts[:git_dir]}"
       end
-
       if opts[:work_tree]
-        args << "--work-tree"
-        args << opts[:work_tree]
+        args << "--work-tree #{opts[:work_tree]}"
       end
     end
 
-    args << command_line_args
+    logger.debug1 "Execute: '#{log_event}'"
 
+    args << command_line_args
     cmd = args.join(' ')
-    logger.debug "Execute: #{cmd}"
 
     status, stdout, stderr = systemu(cmd)
 
-    logger.debug1 "[#{cmd}] STDOUT: #{stdout}" unless stdout.empty?
-    logger.debug1 "[#{cmd}] STDERR: #{stderr}" unless stderr.empty?
+    logger.debug2 "[#{log_event}] STDOUT: #{stdout.chomp}" unless stdout.empty?
+    logger.debug2 "[#{log_event}] STDERR: #{stderr.chomp}" unless stderr.empty?
 
     unless status == 0
       msg = "#{cmd.inspect} returned with non-zero exit value #{status.exitstatus}"
