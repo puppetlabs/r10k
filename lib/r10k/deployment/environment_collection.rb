@@ -38,7 +38,9 @@ class R10K::EnvironmentCollection
     end.compact
     current_dirs = current(basedir).map(&:name)
 
-    all_dirs - current_dirs
+    stale_dirs = all_dirs - current_dirs
+
+    stale_dirs.map {|dir| File.join(basedir, dir)}
   end
 
   # @return [Array<R10K::Root>]
