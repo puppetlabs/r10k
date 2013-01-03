@@ -18,10 +18,7 @@ module R10K::CLI
         run do |opts, args, cmd|
           deployment   = R10K::Deployment.instance
           environments = deployment.environments
-
-          directories = deployment.config[:sources].map do |_, hash|
-            hash['basedir']
-          end
+          directories  = (deployment.config[:purgedirs] || [])
 
           stack = Middleware::Builder.new do
             environments.each do |env|
@@ -35,6 +32,7 @@ module R10K::CLI
 
           stack_env = {
             :update_cache => opts[:update],
+            :trace        => opts[:trace],
             :recurse      => true,
           }
 
