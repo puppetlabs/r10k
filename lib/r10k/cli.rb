@@ -26,8 +26,6 @@ module R10K::CLI
         R10K::Logging.level = value.to_i
       end
 
-      # This is actually a noop action; we only add the '--trace' flag here
-      # and scan for it in bin/r10k when rescuing an exception
       flag :t, :trace, 'Display stack traces on application crash'
 
       run do |opts, args, cmd|
