@@ -63,7 +63,7 @@ class R10K::Synchro::Git
   # @param [String] ref The git ref to instantiate at the destination path
   def sync(path, ref, options = {:update_cache => true})
     path = File.expand_path(path)
-    sync_cache(options)
+    cache if options[:update_cache]
 
     if self.cloned?(path)
       fetch(path)
@@ -100,9 +100,12 @@ class R10K::Synchro::Git
   # Force a cache refresh
   def cache!
     if cached?
+      logger.debug "Updating existing cache at #{@cache_path}"
       git "fetch --prune", :git_dir => @cache_path
     else
-      mk_cache_root
+      logger.debug "No cache for #{@remote.inspect}, forcing cache build"
+      cache_root = self.class.cache_root
+      FileUtils.mkdir_p cache_root unless File.exist? cache_root
       git "clone --mirror #{@remote} #{@cache_path}"
     end
   end
@@ -112,27 +115,12 @@ class R10K::Synchro::Git
   #
   # @return [Array<String>] A list of all cached remote branches
   def branches(options = {:update_cache => false})
-    sync_cache(options)
+    cache if (options[:update_cache] or not cached?)
     output = git "branch", :git_dir => @cache_path
     output.split("\n").map { |str| str[2..-1] }
   end
 
   private
-
-  # XXX The use of options[:update_cache] is getting ugly. Consider refactor
-  def sync_cache(options)
-    if options[:update_cache]
-      cache
-    elsif not cached?
-      puts "Forcing cache build for #{@remote}"
-      cache
-    end
-  end
-
-  def mk_cache_root
-    cache_root = self.class.cache_root
-    FileUtils.mkdir_p cache_root unless File.exist? cache_root
-  end
 
   # Perform a non-bare clone of a git repository.
   #
