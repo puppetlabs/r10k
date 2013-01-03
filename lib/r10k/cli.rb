@@ -22,9 +22,11 @@ module R10K::CLI
         R10K::Deployment.instance.configfile = value
       end
 
-      flag :v, :verbose, 'Increase verbosity' do |value, cmd|
+      optional :v, :verbose, 'Set verbosity level' do |value, cmd|
+        puts "val: #{value}"
         current = R10K::Logging.level
-        R10K::Logging.level = current - 1
+        R10K::Logging.level = value.to_i
+        puts "Set verbosity from #{current} to #{current - 1}"
       end
 
       # This is actually a noop action; we only add the '--trace' flag here

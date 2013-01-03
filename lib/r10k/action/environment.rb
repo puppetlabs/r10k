@@ -2,6 +2,7 @@ require 'r10k/action'
 require 'r10k/errors'
 require 'r10k/action/module'
 require 'r10k/deployment'
+require 'r10k/logging'
 
 require 'middleware'
 
@@ -9,6 +10,8 @@ module R10K::Action::Environment
 
   class Deploy
     # Middleware action to deploy an environment
+
+    include R10K::Logging
 
     # @param [Object] app The next application in the middlware stack
     # @param [R10K::Module] mod The module to deploy
@@ -24,7 +27,7 @@ module R10K::Action::Environment
     def call(env)
       @env = env
 
-      puts "Deploying #{@root.full_path}"
+      logger.notice "Deploying environment #{@root.name}"
       FileUtils.mkdir_p @root.full_path
       @root.sync! :update_cache => @env[:update_cache]
 
@@ -37,7 +40,7 @@ module R10K::Action::Environment
 
       @app.call(@env)
     rescue R10K::ExecutionFailure => e
-      $stderr.puts "Could not synchronize #{@root.full_path}: #{e}".red
+      logger.error "Could not synchronize #{@root.full_path}: #{e}".red
       $stderr.puts e.backtrace.join("\n").red if @env[:trace]
       @app.call(@env)
     end
@@ -45,6 +48,8 @@ module R10K::Action::Environment
 
   class Purge
     # Middleware action to purge stale environments from a directory
+
+    include R10K::Logging
 
     # @param [Object] app The next application in the middlware stack
     # @param [String] path The directory path to purge

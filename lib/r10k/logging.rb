@@ -1,10 +1,11 @@
 require 'r10k'
 
 require 'log4r'
-require 'log4r/base'
-require 'log4r/logger'
+require 'log4r/configurator'
 
 module R10K::Logging
+
+  include Log4r
 
   def logger
     unless @logger
@@ -16,15 +17,22 @@ module R10K::Logging
 
   class << self
 
-    Log4r::Logger.global.level = Log4r::ALL
+  include Log4r
+    def included(klass)
+      unless @log4r_loaded
+        Configurator.custom_levels(*%w{DEBUG2 DEBUG1 DEBUG INFO NOTICE WARN ERROR FATAL})
+        Logger.global.level = Log4r::ALL
+        @log4r_loaded = true
+      end
+    end
 
     def level
-      @level || 3 # Default level is WARN
+      @level || Log4r::WARN # Default level is WARN
     end
 
     def level=(val)
+      outputter.level = val
       @level = val
-      outputter.level = @level
     end
 
     def formatter

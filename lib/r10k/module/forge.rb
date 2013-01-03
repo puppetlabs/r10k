@@ -1,6 +1,7 @@
 require 'r10k'
 require 'r10k/module'
 require 'r10k/errors'
+require 'r10k/logging'
 
 require 'systemu'
 require 'semver'
@@ -11,6 +12,8 @@ class R10K::Module::Forge < R10K::Module
   def self.implements(name, args)
     args.is_a? String and SemVer.valid?(args)
   end
+
+  include R10K::Logging
 
   def initialize(name, path, args)
     super
@@ -64,7 +67,7 @@ class R10K::Module::Forge < R10K::Module
 
   def pmt(args)
     cmd = "puppet module --modulepath '#{@path}' #{args.join(' ')}"
-    puts cmd
+    logger.debug cmd
     status, stdout, stderr = systemu(cmd)
     unless status == 0
       e = R10K::ExecutionFailure.new("#{cmd.inspect} returned with non-zero exit value #{status.inspect}")
