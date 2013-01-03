@@ -36,7 +36,7 @@ module R10K::Action::Environment
 
       @app.call(@env)
     rescue RuntimeError => e
-      $stderr.puts "Could not synchronize #{@root.full_path}: #{e}"
+      $stderr.puts "Could not synchronize #{@root.full_path}: #{e}".red
       $stderr.puts e.backtrace.join("\n").red if @env[:trace]
       @app.call(@env)
     end
