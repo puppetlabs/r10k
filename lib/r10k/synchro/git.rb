@@ -167,7 +167,8 @@ class R10K::Synchro::Git
   #
   # @return [String] The dereferenced hash of `ref`
   def resolve_commit(ref)
-    git "rev-parse #{ref}^{commit}", :git_dir => @cache_path
+    commit = git "rev-parse #{ref}^{commit}", :git_dir => @cache_path
+    commit.chomp
   rescue R10K::ExecutionFailure => e
     logger.error "Could not resolve ref #{ref.inspect} for git cache #{@cache_path}"
     raise
