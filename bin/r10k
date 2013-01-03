@@ -6,7 +6,7 @@ require 'colored'
 begin
   R10K::CLI.command.run(ARGV)
 rescue Interrupt
-  $stderr.puts "\nAborted!".red
+  $stderr.puts "Aborted!".red
   exit(1)
 rescue SystemExit => e
   exit(e.status)
