@@ -36,6 +36,7 @@ module R10K::CLI::Environment
           stack_env = {
             :update_cache => (opts[:update] == 'true'),
             :recurse      => opts[:recurse],
+            :trace        => opts[:trace],
           }
 
           stack.call(stack_env)

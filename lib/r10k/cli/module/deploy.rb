@@ -40,7 +40,10 @@ module R10K::CLI::Module
             stack = Middleware::Builder.new
             mods.each { |mod| stack.use R10K::Action::Module::Deploy, mod }
 
-            stack_env = { :update_cache => opts[:update] }
+            stack_env = {
+              :update_cache => opts[:update],
+              :trace        => opts[:trace],
+            }
 
             stack.call(stack_env)
           end
