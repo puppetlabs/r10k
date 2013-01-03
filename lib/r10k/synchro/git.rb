@@ -185,7 +185,8 @@ class R10K::Synchro::Git
     status, stdout, stderr = systemu(cmd)
 
     unless status == 0
-      e = R10K::ExecutionFailure.new("#{cmd.inspect} returned with non-zero exit value #{status.inspect}")
+      msg = "#{cmd.inspect} returned with non-zero exit value #{status.exitstatus}"
+      e = R10K::ExecutionFailure.new(msg)
       e.exit_code = status
       e.stdout    = stdout
       e.stderr    = stderr
