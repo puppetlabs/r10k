@@ -143,7 +143,7 @@ class R10K::Synchro::Git
   def clone(path)
     if cached?
       git "clone --reference #{@cache_path} #{@remote} #{path}"
-      git "remote add cache #{@cache_path}", path
+      git "remote add cache #{@cache_path}", :path => path
     else
       FileUtils.mkdir_p path unless File.directory? path
       git "clone #{@remote} #{path}"
@@ -152,9 +152,9 @@ class R10K::Synchro::Git
 
   def fetch(path)
     if cached?
-      git "fetch --prune cache", :git_dir => path
+      git "fetch --prune cache", :path => path
     else
-      git "fetch --prune origin", :git_dir => path
+      git "fetch --prune origin", :path => path
     end
   end
 
@@ -166,7 +166,7 @@ class R10K::Synchro::Git
     commit = resolve_commit(ref)
 
     begin
-      git "reset --hard #{commit}", :git_dir => "#{path}/.git", :work_tree => path
+      git "reset --hard #{commit}", :path => path
     rescue R10K::ExecutionFailure => e
       logger.error "Unable to locate commit object #{commit} in git repo #{path}"
       raise
@@ -192,19 +192,27 @@ class R10K::Synchro::Git
   #
   # @option opts [String] :git_dir
   # @option opts [String] :work_tree
+  # @option opts [String] :work_tree
   #
   # @return [String] The git command output
   def git(command_line_args, opts = {})
     args = %w{git}
 
-    if opts[:git_dir]
+    if opts[:path]
       args << "--git-dir"
-      args << opts[:git_dir]
-    end
-
-    if opts[:work_tree]
+      args << "#{opts[:path]}/.git"
       args << "--work-tree"
-      args << opts[:work_tree]
+      args << opts[:path]
+    else
+      if opts[:git_dir]
+        args << "--git-dir"
+        args << opts[:git_dir]
+      end
+
+      if opts[:work_tree]
+        args << "--work-tree"
+        args << opts[:work_tree]
+      end
     end
 
     args << command_line_args
