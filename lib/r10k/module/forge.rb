@@ -42,11 +42,6 @@ class R10K::Module::Forge < R10K::Module
       cmd << @full_name
       pmt cmd
     end
-
-  end
-
-  def full_path
-    File.join(@path, @name)
   end
 
   private
