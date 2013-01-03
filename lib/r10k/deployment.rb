@@ -51,8 +51,6 @@ class R10K::Deployment
     File.open(@configfile) { |fh| @config = YAML.load(fh.read) }
     apply_config_settings
     @config
-  rescue => e
-    raise "Couldn't load #{configfile}: #{e}"
   end
 
   # Apply config settings to the relevant classes after a config has been loaded.
