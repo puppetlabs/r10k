@@ -22,8 +22,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'colored',   '>= 1.2'
   s.add_dependency 'cri',       '~> 2.3.0'
   s.add_dependency 'systemu',   '~> 2.5.2'
-  s.add_dependency 'shellter',  '~> 0.9.6'
-  s.add_dependency 'popen4',    '~> 0.1.2'
   s.add_dependency 'middleware','~> 0.1.0'
   s.add_dependency 'json',      '~> 1.7.6'
 
