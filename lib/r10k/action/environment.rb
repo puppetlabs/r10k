@@ -19,6 +19,7 @@ module R10K::Action::Environment
     #
     # @option env [true, false] :update_cache
     # @option env [true, false] :recurse
+    # @option env [true, false] :trace
     def call(env)
       @env = env
 
@@ -35,7 +36,8 @@ module R10K::Action::Environment
 
       @app.call(@env)
     rescue RuntimeError => e
-      puts "Failed with #{e.inspect} while synchronizing #{@root.inspect}, moving on".red
+      $stderr.puts "Could not synchronize #{@root.full_path}: #{e}"
+      $stderr.puts e.backtrace.join("\n").red if @env[:trace]
       @app.call(@env)
     end
   end

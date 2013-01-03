@@ -23,7 +23,8 @@ module R10K::Action::Module
 
       @app.call(@env)
     rescue RuntimeError => e
-      puts "Failed with #{e.inspect} while synchronizing #{@mod.inspect}, moving on".red
+      $stderr.puts "Could not synchronize #{@mod.full_path}: #{e}"
+      $stderr.puts e.backtrace.join("\n").red if @env[:trace]
       @app.call(@env)
     end
   end
