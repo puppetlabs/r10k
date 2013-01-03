@@ -1,5 +1,6 @@
 require 'r10k'
 require 'r10k/errors'
+require 'r10k/logging'
 
 require 'systemu'
 require 'fileutils'
@@ -40,6 +41,8 @@ class R10K::Synchro::Git
       synchros[remote]
     end
   end
+
+  include R10K::Logging
 
   attr_reader :remote
 
@@ -162,6 +165,14 @@ class R10K::Synchro::Git
   def reset(path, ref)
     commit = git "--git-dir #{@cache_path} rev-parse #{ref}^{commit}"
     git "reset --hard #{commit}", path
+  rescue R10K::ExecutionFailure => e
+    if not commit
+      msg = "Could not resolve ref #{ref.inspect} for git cache #{@cache_path}"
+    else
+      msg = "Unable to locate commit object #{commit} in git repo #{path}"
+    end
+    logger.error msg
+    raise
   end
 
   # Wrap git commands
@@ -180,9 +191,12 @@ class R10K::Synchro::Git
     args << command_line_args
 
     cmd = args.join(' ')
-    puts cmd
+    logger.info cmd
 
     status, stdout, stderr = systemu(cmd)
+
+    logger.debug "STDOUT: #{stdout}".green unless stdout.empty?
+    logger.debug "STDERR: #{stderr}".red   unless stderr.empty?
 
     unless status == 0
       msg = "#{cmd.inspect} returned with non-zero exit value #{status.exitstatus}"
