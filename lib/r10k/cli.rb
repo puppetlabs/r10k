@@ -23,7 +23,7 @@ module R10K::CLI
       end
 
       required :v, :verbose, 'Set verbosity level' do |value, cmd|
-        R10K::Logging.level = value.to_i
+        R10K::Logging.level = Integer(value)
       end
 
       flag :t, :trace, 'Display stack traces on application crash'
