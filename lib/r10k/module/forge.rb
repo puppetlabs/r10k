@@ -27,7 +27,10 @@ class R10K::Module::Forge < R10K::Module
   def sync!(options = {})
     return if insync?
 
-    if File.exist? metadata_path
+    if insync?
+      logger.debug1 "Module #{@full_name} already matches version #{@version}"
+    elsif File.exist? metadata_path
+      logger.debug "Module #{@full_name} is installed but doesn't match version #{@version}, upgrading"
       cmd = []
       cmd << 'upgrade'
       cmd << "--version=#{@version}"
@@ -35,6 +38,7 @@ class R10K::Module::Forge < R10K::Module
       cmd << @full_name
       pmt cmd
     else
+      logger.debug "Module #{@full_name} is not installed"
       cmd = []
       cmd << 'install'
       cmd << "--version=#{@version}"
