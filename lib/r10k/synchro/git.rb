@@ -100,7 +100,7 @@ class R10K::Synchro::Git
   # Force a cache refresh
   def cache!
     if cached?
-      git "--git-dir #{@cache_path} fetch --prune"
+      git "fetch --prune", :git_dir => @cache_path
     else
       mk_cache_root
       git "clone --mirror #{@remote} #{@cache_path}"
@@ -113,7 +113,7 @@ class R10K::Synchro::Git
   # @return [Array<String>] A list of all cached remote branches
   def branches(options = {:update_cache => false})
     sync_cache(options)
-    output = git "--git-dir #{@cache_path} branch"
+    output = git "branch", :git_dir => @cache_path
     output.split("\n").map { |str| str[2..-1] }
   end
 
@@ -152,9 +152,9 @@ class R10K::Synchro::Git
 
   def fetch(path)
     if cached?
-      git "fetch --prune cache", path
+      git "fetch --prune cache", :git_dir => path
     else
-      git "fetch --prune origin", path
+      git "fetch --prune origin", :git_dir => path
     end
   end
 
@@ -163,35 +163,54 @@ class R10K::Synchro::Git
   # @param [String] path The path to the working directory of the git repo
   # @param [String] ref The git reference to reset to.
   def reset(path, ref)
-    commit = git "--git-dir #{@cache_path} rev-parse #{ref}^{commit}"
-    git "reset --hard #{commit}", path
-  rescue R10K::ExecutionFailure => e
-    if not commit
-      msg = "Could not resolve ref #{ref.inspect} for git cache #{@cache_path}"
-    else
-      msg = "Unable to locate commit object #{commit} in git repo #{path}"
+    commit = resolve_commit(ref)
+
+    begin
+      git "reset --hard #{commit}", :git_dir => "#{path}/.git", :work_tree => path
+    rescue R10K::ExecutionFailure => e
+      logger.error "Unable to locate commit object #{commit} in git repo #{path}"
+      raise
     end
-    logger.error msg
+  end
+
+  # Resolve a ref to a commit hash
+  #
+  # @param [String] ref
+  #
+  # @return [String] The dereferenced hash of `ref`
+  def resolve_commit(ref)
+    git "rev-parse #{ref}^{commit}", :git_dir => @cache_path
+  rescue R10K::ExecutionFailure => e
+    logger.error "Could not resolve ref #{ref.inspect} for git cache #{@cache_path}"
     raise
   end
 
   # Wrap git commands
   #
   # @param [String] command_line_args The arguments for the git prompt
-  # @param [String] git_dir An optional git working directory
+  # @param [Hash] opts
+  #
+  # @option opts [String] :git_dir
+  # @option opts [String] :work_tree
   #
   # @return [String] The git command output
-  def git(command_line_args, git_dir = nil)
+  def git(command_line_args, opts = {})
     args = %w{git}
 
-    if git_dir
-      args << "--work-tree" << git_dir
-      args << "--git-dir"   << "#{git_dir}/.git"
+    if opts[:git_dir]
+      args << "--git-dir"
+      args << opts[:git_dir]
     end
+
+    if opts[:work_tree]
+      args << "--work-tree"
+      args << opts[:work_tree]
+    end
+
     args << command_line_args
 
     cmd = args.join(' ')
-    logger.info cmd
+    logger.info "Execute: #{cmd}"
 
     status, stdout, stderr = systemu(cmd)
 
