@@ -50,8 +50,12 @@ class R10K::Module::Forge < R10K::Module
 
   private
 
+  def current_version
+    SemVer.new(metadata['version'])
+  end
+
   def insync?
-    current_version = SemVer.new(metadata['version'])
+    @version == current_version
   rescue
     false
   end
