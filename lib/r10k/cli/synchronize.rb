@@ -10,7 +10,7 @@ module R10K::CLI
     def self.command
       @cmd ||= Cri::Command.define do
         name  'synchronize'
-        usage 'synchronize'
+        usage 'synchronize <options>'
         summary 'Fully synchronize all environments'
 
         flag :u, :update, "Update cache before running"
