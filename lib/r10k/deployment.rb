@@ -25,7 +25,7 @@ class R10K::Deployment
   def_delegators :@config, :setting, :[]
 
   def initialize
-    @config = R10K::Deployment::Config.new
+    @config = R10K::Config.new
   end
 
   def config
@@ -47,4 +47,4 @@ class R10K::Deployment
 end
 
 require 'r10k/deployment/environment_collection'
-require 'r10k/deployment/config'
+require 'r10k/config'
