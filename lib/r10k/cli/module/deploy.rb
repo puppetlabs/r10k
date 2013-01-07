@@ -33,8 +33,7 @@ module R10K::CLI::Module
             mods = env.modules.select { |mod| mod.name == module_name }
 
             if mods.empty?
-              puts "No modules with name #{module_name} matched in environments #{environments.map(&:name).inspect}".red
-              exit 1
+              puts "No modules with name #{module_name} matched in environment #{environment.name.inspect}".red
             end
 
             stack = Middleware::Builder.new
