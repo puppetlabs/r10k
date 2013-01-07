@@ -23,7 +23,7 @@ module R10K::Action::Module
     def call(env)
       @env = env
 
-      logger.notice "Deploying module #{@mod.name}"
+      logger.info "Deploying module #{@mod.name}"
       @mod.sync! :update_cache => @env[:update_cache]
 
       @app.call(@env)

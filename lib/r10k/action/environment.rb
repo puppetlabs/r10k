@@ -27,7 +27,7 @@ module R10K::Action::Environment
     def call(env)
       @env = env
 
-      logger.notice "Deploying environment #{@root.name}"
+      logger.info "Deploying environment #{@root.name}"
       FileUtils.mkdir_p @root.full_path
       @root.sync! :update_cache => @env[:update_cache]
 
@@ -64,7 +64,7 @@ module R10K::Action::Environment
       stale_directories = R10K::Deployment.instance.collection.stale(@path)
 
       stale_directories.each do |dir|
-        logger.notice "Purging stale environment #{dir.inspect}"
+        logger.info "Purging stale environment #{dir.inspect}"
         FileUtils.rm_rf(dir, :secure => true)
       end
 
