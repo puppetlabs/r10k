@@ -20,11 +20,6 @@ class R10K::Deployment
     end
   end
 
-  extend Forwardable
-
-  def_delegators :@config, :configfile, :configfile=
-  def_delegators :@config, :setting, :[]
-
   def initialize
     @config = R10K::Config.new
   end
