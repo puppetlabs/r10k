@@ -1,6 +1,6 @@
 require 'r10k'
 
-class R10K::EnvironmentCollection
+class R10K::Deployment::EnvironmentCollection
 
   attr_reader :update_cache
 

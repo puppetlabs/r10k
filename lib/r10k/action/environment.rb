@@ -61,7 +61,7 @@ module R10K::Action::Environment
     def call(env)
       @env = env
 
-      stale_directories = R10K::Deployment.instance.collection.stale(@path)
+      stale_directories = R10K::Deployment.collection.stale(@path)
 
       stale_directories.each do |dir|
         logger.info "Purging stale environment #{dir.inspect}"

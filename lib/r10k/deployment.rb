@@ -1,21 +1,36 @@
 require 'r10k'
 require 'r10k/synchro/git'
-require 'r10k/deployment/environment_collection'
 require 'yaml'
 
 class R10K::Deployment
   # Model a full installation of module directories and modules.
 
-  def self.instance
-    @myself ||= self.new
+  class << self
+    def instance
+      @myself ||= self.new
+    end
+
+    def config
+      instance.config
+    end
+
+    def collection
+      instance.collection
+    end
   end
+
+  extend Forwardable
+
+  def_delegators :@config, :configfile, :configfile=
+  def_delegators :@config, :setting, :[]
 
   def initialize
-    @configfile   = File.join(Dir.getwd, "config.yaml")
-    @update_cache = true
+    @config = R10K::Deployment::Config.new
   end
 
-  attr_accessor :configfile
+  def config
+    @config
+  end
 
   # Load up all module roots
   #
@@ -25,39 +40,11 @@ class R10K::Deployment
   end
 
   def collection
-    load_config unless @config
+    @config.load_config unless @config.loaded?
+    @collection ||= R10K::Deployment::EnvironmentCollection.new(@config)
     @collection
   end
-
-  # Serve up the loaded config if it's already been loaded, otherwise try to
-  # load a config in the current wd.
-  def config
-    load_config unless @config
-    @config
-  end
-
-  # @return [Object] A top level key from the config hash
-  def setting(key)
-    self.config[key]
-  end
-  alias_method :[], :setting
-
-  private
-
-  # Load and store a config file, and set relevant options
-  #
-  # @param [String] configfile The path to the YAML config file
-  def load_config
-    File.open(@configfile) { |fh| @config = YAML.load(fh.read) }
-    apply_config_settings
-    @config
-  end
-
-  # Apply config settings to the relevant classes after a config has been loaded.
-  def apply_config_settings
-    if @config[:cachedir]
-      R10K::Synchro::Git.cache_root = @config[:cachedir]
-    end
-    @collection = R10K::EnvironmentCollection.new(@config)
-  end
 end
+
+require 'r10k/deployment/environment_collection'
+require 'r10k/deployment/config'

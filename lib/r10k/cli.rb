@@ -19,7 +19,7 @@ module R10K::CLI
       end
 
       required :c, :config, 'Specify a configuration file' do |value, cmd|
-        R10K::Deployment.instance.configfile = value
+        R10K::Deployment.config.configfile = value
       end
 
       required :v, :verbose, 'Set verbosity level' do |value, cmd|
