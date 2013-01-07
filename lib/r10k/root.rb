@@ -1,8 +1,11 @@
 require 'r10k'
 require 'r10k/module'
 require 'r10k/synchro/git'
+require 'r10k/logging'
 
 class R10K::Root
+
+  include R10K::Logging
 
   # @!attribute [r] name
   #   The directory name of this root
@@ -49,7 +52,7 @@ class R10K::Root
       R10K::Module.new(name, "#{full_path}/modules", args)
     end
   rescue Errno::ENOENT
-    puts "#{self}: #{full_path} does not exist, cannot enumerate modules."
+    logger.warn "#{self}: #{full_path} does not exist, cannot enumerate modules."
     []
   end
 

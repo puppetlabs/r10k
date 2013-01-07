@@ -1,6 +1,7 @@
 require 'r10k/cli'
 require 'r10k/synchro/git'
 require 'cri'
+require 'r10k/logging'
 
 module R10K::CLI
   module Cache
@@ -11,8 +12,9 @@ module R10K::CLI
         summary 'Update cache for all sources'
 
         run do |opts, args, cmd|
-          sources = R10K::Deployment.instance[:sources]
+          include R10K::Logging
 
+          sources = R10K::Deployment.instance[:sources]
           remotes = Set.new
 
           sources.each_pair do |name, hash|
@@ -20,7 +22,7 @@ module R10K::CLI
           end
 
           remotes.each do |remote|
-            puts "Synchronizing #{remote}"
+            logger.info "Synchronizing #{remote}"
             synchro = R10K::Synchro::Git.new(remote)
             synchro.cache
           end

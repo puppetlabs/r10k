@@ -1,5 +1,6 @@
 require 'r10k/cli/module'
 require 'r10k/deployment'
+require 'r10k/logging'
 require 'cri'
 
 require 'fileutils'
@@ -15,6 +16,8 @@ module R10K::CLI::Module
         flag :u, :update, "Update module cache"
 
         run do |opts, args, cmd|
+
+          include R10K::Logging
 
           unless (module_name = args[0])
             puts cmd.help
@@ -33,7 +36,7 @@ module R10K::CLI::Module
             mods = env.modules.select { |mod| mod.name == module_name }
 
             if mods.empty?
-              puts "No modules with name #{module_name} matched in environment #{env.name.inspect}".red
+              logger.warn "No modules with name #{module_name} matched in environment #{env.name.inspect}".red
             end
 
             stack = Middleware::Builder.new
