@@ -1,5 +1,6 @@
 require 'r10k'
 require 'r10k/logging'
+require 'r10k/cli/ext/logging'
 require 'cri'
 
 module R10K::CLI

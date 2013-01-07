@@ -12,8 +12,6 @@ module R10K::CLI
         summary 'Update cache for all sources'
 
         run do |opts, args, cmd|
-          include R10K::Logging
-
           sources = R10K::Deployment.instance[:sources]
           remotes = Set.new
 

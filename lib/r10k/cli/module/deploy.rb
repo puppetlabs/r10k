@@ -17,8 +17,6 @@ module R10K::CLI::Module
 
         run do |opts, args, cmd|
 
-          include R10K::Logging
-
           unless (module_name = args[0])
             puts cmd.help
             exit 1
