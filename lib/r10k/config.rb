@@ -1,7 +1,7 @@
 require 'r10k/deployment'
 require 'r10k/config/loader'
 
-class R10K::Deployment::Config
+class R10K::Config
 
   attr_accessor :configfile
 
