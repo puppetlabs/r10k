@@ -13,8 +13,6 @@ module R10K::CLI
         usage 'synchronize <options>'
         summary 'Fully synchronize all environments'
 
-        flag :u, :update, "Update cache before running"
-
         run do |opts, args, cmd|
           deployment   = R10K::Deployment.instance
           environments = deployment.environments
@@ -31,7 +29,7 @@ module R10K::CLI
           end
 
           stack_env = {
-            :update_cache => opts[:update],
+            :update_cache => true,
             :trace        => opts[:trace],
             :recurse      => true,
           }
