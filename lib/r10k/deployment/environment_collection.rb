@@ -1,6 +1,9 @@
 require 'r10k'
+require 'r10k/logging'
 
 class R10K::Deployment::EnvironmentCollection
+
+  include R10K::Logging
 
   attr_reader :update_cache
 
@@ -53,7 +56,10 @@ class R10K::Deployment::EnvironmentCollection
   def load_all
     @config[:sources].each_pair do |repo_name, repo_config|
       synchro = R10K::Synchro::Git.new(repo_config['remote'])
-      synchro.cache if @update_cache
+      if @update_cache
+        logger.info "Updating git cache for #{repo_config['remote']}"
+        synchro.cache
+      end
 
       if repo_config['ref']
         @environments << R10K::Root.new(repo_config)
