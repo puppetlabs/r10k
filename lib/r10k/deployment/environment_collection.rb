@@ -4,7 +4,7 @@ class R10K::Deployment::EnvironmentCollection
 
   attr_reader :update_cache
 
-  def initialize(config, options = {:update_cache => false})
+  def initialize(config, options = {:update_cache => true})
     @config       = config
     @environments = []
 
