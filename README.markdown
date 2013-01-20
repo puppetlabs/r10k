@@ -1,7 +1,7 @@
 r10k
 ====
 
-Opinionated and semi-intelligent deployment of Puppet manifests and modules.
+Opinionated and semi-intelligent Git based deployment of Puppet manifests and modules.
 
 Description
 -----------
@@ -15,14 +15,10 @@ activity to ensure that interactive deployment is as fast as possible. It
 supports the [librarian-puppet Puppetfile format][librarian] for installing
 multiple independent Puppet modules.
 
-Assumptions
------------
+- - -
 
-To make r10k as responsive as possible, it makes a number of assumptions.
-
-### Puppet modules are stored in git
-
-Yep.
+r10k is designed to deploy branches of a Git repository as environments and can
+optionally deploy modules specific in a Puppetfile.
 
 ### Git repository layout
 
@@ -46,7 +42,15 @@ r10k implements the [librarian-puppet][librarian] Puppetfile format. r10k will
 create and manage the `modules` directory within your Git repository. It's
 recommended that you add `/modules` to your project .gitignore.
 
-### Via git
+A deployed environment with a Puppetfile will look something like this:
+
+    .
+    ├── Puppetfile   # An optional Puppetfile
+    ├── dist         # Internally developed generic modules
+    ├── modules      # Puppet modules deployed by r10k
+    └── site         # Modules for deploying custom services
+
+### Installing modules from git
 
 Puppet modules can be installed from any valid git repository.
 
@@ -55,7 +59,7 @@ Puppet modules can be installed from any valid git repository.
 
 You can deploy a module from a specific branch, tag, or git ref. By default r10k
 will track `master` and will assume that you want to keep the module up to date.
-If you want to track a specific branch, then 
+If you want to track a specific branch, then
 
 Examples:
 
@@ -78,7 +82,7 @@ Examples:
       :git => 'git://github.com/adrienthebo/puppet-filemapper.git',
       :ref => 'ec2a06d287f744e324cca4e4c8dd65c38bc996e2'
 
-### Via the forge
+### Installing modules from the Puppet forge
 
 Puppet modules can be installed from the forge using the Puppet module tool.
 
@@ -87,3 +91,28 @@ Puppet modules can be installed from the forge using the Puppet module tool.
 
     # Install puppetlabs-stdlib from the Forge
     mod 'puppetlabs/stdlib', '2.5.1'
+
+Configuration
+-------------
+
+r10k will look in /etc/r10k.yaml for its config file by default.
+
+### Example
+
+    # The location to use for storing cached Git repos
+    :cachedir: '/var/cache/r10k'
+
+    # A list of git repositories to create
+    :sources:
+      # This will clone the git repository and instantiate an environment per
+      # branch in /etc/puppet/environments
+      :plops:
+        remote: 'git@github.com:my-org/org-shared-modules'
+        basedir: '/etc/puppet/environments'
+
+    # This directory will be purged of any directory that doesn't map to a
+    # git branch
+    :purgedirs:
+      - '/etc/puppet/environments'
+
+This basic configuration should be enough for most deployment needs.
