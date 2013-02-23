@@ -26,13 +26,13 @@ Gem::Specification.new do |s|
   s.add_dependency 'json',      '~> 1.7.6'
   s.add_dependency 'log4r',     '>= 1.1.10'
 
-  #s.add_development_dependency 'rspec', '~> 2.10.0'
-  #s.add_development_dependency 'mocha', '~> 0.10.5'
+  s.add_development_dependency 'rspec', '~> 2.10.0'
+  s.add_development_dependency 'mocha', '~> 0.10.5'
 
   s.files        = Dir.glob "{bin,lib}/**/*"
   s.require_path = 'lib'
   s.bindir       = 'bin'
   s.executables  = 'r10k'
 
-  #s.test_files   = Dir.glob("spec/**/*_spec.rb")
+  s.test_files   = Dir.glob("spec/**/*_spec.rb")
 end
