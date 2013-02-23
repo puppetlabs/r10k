@@ -16,8 +16,8 @@ module R10K::Logging
   end
 
   class << self
+    include Log4r
 
-  include Log4r
     def included(klass)
       unless @log4r_loaded
         Configurator.custom_levels(*%w{DEBUG2 DEBUG1 DEBUG INFO NOTICE WARN ERROR FATAL})
