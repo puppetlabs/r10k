@@ -33,6 +33,7 @@ module R10K::Module
 
   attr_accessor :name, :path
 
+  # @return [String] The full filesystem path to the module.
   def full_path
     File.join(@path, @name)
   end
