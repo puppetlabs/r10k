@@ -51,8 +51,13 @@ class R10K::Module::Forge
     end
   end
 
+  # @return [SemVer, NilClass]
   def current_version
-    SemVer.new(metadata['version'])
+    if metadata
+      SemVer.new(metadata['version'])
+    else
+      SemVer::MIN
+    end
   end
 
   def insync?
