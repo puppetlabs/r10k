@@ -7,7 +7,9 @@ require 'systemu'
 require 'semver'
 require 'json'
 
-class R10K::Module::Forge < R10K::Module
+class R10K::Module::Forge
+
+  include R10K::Module
 
   def self.implements(name, args)
     args.is_a? String and SemVer.valid?(args)
@@ -16,12 +18,11 @@ class R10K::Module::Forge < R10K::Module
   include R10K::Logging
 
   def initialize(name, path, args)
-    super
-
     @full_name = name
+    @path      = path
 
     @owner, @name = name.split('/')
-    @version = SemVer.new(@args)
+    @version = SemVer.new(args)
   end
 
   def sync!(options = {})

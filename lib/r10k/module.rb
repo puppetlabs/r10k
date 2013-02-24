@@ -1,9 +1,10 @@
 require 'r10k'
 
-class R10K::Module
+module R10K::Module
 
   # Register an inheriting  class for later generation
-  def self.inherited(klass)
+  def self.included(klass)
+    klass.extend self
     @klasses ||= []
     @klasses << klass
   end
@@ -31,10 +32,6 @@ class R10K::Module
   end
 
   attr_accessor :name, :path
-
-  def initialize(name, path, args)
-    @name, @path, @args = name, path, args
-  end
 
   def full_path
     File.join(@path, @name)

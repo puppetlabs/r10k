@@ -2,7 +2,8 @@ require 'r10k'
 require 'r10k/module'
 require 'r10k/synchro/git'
 
-class R10K::Module::Git < R10K::Module
+class R10K::Module::Git
+  include R10K::Module
 
   def self.implements(name, args)
     args.is_a? Hash and args.has_key?(:git)
@@ -11,7 +12,7 @@ class R10K::Module::Git < R10K::Module
   end
 
   def initialize(name, path, args)
-    super
+    @name, @path, @args = name, path, args
 
     @remote = @args[:git]
     @ref    = (@args[:ref] || 'master')
