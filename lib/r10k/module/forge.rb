@@ -17,6 +17,8 @@ class R10K::Module::Forge
 
   include R10K::Logging
 
+  attr_accessor :version, :owner, :full_name
+
   def initialize(name, path, args)
     @full_name = name
     @path      = path
