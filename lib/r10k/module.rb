@@ -22,7 +22,7 @@ module R10K::Module
   #
   # @return [Object < R10K::Module] A member of the implementing subclass
   def self.new(name, path, args)
-    if implementation = @klasses.find { |klass| klass.implements(name, args) }
+    if implementation = @klasses.find { |klass| klass.implement?(name, args) }
       obj = implementation.send(:allocate)
       obj.send(:initialize, name, path, args)
       obj

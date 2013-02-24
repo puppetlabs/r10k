@@ -11,7 +11,7 @@ class R10K::Module::Forge
 
   include R10K::Module
 
-  def self.implements(name, args)
+  def self.implement?(name, args)
     !!(name.match(%r[\w+/\w+]) and args.is_a? String and SemVer.valid?(args))
   end
 

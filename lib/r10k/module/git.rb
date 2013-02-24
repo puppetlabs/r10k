@@ -5,7 +5,7 @@ require 'r10k/synchro/git'
 class R10K::Module::Git
   include R10K::Module
 
-  def self.implements(name, args)
+  def self.implement?(name, args)
     args.is_a? Hash and args.has_key?(:git)
   rescue
     false
