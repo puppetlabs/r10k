@@ -62,12 +62,10 @@ class R10K::Module::Forge
 
   def insync?
     @version == current_version
-  rescue
-    false
   end
 
   def metadata
-    JSON.parse(File.read(metadata_path))
+    @metadata = JSON.parse(File.read(metadata_path)) rescue nil
   end
 
   def metadata_path
