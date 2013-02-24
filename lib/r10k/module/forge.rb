@@ -51,8 +51,6 @@ class R10K::Module::Forge
     end
   end
 
-  private
-
   def current_version
     SemVer.new(metadata['version'])
   end
@@ -70,6 +68,8 @@ class R10K::Module::Forge
   def metadata_path
     File.join(full_path, 'metadata.json')
   end
+
+  private
 
   def pmt(args)
     cmd = "puppet module --modulepath '#{@path}' #{args.join(' ')}"
