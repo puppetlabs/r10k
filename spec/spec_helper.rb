@@ -1,3 +1,4 @@
+require 'r10k'
 require 'mocha'
 
 PROJECT_ROOT = File.expand_path('..', File.dirname(__FILE__))
