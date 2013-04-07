@@ -12,36 +12,15 @@ class WorkingDir
   # single git repository is instantiated multiple times, the object cache
   # will only be updated once.
 
-  class << self
-    # @return [Hash<String, R10K::Synchro::Git>] A hash of memoized class instances
-    def synchros
-      @synchros ||= {}
-    end
-
-    # Memoize class instances and return existing instances.
-    #
-    # This allows objects to mark themselves as cached to prevent unnecessary
-    # cache refreshes.
-    #
-    # @param [String] remote A git remote URL
-    # @return [R10K::Synchro::Git]
-    def new(remote)
-      unless synchros[remote]
-        obj = self.allocate
-        obj.send(:initialize, remote)
-        synchros[remote] = obj
-      end
-      synchros[remote]
-    end
-  end
-
   include R10K::Logging
   include R10K::Execution
   include R10K::Git::Command
 
   extend Forwardable
 
-  def_delegators :@cache, :branches, :cache
+  # @!attribute [r] cache
+  #   @return [R10K::Git::Cache]
+  attr_reader :cache
 
   attr_reader :remote
 
@@ -126,4 +105,3 @@ class WorkingDir
 end
 end
 end
-

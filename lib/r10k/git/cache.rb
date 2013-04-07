@@ -11,6 +11,23 @@ class Cache
 
   class << self
     attr_accessor :cache_root
+
+    # Memoize class instances and return existing instances.
+    #
+    # This allows objects to mark themselves as cached to prevent unnecessary
+    # cache refreshes.
+    #
+    # @param [String] remote A git remote URL
+    # @return [R10K::Synchro::Git]
+    def new(remote)
+      @repos ||= {}
+      unless @repos[remote]
+        obj = self.allocate
+        obj.send(:initialize, remote)
+        @repos[remote] = obj
+      end
+      @repos[remote]
+    end
   end
 
   include R10K::Logging
@@ -55,13 +72,6 @@ class Cache
     File.exist? @path
   end
 
-  private
-
-  # Reformat the remote name into something that can be used as a directory
-  def sanitized_remote_name
-    @remote.gsub(/[^@\w\.-]/, '-')
-  end
-
   # @return [Array<String>] A list the branches for the git repository
   def branches
     output = git "branch", :git_dir => @path
@@ -77,6 +87,13 @@ class Cache
       # The string index notation strips off the leading whitespace/asterisk
       str[2..-1]
     end
+  end
+
+  private
+
+  # Reformat the remote name into something that can be used as a directory
+  def sanitized_remote_name
+    @remote.gsub(/[^@\w\.-]/, '-')
   end
 end
 end
