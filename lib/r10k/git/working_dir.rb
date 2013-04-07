@@ -71,6 +71,9 @@ class WorkingDir
   end
 
   def fetch(path)
+    # XXX This is crude but it'll ensure that the right remote is used for
+    # the cache.
+    git "remote set-url cache #{@cache.path}", :path => path
     git "fetch --prune cache", :path => path
   end
 
