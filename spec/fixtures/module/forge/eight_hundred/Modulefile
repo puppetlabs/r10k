@@ -1,0 +1,8 @@
+name    'branan-eight_hundred'
+version '8.0.0'
+source  'https://github.com/branan/puppet-module-eight_hundred'
+author  'Branan Purvine-Riley'
+license 'Apache License 2.0'
+summary '800 modules! WOOOOOOO!'
+description '800 modules! WOOOOOOOOOOOOOOOOOO!'
+project_page 'https://github.com/branan/puppet-module-eight_hundred'

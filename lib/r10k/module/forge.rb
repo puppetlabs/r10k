@@ -7,21 +7,24 @@ require 'systemu'
 require 'semver'
 require 'json'
 
-class R10K::Module::Forge < R10K::Module
+class R10K::Module::Forge
 
-  def self.implements(name, args)
-    args.is_a? String and SemVer.valid?(args)
+  include R10K::Module
+
+  def self.implement?(name, args)
+    !!(name.match(%r[\w+/\w+]) and args.is_a? String and SemVer.valid?(args))
   end
 
   include R10K::Logging
 
-  def initialize(name, path, args)
-    super
+  attr_accessor :version, :owner, :full_name
 
+  def initialize(name, path, args)
     @full_name = name
+    @path      = path
 
     @owner, @name = name.split('/')
-    @version = SemVer.new(@args)
+    @version = SemVer.new(args)
   end
 
   def sync!(options = {})
@@ -48,25 +51,28 @@ class R10K::Module::Forge < R10K::Module
     end
   end
 
-  private
-
+  # @return [SemVer, NilClass]
   def current_version
-    SemVer.new(metadata['version'])
+    if metadata
+      SemVer.new(metadata['version'])
+    else
+      SemVer::MIN
+    end
   end
 
   def insync?
     @version == current_version
-  rescue
-    false
   end
 
   def metadata
-    JSON.parse(File.read(metadata_path))
+    @metadata = JSON.parse(File.read(metadata_path)) rescue nil
   end
 
   def metadata_path
     File.join(full_path, 'metadata.json')
   end
+
+  private
 
   def pmt(args)
     cmd = "puppet module --modulepath '#{@path}' #{args.join(' ')}"

@@ -1,9 +1,10 @@
 require 'r10k'
 
-class R10K::Module
+module R10K::Module
 
   # Register an inheriting  class for later generation
-  def self.inherited(klass)
+  def self.included(klass)
+    klass.extend self
     @klasses ||= []
     @klasses << klass
   end
@@ -21,7 +22,7 @@ class R10K::Module
   #
   # @return [Object < R10K::Module] A member of the implementing subclass
   def self.new(name, path, args)
-    if implementation = @klasses.find { |klass| klass.implements(name, args) }
+    if implementation = @klasses.find { |klass| klass.implement?(name, args) }
       obj = implementation.send(:allocate)
       obj.send(:initialize, name, path, args)
       obj
@@ -32,10 +33,7 @@ class R10K::Module
 
   attr_accessor :name, :path
 
-  def initialize(name, path, args)
-    @name, @path, @args = name, path, args
-  end
-
+  # @return [String] The full filesystem path to the module.
   def full_path
     File.join(@path, @name)
   end
