@@ -55,7 +55,7 @@ class R10K::Deployment::EnvironmentCollection
 
   def load_all
     @config[:sources].each_pair do |repo_name, repo_config|
-      synchro = R10K::Synchro::Git.new(repo_config['remote'])
+      synchro = R10K::Git::WorkingDir.new(repo_config['remote'])
       if @update_cache
         logger.info "Updating git cache for #{repo_config['remote']}"
         synchro.cache

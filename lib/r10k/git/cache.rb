@@ -9,6 +9,10 @@ class Cache
   #
   # @see man git-clone(1)
 
+  class << self
+    attr_accessor :cache_root
+  end
+
   include R10K::Logging
   include R10K::Execution
   include R10K::Git::Command
@@ -27,9 +31,9 @@ class Cache
 
   # @param [String] remote
   # @param [String] cache_root
-  def initialize(remote, cache_root)
+  def initialize(remote)
     @remote     = remote
-    @cache_root = cache_root
+    @cache_root = self.class.cache_root
 
     @path = File.join(cache_root, sanitized_remote_name)
   end

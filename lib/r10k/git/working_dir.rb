@@ -1,26 +1,18 @@
-require 'r10k'
 require 'r10k/logging'
 require 'r10k/execution'
 require 'r10k/git/command'
 require 'r10k/git/cache'
 
-require 'fileutils'
-
-module R10K::Synchro; end
-
-class R10K::Synchro::Git
-  # Define a thingy that can synchronize git repositories.
-  #
-  # This class is built to be a general purpose mechanism for syncing and
-  # caching git repositories.
+module R10K
+module Git
+class WorkingDir
+  # Implements sparse git repositories with shared objects
   #
   # Class instances are memoized based on the git remote path. This way if a
   # single git repository is instantiated multiple times, the object cache
   # will only be updated once.
 
   class << self
-    attr_accessor :cache_root
-
     # @return [Hash<String, R10K::Synchro::Git>] A hash of memoized class instances
     def synchros
       @synchros ||= {}
@@ -49,7 +41,7 @@ class R10K::Synchro::Git
 
   extend Forwardable
 
-  def_delegators :@cache, :cache, :branches
+  def_delegators :@cache, :branches, :cache
 
   attr_reader :remote
 
@@ -59,7 +51,7 @@ class R10K::Synchro::Git
   def initialize(remote)
     @remote = remote
 
-    @cache = R10K::Git::Cache.new(remote, self.class.cache_root)
+    @cache = R10K::Git::Cache.new(@remote)
   end
 
   # Synchronize the local git repository.
@@ -68,7 +60,7 @@ class R10K::Synchro::Git
   # @param [String] ref The git ref to instantiate at the destination path
   def sync(path, ref, options = {:update_cache => true})
     path = File.expand_path(path)
-    cache if options[:update_cache]
+    @cache.sync if options[:update_cache]
 
     if self.cloned?(path)
       fetch(path)
@@ -93,6 +85,8 @@ class R10K::Synchro::Git
   #
   # @param [String] path The directory to create the repo working directory
   def clone(path)
+    # We do the clone against the target repo using the `--reference` flag so
+    # that doing a normal `git pull` on a directory will work.
     git "clone --reference #{@cache.path} #{@remote} #{path}"
     git "remote add cache #{@cache.path}", :path => path
   end
@@ -128,4 +122,8 @@ class R10K::Synchro::Git
     logger.error "Could not resolve ref #{ref.inspect} for git cache #{@cache.path}"
     raise
   end
+
 end
+end
+end
+

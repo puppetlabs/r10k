@@ -1,7 +1,7 @@
 require 'r10k/cli'
-require 'r10k/synchro/git'
-require 'cri'
 require 'r10k/logging'
+
+require 'cri'
 
 module R10K::CLI
   module Cache
