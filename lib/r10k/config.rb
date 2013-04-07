@@ -39,7 +39,7 @@ class R10K::Config
   # Apply config settings to the relevant classes after a config has been loaded.
   def apply_config_settings
     if @config[:cachedir]
-      R10K::Synchro::Git.cache_root = @config[:cachedir]
+      R10K::Git::Cache.cache_root = @config[:cachedir]
     end
     @collection = R10K::Deployment::EnvironmentCollection.new(@config)
   end

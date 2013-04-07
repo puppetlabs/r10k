@@ -1,6 +1,6 @@
 require 'r10k'
 require 'r10k/module'
-require 'r10k/synchro/git'
+require 'r10k/git/working_dir'
 
 class R10K::Module::Git
   include R10K::Module
@@ -19,7 +19,7 @@ class R10K::Module::Git
   end
 
   def sync!(options = {})
-    synchro = R10K::Synchro::Git.new(@remote)
+    synchro = R10K::Git::WorkingDir.new(@remote)
     synchro.sync(full_path, @ref, options)
   end
 end

@@ -55,16 +55,16 @@ class R10K::Deployment::EnvironmentCollection
 
   def load_all
     @config[:sources].each_pair do |repo_name, repo_config|
-      synchro = R10K::Synchro::Git.new(repo_config['remote'])
+      cache = R10K::Git::Cache.new(repo_config['remote'])
       if @update_cache
         logger.info "Updating git cache for #{repo_config['remote']}"
-        synchro.cache
+        cache.sync
       end
 
       if repo_config['ref']
         @environments << R10K::Root.new(repo_config)
       else
-        synchro.branches.each do |branch|
+        cache.branches.each do |branch|
           @environments << R10K::Root.new(repo_config.merge({'ref' => branch}))
         end
       end

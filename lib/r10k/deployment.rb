@@ -1,6 +1,6 @@
 require 'r10k'
 require 'r10k/config'
-require 'r10k/synchro/git'
+
 require 'yaml'
 
 class R10K::Deployment

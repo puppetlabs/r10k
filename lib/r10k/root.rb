@@ -1,6 +1,5 @@
 require 'r10k'
 require 'r10k/module'
-require 'r10k/synchro/git'
 require 'r10k/logging'
 
 class R10K::Root
@@ -28,7 +27,7 @@ class R10K::Root
   end
 
   def sync!(options = {})
-    synchro = R10K::Synchro::Git.new(@remote)
+    synchro = R10K::Git::WorkingDir.new(@remote)
     recursive_needed = !(synchro.cloned?(full_path))
     synchro.sync(full_path, @ref, options)
 
