@@ -76,10 +76,6 @@ class Cache
     end
   end
 
-  def cached?
-    File.exist? @path
-  end
-
   # @return [Array<String>] A list the branches for the git repository
   def branches
     output = git "branch", :git_dir => @path
@@ -103,6 +99,11 @@ class Cache
   def sanitized_remote_name
     @remote.gsub(/[^@\w\.-]/, '-')
   end
+
+  def cached?
+    File.exist? @path
+  end
+
 end
 end
 end
