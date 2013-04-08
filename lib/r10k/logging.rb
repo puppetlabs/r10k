@@ -7,9 +7,13 @@ module R10K::Logging
 
   include Log4r
 
+  def logger_name
+    self.class.name
+  end
+
   def logger
     unless @logger
-      @logger = Log4r::Logger.new(self.class.name)
+      @logger = Log4r::Logger.new(logger_name)
       @logger.add R10K::Logging.outputter
     end
     @logger
