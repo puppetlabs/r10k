@@ -7,12 +7,14 @@ require 'systemu'
 require 'semver'
 require 'json'
 
-class R10K::Module::Forge
+module R10K
+module Module
+class Forge
 
   include R10K::Module
 
   def self.implement?(name, args)
-    !!(name.match(%r[\w+/\w+]) and args.is_a? String and SemVer.valid?(args))
+    !!(name.match %r[\w+/\w+])
   end
 
   include R10K::Logging
@@ -24,7 +26,10 @@ class R10K::Module::Forge
     @path      = path
 
     @owner, @name = name.split('/')
-    @version = SemVer.new(args)
+
+    if args.is_a? String
+      @version = SemVer.new(args)
+    end
   end
 
   def sync!(options = {})
@@ -36,7 +41,7 @@ class R10K::Module::Forge
       logger.debug "Module #{@full_name} is installed but doesn't match version #{@version}, upgrading"
       cmd = []
       cmd << 'upgrade'
-      cmd << "--version=#{@version}"
+      cmd << "--version=#{@version}" if @version
       cmd << "--ignore-dependencies"
       cmd << @full_name
       pmt cmd
@@ -44,7 +49,7 @@ class R10K::Module::Forge
       logger.debug "Module #{@full_name} is not installed"
       cmd = []
       cmd << 'install'
-      cmd << "--version=#{@version}"
+      cmd << "--version=#{@version}" if @version
       cmd << "--ignore-dependencies"
       cmd << @full_name
       pmt cmd
@@ -93,4 +98,6 @@ class R10K::Module::Forge
     end
     stdout
   end
+end
+end
 end
