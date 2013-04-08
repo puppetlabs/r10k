@@ -56,6 +56,15 @@ class Cache
   end
 
   def sync
+    if @synced
+      logger.debug "#{@remote} already synced this run, not syncing again"
+    else
+      sync!
+      @synced = true
+    end
+  end
+
+  def sync!
     if cached?
       logger.debug "Updating existing cache at #{@path}"
       git "fetch --prune", :git_dir => @cache_path
