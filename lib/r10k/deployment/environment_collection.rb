@@ -57,7 +57,6 @@ class R10K::Deployment::EnvironmentCollection
     @config[:sources].each_pair do |repo_name, repo_config|
       cache = R10K::Git::Cache.new(repo_config['remote'])
       if @update_cache
-        logger.info "Updating git cache for #{repo_config['remote']}"
         cache.sync
       end
 

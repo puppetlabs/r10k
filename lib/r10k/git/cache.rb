@@ -60,13 +60,12 @@ class Cache
       logger.debug "Updating existing cache at #{@path}"
       git "fetch --prune", :git_dir => @cache_path
     else
-      logger.debug "No cache for #{@remote.inspect}, forcing cache build"
+      logger.debug "Creating new git cache for #{@remote.inspect}"
       cache_root = self.class.cache_root
       FileUtils.mkdir_p cache_root unless File.exist? cache_root
       git "clone --mirror #{@remote} #{@cache_path}"
     end
   end
-  alias :cache :sync
 
   def cached?
     File.exist? @path
