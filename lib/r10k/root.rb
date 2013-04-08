@@ -41,7 +41,8 @@ class R10K::Root
   end
 
   def modules
-    librarian = R10K::Librarian.new("#{full_path}/Puppetfile")
+    librarian_path = "#{full_path}/Puppetfile"
+    librarian = R10K::Librarian.new(librarian_path)
 
     module_data = librarian.load
 
@@ -51,7 +52,7 @@ class R10K::Root
       R10K::Module.new(name, "#{full_path}/modules", args)
     end
   rescue Errno::ENOENT
-    logger.warn "#{self}: #{full_path} does not exist, cannot enumerate modules."
+    logger.warn "#{self}: #{librarian_path} does not exist, cannot enumerate modules."
     []
   end
 
