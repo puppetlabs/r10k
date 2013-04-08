@@ -52,7 +52,7 @@ class Cache
     @remote     = remote
     @cache_root = self.class.cache_root
 
-    @path = File.join(cache_root, sanitized_remote_name)
+    @path = File.join(@cache_root, sanitized_remote_name)
   end
 
   def sync
@@ -67,12 +67,12 @@ class Cache
   def sync!
     if cached?
       logger.debug "Updating existing cache at #{@path}"
-      git "fetch --prune", :git_dir => @cache_path
+      git "fetch --prune", :git_dir => @path
     else
       logger.debug "Creating new git cache for #{@remote.inspect}"
       cache_root = self.class.cache_root
       FileUtils.mkdir_p cache_root unless File.exist? cache_root
-      git "clone --mirror #{@remote} #{@cache_path}"
+      git "clone --mirror #{@remote} #{@path}"
     end
   end
 
