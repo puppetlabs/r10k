@@ -41,6 +41,5 @@ class R10K::Config
     if @config[:cachedir]
       R10K::Git::Cache.cache_root = @config[:cachedir]
     end
-    @collection = R10K::Deployment::EnvironmentCollection.new(@config)
   end
 end

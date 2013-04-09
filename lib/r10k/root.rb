@@ -63,36 +63,36 @@ class R10K::Root
   private
 
   def parse_initialize_hash(hash)
-    if hash['name']
-      @name = hash.delete('name')
-    elsif hash['ref']
-      @name = hash['ref']
+    if hash[:name]
+      @name = hash.delete(:name)
+    elsif hash[:ref]
+      @name = hash[:ref]
     else
       raise "Unable to resolve directory name from options #{hash.inspect}"
     end
 
     # XXX This could be metaprogrammed, but it seems like the road to madness.
 
-    if hash['basedir']
-      @basedir = hash.delete('basedir')
+    if hash[:basedir]
+      @basedir = hash.delete(:basedir)
     else
-      raise "'basedir' is a required value for #{self.class}.new"
+      raise ":basedir is a required value for #{self.class}.new"
     end
 
-    if hash['remote']
-      @remote = hash.delete('remote')
+    if hash[:remote]
+      @remote = hash.delete(:remote)
     else
-      raise "'remote' is a required value for #{self.class}.new"
+      raise ":remote is a required value for #{self.class}.new"
     end
 
-    if hash['ref']
-      @ref = hash.delete('ref')
+    if hash[:ref]
+      @ref = hash.delete(:ref)
     else
-      raise "'ref' is a required value for #{self.class}.new"
+      raise ":ref is a required value for #{self.class}.new"
     end
 
     unless hash.empty?
-      raise "#{self.class}.new only expects keys ['name', 'basedir', 'remote', 'ref'], got #{hash.keys.inspect}"
+      raise "#{self.class}.new only expects keys [:name, :basedir, :remote, :ref], got #{hash.keys.inspect}"
     end
   end
 end
