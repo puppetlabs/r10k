@@ -19,10 +19,20 @@ class WorkingDir
   extend Forwardable
 
   # @!attribute [r] cache
-  #   @return [R10K::Git::Cache]
+  #   @return [R10K::Git::Cache] The object cache backing this working directory
   attr_reader :cache
 
+  # @!attribute [r] remote
+  #   @return [String] The URL to the git repository
   attr_reader :remote
+
+  # @todo
+  # @!attribute [r] path
+  #   @return [String] The path to the working directory
+
+  # @todo
+  # @!attribute [r] ref
+  #   @return [String] The git reference to use check out in the given directory
 
   # Instantiates a new git synchro and optionally prepares for caching
   #
@@ -34,6 +44,9 @@ class WorkingDir
   end
 
   # Synchronize the local git repository.
+  #
+  # @todo Remove the path and ref arguments and convert those into instance
+  #   variables to avoid mutating state.
   #
   # @param [String] path The destination path for the files
   # @param [String] ref The git ref to instantiate at the destination path
