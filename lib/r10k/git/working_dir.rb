@@ -1,3 +1,4 @@
+require 'forwardable'
 require 'r10k/logging'
 require 'r10k/execution'
 require 'r10k/git/command'
