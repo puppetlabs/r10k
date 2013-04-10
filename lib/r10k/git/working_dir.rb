@@ -8,9 +8,9 @@ module Git
 class WorkingDir
   # Implements sparse git repositories with shared objects
   #
-  # Class instances are memoized based on the git remote path. This way if a
-  # single git repository is instantiated multiple times, the object cache
-  # will only be updated once.
+  # Working directory instances use the git alternatives object store, so that
+  # working directories only contain checked out files and all object files are
+  # shared.
 
   include R10K::Logging
   include R10K::Execution
