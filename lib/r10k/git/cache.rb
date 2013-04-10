@@ -10,7 +10,14 @@ class Cache
   # @see man git-clone(1)
 
   class << self
-    attr_accessor :cache_root
+
+    # @!attribute [r] cache_root
+    #   @return [String] The directory to use as the cache.
+    attr_writer :cache_root
+
+    def cache_root
+      @cache_root
+    end
 
     # Memoize class instances and return existing instances.
     #
@@ -28,6 +35,10 @@ class Cache
       end
       @repos[remote]
     end
+
+    def clear!
+      @repos = {}
+    end
   end
 
   include R10K::Logging
@@ -39,6 +50,8 @@ class Cache
   attr_reader :remote
 
   # @!attribute [r] cache_root
+  #   Where to keep the git object cache. Defaults to ~/.r10k/git if a class
+  #   level value is not set.
   #   @return [String] The directory to use as the cache
   attr_reader :cache_root
 
@@ -50,7 +63,8 @@ class Cache
   # @param [String] cache_root
   def initialize(remote)
     @remote     = remote
-    @cache_root = self.class.cache_root
+
+    @cache_root = self.class.cache_root || default_cache_root
 
     @path = File.join(@cache_root, sanitized_remote_name)
   end
@@ -104,6 +118,9 @@ class Cache
     File.exist? @path
   end
 
+  def default_cache_root
+    File.expand_path('~/.r10k/git')
+  end
 end
 end
 end
