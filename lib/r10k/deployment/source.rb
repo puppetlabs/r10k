@@ -1,5 +1,5 @@
 require 'r10k/git/cache'
-require 'r10k/root'
+require 'r10k/deployment/environment'
 
 module R10K
 class Deployment
@@ -31,12 +31,30 @@ class Source
     @cache.sync
 
     @environments = @cache.branches.map do |branch|
-      R10K::Root.new({
+      R10K::Deployment::Environment.new({
         :remote  => @remote,
         :basedir => @basedir,
         :ref     => branch,
       })
     end
+  end
+
+  # Returns directories that don't map to branches
+  #
+  # @return [Array<String>] All stale directories
+  def stale
+    branches = @environments.map(&:name)
+
+    existing_directories - branches
+  end
+
+  # @return [Array<String>] All existing directories
+  def existing_directories
+    directories = Dir.glob[File.join(@basedir, '*')].select do |entry|
+      File.directory? entry
+    end
+
+    directories.select {|dir| File.basename dir}
   end
 end
 end

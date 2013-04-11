@@ -19,7 +19,7 @@ class R10K::Module::Git
   end
 
   def sync!(options = {})
-    synchro = R10K::Git::WorkingDir.new(@remote)
-    synchro.sync(full_path, @ref, options)
+    working_dir = R10K::Git::WorkingDir.new(@remote)
+    working_dir.sync(full_path, @ref, options)
   end
 end

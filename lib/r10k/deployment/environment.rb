@@ -1,8 +1,9 @@
-require 'r10k'
 require 'r10k/module'
 require 'r10k/logging'
 
-class R10K::Root
+module R10K
+class Deployment
+class Environment
 
   include R10K::Logging
 
@@ -27,9 +28,9 @@ class R10K::Root
   end
 
   def sync!(options = {})
-    synchro = R10K::Git::WorkingDir.new(@remote)
-    recursive_needed = !(synchro.cloned?(full_path))
-    synchro.sync(full_path, @ref, options)
+    working_dir = R10K::Git::WorkingDir.new(@remote)
+    recursive_needed = !(working_dir.cloned?(full_path))
+    working_dir.sync(full_path, @ref, options)
 
     sync_modules!(options) if recursive_needed
   end
@@ -40,17 +41,18 @@ class R10K::Root
     end
   end
 
+  def puppetfile
+    puppetfile_path = File.join(full_path, 'Puppetfile')
+    @puppetfile = R10K::Puppetfile.new(puppetfile_path)
+  end
+
   def modules
     librarian_path = "#{full_path}/Puppetfile"
     librarian = R10K::Librarian.new(librarian_path)
 
-    module_data = librarian.load
+    librarian.load
 
-    @modules = module_data.map do |mod|
-      name = mod[0]
-      args = mod[1]
-      R10K::Module.new(name, "#{full_path}/modules", args)
-    end
+    @modules
   rescue Errno::ENOENT
     logger.warn "#{self}: #{librarian_path} does not exist, cannot enumerate modules."
     []
@@ -95,4 +97,6 @@ class R10K::Root
       raise "#{self.class}.new only expects keys [:name, :basedir, :remote, :ref], got #{hash.keys.inspect}"
     end
   end
+end
+end
 end
