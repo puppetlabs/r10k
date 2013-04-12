@@ -1,45 +1,28 @@
 require 'r10k'
+require 'r10k/deployment/source'
 require 'r10k/config'
 
 require 'yaml'
 
-class R10K::Deployment
+module R10K
+class Deployment
   # Model a full installation of module directories and modules.
-
-  class << self
-    def instance
-      @myself ||= self.new
-    end
-
-    def config
-      instance.config
-    end
-
-    def collection
-      instance.collection
-    end
-  end
 
   def initialize
     @config = R10K::Config.new
+    @config.load_config
   end
 
-  def config
-    @config
-  end
+  # @return [Array<R10K::Deployment::Source>] All sources for this deployment
+  def sources
+    sources = []
+    @config.setting(:sources).each_pair do |name, source_config|
+      remote  = source_config[:remote]
+      basedir = source_config[:basedir]
+      sources << R10K::Deployment::Source.new(name, remote, basedir)
+    end
 
-  # Load up all module roots
-  #
-  # @return [Array<R10K::Root>]
-  def environments
-    collection.to_a
-  end
-
-  def collection
-    @config.load_config unless @config.loaded?
-    @collection ||= R10K::Deployment::EnvironmentCollection.new(@config)
-    @collection
+    sources
   end
 end
-
-require 'r10k/deployment/environment_collection'
+end

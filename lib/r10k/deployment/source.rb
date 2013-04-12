@@ -6,6 +6,9 @@ class Deployment
 class Source
   # Represents a git repository to map branches to environments
 
+  # @!attribute [r] name
+  #   @return [String] The short name for the deployment source
+
   # @!attribute [r] source
   #   @return [String] The git remote to use for environments
   attr_reader :remote
@@ -18,11 +21,12 @@ class Source
   #   @return [Array<R10K::Deployment::Environment>] All environments for this source
   attr_reader :environments
 
-  def initialize(remote, basedir)
+  def initialize(name, remote, basedir)
+    @name    = name
     @remote  = remote
     @basedir = basedir
-    @cache   = R10K::Git::Cache.new(@remote)
 
+    @cache   = R10K::Git::Cache.new(@remote)
     @environments = []
   end
 
