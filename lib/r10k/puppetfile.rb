@@ -1,5 +1,4 @@
 require 'r10k/module'
-require 'r10k/puppetfile/dsl'
 
 module R10K
 class Puppetfile
@@ -13,15 +12,32 @@ class Puppetfile
   #   @return [Array<R10K::Module>]
   attr_reader :modules
 
-  def initialize(path)
-    @path    = path
+  # @!attribute [r] root
+  #   @return [String] The puppet root directory
+  attr_reader :root
+
+  # @!attribute [r] moduledir
+  #   @return [String] The directory to install the modules #{root}/modules
+  attr_reader :moduledir
+
+  # @!attrbute [r] path
+  #   @return [String] The path to the Puppetfile
+  attr_reader :path
+
+  # @param [String] root
+  # @param [String] puppetfile The path to the Puppetfile, default to #{root}/Puppetfile
+  def initialize(root, moduledir = nil, puppetfile = nil)
+    @root       = root
+    @moduledir  = moduledir  || File.join(root, 'modules')
+    @puppetfile = puppetfile || File.join(root, 'Puppetfile')
+
     @modules = []
     @forge   = 'forge.puppetlabs.com'
   end
 
   def load
     dsl = R10K::Puppetfile::DSL.new(self)
-    dsl.instance_eval(puppetfile_contents, @path)
+    dsl.instance_eval(puppetfile_contents, @puppetfile)
   end
 
   # @param [String] forge
@@ -32,13 +48,13 @@ class Puppetfile
   # @param [String] name
   # @param [*Object] args
   def add_module(name, args)
-    @modules << R10K::Module.new(name, path, args)
+    @modules << R10K::Module.new(name, @moduledir, args)
   end
 
   private
 
   def puppetfile_contents
-    File.read(@path)
+    File.read(@puppetfile)
   end
 
   class DSL

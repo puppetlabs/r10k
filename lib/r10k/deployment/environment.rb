@@ -42,20 +42,12 @@ class Environment
   end
 
   def puppetfile
-    puppetfile_path = File.join(full_path, 'Puppetfile')
-    @puppetfile = R10K::Puppetfile.new(puppetfile_path)
+    @puppetfile = R10K::Puppetfile.new(full_path)
   end
 
   def modules
-    librarian_path = "#{full_path}/Puppetfile"
-    librarian = R10K::Librarian.new(librarian_path)
-
-    librarian.load
-
+    puppetfile.load
     @modules
-  rescue Errno::ENOENT
-    logger.warn "#{self}: #{librarian_path} does not exist, cannot enumerate modules."
-    []
   end
 
   def full_path
