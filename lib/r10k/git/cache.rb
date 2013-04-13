@@ -84,8 +84,7 @@ class Cache
       git "fetch --prune", :git_dir => @path
     else
       logger.debug "Creating new git cache for #{@remote.inspect}"
-      cache_root = self.class.cache_root
-      FileUtils.mkdir_p cache_root unless File.exist? cache_root
+      FileUtils.mkdir_p cache_root unless File.exist? @cache_root
       git "clone --mirror #{@remote} #{@path}"
     end
   end
