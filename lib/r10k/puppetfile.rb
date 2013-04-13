@@ -22,17 +22,17 @@ class Puppetfile
   def load
     dsl = R10K::Puppetfile::DSL.new(self)
     dsl.instance_eval(puppetfile_contents, @path)
-
-    @modules
   end
 
-  # This method only exists because people tried being excessively clever.
+  # @param [String] forge
   def set_forge(forge)
     @forge = forge
   end
 
+  # @param [String] name
+  # @param [*Object] args
   def add_module(name, args)
-    @modules << [name, args]
+    @modules << R10K::Module.new(name, path, args)
   end
 
   private
