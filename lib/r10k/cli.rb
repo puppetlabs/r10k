@@ -1,6 +1,8 @@
 require 'r10k'
 require 'r10k/logging'
+require 'r10k/version'
 require 'r10k/cli/ext/logging'
+
 require 'cri'
 
 module R10K::CLI
@@ -27,10 +29,16 @@ module R10K::CLI
         R10K::Logging.level = Integer(value)
       end
 
-      flag :t, :trace, 'Display stack traces on application crash'
+      flag :t, :trace,   'Display stack traces on application crash'
+      # TODO remove short option when cri can support it
+      flag :e, :version, 'Print the R10K version'
 
       run do |opts, args, cmd|
-        puts cmd.help
+        if opts[:version]
+          puts R10K::VERSION
+        else
+          puts cmd.help
+        end
         exit 0
       end
     end
