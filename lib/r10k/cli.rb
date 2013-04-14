@@ -30,8 +30,6 @@ module R10K::CLI
       end
 
       flag :t, :trace,   'Display stack traces on application crash'
-      # TODO remove short option when cri can support it
-      flag :e, :version, 'Print the R10K version'
 
       run do |opts, args, cmd|
         if opts[:version]
