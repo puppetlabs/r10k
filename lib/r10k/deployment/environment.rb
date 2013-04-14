@@ -7,24 +7,31 @@ class Environment
 
   include R10K::Logging
 
-  # @!attribute [r] name
-  #   The directory name of this root
-  attr_reader :name
-
-  # @!attribute [r] basedir
-  #   The basedir to clone the root into
-  attr_reader :basedir
+  # @!attribute [r] ref
+  #   The git ref to instantiate into the basedir
+  attr_reader :ref
 
   # @!attribute [r] remote
   #   The location of the remote git repository
   attr_reader :remote
 
-  # @!attribute [r] ref
-  #   The git ref to instantiate into the basedir
-  attr_reader :ref
+  # @!attribute [r] basedir
+  #   The basedir to clone the root into
+  attr_reader :basedir
 
-  def initialize(hash)
-    parse_initialize_hash(hash)
+  # @!attribute [r] dirname
+  #   @return [String] The directory name to use for the environment
+  attr_reader :dirname
+
+  # @param [String] ref
+  # @param [String] remote
+  # @param [String] basedir
+  # @param [String] dirname The directory to clone the root into, defaults to ref
+  def initialize(ref, remote, basedir, dirname = nil)
+    @ref     = ref
+    @remote  = remote
+    @basedir = basedir
+    @dirname = dirname || ref
   end
 
   def sync!(options = {})
@@ -51,43 +58,7 @@ class Environment
   end
 
   def full_path
-    @full_path ||= File.expand_path(File.join @basedir, @name)
-  end
-
-  private
-
-  def parse_initialize_hash(hash)
-    if hash[:name]
-      @name = hash.delete(:name)
-    elsif hash[:ref]
-      @name = hash[:ref]
-    else
-      raise "Unable to resolve directory name from options #{hash.inspect}"
-    end
-
-    # XXX This could be metaprogrammed, but it seems like the road to madness.
-
-    if hash[:basedir]
-      @basedir = hash.delete(:basedir)
-    else
-      raise ":basedir is a required value for #{self.class}.new"
-    end
-
-    if hash[:remote]
-      @remote = hash.delete(:remote)
-    else
-      raise ":remote is a required value for #{self.class}.new"
-    end
-
-    if hash[:ref]
-      @ref = hash.delete(:ref)
-    else
-      raise ":ref is a required value for #{self.class}.new"
-    end
-
-    unless hash.empty?
-      raise "#{self.class}.new only expects keys [:name, :basedir, :remote, :ref], got #{hash.keys.inspect}"
-    end
+    @full_path ||= File.expand_path(File.join @basedir, @dirname)
   end
 end
 end

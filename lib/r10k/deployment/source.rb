@@ -35,11 +35,7 @@ class Source
     @cache.sync
 
     @environments = @cache.branches.map do |branch|
-      R10K::Deployment::Environment.new({
-        :remote  => @remote,
-        :basedir => @basedir,
-        :ref     => branch,
-      })
+      R10K::Deployment::Environment.new(branch, @remote, @basedir)
     end
   end
 
