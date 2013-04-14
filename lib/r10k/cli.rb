@@ -29,14 +29,10 @@ module R10K::CLI
         R10K::Logging.level = Integer(value)
       end
 
-      flag :t, :trace,   'Display stack traces on application crash'
+      flag :t, :trace, 'Display stack traces on application crash'
 
       run do |opts, args, cmd|
-        if opts[:version]
-          puts R10K::VERSION
-        else
-          puts cmd.help
-        end
+        puts cmd.help
         exit 0
       end
     end
