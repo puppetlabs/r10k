@@ -32,24 +32,19 @@ module R10K::CLI
             config = R10K::Config.new(opts[:config])
             deploy = R10K::Deployment.new(config)
 
-            envs = deploy.environments.inject({}) do |hash, env|
+            environments = deploy.environments.inject({}) do |hash, env|
               hash[env.dirname] = env
               hash
             end
 
-            if args.empty?
-              logger.notice "Deploying environments #{envs.keys.join(', ')}"
-              envs.values.each do |env|
+            env_names = args.empty? ? environments.keys : args
+
+            env_names.each do |env_name|
+              logger.notice "Deploying environment #{env_name}"
+              if (env = environments[env_name])
                 env.sync
-              end
-            else
-              args.each do |arg|
-                if (env = envs[arg])
-                  logger.notice "Deploying environment #{arg}"
-                  env.sync
-                else
-                  logger.warn "Environment #{arg} not found in any source"
-                end
+              else
+                logger.warn "Environment #{env_name} not found in any source"
               end
             end
 
