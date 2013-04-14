@@ -32,7 +32,7 @@ describe R10K::Module::Forge do
     its(:name) { should eq 'eight_hundred' }
     its(:owner) { should eq 'branan' }
     its(:full_name) { should eq 'branan/eight_hundred' }
-    its(:path) { should eq '/moduledir' }
+    its(:basedir) { should eq '/moduledir' }
     its(:full_path) { should eq '/moduledir/eight_hundred' }
   end
 
