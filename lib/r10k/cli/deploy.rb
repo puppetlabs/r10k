@@ -28,6 +28,8 @@ module R10K::CLI
           usage   'environment <environment> <...>'
           summary 'deploy an environment'
 
+          flag :p, :puppetfile, 'Deploy modules from a puppetfile'
+
           run do |opts, args, cmd|
             config = R10K::Config.new(opts[:config])
             deploy = R10K::Deployment.new(config)
@@ -43,6 +45,12 @@ module R10K::CLI
               logger.notice "Deploying environment #{env_name}"
               if (env = environments[env_name])
                 env.sync
+                if opts[:puppetfile]
+                  env.modules.each do |mod|
+                    logger.notice "Deploying module #{mod.name} in #{env_name}"
+                    mod.sync
+                  end
+                end
               else
                 logger.warn "Environment #{env_name} not found in any source"
               end
