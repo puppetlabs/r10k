@@ -5,6 +5,10 @@ class R10K::Config
 
   attr_accessor :configfile
 
+  def initialize(configfile)
+    @configfile = configfile
+  end
+
   def loaded?
     !(@config.nil?)
   end
