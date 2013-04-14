@@ -40,13 +40,13 @@ module R10K::CLI
             if args.empty?
               logger.notice "Deploying environments #{envs.keys.join(', ')}"
               envs.values.each do |env|
-                env.sync!
+                env.sync
               end
             else
               args.each do |arg|
                 if (env = envs[arg])
                   logger.notice "Deploying environment #{arg}"
-                  env.sync!
+                  env.sync
                 else
                   logger.warn "Environment #{arg} not found in any source"
                 end

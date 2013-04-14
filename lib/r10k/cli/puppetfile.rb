@@ -34,7 +34,7 @@ module R10K::CLI
             puppetfile.load
 
             puppetfile.modules.each do |mod|
-              mod.sync!({:update_cache => true})
+              mod.sync
             end
 
             exit 0

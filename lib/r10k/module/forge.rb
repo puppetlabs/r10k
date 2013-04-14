@@ -21,9 +21,9 @@ class Forge
 
   attr_accessor :version, :owner, :full_name
 
-  def initialize(name, path, args)
+  def initialize(name, basedir, args)
     @full_name = name
-    @path      = path
+    @basedir   = basedir
 
     @owner, @name = name.split('/')
 
@@ -80,8 +80,8 @@ class Forge
   private
 
   def pmt(args)
-    cmd = "puppet module --modulepath '#{@path}' #{args.join(' ')}"
-    log_event = "puppet module #{args.join(' ')}, modulepath: #{@path.inspect}"
+    cmd = "puppet module --modulepath '#{@basedir}' #{args.join(' ')}"
+    log_event = "puppet module #{args.join(' ')}, modulepath: #{@basedir.inspect}"
     logger.debug1 "Execute: #{cmd}"
 
     status, stdout, stderr = systemu(cmd)

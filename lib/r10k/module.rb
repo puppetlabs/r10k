@@ -17,25 +17,25 @@ module R10K::Module
   # with `name, args`, and generates an object of that class.
   #
   # @param [String] name The unique name of the module
-  # @param [String] path The root path to install the module in
+  # @param [String] basedir The root to install the module in
   # @param [Object] args An arbitary value or set of values that specifies the implementation
   #
   # @return [Object < R10K::Module] A member of the implementing subclass
-  def self.new(name, path, args)
+  def self.new(name, basedir, args)
     if implementation = @klasses.find { |klass| klass.implement?(name, args) }
       obj = implementation.send(:allocate)
-      obj.send(:initialize, name, path, args)
+      obj.send(:initialize, name, basedir, args)
       obj
     else
       raise "Module #{name} with args #{args.inspect} doesn't have an implementation. (Are you using the right arguments?)"
     end
   end
 
-  attr_accessor :name, :path
+  attr_accessor :name, :basedir
 
   # @return [String] The full filesystem path to the module.
   def full_path
-    File.join(@path, @name)
+    File.join(@basedir, @name)
   end
 end
 

@@ -32,33 +32,32 @@ class Environment
     @remote  = remote
     @basedir = basedir
     @dirname = dirname || ref
+
+    @working_dir = R10K::Git::WorkingDir.new(@ref, @remote, @basedir, @dirname)
+
+    @full_path = File.join(@basedir, @dirname)
   end
 
-  def sync!(options = {})
-    working_dir = R10K::Git::WorkingDir.new(@remote)
-    recursive_needed = !(working_dir.cloned?(full_path))
-    working_dir.sync(full_path, @ref, options)
+  def sync(options = {})
+    recursive_needed = !(@working_dir.cloned?)
+    @working_dir.sync
 
     sync_modules!(options) if recursive_needed
   end
 
   def sync_modules!(options = {})
     modules.each do |mod|
-      mod.sync!(options)
+      mod.sync(options)
     end
   end
 
   def puppetfile
-    @puppetfile = R10K::Puppetfile.new(full_path)
+    @puppetfile = R10K::Puppetfile.new(@full_path)
   end
 
   def modules
     puppetfile.load
-    @modules
-  end
-
-  def full_path
-    @full_path ||= File.expand_path(File.join @basedir, @dirname)
+    puppetfile.modules
   end
 end
 end
