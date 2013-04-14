@@ -38,21 +38,21 @@ class Environment
     @full_path = File.join(@basedir, @dirname)
   end
 
-  def sync(options = {})
+  def sync
     recursive_needed = !(@working_dir.cloned?)
     @working_dir.sync
 
-    sync_modules!(options) if recursive_needed
+    sync_modules if recursive_needed
   end
 
-  def sync_modules!(options = {})
+  def sync_modules
     modules.each do |mod|
-      mod.sync(options)
+      mod.sync
     end
   end
 
   def puppetfile
-    @puppetfile = R10K::Puppetfile.new(@full_path)
+    @puppetfile ||= R10K::Puppetfile.new(@full_path)
   end
 
   def modules
