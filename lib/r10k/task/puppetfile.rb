@@ -15,8 +15,6 @@ module Puppetfile
       logger.info "Loading modules from Puppetfile into queue"
 
       @puppetfile.load
-      puts "modules count #{@puppetfile.modules.size}"
-      puts "still a thing"
       @puppetfile.modules.each do |mod|
         task = R10K::Task::Module::Sync.new(mod)
         task_runner.add_task_after(self, task)
