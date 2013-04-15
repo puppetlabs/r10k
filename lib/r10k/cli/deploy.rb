@@ -2,8 +2,10 @@ require 'r10k/cli'
 require 'r10k/deployment'
 require 'r10k/deployment/config'
 
+require 'r10k/task_runner'
+require 'r10k/task/puppetfile'
+
 require 'cri'
-require 'middleware'
 
 module R10K::CLI
   module Deploy
@@ -46,10 +48,11 @@ module R10K::CLI
               if (env = environments[env_name])
                 env.sync
                 if opts[:puppetfile]
-                  env.modules.each do |mod|
-                    logger.notice "Deploying module #{mod.name} in #{env_name}"
-                    mod.sync
-                  end
+                  runner = R10K::TaskRunner.new(opts)
+                  task = R10K::Task::Puppetfile::Sync.new(env.puppetfile)
+                  runner.add_task task
+
+                  runner.run
                 end
               else
                 logger.warn "Environment #{env_name} not found in any source"

@@ -31,11 +31,12 @@ module R10K::CLI
             puppetfile      = ENV['PUPPETFILE']
 
             puppetfile = R10K::Puppetfile.new(puppetfile_root, puppetfile_path, puppetfile)
-            puppetfile.load
 
-            puppetfile.modules.each do |mod|
-              mod.sync
-            end
+            runner = R10K::TaskRunner.new(opts)
+            task   = R10K::Task::Puppetfile::Sync.new(puppetfile)
+            runner.add_task task
+
+            runner.run
 
             exit 0
           end
