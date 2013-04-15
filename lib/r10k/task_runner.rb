@@ -1,0 +1,54 @@
+require 'r10k/task'
+require 'r10k/logging'
+
+module R10K
+class TaskRunner
+
+  include R10K::Logging
+
+  def initialize(opts)
+    @tasks     = []
+    @succeeded = true
+    @errors    = {}
+
+    @opts = opts
+  end
+
+  def run
+    @tasks
+
+    until @tasks.empty?
+      current = @tasks.pop
+      current.task_runner = self
+      begin
+        current.call
+      rescue => e
+        logger.error "Task #{current} failed while running: #{e.message}"
+        $stderr.puts e.backtrace.join("\n").red if @opts[:trace]
+
+        @errors[current] = e
+        @succeeded = false
+      end
+    end
+  end
+
+  def add_task(task)
+    @tasks << task
+  end
+
+  # @param [R10K::Task] task_index The task to insert the task after
+  # @param [R10K::Task] new_task The task to insert
+  def add_task_after(task_index, new_task)
+    if (index = @tasks.index(task_index))
+      index += 1
+      @tasks.insert(index, new_task)
+    else
+      @tasks.insert(0, new_task)
+    end
+  end
+
+  def succeeded?
+    @succeeded
+  end
+end
+end
