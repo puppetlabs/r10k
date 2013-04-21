@@ -6,6 +6,8 @@ class TaskRunner
 
   include R10K::Logging
 
+  attr_writer :succeeded
+
   def initialize(opts)
     @tasks     = []
     @succeeded = true
