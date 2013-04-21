@@ -12,6 +12,7 @@ class TaskRunner
     @errors    = {}
 
     @opts = opts
+    @trace = opts[:trace]
   end
 
   def run
@@ -24,7 +25,7 @@ class TaskRunner
         current.call
       rescue => e
         logger.error "Task #{current} failed while running: #{e.message}"
-        $stderr.puts e.backtrace.join("\n").red if @opts[:trace]
+        $stderr.puts e.backtrace.join("\n").red if @trace
 
         @errors[current] = e
         @succeeded = false
