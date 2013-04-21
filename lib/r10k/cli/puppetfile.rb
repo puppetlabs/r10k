@@ -38,7 +38,7 @@ module R10K::CLI
 
             runner.run
 
-            exit 0
+            exit runner.exit_value
           end
         end
       end

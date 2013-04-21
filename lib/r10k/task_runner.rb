@@ -50,5 +50,9 @@ class TaskRunner
   def succeeded?
     @succeeded
   end
+
+  def exit_value
+    @succeeded ? 0 : 1
+  end
 end
 end
