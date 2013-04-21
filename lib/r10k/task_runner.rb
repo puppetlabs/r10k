@@ -11,8 +11,9 @@ class TaskRunner
     @succeeded = true
     @errors    = {}
 
-    @opts = opts
-    @trace = opts[:trace]
+    @trace = opts.delete(:trace)
+
+    raise "Unrecognized options: #{opts.keys.join(', ')}" unless opts.empty?
   end
 
   def run
