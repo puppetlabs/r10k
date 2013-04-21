@@ -19,10 +19,8 @@ class TaskRunner
   end
 
   def run
-    @tasks
-
     until @tasks.empty?
-      current = @tasks.pop
+      current = @tasks.first
       current.task_runner = self
       begin
         current.call
@@ -33,6 +31,7 @@ class TaskRunner
         @errors[current] = e
         @succeeded = false
       end
+      @tasks.shift
     end
   end
 
