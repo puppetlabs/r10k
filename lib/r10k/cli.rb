@@ -21,9 +21,7 @@ module R10K::CLI
         exit 0
       end
 
-      required :c, :config, 'Specify a configuration file' do |value, cmd|
-        R10K::Deployment.config.configfile = value
-      end
+      required :c, :config, 'Specify a configuration file'
 
       required :v, :verbose, 'Set verbosity level' do |value, cmd|
         R10K::Logging.level = Integer(value)
