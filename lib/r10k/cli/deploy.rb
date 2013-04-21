@@ -3,7 +3,7 @@ require 'r10k/deployment'
 require 'r10k/deployment/config'
 
 require 'r10k/task_runner'
-require 'r10k/task/puppetfile'
+require 'r10k/task/deployment'
 
 require 'cri'
 
@@ -33,33 +33,20 @@ module R10K::CLI
           flag :p, :puppetfile, 'Deploy modules from a puppetfile'
 
           run do |opts, args, cmd|
-            config = R10K::Config.new(opts[:config])
+            cfg_file = opts.delete(:config)
+            opts.delete(:verbose)
+            config = R10K::Config.new(cfg_file)
             deploy = R10K::Deployment.new(config)
 
-            environments = deploy.environments.inject({}) do |hash, env|
-              hash[env.dirname] = env
-              hash
-            end
+            task   = R10K::Task::Deployment::DeployEnvironments.new(deploy)
+            task.puppetfile = opts[:puppetfile]
+            task.names      = args
 
-            env_names = args.empty? ? environments.keys : args
+            runner = R10K::TaskRunner.new(:trace => opts[:trace])
+            runner.add_task task
+            runner.run
 
-            env_names.each do |env_name|
-              logger.notice "Deploying environment #{env_name}"
-              if (env = environments[env_name])
-                env.sync
-                if opts[:puppetfile]
-                  runner = R10K::TaskRunner.new(opts)
-                  task = R10K::Task::Puppetfile::Sync.new(env.puppetfile)
-                  runner.add_task task
-
-                  runner.run
-                end
-              else
-                logger.warn "Environment #{env_name} not found in any source"
-              end
-            end
-
-            exit 0
+            exit runner.exit_value
           end
         end
       end
