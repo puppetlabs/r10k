@@ -44,7 +44,7 @@ module Puppetfile
       to_deploy.each do |mod_name|
         mod = @modulemap[mod_name]
         task = R10K::Task::Module::Sync.new(mod)
-        task_runner.add_task task
+        task_runner.add_task_after(self, task)
       end
     end
 
