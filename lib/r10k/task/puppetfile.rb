@@ -57,7 +57,7 @@ module Puppetfile
         task_runner.succeeded = false
 
         missing_modules.each do |missing|
-          logger.warn "Unable to deploy module #{missing}: not listed in Puppetfile"
+          logger.warn "Unable to deploy module #{missing}: not listed in #{@puppetfile.puppetfile_path}"
         end
       end
     end
