@@ -27,20 +27,18 @@ module R10K::CLI
       def self.command
         @cmd ||= Cri::Command.define do
           name    'environment'
-          usage   'environment <environment> <...>'
+          usage   'environment <options> <environment> <...>'
           summary 'deploy an environment'
 
           flag :p, :puppetfile, 'Deploy modules from a puppetfile'
 
           run do |opts, args, cmd|
-            cfg_file = opts.delete(:config)
-            opts.delete(:verbose)
-            config = R10K::Config.new(cfg_file)
+            config = R10K::Config.new(opts[:config])
             deploy = R10K::Deployment.new(config)
 
             task   = R10K::Task::Deployment::DeployEnvironments.new(deploy)
-            task.puppetfile = opts[:puppetfile]
-            task.names      = args
+            task.update_puppetfile = opts[:puppetfile]
+            task.environment_names = args
 
             runner = R10K::TaskRunner.new(:trace => opts[:trace])
             runner.add_task task

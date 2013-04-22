@@ -5,19 +5,20 @@ module R10K
 module Task
 module Environment
   class Deploy < R10K::Task::Base
-    def initialize(environment, opts = {})
+
+    attr_writer :update_puppetfile
+
+    def initialize(environment)
       @environment = environment
 
-      @puppetfile = opts.delete(:puppetfile)
-
-      raise "Unrecognized options: #{opts.keys.join(', ')}" unless opts.empty?
+      @update_puppetfile = false
     end
 
     def call
       logger.notice "Deploying environment #{@environment.dirname}"
       @environment.sync
 
-      if @puppetfile
+      if @update_puppetfile
         task = R10K::Task::Puppetfile::Sync.new(@environment.puppetfile)
         task_runner.add_task_after(self, task)
       end
