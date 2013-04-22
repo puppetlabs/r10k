@@ -50,6 +50,31 @@ module R10K::CLI
       end
     end
     self.command.add_command(Environment.command)
+
+    module Module
+      def self.command
+        @cmd ||= Cri::Command.define do
+          name  'module'
+          usage 'module [module] <module ...>'
+          summary 'deploy modules in all environments'
+
+          run do |opts, args, cmd|
+            config = R10K::Config.new(opts[:config])
+            deploy = R10K::Deployment.new(config)
+
+            task = R10K::Task::Deployment::DeployModules.new(deploy)
+            task.module_names = args
+
+            runner = R10K::TaskRunner.new(:trace => opts[:trace])
+            runner.add_task task
+            runner.run
+
+            exit runner.exit_value
+          end
+        end
+      end
+    end
+    self.command.add_command(Module.command)
   end
   self.command.add_command(Deploy.command)
 end
