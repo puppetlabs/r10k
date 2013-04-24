@@ -41,7 +41,7 @@ module R10K::CLI
             task.environment_names = args
 
             runner = R10K::TaskRunner.new(:trace => opts[:trace])
-            runner.add_task task
+            runner.append_task task
             runner.run
 
             exit runner.exit_value
@@ -66,7 +66,7 @@ module R10K::CLI
             task.module_names = args
 
             runner = R10K::TaskRunner.new(:trace => opts[:trace])
-            runner.add_task task
+            runner.append_task task
             runner.run
 
             exit runner.exit_value

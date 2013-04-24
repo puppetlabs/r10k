@@ -65,7 +65,7 @@ module Deployment
       with_environments(@environment_names) do |env|
         task = R10K::Task::Environment::Deploy.new(env)
         task.update_puppetfile = @update_puppetfile
-        task_runner.add_task task
+        task_runner.prepend_task task
       end
     end
   end
@@ -92,7 +92,7 @@ module Deployment
         task = R10K::Task::Puppetfile::DeployModules.new(puppetfile)
         task.module_names = module_names
 
-        task_runner.add_task task
+        task_runner.prepend_task task
       end
     end
   end

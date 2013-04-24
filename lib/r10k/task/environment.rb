@@ -20,7 +20,7 @@ module Environment
 
       if @update_puppetfile
         task = R10K::Task::Puppetfile::Sync.new(@environment.puppetfile)
-        task_runner.add_task_after(self, task)
+        task_runner.prepend_task task
       end
     end
   end

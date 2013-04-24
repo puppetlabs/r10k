@@ -35,13 +35,17 @@ class TaskRunner
     end
   end
 
-  def add_task(task)
+  def prepend_task(task)
+    @tasks.unshift task
+  end
+
+  def append_task(task)
     @tasks << task
   end
 
   # @param [R10K::Task] task_index The task to insert the task after
   # @param [R10K::Task] new_task The task to insert
-  def add_task_after(task_index, new_task)
+  def insert_task_after(task_index, new_task)
     if (index = @tasks.index(task_index))
       index += 1
       @tasks.insert(index, new_task)

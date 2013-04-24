@@ -34,7 +34,7 @@ module R10K::CLI
 
             runner = R10K::TaskRunner.new(opts)
             task   = R10K::Task::Puppetfile::Sync.new(puppetfile)
-            runner.add_task task
+            runner.append_task task
 
             runner.run
 

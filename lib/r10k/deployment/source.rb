@@ -9,6 +9,7 @@ class Source
 
   # @!attribute [r] name
   #   @return [String] The short name for the deployment source
+  attr_reader :name
 
   # @!attribute [r] source
   #   @return [String] The git remote to use for environments
@@ -47,7 +48,7 @@ class Source
   # @note This implements a required method for the Purgeable mixin
   # @return [Array<String>]
   def desired_contents
-    @environments.map {|env| env.dirname}
+    @environments.map {|env| env.dirname }
   end
 end
 end
