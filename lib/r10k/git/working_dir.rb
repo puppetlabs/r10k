@@ -79,6 +79,16 @@ class WorkingDir
 
   private
 
+  def set_cache_remote
+    # XXX This is crude but it'll ensure that the right remote is used for
+    # the cache.
+    if remote_url('cache') == @cache.path
+      logger.debug1 "Git repo #{@full_path} cache remote already set correctly"
+    else
+      git "remote set-url cache #{@cache.path}", :path => @full_path
+    end
+  end
+
   # Perform a non-bare clone of a git repository.
   def clone
     # We do the clone against the target repo using the `--reference` flag so
@@ -88,15 +98,19 @@ class WorkingDir
   end
 
   def fetch
-    # XXX This is crude but it'll ensure that the right remote is used for
-    # the cache.
-    git "remote set-url cache #{@cache.path}", :path => @full_path
+    set_cache_remote
     git "fetch --prune cache", :path => @full_path
   end
 
   # Reset a git repo with a working directory to a specific ref
   def reset
-    commit = resolve_commit(@ref)
+    commit  = cache.resolve_ref(@ref)
+    current = resolve_ref('HEAD')
+
+    if commit == current
+      logger.debug1 "Git repo #{@full_path} is already at #{commit}, no need to reset"
+      return
+    end
 
     begin
       git "reset --hard #{commit}", :path => @full_path
@@ -111,12 +125,30 @@ class WorkingDir
   # @param [String] ref
   #
   # @return [String] The dereferenced hash of `ref`
-  def resolve_commit(ref)
-    commit = git "rev-parse #{@ref}^{commit}", :git_dir => @cache.path
+  def resolve_ref(ref)
+    commit = git "rev-parse #{ref}^{commit}", :path => @full_path
     commit.chomp
   rescue R10K::ExecutionFailure => e
-    logger.error "Could not resolve ref #{@ref.inspect} for git cache #{@cache.path}"
+    logger.error "Could not resolve ref #{ref.inspect} for git repo #{@full_path}"
     raise
+  end
+
+  # @param [String] name The remote to retrieve the URl for
+  # @return [String] The git remote URL
+  def remote_url(remote_name)
+    output = git "remote -v", :path => @full_path
+
+    remotes = {}
+
+    output.each_line do |line|
+      if mdata = line.match(/^(\S+)\s+(\S+)\s+\(fetch\)/)
+        name   = mdata[1]
+        remote = mdata[2]
+        remotes[name] = remote
+      end
+    end
+
+    remotes[remote_name]
   end
 end
 end

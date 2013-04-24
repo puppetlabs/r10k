@@ -106,6 +106,19 @@ class Cache
     end
   end
 
+  # Resolve a ref to a commit hash
+  #
+  # @param [String] ref
+  #
+  # @return [String] The dereferenced hash of `ref`
+  def resolve_ref(ref)
+    commit = git "rev-parse #{ref}^{commit}", :git_dir => @path
+    commit.chomp
+  rescue R10K::ExecutionFailure => e
+    logger.error "Could not resolve ref #{ref.inspect} for git cache #{@cache}"
+    raise
+  end
+
   private
 
   # Reformat the remote name into something that can be used as a directory
