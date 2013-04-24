@@ -1,5 +1,6 @@
 require 'r10k/git/cache'
 require 'r10k/deployment/environment'
+require 'r10k/util/purgeable'
 
 module R10K
 class Deployment
@@ -15,6 +16,7 @@ class Source
 
   # @!attribute [r] basedir
   #   @return [String] The base directory to deploy the environments into
+  #   @note This implements a required method for Purgeable
   attr_reader :basedir
 
   # @!attribute [r] environments
@@ -39,22 +41,13 @@ class Source
     end
   end
 
-  # Returns directories that don't map to branches
-  #
-  # @return [Array<String>] All stale directories
-  def stale
-    branches = @environments.map(&:name)
+  include R10K::Util::Purgeable
 
-    existing_directories - branches
-  end
-
-  # @return [Array<String>] All existing directories
-  def existing_directories
-    directories = Dir.glob[File.join(@basedir, '*')].select do |entry|
-      File.directory? entry
-    end
-
-    directories.select {|dir| File.basename dir}
+  # List all environments that should exist in the basedir for this source
+  # @note This implements a required method for the Purgeable mixin
+  # @return [Array<String>]
+  def desired_contents
+    @environments.map {|env| env.dirname}
   end
 end
 end
