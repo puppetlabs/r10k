@@ -38,7 +38,7 @@ module Purgeable
   end
 
   # Forcibly remove all unmanaged content in `self.basedir`
-  def purge
+  def purge!
     stale_contents.each do |fname|
       fpath = File.join(self.basedir, fname)
       FileUtils.rm_rf fpath, :secure => true

@@ -59,7 +59,7 @@ class Puppetfile
   # @note This implements a required method for the Purgeable mixin
   # @return [Array<String>]
   def desired_contents
-    @modules.map { |mod| mod.dirname }
+    @modules.map { |mod| mod.name }
   end
 
   private

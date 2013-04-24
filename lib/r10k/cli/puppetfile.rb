@@ -44,6 +44,33 @@ module R10K::CLI
       end
     end
     self.command.add_command(Install.command)
+
+    module Purge
+      def self.command
+        @cmd ||= Cri::Command.define do
+          name  'purge'
+          usage 'purge'
+          summary 'Purge unmanaged modules from a Puppetfile managed directory'
+
+          run do |opts, args, cmd|
+            puppetfile_root = Dir.getwd
+            puppetfile_path = ENV['PUPPETFILE_DIR']
+            puppetfile      = ENV['PUPPETFILE']
+
+            puppetfile = R10K::Puppetfile.new(puppetfile_root, puppetfile_path, puppetfile)
+
+            runner = R10K::TaskRunner.new(opts)
+            task   = R10K::Task::Puppetfile::Purge.new(puppetfile)
+            runner.append_task task
+
+            runner.run
+
+            exit runner.exit_value
+          end
+        end
+      end
+    end
+    self.command.add_command(Purge.command)
   end
   self.command.add_command(Puppetfile.command)
 end
