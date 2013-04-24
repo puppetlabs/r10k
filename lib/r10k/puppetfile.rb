@@ -1,4 +1,5 @@
 require 'r10k/module'
+require 'r10k/util/purgeable'
 
 module R10K
 class Puppetfile
@@ -14,6 +15,7 @@ class Puppetfile
 
   # @!attribute [r] basedir
   #   @return [String] The base directory that contains the Puppetfile
+  #   @note This implements a required method for the Purgeable mixin
   attr_reader :basedir
 
   # @!attribute [r] moduledir
@@ -49,6 +51,15 @@ class Puppetfile
   # @param [*Object] args
   def add_module(name, args)
     @modules << R10K::Module.new(name, @moduledir, args)
+  end
+
+  include R10K::Util::Purgeable
+
+  # List all modules that should exist in the module directory
+  # @note This implements a required method for the Purgeable mixin
+  # @return [Array<String>]
+  def desired_contents
+    @modules.map { |mod| mod.dirname }
   end
 
   private
