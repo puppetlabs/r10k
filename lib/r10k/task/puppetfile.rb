@@ -31,7 +31,7 @@ module Puppetfile
     end
 
     def call
-      logger.info "Updating module list for Puppetfile #{@puppetfile.root}"
+      logger.info "Updating module list for Puppetfile #{@puppetfile.basedir}"
       @puppetfile.load
       load_modulemap!
 

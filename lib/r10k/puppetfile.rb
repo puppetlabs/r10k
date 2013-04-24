@@ -12,24 +12,24 @@ class Puppetfile
   #   @return [Array<R10K::Module>]
   attr_reader :modules
 
-  # @!attribute [r] root
-  #   @return [String] The puppet root directory
-  attr_reader :root
+  # @!attribute [r] basedir
+  #   @return [String] The base directory that contains the Puppetfile
+  attr_reader :basedir
 
   # @!attribute [r] moduledir
-  #   @return [String] The directory to install the modules #{root}/modules
+  #   @return [String] The directory to install the modules #{basedir}/modules
   attr_reader :moduledir
 
   # @!attrbute [r] puppetfile_path
   #   @return [String] The path to the Puppetfile
   attr_reader :puppetfile_path
 
-  # @param [String] root
-  # @param [String] puppetfile The path to the Puppetfile, default to #{root}/Puppetfile
-  def initialize(root, moduledir = nil, puppetfile = nil)
-    @root            = root
-    @moduledir       = moduledir  || File.join(root, 'modules')
-    @puppetfile_path = puppetfile || File.join(root, 'Puppetfile')
+  # @param [String] basedir
+  # @param [String] puppetfile The path to the Puppetfile, default to #{basedir}/Puppetfile
+  def initialize(basedir, moduledir = nil, puppetfile = nil)
+    @basedir            = basedir
+    @moduledir       = moduledir  || File.join(basedir, 'modules')
+    @puppetfile_path = puppetfile || File.join(basedir, 'Puppetfile')
 
     @modules = []
     @forge   = 'forge.puppetlabs.com'
