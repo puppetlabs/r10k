@@ -17,7 +17,7 @@ module Puppetfile
       @puppetfile.load
       @puppetfile.modules.each do |mod|
         task = R10K::Task::Module::Sync.new(mod)
-        task_runner.prepend_task task
+        task_runner.insert_task_after(self, task)
       end
     end
   end
@@ -44,7 +44,7 @@ module Puppetfile
       to_deploy.each do |mod_name|
         mod = @modulemap[mod_name]
         task = R10K::Task::Module::Sync.new(mod)
-        task_runner.prepend_task task
+        task_runner.insert_task_after(self, task)
       end
     end
 
@@ -66,6 +66,28 @@ module Puppetfile
         @modulemap = @puppetfile.modules.inject({}) do |hash, mod|
         hash[mod.name] = mod
         hash
+      end
+    end
+  end
+
+  class Purge < R10K::Task::Base
+    def initialize(puppetfile)
+      @puppetfile = puppetfile
+    end
+
+    def call
+      moduledir = @puppetfile.moduledir
+
+      @puppetfile.load
+
+      stale_mods = @puppetfile.stale_contents
+
+      if stale_mods.empty?
+        logger.debug "No stale modules in #{moduledir}"
+      else
+        logger.info "Purging stale modules from #{moduledir}"
+        logger.debug "Stale modules in #{moduledir}: #{stale_mods.join(', ')}"
+        @puppetfile.purge!
       end
     end
   end
