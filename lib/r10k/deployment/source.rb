@@ -17,7 +17,6 @@ class Source
 
   # @!attribute [r] basedir
   #   @return [String] The base directory to deploy the environments into
-  #   @note This implements a required method for Purgeable
   attr_reader :basedir
 
   # @!attribute [r] environments
@@ -43,6 +42,10 @@ class Source
   end
 
   include R10K::Util::Purgeable
+
+  def managed_directory
+    @basedir
+  end
 
   # List all environments that should exist in the basedir for this source
   # @note This implements a required method for the Purgeable mixin

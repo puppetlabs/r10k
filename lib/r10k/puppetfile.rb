@@ -15,7 +15,6 @@ class Puppetfile
 
   # @!attribute [r] basedir
   #   @return [String] The base directory that contains the Puppetfile
-  #   @note This implements a required method for the Purgeable mixin
   attr_reader :basedir
 
   # @!attribute [r] moduledir
@@ -54,6 +53,10 @@ class Puppetfile
   end
 
   include R10K::Util::Purgeable
+
+  def managed_directory
+    @moduledir
+  end
 
   # List all modules that should exist in the module directory
   # @note This implements a required method for the Purgeable mixin

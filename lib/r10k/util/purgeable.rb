@@ -4,22 +4,22 @@ module Util
 module Purgeable
   # Mixin for purging stale directory contents.
   #
-  # @abstract Classes using this mixin need to implement {#basedir} and
+  # @abstract Classes using this mixin need to implement {#managed_directory} and
   #   {#desired_contents}
 
   # @!method desired_contents
   #   @abstract Including classes must implement this method to list the
-  #     expected filenames of basedir
+  #     expected filenames of managed_directory
   #   @return [Array<String>] A list of directory contents that should be present
 
-  # @!method basedir
+  # @!method managed_directory
   #   @abstract Including classes must implement this method to return the
   #     path to the directory that can be purged
   #   @return [String] The path to the directory to be purged
 
-  # @return [Array<String>] The present directory entries in `self.basedir`
+  # @return [Array<String>] The present directory entries in `self.managed_directory`
   def current_contents
-    dir = self.basedir
+    dir = self.managed_directory
     glob_exp = File.join(dir, '*')
 
     Dir.glob(glob_exp).map do |fname|
@@ -37,10 +37,10 @@ module Purgeable
     current_contents - desired_contents
   end
 
-  # Forcibly remove all unmanaged content in `self.basedir`
+  # Forcibly remove all unmanaged content in `self.managed_directory`
   def purge!
     stale_contents.each do |fname|
-      fpath = File.join(self.basedir, fname)
+      fpath = File.join(self.managed_directory, fname)
       FileUtils.rm_rf fpath, :secure => true
     end
   end
