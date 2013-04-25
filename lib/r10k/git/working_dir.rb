@@ -104,8 +104,8 @@ class WorkingDir
 
   # Reset a git repo with a working directory to a specific ref
   def reset
-    commit  = cache.resolve_ref(@ref)
-    current = resolve_ref('HEAD')
+    commit  = cache.rev_parse(@ref)
+    current = rev_parse('HEAD')
 
     if commit == current
       logger.debug1 "Git repo #{@full_path} is already at #{commit}, no need to reset"
@@ -125,7 +125,7 @@ class WorkingDir
   # @param [String] ref
   #
   # @return [String] The dereferenced hash of `ref`
-  def resolve_ref(ref)
+  def rev_parse(ref)
     commit = git "rev-parse #{ref}^{commit}", :path => @full_path
     commit.chomp
   rescue R10K::ExecutionFailure => e

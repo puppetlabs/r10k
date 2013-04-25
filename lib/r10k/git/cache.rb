@@ -111,7 +111,7 @@ class Cache
   # @param [String] ref
   #
   # @return [String] The dereferenced hash of `ref`
-  def resolve_ref(ref)
+  def rev_parse(ref)
     commit = git "rev-parse #{ref}^{commit}", :git_dir => @path
     commit.chomp
   rescue R10K::ExecutionFailure => e
