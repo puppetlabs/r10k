@@ -62,7 +62,7 @@ class Cache
   # @param [String] remote
   # @param [String] cache_root
   def initialize(remote)
-    @remote     = remote
+    @remote = remote
 
     @cache_root = self.class.cache_root || default_cache_root
 
