@@ -1,9 +1,6 @@
 require 'r10k/cli/environment'
-require 'r10k/deployment'
-require 'r10k/action'
-
+require 'r10k/cli/deploy'
 require 'cri'
-require 'middleware'
 
 module R10K::CLI::Environment
   module Deploy
@@ -17,29 +14,10 @@ module R10K::CLI::Environment
         flag :u, :update, "Enable or disable cache updating"
 
         run do |opts, args, cmd|
-          deployment = R10K::Deployment.instance
-          env_list   = deployment.environments
+          logger.warn "This command is deprecated; please use `r10k deploy environment`"
 
-          if not args.empty?
-            environments = env_list.select {|env| args.include? env.name }
-          else
-            environments = env_list
-          end
+          R10K::CLI::Deploy::Environment.command.block.call(opts,args,cmd)
 
-          stack = Middleware::Builder.new do
-            environments.each do |env|
-              use R10K::Action::Environment::Deploy, env
-            end
-          end
-
-          # Prepare middleware environment
-          stack_env = {
-            :update_cache => opts[:update],
-            :recurse      => opts[:recurse],
-            :trace        => opts[:trace],
-          }
-
-          stack.call(stack_env)
         end
       end
     end
