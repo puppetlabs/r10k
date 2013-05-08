@@ -31,7 +31,7 @@ class Environment
     @ref     = ref
     @remote  = remote
     @basedir = basedir
-    @dirname = dirname || ref
+    @dirname = sanitize_dirname(dirname || ref)
 
     @working_dir = R10K::Git::WorkingDir.new(@ref, @remote, @basedir, @dirname)
 
@@ -58,6 +58,27 @@ class Environment
   def modules
     puppetfile.load
     puppetfile.modules
+  end
+
+  private
+
+  # Strip out non-word characters in an environment directory name
+  #
+  # Puppet can only use word characers (letter, digit, underscore) in
+  # environment names; this cleans up environment names to avoid traversals
+  # and similar issues.
+  #
+  # @param input [String] The raw branch name
+  #
+  # @return [String] The sanitized branch dirname
+  def sanitize_dirname(input)
+    output  = input.dup
+    invalid = %r[\W+]
+    if output.gsub!(invalid, '_')
+      logger.warn "Environment #{input.inspect} contained non-word characters; sanitizing to #{output.inspect}"
+    end
+
+    output
   end
 end
 end
