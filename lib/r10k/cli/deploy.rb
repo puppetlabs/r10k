@@ -15,6 +15,8 @@ module R10K::CLI
         usage   'deploy <subcommand>'
         summary 'Puppet dynamic environment deployment'
 
+        required :c, :config, 'Specify a configuration file'
+
         run do |opts, args, cmd|
           # TODO delegate the default invocation to synchronize
           puts cmd.help

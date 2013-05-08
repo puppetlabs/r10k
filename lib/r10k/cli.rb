@@ -21,8 +21,6 @@ module R10K::CLI
         exit 0
       end
 
-      required :c, :config, 'Specify a configuration file'
-
       required :v, :verbose, 'Set verbosity level' do |value, cmd|
         R10K::Logging.level = Integer(value)
       end

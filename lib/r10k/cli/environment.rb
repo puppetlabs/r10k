@@ -9,6 +9,8 @@ module R10K::CLI
         usage 'environment <subcommand>'
         summary 'Operate on a specific environment'
 
+        required :c, :config, 'Specify a configuration file'
+
         run do |opts, args, cmd|
           puts cmd.help
           exit 0

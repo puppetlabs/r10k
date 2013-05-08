@@ -13,6 +13,8 @@ module R10K::CLI
         usage 'synchronize <options>'
         summary 'Fully synchronize all environments'
 
+        required :c, :config, 'Specify a configuration file'
+
         run do |opts, args, cmd|
           deployment   = R10K::Deployment.instance
           environments = deployment.environments

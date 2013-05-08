@@ -9,6 +9,8 @@ module R10K::CLI
         usage 'module <subcommand>'
         summary 'Operate on a specific puppet module'
 
+        required :c, :config, 'Specify a configuration file'
+
         required :e, :environment, 'Specify a particular environment'
 
         run do |opts, args, cmd|
