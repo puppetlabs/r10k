@@ -40,7 +40,6 @@ end
 require 'r10k/cli/deploy'
 require 'r10k/cli/environment'
 require 'r10k/cli/module'
-require 'r10k/cli/cache'
 require 'r10k/cli/synchronize'
 require 'r10k/cli/puppetfile'
 require 'r10k/cli/version'
