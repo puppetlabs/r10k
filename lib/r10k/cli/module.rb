@@ -7,7 +7,9 @@ module R10K::CLI
       @cmd ||= Cri::Command.define do
         name  'module'
         usage 'module <subcommand>'
-        summary 'Operate on a specific puppet module'
+        summary 'DEPRECATED: Operate on a specific puppet module'
+
+        be_hidden
 
         required :c, :config, 'Specify a configuration file'
 

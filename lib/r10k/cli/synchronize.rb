@@ -8,9 +8,11 @@ module R10K::CLI
       @cmd ||= Cri::Command.define do
         name  'synchronize'
         usage 'synchronize <options>'
-        summary 'Fully synchronize all environments'
+        summary 'DEPRECATED: Fully synchronize all environments'
 
         required :c, :config, 'Specify a configuration file'
+
+        be_hidden
 
         run do |opts, args, cmd|
           logger.warn "#{cmd.name} is deprecated; please use `r10k deploy environment --puppetfile`"

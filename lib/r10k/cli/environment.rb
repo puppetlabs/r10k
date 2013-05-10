@@ -7,9 +7,11 @@ module R10K::CLI
       @cmd ||= Cri::Command.define do
         name  'environment'
         usage 'environment <subcommand>'
-        summary 'Operate on a specific environment'
+        summary 'DEPRECATED: Operate on a specific environment'
 
         required :c, :config, 'Specify a configuration file'
+
+        be_hidden
 
         run do |opts, args, cmd|
           puts cmd.help
