@@ -1,8 +1,5 @@
-require 'r10k/cli'
-require 'r10k/deployment'
-require 'r10k/action/environment'
+require 'r10k/cli/deploy'
 
-require 'middleware'
 require 'cri'
 
 module R10K::CLI
@@ -16,27 +13,10 @@ module R10K::CLI
         required :c, :config, 'Specify a configuration file'
 
         run do |opts, args, cmd|
-          deployment   = R10K::Deployment.instance
-          environments = deployment.environments
-          directories  = (deployment.config[:purgedirs] || [])
+          logger.warn "#{cmd.name} is deprecated; please use `r10k deploy environment --puppetfile`"
 
-          stack = Middleware::Builder.new do
-            environments.each do |env|
-              use R10K::Action::Environment::Deploy, env
-            end
-
-            directories.each do |dir|
-              use R10K::Action::Environment::Purge, dir
-            end
-          end
-
-          stack_env = {
-            :update_cache => true,
-            :trace        => opts[:trace],
-            :recurse      => true,
-          }
-
-          stack.call(stack_env)
+          opts.merge!({:puppetfile => true})
+          R10K::CLI::Deploy::Environment.command.block.call(opts,args,cmd)
         end
       end
     end
