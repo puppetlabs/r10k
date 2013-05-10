@@ -19,19 +19,26 @@ class TaskRunner
   end
 
   def run
-    until @tasks.empty?
-      current = @tasks.first
-      current.task_runner = self
-      begin
-        current.call
-      rescue => e
-        logger.error "Task #{current} failed while running: #{e.message}"
-        $stderr.puts e.backtrace.join("\n").red if @trace
+    catch :abort do
+      until @tasks.empty?
+        current = @tasks.first
+        current.task_runner = self
+        begin
+          current.call
+        rescue Interrupt => e
+          logger.error "Aborted!"
+          $stderr.puts e.backtrace.join("\n").red if @trace
+          @succeeded = false
+          throw :abort
+        rescue => e
+          logger.error "Task #{current} failed while running: #{e.message}"
+          $stderr.puts e.backtrace.join("\n").red if @trace
 
-        @errors[current] = e
-        @succeeded = false
+          @errors[current] = e
+          @succeeded = false
+        end
+        @tasks.shift
       end
-      @tasks.shift
     end
   end
 
