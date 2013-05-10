@@ -18,7 +18,6 @@ module R10K::CLI
         required :c, :config, 'Specify a configuration file'
 
         run do |opts, args, cmd|
-          # TODO delegate the default invocation to synchronize
           puts cmd.help
           exit 0
         end
