@@ -27,6 +27,10 @@ module R10K::CLI
 
       flag :t, :trace, 'Display stack traces on application crash'
 
+      required :c, :config, 'Specify a configuration file' do |value, cmd|
+        logger.warn "Calling `r10k --config <action>` as a global option is deprecated; use r10k <action> --config"
+      end
+
       run do |opts, args, cmd|
         puts cmd.help
         exit 0
