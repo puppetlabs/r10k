@@ -1,9 +1,7 @@
-require 'r10k'
 
-class R10K::Config
-end
-
-class R10K::Config::Loader
+module R10K
+module Config
+class Loader
 
   def initialize
     @loadpath = []
@@ -36,4 +34,6 @@ class R10K::Config::Loader
 
     @loadpath
   end
+end
+end
 end

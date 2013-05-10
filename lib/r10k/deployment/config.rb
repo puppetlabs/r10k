@@ -1,7 +1,9 @@
 require 'r10k/deployment'
 require 'r10k/config/loader'
 
-class R10K::Config
+module R10K
+class Deployment
+class Config
 
   attr_accessor :configfile
 
@@ -46,4 +48,6 @@ class R10K::Config
       R10K::Git::Cache.cache_root = @config[:cachedir]
     end
   end
+end
+end
 end
