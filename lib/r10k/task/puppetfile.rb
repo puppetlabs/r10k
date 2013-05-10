@@ -19,6 +19,9 @@ module Puppetfile
         task = R10K::Task::Module::Sync.new(mod)
         task_runner.insert_task_after(self, task)
       end
+
+      purge_task = Purge.new(@puppetfile)
+      task_runner.append_task purge_task
     end
   end
 
