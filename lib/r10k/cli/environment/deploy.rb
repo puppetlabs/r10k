@@ -17,9 +17,7 @@ module R10K::CLI::Environment
 
         run do |opts, args, cmd|
           logger.warn "This command is deprecated; please use `r10k deploy environment`"
-
           R10K::CLI::Deploy::Environment.command.block.call(opts,args,cmd)
-
         end
       end
     end

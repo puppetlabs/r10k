@@ -1,5 +1,5 @@
 require 'r10k/cli/module'
-require 'r10k/deployment'
+require 'r10k/cli/deploy'
 require 'cri'
 
 module R10K::CLI::Module
@@ -10,32 +10,11 @@ module R10K::CLI::Module
         usage 'list'
         summary 'List modules that are instantiated in environments'
 
+        be_hidden
+
         run do |opts, args, cmd|
-          deployment = R10K::Deployment.instance
-          env_list   = deployment.environments
-
-          update_cache = (defined? opts[:update]) ? (opts[:update] == 'true') : false
-
-          if opts[:environment]
-            environments = env_list.select {|env| env.name == opts[:environment]}
-          else
-            environments = env_list
-          end
-
-          printree = {}
-
-          environments.each do |env|
-            module_names = env.modules.map(&:name)
-
-            printree[env.name] = module_names
-          end
-
-          printree.each_pair do |env_name, mod_list|
-            puts "  - #{env_name}"
-            mod_list.each do |mod|
-              puts "      #{mod}"
-            end
-          end
+          logger.warn "This command is deprecated; please use `r10k deploy display`"
+          R10K::CLI::Deploy::Display.command.block.call(opts,args,cmd)
         end
       end
     end

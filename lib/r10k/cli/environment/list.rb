@@ -1,5 +1,5 @@
 require 'r10k/cli/environment'
-require 'r10k/deployment'
+require 'r10k/cli/deploy'
 require 'cri'
 
 module R10K::CLI::Environment
@@ -8,17 +8,13 @@ module R10K::CLI::Environment
       @cmd ||= Cri::Command.define do
         name  'list'
         usage 'list'
-        summary 'List all available environments'
+        summary 'DEPRECATED: List all available environments'
+
+        be_hidden
 
         run do |opts, args, cmd|
-          deployment = R10K::Deployment.instance
-          output = deployment.environments.inject('') do |str, root|
-            str << "  - "
-            str << "#{root.name}: #{root.full_path}"
-            str << "\n"
-          end
-
-          puts output
+          logger.warn "This command is deprecated; please use `r10k deploy display`"
+          R10K::CLI::Deploy::Display.command.block.call(opts,args,cmd)
         end
       end
     end
