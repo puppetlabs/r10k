@@ -25,6 +25,10 @@ class Git
 
     @working_dir = R10K::Git::WorkingDir.new(@ref, @remote, @basedir, @name)
   end
+
+  def version
+    @ref
+  end
 end
 end
 end

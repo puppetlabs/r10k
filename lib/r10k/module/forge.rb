@@ -57,7 +57,7 @@ class Forge
   end
 
   # @return [SemVer, NilClass]
-  def current_version
+  def version
     if metadata
       SemVer.new(metadata['version'])
     else
@@ -66,7 +66,7 @@ class Forge
   end
 
   def insync?
-    @version == current_version
+    @version == version
   end
 
   def metadata
