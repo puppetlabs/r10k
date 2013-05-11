@@ -37,12 +37,15 @@ module R10K::CLI
             config = R10K::Deployment::Config.new(opts[:config])
             deploy = R10K::Deployment.new(config)
 
-            task   = R10K::Task::Deployment::DeployEnvironments.new(deploy)
+            task = R10K::Task::Deployment::DeployEnvironments.new(deploy)
             task.update_puppetfile = opts[:puppetfile]
             task.environment_names = args
 
+            purge = R10K::Task::Deployment::PurgeEnvironments.new(deploy)
+
             runner = R10K::TaskRunner.new(:trace => opts[:trace])
             runner.append_task task
+            runner.append_task purge
             runner.run
 
             exit runner.exit_value

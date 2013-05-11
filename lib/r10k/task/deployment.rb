@@ -20,7 +20,7 @@ module Deployment
 
     # @param [Array<String>] names The list of environments to deploy.
     #
-    def with_environments(names, &block)
+    def with_environments(names = [], &block)
       load_environments!
 
       # If an explicit list of environments were not given, deploy everything
@@ -93,6 +93,30 @@ module Deployment
         task.module_names = module_names
 
         task_runner.insert_task_after(self, task)
+      end
+    end
+  end
+
+  class PurgeEnvironments < R10K::Task::Base
+
+    def initialize(deployment)
+      @deployment = deployment
+    end
+
+    def call
+      @deployment.sources.each do |source|
+        source.fetch_environments
+        stale_envs = source.stale_contents
+
+        dir = source.managed_directory
+
+        if stale_envs.empty?
+          logger.debug "No stale environments in #{dir}"
+        else
+          logger.info "Purging stale environments from #{dir}"
+          logger.debug "Stale modules in #{dir}: #{stale_envs.join(', ')}"
+          source.purge!
+        end
       end
     end
   end
