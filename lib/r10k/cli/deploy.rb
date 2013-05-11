@@ -29,7 +29,7 @@ module R10K::CLI
         @cmd ||= Cri::Command.define do
           name    'environment'
           usage   'environment <options> <environment> <...>'
-          summary 'deploy an environment'
+          summary 'deploy environments and their dependent modules'
 
           flag :p, :puppetfile, 'Deploy modules from a puppetfile'
 
