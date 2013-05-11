@@ -34,8 +34,7 @@ module R10K::CLI
           flag :p, :puppetfile, 'Deploy modules from a puppetfile'
 
           run do |opts, args, cmd|
-            config = R10K::Deployment::Config.new(opts[:config])
-            deploy = R10K::Deployment.new(config)
+            deploy = R10K::Deployment.load_config(opts[:config])
 
             task = R10K::Task::Deployment::DeployEnvironments.new(deploy)
             task.update_puppetfile = opts[:puppetfile]
@@ -63,8 +62,7 @@ module R10K::CLI
           summary 'deploy modules in all environments'
 
           run do |opts, args, cmd|
-            config = R10K::Deployment::Config.new(opts[:config])
-            deploy = R10K::Deployment.new(config)
+            deploy = R10K::Deployment.load_config(opts[:config])
 
             task = R10K::Task::Deployment::DeployModules.new(deploy)
             task.module_names = args

@@ -8,6 +8,15 @@ module R10K
 class Deployment
   # Model a full installation of module directories and modules.
 
+  # Generate a deployment object based on a config
+  #
+  # @param path [String] The path to the deployment config
+  # @return [R10K::Deployment] The deployment loaded with the given config
+  def self.load_config(path)
+    config = R10K::Deployment::Config.new(path)
+    new(config)
+  end
+
   def initialize(config)
     @config = config
   end
