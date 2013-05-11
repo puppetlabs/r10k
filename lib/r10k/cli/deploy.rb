@@ -77,6 +77,32 @@ module R10K::CLI
       end
     end
     self.command.add_command(Module.command)
+
+    module Display
+      def self.command
+        @cmd ||= Cri::Command.define do
+          name  'display'
+          usage 'display'
+          summary 'Display environments and modules in the deployment'
+
+          flag :p, :puppetfile, 'Display Puppetfile modules'
+
+          run do |opts, args, cmd|
+            deploy = R10K::Deployment.load_config(opts[:config])
+
+            task = R10K::Task::Deployment::Display.new(deploy)
+            task.puppetfile = opts[:puppetfile]
+
+            runner = R10K::TaskRunner.new(:trace => opts[:trace])
+            runner.prepend_task task
+            runner.run
+
+            exit runner.exit_value
+          end
+        end
+      end
+    end
+    self.command.add_command(Display.command)
   end
   self.command.add_command(Deploy.command)
 end

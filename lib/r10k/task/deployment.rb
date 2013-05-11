@@ -120,6 +120,31 @@ module Deployment
       end
     end
   end
+
+  class Display < R10K::Task::Base
+
+    attr_accessor :puppetfile
+
+    def initialize(deployment)
+      @deployment = deployment
+    end
+
+    def call
+      @deployment.environments.each do |env|
+
+        puts "  - #{env.dirname}"
+
+        if @puppetfile
+          puppetfile = env.puppetfile
+          puppetfile.load
+
+          puppetfile.modules.each do |mod|
+            puts "    - #{mod.name} (#{mod.version})"
+          end
+        end
+      end
+    end
+  end
 end
 end
 end
