@@ -32,7 +32,7 @@ class Forge
     end
   end
 
-  def sync!(options = {})
+  def sync(options = {})
     return if insync?
 
     if insync?
