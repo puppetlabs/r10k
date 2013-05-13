@@ -23,8 +23,7 @@ module R10K::Module
   # @return [Object < R10K::Module] A member of the implementing subclass
   def self.new(name, basedir, args)
     if implementation = @klasses.find { |klass| klass.implement?(name, args) }
-      obj = implementation.send(:allocate)
-      obj.send(:initialize, name, basedir, args)
+      obj = implementation.new(name, basedir, args)
       obj
     else
       raise "Module #{name} with args #{args.inspect} doesn't have an implementation. (Are you using the right arguments?)"
