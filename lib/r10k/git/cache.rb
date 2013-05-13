@@ -63,7 +63,7 @@ class Cache < R10K::Git::Repository
 
     @cache_root = self.class.cache_root || default_cache_root
 
-    @path = File.join(@cache_root, sanitized_remote_name)
+    @path = File.join(@cache_root, sanitized_dirname)
   end
 
   def sync
@@ -115,7 +115,7 @@ class Cache < R10K::Git::Repository
   private
 
   # Reformat the remote name into something that can be used as a directory
-  def sanitized_remote_name
+  def sanitized_dirname
     @remote.gsub(/[^@\w\.-]/, '-')
   end
 
