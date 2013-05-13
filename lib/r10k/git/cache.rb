@@ -68,7 +68,9 @@ class Cache < R10K::Git::Repository
 
   def sync
     if @synced
-      logger.debug "#{@remote} already synced this run, not syncing again"
+      # XXX This gets really spammy. Might be good to turn it on later, but for
+      # general work it's way much.
+      #logger.debug "#{@remote} already synced this run, not syncing again"
     else
       sync!
       @synced = true
@@ -77,7 +79,9 @@ class Cache < R10K::Git::Repository
 
   def sync!
     if cached?
-      logger.debug "Updating existing cache at #{@path}"
+      # XXX This gets really spammy. Might be good to turn it on later, but for
+      # general work it's way much.
+      #logger.debug "Updating existing cache at #{@path}"
       git "fetch --prune", :git_dir => @path
     else
       logger.debug "Creating new git cache for #{@remote.inspect}"
