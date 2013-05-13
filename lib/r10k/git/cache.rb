@@ -119,15 +119,16 @@ class Cache
     raise
   end
 
+  # @return [true, false] If the repository has been locally cached
+  def cached?
+    File.exist? @path
+  end
+
   private
 
   # Reformat the remote name into something that can be used as a directory
   def sanitized_remote_name
     @remote.gsub(/[^@\w\.-]/, '-')
-  end
-
-  def cached?
-    File.exist? @path
   end
 
   def default_cache_root
