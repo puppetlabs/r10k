@@ -6,6 +6,10 @@ module R10K
 class Deployment
 class Source
   # Represents a git repository to map branches to environments
+  #
+  # This module is backed with a bare git cache that's used to enumerate
+  # branches. The cache isn't used for anything else here, but all environments
+  # using that remote will be able to reuse the cache.
 
   # @!attribute [r] name
   #   @return [String] The short name for the deployment source
@@ -29,16 +33,13 @@ class Source
     @basedir = basedir
 
     @cache   = R10K::Git::Cache.new(@remote)
-    @environments = []
+
+    load_environments
   end
 
-  # Get the latest list of branches for this source.
-  def fetch_environments
+  def fetch_remote
     @cache.sync
-
-    @environments = @cache.branches.map do |branch|
-      R10K::Deployment::Environment.new(branch, @remote, @basedir)
-    end
+    load_environments
   end
 
   include R10K::Util::Purgeable
@@ -52,6 +53,18 @@ class Source
   # @return [Array<String>]
   def desired_contents
     @environments.map {|env| env.dirname }
+  end
+
+  private
+
+  def load_environments
+    if @cache.cached?
+      @environments = @cache.branches.map do |branch|
+        R10K::Deployment::Environment.new(branch, @remote, @basedir)
+      end
+    else
+      @environments = []
+    end
   end
 end
 end
