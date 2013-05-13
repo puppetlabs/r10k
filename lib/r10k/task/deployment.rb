@@ -61,6 +61,7 @@ module Deployment
 
     def call
       logger.info "Loading environments from all sources"
+      @deployment.fetch_sources
 
       with_environments(@environment_names) do |env|
         task = R10K::Task::Environment::Deploy.new(env)
@@ -104,7 +105,6 @@ module Deployment
     end
 
     def call
-      @deployment.fetch_sources
       @deployment.sources.each do |source|
         stale_envs = source.stale_contents
 
