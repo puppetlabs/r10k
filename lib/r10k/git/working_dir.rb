@@ -1,12 +1,10 @@
 require 'forwardable'
 require 'r10k/logging'
-require 'r10k/execution'
-require 'r10k/git/command'
 require 'r10k/git/cache'
 
 module R10K
 module Git
-class WorkingDir
+class WorkingDir < R10K::Git::Repository
   # Implements sparse git repositories with shared objects
   #
   # Working directory instances use the git alternatives object store, so that
@@ -14,26 +12,12 @@ class WorkingDir
   # shared.
 
   include R10K::Logging
-  include R10K::Execution
-  include R10K::Git::Command
 
   extend Forwardable
 
   # @!attribute [r] cache
   #   @return [R10K::Git::Cache] The object cache backing this working directory
   attr_reader :cache
-
-  # @!attribute [r] remote
-  #   @return [String] The URL to the git repository
-  attr_reader :remote
-
-  # @!attribute [r] basedir
-  #   @return [String] The basedir for the working directory
-  attr_reader :basedir
-
-  # @!attribute [r] dirname
-  #   @return [String] The name for the directory
-  attr_reader :dirname
 
   # @!attribute [r] ref
   #   @return [String] The git reference to use check out in the given directory
@@ -73,8 +57,7 @@ class WorkingDir
   #
   # @return [true, false] If the repo has already been cloned
   def cloned?
-    dot_git = File.join(@full_path, '.git')
-    File.directory? dot_git
+    File.directory? git_dir
   end
 
   private
@@ -149,6 +132,10 @@ class WorkingDir
     end
 
     remotes[remote_name]
+  end
+
+  def git_dir
+    File.join(@full_path, '.git')
   end
 end
 end

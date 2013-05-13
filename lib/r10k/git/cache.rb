@@ -1,10 +1,9 @@
 require 'r10k/logging'
-require 'r10k/execution'
-require 'r10k/git/command'
+require 'r10k/git/repository'
 
 module R10K
 module Git
-class Cache
+class Cache < R10K::Git::Repository
   # Mirror a git repository for use shared git object repositories
   #
   # @see man git-clone(1)
@@ -42,8 +41,6 @@ class Cache
   end
 
   include R10K::Logging
-  include R10K::Execution
-  include R10K::Git::Command
 
   # @!attribute [r] remote
   #   @return [String] The git repository remote
@@ -106,19 +103,6 @@ class Cache
     end
   end
 
-  # Resolve a ref to a commit hash
-  #
-  # @param [String] ref
-  #
-  # @return [String] The dereferenced hash of `ref`
-  def rev_parse(ref)
-    commit = git "rev-parse #{ref}^{commit}", :git_dir => @path
-    commit.chomp
-  rescue R10K::ExecutionFailure => e
-    logger.error "Could not resolve ref #{ref.inspect} for git cache #{@cache}"
-    raise
-  end
-
   # @return [true, false] If the repository has been locally cached
   def cached?
     File.exist? @path
@@ -133,6 +117,10 @@ class Cache
 
   def default_cache_root
     File.expand_path('~/.r10k/git')
+  end
+
+  def git_dir
+    @path
   end
 end
 end
