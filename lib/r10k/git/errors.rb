@@ -24,7 +24,7 @@ module Git
       end
 
       if @git_dir
-        msg << " at #{@git_dir}"
+        msg << " at #{@git_dir}. (Does the remote repository need to be updated?)"
       end
 
       msg
