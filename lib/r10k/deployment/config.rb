@@ -43,6 +43,8 @@ class Config
   private
 
   # Apply config settings to the relevant classes after a config has been loaded.
+  #
+  # @note this is hack. And gross. And terribad. I am sorry.
   def apply_config_settings
     if @config[:cachedir]
       R10K::Git::Cache.cache_root = @config[:cachedir]
