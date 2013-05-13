@@ -104,8 +104,8 @@ module Deployment
     end
 
     def call
+      @deployment.fetch_sources
       @deployment.sources.each do |source|
-        source.fetch_environments
         stale_envs = source.stale_contents
 
         dir = source.managed_directory
