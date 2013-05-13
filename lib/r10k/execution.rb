@@ -14,6 +14,9 @@ module Execution
   #
   # @option opts [String] :event An optional log event name. Defaults to cmd.
   #
+  # @raise [R10K::ExecutionFailure] If the executed command exited with a
+  #   nonzero exit code.
+  #
   # @return [String] the stdout from the command
   def execute(cmd, opts = {})
 
