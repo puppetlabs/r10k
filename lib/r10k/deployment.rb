@@ -38,6 +38,7 @@ class Deployment
     @sources.each do |source|
       source.fetch_remote
     end
+    load_environments
   end
 
   private
