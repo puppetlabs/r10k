@@ -42,7 +42,10 @@ class Environment
     recursive_needed = !(@working_dir.cloned?)
     @working_dir.sync
 
-    sync_modules if recursive_needed
+    if recursive_needed
+      logger.debug "Environment #{@full_path} is a fresh clone; automatically updating modules."
+      sync_modules
+    end
   end
 
   def sync_modules
