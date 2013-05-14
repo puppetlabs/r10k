@@ -36,9 +36,9 @@ class Forge
     return if insync?
 
     if insync?
-      logger.debug1 "Module #{@full_name} already matches version #{@version}"
+      #logger.debug1 "Module #{@full_name} already matches version #{@version}"
     elsif File.exist? metadata_path
-      logger.debug "Module #{@full_name} is installed but doesn't match version #{@version}, upgrading"
+      #logger.debug "Module #{@full_name} is installed but doesn't match version #{@version}, upgrading"
       cmd = []
       cmd << 'upgrade'
       cmd << "--version=#{@version}" if @version
@@ -46,7 +46,7 @@ class Forge
       cmd << @full_name
       pmt cmd
     else
-      logger.debug "Module #{@full_name} is not installed"
+      #logger.debug "Module #{@full_name} is not installed"
       cmd = []
       cmd << 'install'
       cmd << "--version=#{@version}" if @version
