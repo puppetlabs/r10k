@@ -1,5 +1,5 @@
 require 'r10k/deployment'
-require 'r10k/config/loader'
+require 'r10k/deployment/config/loader'
 
 module R10K
 class Deployment
@@ -22,12 +22,18 @@ class Config
   # @param [String] configfile The path to the YAML config file
   def load_config
     if @configfile.nil?
-      loader = R10K::Config::Loader.new
+      loader = R10K::Deployment::Config::Loader.new
       @configfile = loader.search
+      if @configfile.nil?
+        raise ConfigError, "No configuration file given, no config file found in parent directory, and no global config present"
+      end
     end
-    @config = YAML.load_file(@configfile)
-    apply_config_settings
-    @config
+    begin
+      @config = YAML.load_file(@configfile)
+      apply_config_settings
+    rescue => e
+      raise ConfigError, "Couldn't load config file: #{e.message}"
+    end
   end
 
   private
@@ -39,6 +45,9 @@ class Config
     if @config[:cachedir]
       R10K::Git::Cache.cache_root = @config[:cachedir]
     end
+  end
+
+  class ConfigError < StandardError
   end
 end
 end

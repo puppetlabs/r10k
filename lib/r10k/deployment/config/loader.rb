@@ -1,7 +1,10 @@
 
 module R10K
-module Config
+class Deployment
+class Config
 class Loader
+  # Search for a deployment configuration file (r10k.yaml) in all parent
+  # directories and in /etc/r10k.yaml
 
   def initialize
     @loadpath = []
@@ -34,6 +37,7 @@ class Loader
 
     @loadpath
   end
+end
 end
 end
 end
