@@ -27,6 +27,14 @@ class Source
   #   @return [Array<R10K::Deployment::Environment>] All environments for this source
   attr_reader :environments
 
+  def self.vivify(name, attrs)
+    remote  = (attrs.delete(:remote) || attrs.delete('remote'))
+    basedir = (attrs.delete(:basedir) || attrs.delete('basedir'))
+
+    raise ArgumentError, "Unrecognized source attributes #{attrs.inspect}" unless attrs.empty?
+    new(name, remote, basedir)
+  end
+
   def initialize(name, remote, basedir)
     @name    = name
     @remote  = remote
