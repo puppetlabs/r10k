@@ -28,7 +28,7 @@ class Puppetfile
   # @param [String] basedir
   # @param [String] puppetfile The path to the Puppetfile, default to #{basedir}/Puppetfile
   def initialize(basedir, moduledir = nil, puppetfile = nil)
-    @basedir            = basedir
+    @basedir         = basedir
     @moduledir       = moduledir  || File.join(basedir, 'modules')
     @puppetfile_path = puppetfile || File.join(basedir, 'Puppetfile')
 
