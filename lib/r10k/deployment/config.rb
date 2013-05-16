@@ -13,8 +13,22 @@ class Config
     load_config
   end
 
+  # Perform a scan for key and check for both string and symbol keys
   def setting(key)
-    @config[key]
+    keys = [key]
+    case key
+    when String
+      keys << key.to_sym
+    when Symbol
+      keys << key.to_s
+    end
+
+    # Scan all possible keys to see if the config has a matching value
+    keys.inject(nil) do |rv, k|
+      require 'pry'; binding.pry
+      v = @config[k]
+      break v unless v.nil?
+    end
   end
 
   # Load and store a config file, and set relevant options
@@ -42,8 +56,9 @@ class Config
   #
   # @note this is hack. And gross. And terribad. I am sorry.
   def apply_config_settings
-    if @config[:cachedir]
-      R10K::Git::Cache.cache_root = @config[:cachedir]
+    cachedir = setting(:cachedir)
+    if cachedir
+      R10K::Git::Cache.cache_root = cachedir
     end
   end
 
