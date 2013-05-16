@@ -9,33 +9,23 @@ class Config
 
   def initialize(configfile)
     @configfile = configfile
-  end
 
-  def loaded?
-    !(@config.nil?)
-  end
-
-  # Serve up the loaded config if it's already been loaded, otherwise try to
-  # load a config in the current wd.
-  def dump
-    load_config unless @config
-    @config
+    load_config
   end
 
   def setting(key)
-    self.dump[key]
+    @config[key]
   end
-  alias_method :[], :setting
 
   # Load and store a config file, and set relevant options
   #
   # @param [String] configfile The path to the YAML config file
   def load_config
-    unless @configfile
+    if @configfile.nil?
       loader = R10K::Config::Loader.new
       @configfile = loader.search
     end
-    File.open(@configfile) { |fh| @config = YAML.load(fh.read) }
+    @config = YAML.load_file(@configfile)
     apply_config_settings
     @config
   end
