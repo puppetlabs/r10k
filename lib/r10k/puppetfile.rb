@@ -1,9 +1,12 @@
 require 'r10k/module'
+require 'r10k/logging'
 require 'r10k/util/purgeable'
 
 module R10K
 class Puppetfile
   # Defines the data members of a Puppetfile
+
+  include R10K::Logging
 
   # @!attribute [r] forge
   #   @return [String] The URL to use for the Puppet Forge
@@ -37,6 +40,14 @@ class Puppetfile
   end
 
   def load
+    if File.readable? @puppetfile_path
+      self.load!
+    else
+      logger.debug "Puppetfile #{@puppetfile_path.inspect} missing or unreadable"
+    end
+  end
+
+  def load!
     dsl = R10K::Puppetfile::DSL.new(self)
     dsl.instance_eval(puppetfile_contents, @puppetfile_path)
   end
