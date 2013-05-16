@@ -31,7 +31,7 @@ class Source
     remote  = (attrs.delete(:remote) || attrs.delete('remote'))
     basedir = (attrs.delete(:basedir) || attrs.delete('basedir'))
 
-    raise ArgumentError, "Unrecognized source attributes #{attrs.inspect}" unless attrs.empty?
+    raise ArgumentError, "Unrecognized attributes for #{self.name}: #{attrs.inspect}" unless attrs.empty?
     new(name, remote, basedir)
   end
 
