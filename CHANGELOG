@@ -1,0 +1,46 @@
+CHANGELOG
+=========
+
+1.0.0
+-----
+
+2013-05-16
+
+This is a backwards incompatible bugfix and feature release.
+
+### Configuration
+
+The configuration file format of 0.0.9 should be compatible with 1.0.0, and any
+issues with that should be considered a bug.
+
+A longstanding issue was confusion between symbols and strings in r10k.yaml
+(GH-18). To resolve this, symbols and strings will be treated equally and
+should produce the same behavior. In the long run, symbols will probably be
+deprecated for the sake of conformity.
+
+### Command line invocation
+
+A number of commands have been renamed. They still but will emit a deprecation
+warning and will redirect to the new command implementation. The only
+exceptions is the are the `r10k environment cache` and `r10k environment stale`
+commands, but they were pretty much useless anyways.
+
+### Puppetfile support
+
+r10k can be used to deploy modules from a standalone Puppetfile. See
+`r10k puppetfile` for more information.
+
+Modules without a version in the format of 'foo/bar' will be assumed. (GH-21)
+
+### API
+
+r10k handles versioning according to SemVer; since this is a major release this
+is a backwards incompatible API change. It's unlikely that this has had any
+extensions written on top of it, but if you have, then heads up. However, all
+versions of 1.x should be backwards compatible.
+
+### Bugfixes
+
+A number of bugs were due to underlying architecture flaws. Part of 1.0.0 has
+been a significant architectural overhaul, so on top of all of the above
+changes there should be a lot of other bugs that have been fixed.
