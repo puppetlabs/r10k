@@ -11,7 +11,7 @@ module R10K::CLI::Module
       @cmd ||= Cri::Command.define do
         name  'deploy'
         usage 'deploy [module name] <module name> ...'
-        summary 'Deploy a module'
+        summary 'DEPRECATED: Deploy a module'
 
         be_hidden
 

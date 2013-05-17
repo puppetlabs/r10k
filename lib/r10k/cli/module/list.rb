@@ -8,7 +8,7 @@ module R10K::CLI::Module
       @cmd ||= Cri::Command.define do
         name  'list'
         usage 'list'
-        summary 'List modules that are instantiated in environments'
+        summary 'DEPRECATED: List modules that are instantiated in environments'
 
         be_hidden
 
