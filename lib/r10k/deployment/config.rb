@@ -25,7 +25,6 @@ class Config
 
     # Scan all possible keys to see if the config has a matching value
     keys.inject(nil) do |rv, k|
-      require 'pry'; binding.pry
       v = @config[k]
       break v unless v.nil?
     end
