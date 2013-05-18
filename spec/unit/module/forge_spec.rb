@@ -45,21 +45,19 @@ describe R10K::Module::Forge do
 
       it { should be_insync }
       its(:version) { should eq '8.0.0' }
-      its(:current_version) { should eq '8.0.0' }
     end
 
     describe "and the desired version is newer than the installed version" do
       subject { described_class.new('branan/eight_hundred', fixture_modulepath, '80.0.0') }
 
       it { should_not be_insync }
-      its(:version) { should eq '80.0.0' }
-      its(:current_version) { should eq '8.0.0' }
+      its(:version) { should eq 'v8.0.0' }
 
       it "should try to upgrade the module" do
         # "v80.0.0" ? Seriously? Where did the "v" come from?
         expected = %w{upgrade --version=v80.0.0 --ignore-dependencies branan/eight_hundred}
         subject.expects(:pmt).with(expected)
-        subject.sync!
+        subject.sync
       end
     end
 
@@ -67,14 +65,13 @@ describe R10K::Module::Forge do
       subject { described_class.new('branan/eight_hundred', fixture_modulepath, '7.0.0') }
 
       it { should_not be_insync }
-      its(:version) { should eq '7.0.0' }
-      its(:current_version) { should eq '8.0.0' }
+      its(:version) { should eq 'v8.0.0' }
 
       it "should try to downgrade the module" do
         # Again with the magical "v" prefix to the version.
         expected = %w{upgrade --version=v7.0.0 --ignore-dependencies branan/eight_hundred}
         subject.expects(:pmt).with(expected)
-        subject.sync!
+        subject.sync
       end
     end
 
@@ -82,13 +79,12 @@ describe R10K::Module::Forge do
       subject { described_class.new('branan/eight_hundred', empty_modulepath, '8.0.0') }
 
       it { should_not be_insync }
-      its(:version) { should eq '8.0.0' }
-      its(:current_version) { should eq SemVer::MIN }
+      its(:version) { should eq SemVer::MIN }
 
       it "should try to install the module" do
         expected = %w{install --version=v8.0.0 --ignore-dependencies branan/eight_hundred}
         subject.expects(:pmt).with(expected)
-        subject.sync!
+        subject.sync
       end
     end
   end

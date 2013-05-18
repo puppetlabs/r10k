@@ -19,7 +19,7 @@ class Forge
 
   include R10K::Logging
 
-  attr_accessor :version, :owner, :full_name
+  attr_accessor :owner, :full_name
 
   def initialize(name, basedir, args)
     @full_name = name
