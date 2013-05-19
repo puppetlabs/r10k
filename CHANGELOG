@@ -25,6 +25,8 @@ warning and will redirect to the new command implementation. The only
 exceptions is the are the `r10k environment cache` and `r10k environment stale`
 commands, but they were pretty much useless anyways.
 
+Log level verbosity can now be specified by level name instead of level number.
+
 ### Puppetfile support
 
 r10k can be used to deploy modules from a standalone Puppetfile. See
