@@ -7,6 +7,8 @@ module R10K::Logging
 
   include Log4r
 
+  LOG_LEVELS = %w{DEBUG2 DEBUG1 DEBUG INFO NOTICE WARN ERROR FATAL}
+
   def logger_name
     self.class.to_s
   end
@@ -22,9 +24,24 @@ module R10K::Logging
   class << self
     include Log4r
 
+    def levels
+      @levels ||= LOG_LEVELS.each.inject({}) do |levels, k|
+        levels[k] = Log4r.const_get(k)
+        levels
+      end
+    end
+
+    def parse_level(val)
+      begin
+        Integer(val)
+      rescue
+        levels[val.upcase]
+      end
+    end
+
     def included(klass)
       unless @log4r_loaded
-        Configurator.custom_levels(*%w{DEBUG2 DEBUG1 DEBUG INFO NOTICE WARN ERROR FATAL})
+        Configurator.custom_levels(*LOG_LEVELS)
         Logger.global.level = Log4r::ALL
         @log4r_loaded = true
       end
@@ -35,8 +52,10 @@ module R10K::Logging
     end
 
     def level=(val)
-      outputter.level = val
-      @level = val
+      level = parse_level val
+      raise "Invalid log level: #{val}" unless level
+      outputter.level = level
+      @level = level
     end
 
     def formatter
