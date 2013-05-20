@@ -116,3 +116,9 @@ r10k will look in /etc/r10k.yaml for its config file by default.
       - '/etc/puppet/environments'
 
 This basic configuration should be enough for most deployment needs.
+
+Contributors
+------------
+
+  - Justen Walker (https://github.com/justenwalker)
+  - John-John Tedro (https://github.com/udoprog)
