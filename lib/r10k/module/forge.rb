@@ -3,6 +3,7 @@ require 'r10k/module'
 require 'r10k/errors'
 require 'r10k/logging'
 
+require 'fileutils'
 require 'systemu'
 require 'semver'
 require 'json'
@@ -46,6 +47,7 @@ class Forge
       cmd << @full_name
       pmt cmd
     else
+      FileUtils.mkdir @basedir unless File.directory? @basedir
       #logger.debug "Module #{@full_name} is not installed"
       cmd = []
       cmd << 'install'
