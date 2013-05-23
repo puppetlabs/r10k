@@ -16,7 +16,7 @@ module R10K::CLI
         required :e, :environment, 'Specify a particular environment'
 
         run do |opts, args, cmd|
-          puts cmd.help
+          puts cmd.help(:verbose => opts[:verbose])
           exit 0
         end
       end
