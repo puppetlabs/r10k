@@ -12,7 +12,7 @@ module R10K::CLI
         summary 'Perform operations on a Puppetfile'
 
         run do |opts, args, cmd|
-          puts cmd.help
+          puts cmd.help(:verbose => opts[:verbose])
           exit 0
         end
       end

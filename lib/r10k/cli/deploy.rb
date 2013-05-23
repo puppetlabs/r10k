@@ -18,7 +18,7 @@ module R10K::CLI
         required :c, :config, 'Specify a configuration file'
 
         run do |opts, args, cmd|
-          puts cmd.help
+          puts cmd.help(:verbose => opts[:verbose])
           exit 0
         end
       end
