@@ -57,6 +57,11 @@ class Puppetfile
     @forge = forge
   end
 
+  # @param [String] moduledir
+  def set_moduledir(moduledir)
+    @moduledir = moduledir
+  end
+
   # @param [String] name
   # @param [*Object] args
   def add_module(name, args)
@@ -97,6 +102,10 @@ class Puppetfile
 
     def forge(location)
       @librarian.set_forge(location)
+    end
+
+    def moduledir(location)
+      @librarian.set_moduledir(location)
     end
 
     def method_missing(method, *args)
