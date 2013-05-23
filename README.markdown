@@ -50,6 +50,16 @@ A deployed environment with a Puppetfile will look something like this:
     ├── modules      # Puppet modules deployed by r10k
     └── site         # Modules for deploying custom services
 
+It is also possible to set an alternate name/location for your `Puppetfile` and 
+`modules` directory. This is usefull if you want to control multiple environments 
+and have a single location for your `Puppetfile`.
+
+Example:
+
+    PUPPETFILE=/etc/r10k.d/Puppetfile.production \
+    PUPPETFILE_DIR=/etc/puppet/modules/production \
+    /usr/bin/r10k puppetfile install
+
 ### Installing modules from git
 
 Puppet modules can be installed from any valid git repository.
