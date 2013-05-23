@@ -26,6 +26,7 @@ exceptions is the are the `r10k environment cache` and `r10k environment stale`
 commands, but they were pretty much useless anyways.
 
 Log level verbosity can now be specified by level name instead of level number.
+If --verbose is passed without a level, it will set the log level to `info`.
 
 ### Puppetfile support
 
