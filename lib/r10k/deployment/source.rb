@@ -60,7 +60,7 @@ class Source
   # @note This implements a required method for the Purgeable mixin
   # @return [Array<String>]
   def desired_contents
-    @environments.map {|env| env.dirname }
+    @environments.map {|env| [ env.basedir , env.dirname].join('/') }
   end
 
   private

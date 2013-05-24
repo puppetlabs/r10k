@@ -19,12 +19,17 @@ module Purgeable
 
   # @return [Array<String>] The present directory entries in `self.managed_directory`
   def current_contents
-    dir = self.managed_directory
-    glob_exp = File.join(dir, '*')
+    @dirs = []
+    @dirs <<  self.managed_directory
+    @fnames = []
 
-    Dir.glob(glob_exp).map do |fname|
-      File.basename fname
+    @dirs.flatten.each do |dir|
+      glob_exp = File.join(dir, '*')
+      @fnames << Dir.glob(glob_exp)
     end
+
+    @fnames.flatten
+
   end
 
   # @return [Array<String>] Directory contents that are expected but not present
@@ -40,8 +45,7 @@ module Purgeable
   # Forcibly remove all unmanaged content in `self.managed_directory`
   def purge!
     stale_contents.each do |fname|
-      fpath = File.join(self.managed_directory, fname)
-      FileUtils.rm_rf fpath, :secure => true
+      FileUtils.rm_rf fname, :secure => true
     end
   end
 

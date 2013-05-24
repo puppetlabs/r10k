@@ -79,7 +79,7 @@ module Puppetfile
     end
 
     def call
-      moduledir = @puppetfile.moduledir
+      moduledir = @puppetfile.managed_directory.uniq.join(', ')
 
       @puppetfile.load
 
