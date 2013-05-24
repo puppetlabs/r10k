@@ -133,3 +133,4 @@ Contributors
   - Justen Walker (https://github.com/justenwalker)
   - John-John Tedro (https://github.com/udoprog)
   - Lars Tobias Skjong-Børsting (https://github.com/larstobi)
+  - Chuck (https://github.com/csschwe)
