@@ -15,6 +15,11 @@ module R10K::CLI
         usage   'deploy <subcommand>'
         summary 'Puppet dynamic environment deployment'
 
+        description <<-DESCRIPTION
+`r10k deploy` implements the Git branch to Puppet environment workflow
+(https://puppetlabs.com/blog/git-workflow-and-puppet-environments/).
+        DESCRIPTION
+
         required :c, :config, 'Specify a configuration file'
 
         run do |opts, args, cmd|
@@ -30,6 +35,20 @@ module R10K::CLI
           name    'environment'
           usage   'environment <options> <environment> <...>'
           summary 'deploy environments and their dependent modules'
+
+          description <<-DESCRIPTION
+`r10k deploy environment` creates and updates Puppet environments based on Git
+branches.
+
+Environments can provide a Puppetfile at the root of the directory to deploy
+independent Puppet modules. To recursively deploy an environment, pass the
+`--puppetfile` flag to the command.
+
+**NOTE**: If an environment has a Puppetfile when it is instantiated a
+recursive update will be forced. It is assumed that environments are dependent
+on modules specified in the Puppetfile and an update will be automatically
+scheduled. On subsequent deployments, Puppetfile deployment will default to off.
+          DESCRIPTION
 
           flag :p, :puppetfile, 'Deploy modules from a puppetfile'
 
@@ -60,6 +79,12 @@ module R10K::CLI
           name  'module'
           usage 'module [module] <module ...>'
           summary 'deploy modules in all environments'
+
+          description <<-DESCRIPTION
+`r10k deploy module` Deploys and updates modules inside of Puppet environments.
+It will load the Puppetfile configurations out of all environments, and will
+try to deploy the given module names in all environments.
+          DESCRIPTION
 
           run do |opts, args, cmd|
             deploy = R10K::Deployment.load_config(opts[:config])
