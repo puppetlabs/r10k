@@ -11,6 +11,11 @@ module R10K::CLI
         usage   'puppetfile <subcommand>'
         summary 'Perform operations on a Puppetfile'
 
+        description <<-DESCRIPTION
+`r10k puppetfile` provides an implementation of the librarian-puppet style
+Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
+        DESCRIPTION
+
         run do |opts, args, cmd|
           puts cmd.help(:verbose => opts[:verbose])
           exit 0
