@@ -20,6 +20,10 @@ class Puppetfile
   #   @return [String] The base directory that contains the Puppetfile
   attr_reader :basedir
 
+  # @!attribute [r] modbasedir
+  #   @return [String] The module base directory if set in Puppetfile 
+  attr_reader :modbasedir
+
   # @!attribute [r] moduledir
   #   @return [String] The directory to install the modules #{basedir}/modules
   attr_reader :moduledir
@@ -57,23 +61,50 @@ class Puppetfile
     @forge = forge
   end
 
+  # @param [String] modbasedir
+  def set_modbasedir(modbasedir)
+    @modbasedir = modbasedir
+  end
+
+  # @param [String] moduledir
+  def set_moduledir(moduledir)
+    if ! @modbasedir
+     @moduledir = moduledir
+    else
+     @moduledir = File.join(@modbasedir, moduledir)
+    end
+    @moduledir
+  end
+
   # @param [String] name
   # @param [*Object] args
   def add_module(name, args)
-    @modules << R10K::Module.new(name, @moduledir, args)
+    if ! args[:moduledir]
+      mod_dir = @moduledir
+    else
+      if @modbasedir.nil?
+        mod_dir = File.join(basedir, args[:moduledir])
+      else
+        mod_dir = File.join(@modbasedir, args[:moduledir])
+      end
+    end
+    @modules << R10K::Module.new(name, mod_dir, args)
   end
 
   include R10K::Util::Purgeable
 
   def managed_directory
-    @moduledir
+    @dirs = @modules.map { |mod| mod.basedir }.uniq
+    @dirs
   end
 
   # List all modules that should exist in the module directory
   # @note This implements a required method for the Purgeable mixin
   # @return [Array<String>]
   def desired_contents
-    @modules.map { |mod| mod.name }
+    @desired_dirs = @modules.map { |mod| [mod.basedir , mod.name].join("/") }
+    @desired_dirs << @modules.map { |mod| [mod.basedir] }.uniq
+    @desired_dirs.flatten.uniq
   end
 
   private
@@ -97,6 +128,14 @@ class Puppetfile
 
     def forge(location)
       @librarian.set_forge(location)
+    end
+
+    def moduledir(location)
+      @librarian.set_moduledir(location)
+    end
+
+    def basedir(location)
+      @librarian.set_modbasedir(location)
     end
 
     def method_missing(method, *args)
