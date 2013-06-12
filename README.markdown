@@ -1,24 +1,17 @@
 r10k
 ====
 
-Opinionated and semi-intelligent Git based deployment of Puppet manifests and modules.
+Puppet environment and module deployment
 
 Description
 -----------
 
+[librarian-puppet]: https://github.com/rodjek/librarian-puppet
 [workflow]: http://puppetlabs.com/blog/git-workflow-and-puppet-environments/
-[librarian]: https://github.com/rodjek/librarian-puppet
 
-r10k is an intelligent implementation of the [dynamic puppet environment
-workflow][workflow]. It aggressively caches and tries to minimize network
-activity to ensure that interactive deployment is as fast as possible. It
-supports the [librarian-puppet Puppetfile format][librarian] for installing
-multiple independent Puppet modules.
-
-- - -
-
-r10k is designed to deploy branches of a Git repository as environments and can
-optionally deploy modules specific in a Puppetfile.
+R10K provides a general purpose toolset for deploying Puppet environments and
+modules. It implements the [Puppetfile][librarian-puppet] format and provides a native
+implementation of Puppet [dynamic environments][workflow].
 
 ### Git repository layout
 
