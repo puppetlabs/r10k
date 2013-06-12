@@ -16,32 +16,15 @@ implementation of Puppet [dynamic environments][workflow].
 Puppetfile support
 ------------------
 
-r10k implements the [librarian-puppet][librarian] Puppetfile format. r10k will
-create and manage the `modules` directory within your Git repository. It's
-recommended that you add `/modules` to your project .gitignore.
+r10k can operate on a Puppetfile as a drop-in replacement for librarian-puppet.
+Puppetfiles are a simple Ruby based DSL that specifies a list of modules to
+install, what version to install, and where to fetch them from.
 
-A deployed environment with a Puppetfile will look something like this:
-
-    .
-    ├── Puppetfile   # An optional Puppetfile
-    ├── dist         # Internally developed generic modules
-    ├── modules      # Puppet modules deployed by r10k
-    └── site         # Modules for deploying custom services
-
-It is also possible to set an alternate name/location for your `Puppetfile` and 
-`modules` directory. This is usefull if you want to control multiple environments 
-and have a single location for your `Puppetfile`.
-
-Example:
-
-    PUPPETFILE=/etc/r10k.d/Puppetfile.production \
-    PUPPETFILE_DIR=/etc/puppet/modules/production \
-    /usr/bin/r10k puppetfile install
+Puppetfile based commands are under the `r10k puppetfile` subcommand.
 
 ### Installing modules from git
 
-Puppet modules can be installed from any valid git repository.
-
+Puppet modules can be installed from any valid git repository:
 
     mod 'rsyslog', :git => 'git://github.com/puppetlabs-operations/puppet-rsyslog.git'
 
@@ -108,7 +91,32 @@ For example, your Git repository would have a structure something like this:
 
 ### Using dynamic environments with a Puppetfile
 
-### Dynamic Environment configuration.
+
+r10k can implement a hybrid workflow with dynamic environments and Puppetfiles.
+If a Puppetfile is available at the root of a deployed environment, r10k can
+create and manage the `modules` directory within your Git repository.
+
+It's recommended that you add `/modules` to your project .gitignore.
+
+A deployed environment with a Puppetfile will look something like this:
+
+    .
+    ├── Puppetfile   # An optional Puppetfile
+    ├── dist         # Internally developed generic modules
+    ├── modules      # Puppet modules deployed by r10k
+    └── site         # Modules for deploying custom services
+
+It is also possible to set an alternate name/location for your `Puppetfile` and
+`modules` directory. This is useful if you want to control multiple environments
+and have a single location for your `Puppetfile`.
+
+Example:
+
+    PUPPETFILE=/etc/r10k.d/Puppetfile.production \
+    PUPPETFILE_DIR=/etc/puppet/modules/production \
+    /usr/bin/r10k puppetfile install
+
+### Dynamic environment configuration
 
 r10k uses a yaml based configuration file when handling deployments. The default
 location is in /etc/r10k.yaml and can be specified on the command line.
@@ -132,6 +140,11 @@ location is in /etc/r10k.yaml and can be specified on the command line.
       - '/etc/puppet/environments'
 
 This basic configuration should be enough for most deployment needs.
+
+More information
+----------------
+
+The original impetus for r10k is explained at http://somethingsinistral.net/blog/rethinking-puppet-deployment/
 
 Contributors
 ------------
