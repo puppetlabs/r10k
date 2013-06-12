@@ -13,6 +13,29 @@ r10k provides a general purpose toolset for deploying Puppet environments and
 modules. It implements the [Puppetfile][librarian-puppet] format and provides a native
 implementation of Puppet [dynamic environments][workflow].
 
+Installation
+------------
+
+r10k should be compatible with Ruby 1.8.7, 1.9.3, and 2.0.0. Any issue with
+those versions should be considered a bug.
+
+### Rubygems
+
+For general use, you should install r10k from Ruby gems:
+
+    gem install r10k
+    r10k --help
+
+### Bundler
+
+If you have more specific needs or plan on modifying r10k you can run it out of
+a git repository using Bundler for dependencies:
+
+    git clone git://github.com/adrienthebo/r10k
+    cd r10k
+    bundle install
+    bundle exec r10k --help
+
 Puppetfile support
 ------------------
 
