@@ -13,21 +13,6 @@ R10K provides a general purpose toolset for deploying Puppet environments and
 modules. It implements the [Puppetfile][librarian-puppet] format and provides a native
 implementation of Puppet [dynamic environments][workflow].
 
-### Git repository layout
-
-[modulepath]: http://docs.puppetlabs.com/references/stable/configuration.html#modulepath
-
-r10k makes the assumption that Puppet modules are stored in subdirectories of
-the Git repository. These directories are all loaded into the Puppet master with
-the [modulepath][modulepath] directive.
-
-For example, your Git repository would have a structure something like this:
-
-    .
-    ├── Puppetfile   # An optional Puppetfile
-    ├── dist         # Internally developed generic modules
-    └── site         # Modules for deploying custom services
-
 Puppetfile support
 ------------------
 
@@ -95,10 +80,38 @@ Puppet modules can be installed from the forge using the Puppet module tool.
     # Install puppetlabs-stdlib from the Forge
     mod 'puppetlabs/stdlib', '2.5.1'
 
-Configuration
--------------
+Dynamic environment support
+---------------------------
 
-r10k will look in /etc/r10k.yaml for its config file by default.
+r10k implements the dynamic environment workflow. Given a git repository with
+multiple branches R10k can create an environment for each branch. This means
+that you can use git with the normal branch-develop-merge workflow, and easily
+test your changes as you work.
+
+Deployment commands are implemented under the `r10k deploy` subcommand.
+
+### Git repository layout
+
+[modulepath]: http://docs.puppetlabs.com/references/stable/configuration.html#modulepath
+
+r10k makes the assumption that Puppet modules are stored in subdirectories of
+the Git repository. These directories are all loaded into the Puppet master with
+the [modulepath][modulepath] directive.
+
+For example, your Git repository would have a structure something like this:
+
+    .
+    ├── Puppetfile   # An optional Puppetfile
+    ├── dist         # Internally developed generic modules
+    └── site         # Modules for deploying custom services
+
+
+### Using dynamic environments with a Puppetfile
+
+### Dynamic Environment configuration.
+
+r10k uses a yaml based configuration file when handling deployments. The default
+location is in /etc/r10k.yaml and can be specified on the command line.
 
 ### Example
 
