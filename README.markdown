@@ -9,7 +9,7 @@ Description
 [librarian-puppet]: https://github.com/rodjek/librarian-puppet
 [workflow]: http://puppetlabs.com/blog/git-workflow-and-puppet-environments/
 
-R10K provides a general purpose toolset for deploying Puppet environments and
+r10k provides a general purpose toolset for deploying Puppet environments and
 modules. It implements the [Puppetfile][librarian-puppet] format and provides a native
 implementation of Puppet [dynamic environments][workflow].
 
