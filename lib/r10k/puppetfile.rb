@@ -59,6 +59,8 @@ class Puppetfile
 
   # @param [String] moduledir
   def set_moduledir(moduledir)
+    # If moduledir is relative, prepend basedir
+    moduledir = if File.expand_path(moduledir) != moduledir then  File.join(@basedir, moduledir) end
     @moduledir = moduledir
   end
 
