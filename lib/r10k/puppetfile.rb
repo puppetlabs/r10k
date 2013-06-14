@@ -1,6 +1,7 @@
 require 'r10k/module'
 require 'r10k/logging'
 require 'r10k/util/purgeable'
+require 'r10k/util/path'
 
 module R10K
 class Puppetfile
@@ -57,10 +58,14 @@ class Puppetfile
     @forge = forge
   end
 
+
+  include R10K::Util::Path
+
   # @param [String] moduledir
   def set_moduledir(moduledir)
-    # If moduledir is relative, prepend basedir
-    moduledir = if File.expand_path(moduledir) != moduledir then  File.join(@basedir, moduledir) end
+    if is_relative?(moduledir)
+      moduledir = File.join(@basedir, moduledir)
+    end
     @moduledir = moduledir
   end
 
