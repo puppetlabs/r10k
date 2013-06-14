@@ -36,6 +36,40 @@ a git repository using Bundler for dependencies:
     bundle install
     bundle exec r10k --help
 
+### Puppet Enterprise
+
+Puppet Enterprise uses its own Ruby, so you need to use the correct version of gem when installing r10k.
+
+    /opt/puppet/bin/gem install r10k
+    r10k --help
+
+Common Commands
+---------------
+
+### Deploy all environments and Puppetfile specified modules
+
+    r10k deploy environment -p
+
+### Deploy all environments but don't update/install modules
+
+    r10k deploy environment
+
+### Deploy a specific environment, and its Puppetfile specified modules
+
+    r10k deploy environment your_env -p
+
+### Deploy a specific environment, but not its modules
+
+    r10k deploy environment your_env
+
+### Display all environments being managed by r10k
+
+    r10k deploy display
+
+### Display all environment being managed by r10k, and their modules.
+
+    r10k deploy display -p
+
 Puppetfile support
 ------------------
 
@@ -85,6 +119,29 @@ Puppet modules can be installed from the forge using the Puppet module tool.
 
     # Install puppetlabs-stdlib from the Forge
     mod 'puppetlabs/stdlib', '2.5.1'
+
+Basic Environment Structure
+---------------------------
+
+r10k supports Dynamic Environments (see below), but simple environment structures
+are also supported.
+
+The basic structure of an environments that uses a Puppetfile to install modules is
+
+    .
+    |-- manifests
+      |-- site.pp
+    |-- Puppetfile
+    |-- .gitignore
+
+site.pp would contain your node definitions, and the Puppetfile would specify the modules
+to be installed.  r10k automatically creates the 'modules' directory when it applies the
+Puppetfile.
+
+It's important to put the modules directory in .gitignore so that git doesnt' accidentally 
+put it into the repo.
+
+    modules/
 
 Dynamic environment support
 ---------------------------
@@ -162,7 +219,40 @@ location is in /etc/r10k.yaml and can be specified on the command line.
     :purgedirs:
       - '/etc/puppet/environments'
 
-This basic configuration should be enough for most deployment needs.
+
+Multiple git repositories can be specified, which is handy if environments are broken up by application.
+Application 1 could have its own environment repository with app1_dev, app1_tst, and app1_prd branches while 
+Application 2 could have its own environment repository with app2_dev, app2_tst, app2_prd branches.
+
+You might want to take this approach if your environments vary greatly.  If you often find yourself making
+changes to your Application 1 environments that don't belong in your Application 2 environments, merging changes
+can become difficult if all of your environment branches are in a single repository.
+
+This approach also makes security easier as teams can be given access to control their application's environments 
+without being able to accidentally impact other groups.
+
+### Multiple Environment Repositories Example
+
+    # The location to use for storing cached Git repos
+    :cachedir: '/var/cache/r10k'
+
+    # A list of git repositories to create
+    :sources:
+      # This will clone the git repository and instantiate an environment per
+      # branch in /etc/puppet/environments
+      :app1:
+        remote: 'git@github.com:my-org/app1-environments'
+        basedir: '/etc/puppet/environments'
+      :app2:
+        remote: 'git@github.com:my-org/app2-environments'
+        basedir: '/etc/puppet/environments'
+
+    # This directory will be purged of any directory that doesn't map to a
+    # git branch
+    :purgedirs:
+      - '/etc/puppet/environments'
+
+
 
 More information
 ----------------
