@@ -1,69 +1,87 @@
 r10k
 ====
 
-Opinionated and semi-intelligent Git based deployment of Puppet manifests and modules.
+Puppet environment and module deployment
 
 Description
 -----------
 
+[librarian-puppet]: https://github.com/rodjek/librarian-puppet
 [workflow]: http://puppetlabs.com/blog/git-workflow-and-puppet-environments/
-[librarian]: https://github.com/rodjek/librarian-puppet
 
-r10k is an intelligent implementation of the [dynamic puppet environment
-workflow][workflow]. It aggressively caches and tries to minimize network
-activity to ensure that interactive deployment is as fast as possible. It
-supports the [librarian-puppet Puppetfile format][librarian] for installing
-multiple independent Puppet modules.
+r10k provides a general purpose toolset for deploying Puppet environments and
+modules. It implements the [Puppetfile][librarian-puppet] format and provides a native
+implementation of Puppet [dynamic environments][workflow].
 
-- - -
+Installation
+------------
 
-r10k is designed to deploy branches of a Git repository as environments and can
-optionally deploy modules specific in a Puppetfile.
+r10k should be compatible with Ruby 1.8.7, 1.9.3, and 2.0.0. Any issue with
+those versions should be considered a bug.
 
-### Git repository layout
+### Rubygems
 
-[modulepath]: http://docs.puppetlabs.com/references/stable/configuration.html#modulepath
+For general use, you should install r10k from Ruby gems:
 
-r10k makes the assumption that Puppet modules are stored in subdirectories of
-the Git repository. These directories are all loaded into the Puppet master with
-the [modulepath][modulepath] directive.
+    gem install r10k
+    r10k --help
 
-For example, your Git repository would have a structure something like this:
+### Bundler
 
-    .
-    ├── Puppetfile   # An optional Puppetfile
-    ├── dist         # Internally developed generic modules
-    └── site         # Modules for deploying custom services
+If you have more specific needs or plan on modifying r10k you can run it out of
+a git repository using Bundler for dependencies:
+
+    git clone git://github.com/adrienthebo/r10k
+    cd r10k
+    bundle install
+    bundle exec r10k --help
+
+### Puppet Enterprise
+
+Puppet Enterprise uses its own Ruby, so you need to use the correct version of gem when installing r10k.
+
+    /opt/puppet/bin/gem install r10k
+    r10k --help
+
+Common Commands
+---------------
+
+### Deploy all environments and Puppetfile specified modules
+
+    r10k deploy environment -p
+
+### Deploy all environments but don't update/install modules
+
+    r10k deploy environment
+
+### Deploy a specific environment, and its Puppetfile specified modules
+
+    r10k deploy environment your_env -p
+
+### Deploy a specific environment, but not its modules
+
+    r10k deploy environment your_env
+
+### Display all environments being managed by r10k
+
+    r10k deploy display
+
+### Display all environment being managed by r10k, and their modules.
+
+    r10k deploy display -p
 
 Puppetfile support
 ------------------
 
-r10k implements the [librarian-puppet][librarian] Puppetfile format. r10k will
-create and manage the `modules` directory within your Git repository. It's
-recommended that you add `/modules` to your project .gitignore.
+r10k can operate on a Puppetfile as a drop-in replacement for librarian-puppet.
+Puppetfiles are a simple Ruby based DSL that specifies a list of modules to
+install, what version to install, and where to fetch them from.
 
-A deployed environment with a Puppetfile will look something like this:
-
-    .
-    ├── Puppetfile   # An optional Puppetfile
-    ├── dist         # Internally developed generic modules
-    ├── modules      # Puppet modules deployed by r10k
-    └── site         # Modules for deploying custom services
-
-It is also possible to set an alternate name/location for your `Puppetfile` and 
-`modules` directory. This is usefull if you want to control multiple environments 
-and have a single location for your `Puppetfile`.
-
-Example:
-
-    PUPPETFILE=/etc/r10k.d/Puppetfile.production \
-    PUPPETFILE_DIR=/etc/puppet/modules/production \
-    /usr/bin/r10k puppetfile install
+Puppetfile based commands are under the `r10k puppetfile` subcommand.
 
 ### Installing modules from git
 
-Puppet modules can be installed from any valid git repository.
-
+Puppet modules can be installed from any valid git repository:
 
     mod 'rsyslog', :git => 'git://github.com/puppetlabs-operations/puppet-rsyslog.git'
 
@@ -102,10 +120,86 @@ Puppet modules can be installed from the forge using the Puppet module tool.
     # Install puppetlabs-stdlib from the Forge
     mod 'puppetlabs/stdlib', '2.5.1'
 
-Configuration
--------------
+Basic Environment Structure
+---------------------------
 
-r10k will look in /etc/r10k.yaml for its config file by default.
+r10k supports Dynamic Environments (see below), but simple environment structures
+are also supported.
+
+The basic structure of an environments that uses a Puppetfile to install modules is
+
+    .
+    |-- manifests
+      |-- site.pp
+    |-- Puppetfile
+    |-- .gitignore
+
+site.pp would contain your node definitions, and the Puppetfile would specify the modules
+to be installed.  r10k automatically creates the 'modules' directory when it applies the
+Puppetfile.
+
+It's important to put the modules directory in .gitignore so that git doesnt' accidentally 
+put it into the repo.
+
+    modules/
+
+Dynamic environment support
+---------------------------
+
+r10k implements the dynamic environment workflow. Given a git repository with
+multiple branches R10k can create an environment for each branch. This means
+that you can use git with the normal branch-develop-merge workflow, and easily
+test your changes as you work.
+
+Deployment commands are implemented under the `r10k deploy` subcommand.
+
+### Git repository layout
+
+[modulepath]: http://docs.puppetlabs.com/references/stable/configuration.html#modulepath
+
+r10k makes the assumption that Puppet modules are stored in subdirectories of
+the Git repository. These directories are all loaded into the Puppet master with
+the [modulepath][modulepath] directive.
+
+For example, your Git repository would have a structure something like this:
+
+    .
+    ├── Puppetfile   # An optional Puppetfile
+    ├── dist         # Internally developed generic modules
+    └── site         # Modules for deploying custom services
+
+
+### Using dynamic environments with a Puppetfile
+
+
+r10k can implement a hybrid workflow with dynamic environments and Puppetfiles.
+If a Puppetfile is available at the root of a deployed environment, r10k can
+create and manage the `modules` directory within your Git repository.
+
+It's recommended that you add `/modules` to your project .gitignore.
+
+A deployed environment with a Puppetfile will look something like this:
+
+    .
+    ├── Puppetfile   # An optional Puppetfile
+    ├── dist         # Internally developed generic modules
+    ├── modules      # Puppet modules deployed by r10k
+    └── site         # Modules for deploying custom services
+
+It is also possible to set an alternate name/location for your `Puppetfile` and
+`modules` directory. This is useful if you want to control multiple environments
+and have a single location for your `Puppetfile`.
+
+Example:
+
+    PUPPETFILE=/etc/r10k.d/Puppetfile.production \
+    PUPPETFILE_DIR=/etc/puppet/modules/production \
+    /usr/bin/r10k puppetfile install
+
+### Dynamic environment configuration
+
+r10k uses a yaml based configuration file when handling deployments. The default
+location is in /etc/r10k.yaml and can be specified on the command line.
 
 ### Example
 
@@ -125,7 +219,45 @@ r10k will look in /etc/r10k.yaml for its config file by default.
     :purgedirs:
       - '/etc/puppet/environments'
 
-This basic configuration should be enough for most deployment needs.
+
+Multiple git repositories can be specified, which is handy if environments are broken up by application.
+Application 1 could have its own environment repository with app1_dev, app1_tst, and app1_prd branches while 
+Application 2 could have its own environment repository with app2_dev, app2_tst, app2_prd branches.
+
+You might want to take this approach if your environments vary greatly.  If you often find yourself making
+changes to your Application 1 environments that don't belong in your Application 2 environments, merging changes
+can become difficult if all of your environment branches are in a single repository.
+
+This approach also makes security easier as teams can be given access to control their application's environments 
+without being able to accidentally impact other groups.
+
+### Multiple Environment Repositories Example
+
+    # The location to use for storing cached Git repos
+    :cachedir: '/var/cache/r10k'
+
+    # A list of git repositories to create
+    :sources:
+      # This will clone the git repository and instantiate an environment per
+      # branch in /etc/puppet/environments
+      :app1:
+        remote: 'git@github.com:my-org/app1-environments'
+        basedir: '/etc/puppet/environments'
+      :app2:
+        remote: 'git@github.com:my-org/app2-environments'
+        basedir: '/etc/puppet/environments'
+
+    # This directory will be purged of any directory that doesn't map to a
+    # git branch
+    :purgedirs:
+      - '/etc/puppet/environments'
+
+
+
+More information
+----------------
+
+The original impetus for r10k is explained at http://somethingsinistral.net/blog/rethinking-puppet-deployment/
 
 Contributors
 ------------
@@ -134,3 +266,4 @@ Contributors
   - John-John Tedro (https://github.com/udoprog)
   - Lars Tobias Skjong-Børsting (https://github.com/larstobi)
   - Chuck (https://github.com/csschwe)
+  - Greg Baker (https://github.com/Ancillas)

@@ -11,13 +11,12 @@ Gem::Specification.new do |s|
   s.authors     = "Adrien Thebo"
   s.email       = "adrien@somethingsinistral.net"
   s.homepage    = "http://github.com/adrienthebo/r10k"
-  s.summary     = "Dynamic Puppet environments with Git"
+  s.summary     = "Puppet environment and module deployment"
   s.description = <<-DESCRIPTION
-    R10K is an implementation of the Dynamic Puppet environments based on git repositories
-    as described in http://puppetlabs.com/blog/git-workflow-and-puppet-environments/. It
-    aggressively caches and tries to minimize network activity to ensure that interactive
-    deployment is as fast as possible.
-    DESCRIPTION
+    R10K provides a general purpose toolset for deploying Puppet environments and modules.
+    It implements the Puppetfile format and provides a native implementation of Puppet
+    dynamic environments.
+  DESCRIPTION
 
   s.add_dependency 'colored',   '>= 1.2'
   s.add_dependency 'cri',       '~> 2.3.0'
