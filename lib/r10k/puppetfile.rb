@@ -72,7 +72,7 @@ class Puppetfile
   # @param [String] name
   # @param [*Object] args
   def add_module(name, args)
-    @modules << R10K::Module.new(name, @moduledir, args)
+    @modules << R10K::Module.new(name, @basedir, @moduledir, args)
   end
 
   include R10K::Util::Purgeable

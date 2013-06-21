@@ -9,7 +9,7 @@ module Module
     end
 
     def call
-      logger.info "Deploying #{@mod.name} into #{@mod.basedir}"
+      logger.info "Deploying #{@mod.name} into #{@mod.moduledir}"
       @mod.sync
     end
   end
