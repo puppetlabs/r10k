@@ -59,11 +59,9 @@ class Puppetfile
   end
 
 
-  include R10K::Util::Path
-
   # @param [String] moduledir
   def set_moduledir(moduledir)
-    if is_relative?(moduledir)
+    if R10K::Util::Path.is_relative?(moduledir)
       moduledir = File.join(@basedir, moduledir)
     end
     @moduledir = moduledir

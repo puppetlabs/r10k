@@ -2,7 +2,6 @@ require 'r10k'
 require 'r10k/util/path'
 
 module R10K::Module
-  include R10K::Util::Path
 
   # Register an inheriting  class for later generation
   def self.included(klass)
@@ -30,7 +29,7 @@ module R10K::Module
     @basedir = basedir
 
     if args.is_a? Hash and args.has_key?(:moduledir)
-      raise "Setting an absolute :moduledir path is not supported in this place!" if is_absolute?(args[:moduledir])
+      raise "Setting an absolute :moduledir path is not supported in this place!" if R10K::Util::Path.is_absolute?(args[:moduledir])
       @moduledir = File.join(@basedir, args[:moduledir])
     end
 
