@@ -35,14 +35,21 @@ class Forge
 
   def sync(options = {})
     return if insync?
-
+    # A Pulp based puppetforge http://www.pulpproject.org/ wont support a 
+    # puppet module install abc/xyz --version=v1.5.9 command
+    # but puppetlabs forge will support puppet module install abc/xyz --version=1.5.9 command
+    # removing v from the semver.to_s for constructing the command ensures compatibility across both
+    if @version
+     buffer = @version.inspect
+     version_string = buffer.start_with?('v') ? buffer.sub(/v/,'') : buffer
+    end
     if insync?
       #logger.debug1 "Module #{@full_name} already matches version #{@version}"
     elsif File.exist? metadata_path
       #logger.debug "Module #{@full_name} is installed but doesn't match version #{@version}, upgrading"
       cmd = []
       cmd << 'upgrade'
-      cmd << "--version=#{@version}" if @version
+      cmd << "--version=#{version_string}" if @version
       cmd << "--ignore-dependencies"
       cmd << @full_name
       pmt cmd
@@ -51,7 +58,7 @@ class Forge
       #logger.debug "Module #{@full_name} is not installed"
       cmd = []
       cmd << 'install'
-      cmd << "--version=#{@version}" if @version
+      cmd << "--version=#{version_string}" if @version
       cmd << "--ignore-dependencies"
       cmd << @full_name
       pmt cmd
