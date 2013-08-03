@@ -27,14 +27,14 @@ class Source
   #   @return [Array<R10K::Deployment::Environment>] All environments for this source
   attr_reader :environments
 
-  def self.vivify(name, attrs)
+  def self.vivify(name, attrs, prefix = false)
     remote  = (attrs.delete(:remote) || attrs.delete('remote'))
     basedir = (attrs.delete(:basedir) || attrs.delete('basedir'))
-    prefix = (attrs.delete(:prefix) || attrs.delete('prefix'))
-    prefix = prefix.nil? ? false : prefix
+    prefix_config = (attrs.delete(:prefix) || attrs.delete('prefix'))
+    prefix_outcome = prefix_config.nil? ? prefix : prefix_config
 
     raise ArgumentError, "Unrecognized attributes for #{self.name}: #{attrs.inspect}" unless attrs.empty?
-    new(name, remote, basedir, prefix)
+    new(name, remote, basedir, prefix_outcome)
   end
 
   def initialize(name, remote, basedir, prefix = nil)
