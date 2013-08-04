@@ -27,18 +27,21 @@ class Source
   #   @return [Array<R10K::Deployment::Environment>] All environments for this source
   attr_reader :environments
 
-  def self.vivify(name, attrs)
+  def self.vivify(name, attrs, prefix = false)
     remote  = (attrs.delete(:remote) || attrs.delete('remote'))
     basedir = (attrs.delete(:basedir) || attrs.delete('basedir'))
+    prefix_config = (attrs.delete(:prefix) || attrs.delete('prefix'))
+    prefix_outcome = prefix_config.nil? ? prefix : prefix_config
 
     raise ArgumentError, "Unrecognized attributes for #{self.name}: #{attrs.inspect}" unless attrs.empty?
-    new(name, remote, basedir)
+    new(name, remote, basedir, prefix_outcome)
   end
 
-  def initialize(name, remote, basedir)
+  def initialize(name, remote, basedir, prefix = nil)
     @name    = name
     @remote  = remote
     @basedir = basedir
+    @prefix = prefix.nil? ? false : prefix
 
     @cache   = R10K::Git::Cache.new(@remote)
 
@@ -56,6 +59,16 @@ class Source
     @basedir
   end
 
+  def current_contents
+    dir = self.managed_directory
+    glob_part = @prefix ? @name.to_s() + '_*' : '*'
+    glob_exp = File.join(dir, glob_part)
+
+    Dir.glob(glob_exp).map do |fname|
+      File.basename fname
+    end
+  end
+
   # List all environments that should exist in the basedir for this source
   # @note This implements a required method for the Purgeable mixin
   # @return [Array<String>]
@@ -68,7 +81,11 @@ class Source
   def load_environments
     if @cache.cached?
       @environments = @cache.branches.map do |branch|
-        R10K::Deployment::Environment.new(branch, @remote, @basedir)
+        if @prefix
+          R10K::Deployment::Environment.new(branch, @remote, @basedir, nil, @name.to_s())
+        else
+          R10K::Deployment::Environment.new(branch, @remote, @basedir)
+        end
       end
     else
       @environments = []
