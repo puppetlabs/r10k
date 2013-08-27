@@ -49,7 +49,33 @@ Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
       end
     end
     self.command.add_command(Install.command)
-
+    module Check
+      def self.command
+        @cmd ||= Cri::Command.define do
+          name  'check'
+          usage 'check'
+          summary 'Try and load the Puppetfile to verify the syntax is correct.'
+          run do |opts,args,cmd|
+            puppetfile_root = Dir.getwd
+            puppetfile_path = ENV['PUPPETFILE_DIR']
+            puppetfile      = ENV['PUPPETFILE']
+            
+            puppetfile = R10K::Puppetfile.new(puppetfile_root, puppetfile_path, puppetfile)
+            begin
+              puppetfile.load
+            rescue Exception => ex
+              puts "ERROR: Puppetfile bad syntax"
+              ex.backtrace.each do |line|
+                  puts line
+              end
+              exit 1
+            end
+            exit 0
+          end
+        end
+      end
+    end
+    self.command.add_command(Check.command)
     module Purge
       def self.command
         @cmd ||= Cri::Command.define do
