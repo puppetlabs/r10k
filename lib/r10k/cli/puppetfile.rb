@@ -63,8 +63,8 @@ Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
             puppetfile = R10K::Puppetfile.new(puppetfile_root, puppetfile_path, puppetfile)
             begin
               puppetfile.load
-            rescue Exception => ex
-              puts "ERROR: Puppetfile bad syntax"
+            rescue LoadError => ex
+              $stderr.puts "ERROR: Puppetfile bad syntax"
               ex.backtrace.each do |line|
                   puts line
               end
