@@ -57,7 +57,7 @@ class Config
   def apply_config_settings
     cachedir = setting(:cachedir)
     if cachedir
-      R10K::Git::Cache.cache_root = cachedir
+      R10K::Git::Cache.settings[:cache_root] = cachedir
     end
   end
 
