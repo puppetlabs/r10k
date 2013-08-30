@@ -2,6 +2,7 @@ require 'r10k/logging'
 require 'r10k/git/repository'
 
 require 'r10k/settings'
+require 'r10k/registry'
 
 module R10K
 module Git
@@ -14,28 +15,12 @@ class Cache < R10K::Git::Repository
 
   def_setting_attr :cache_root, File.expand_path('~/.r10k/git')
 
-  class << self
+  def self.registry
+    @registry ||= R10K::Registry.new(self)
+  end
 
-    # Memoize class instances and return existing instances.
-    #
-    # This allows objects to mark themselves as cached to prevent unnecessary
-    # cache refreshes.
-    #
-    # @param [String] remote A git remote URL
-    # @return [R10K::Synchro::Git]
-    def new(remote)
-      @repos ||= {}
-      unless @repos[remote]
-        obj = self.allocate
-        obj.send(:initialize, remote)
-        @repos[remote] = obj
-      end
-      @repos[remote]
-    end
-
-    def clear!
-      @repos = {}
-    end
+  def self.generate(remote)
+    registry.generate(remote)
   end
 
   include R10K::Logging
@@ -43,12 +28,6 @@ class Cache < R10K::Git::Repository
   # @!attribute [r] remote
   #   @return [String] The git repository remote
   attr_reader :remote
-
-  # @!attribute [r] cache_root
-  #   Where to keep the git object cache. Defaults to ~/.r10k/git if a class
-  #   level value is not set.
-  #   @return [String] The directory to use as the cache
-  attr_reader :cache_root
 
   # @!attribute [r] path
   #   @return [String] The path to the git cache repository
@@ -82,8 +61,8 @@ class Cache < R10K::Git::Repository
     else
       logger.debug "Creating new git cache for #{@remote.inspect}"
 
-      unless File.exist? @settings[:cache_root]
-        FileUtils.mkdir_p @settings[:cache_root]
+      unless File.exist? settings[:cache_root]
+        FileUtils.mkdir_p settings[:cache_root]
       end
 
       git "clone --mirror #{@remote} #{@path}"
