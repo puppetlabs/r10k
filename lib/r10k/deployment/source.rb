@@ -43,7 +43,7 @@ class Source
     @basedir = basedir
     @prefix = prefix.nil? ? false : prefix
 
-    @cache   = R10K::Git::Cache.new(@remote)
+    @cache   = R10K::Git::Cache.generate(@remote)
 
     load_environments
   end

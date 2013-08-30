@@ -26,12 +26,7 @@ describe R10K::Git::Cache do
 
   describe 'setting the cache root' do
     it 'defaults to ~/.r10k/git' do
-      described_class.new('foo').cache_root.should match %r[/\.r10k/git]
-    end
-
-    it 'uses the class cache root if set' do
-      described_class.stubs(:cache_root).returns '/var/spool/r10k'
-      described_class.new('foo').cache_root.should == '/var/spool/r10k'
+      expect(described_class.defaults[:cache_root]).to match %r[/\.r10k/git]
     end
   end
 end
