@@ -37,7 +37,7 @@ class WorkingDir < R10K::Git::Repository
 
     @full_path = File.join(@basedir, @dirname)
 
-    @cache = R10K::Git::Cache.new(@remote)
+    @cache = R10K::Git::Cache.generate(@remote)
   end
 
   # Synchronize the local git repository.
