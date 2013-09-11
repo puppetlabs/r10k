@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'rspec', '~> 2.14.0'
   s.add_development_dependency 'mocha', '~> 0.10.5'
-  s.add_development_dependency 'minitest',
+  s.add_development_dependency 'minitest'
 
   s.files        = Dir.glob "{bin,lib}/**/*"
   s.require_path = 'lib'
