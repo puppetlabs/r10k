@@ -13,6 +13,10 @@ end
 
 describe R10K::Git::Cache do
 
+  after do
+    described_class.registry.clear!
+  end
+
   describe 'setting the cache root' do
     it 'defaults to ~/.r10k/git' do
       expect(described_class.defaults[:cache_root]).to match %r[/\.r10k/git]
