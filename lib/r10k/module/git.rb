@@ -17,13 +17,13 @@ class Git
   extend Forwardable
   def_delegator :@working_dir, :sync
 
-  def initialize(name, basedir, args)
-    @name, @basedir, @args = name, basedir, args
+  def initialize(name, moduledir, args)
+    @name, @moduledir, @args = name, moduledir, args
 
     @remote = @args[:git]
     @ref    = (@args[:ref] || 'master')
 
-    @working_dir = R10K::Git::WorkingDir.new(@ref, @remote, @basedir, @name)
+    @working_dir = R10K::Git::WorkingDir.new(@ref, @remote, @moduledir, @name)
   end
 
   def version

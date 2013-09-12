@@ -1,4 +1,5 @@
 require 'r10k'
+require 'r10k/util/path'
 
 module R10K::Module
 
@@ -17,24 +18,34 @@ module R10K::Module
   # with `name, args`, and generates an object of that class.
   #
   # @param [String] name The unique name of the module
-  # @param [String] basedir The root to install the module in
+  # @param [String] basedir The root of the module installations, in case we have to modify moduledir
+  # @param [String] moduledir The root to install the module in
   # @param [Object] args An arbitary value or set of values that specifies the implementation
   #
   # @return [Object < R10K::Module] A member of the implementing subclass
-  def self.new(name, basedir, args)
+  def self.new(name, basedir, moduledir, args)
+
+    @moduledir = moduledir
+    @basedir = basedir
+
+    if args.is_a? Hash and args.has_key?(:moduledir)
+      raise "Setting an absolute :moduledir path is not supported in this place!" if R10K::Util::Path.is_absolute?(args[:moduledir])
+      @moduledir = File.join(@basedir, args[:moduledir])
+    end
+
     if implementation = @klasses.find { |klass| klass.implement?(name, args) }
-      obj = implementation.new(name, basedir, args)
+      obj = implementation.new(name, @moduledir, args)
       obj
     else
       raise "Module #{name} with args #{args.inspect} doesn't have an implementation. (Are you using the right arguments?)"
     end
   end
 
-  attr_accessor :name, :basedir
+  attr_accessor :name, :basedir, :moduledir
 
   # @return [String] The full filesystem path to the module.
   def full_path
-    File.join(@basedir, @name)
+    File.join(@moduledir, @name)
   end
 end
 
