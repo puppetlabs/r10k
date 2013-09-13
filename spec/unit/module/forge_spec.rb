@@ -54,8 +54,7 @@ describe R10K::Module::Forge do
       its(:version) { should eq 'v8.0.0' }
 
       it "should try to upgrade the module" do
-        # "v80.0.0" ? Seriously? Where did the "v" come from?
-        expected = %w{upgrade --version=v80.0.0 --ignore-dependencies branan/eight_hundred}
+        expected = %w{upgrade --version=80.0.0 --ignore-dependencies branan/eight_hundred}
         subject.expects(:pmt).with(expected)
         subject.sync
       end
@@ -65,11 +64,10 @@ describe R10K::Module::Forge do
       subject { described_class.new('branan/eight_hundred', fixture_modulepath, '7.0.0') }
 
       it { should_not be_insync }
-      its(:version) { should eq 'v8.0.0' }
+      its(:version) { should eq '8.0.0' }
 
       it "should try to downgrade the module" do
-        # Again with the magical "v" prefix to the version.
-        expected = %w{upgrade --version=v7.0.0 --ignore-dependencies branan/eight_hundred}
+        expected = %w{upgrade --version=7.0.0 --ignore-dependencies branan/eight_hundred}
         subject.expects(:pmt).with(expected)
         subject.sync
       end
@@ -82,7 +80,7 @@ describe R10K::Module::Forge do
       its(:version) { should eq SemVer::MIN }
 
       it "should try to install the module" do
-        expected = %w{install --version=v8.0.0 --ignore-dependencies branan/eight_hundred}
+        expected = %w{install --version=8.0.0 --ignore-dependencies branan/eight_hundred}
         subject.expects(:pmt).with(expected)
         subject.sync
       end
