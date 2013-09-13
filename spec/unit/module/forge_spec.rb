@@ -4,12 +4,12 @@ require 'spec_helper'
 
 describe R10K::Module::Forge do
   before :each do
-    Object.expects(:systemu).never
+    allow_any_instance_of(Object).to receive(:systemu).and_raise "Tests should never invoke system calls"
   end
 
   before :each do
-    s = stub(:debug2 => nil, :debug1 => nil, :debug => nil, :info => nil)
-    described_class.any_instance.stubs(:logger).returns s
+    log = double('stub logger').as_null_object
+    described_class.any_instance.stub(:logger).and_return log
   end
 
   describe "implementing the Puppetfile spec" do
@@ -56,7 +56,7 @@ describe R10K::Module::Forge do
       it "should try to upgrade the module" do
         # "v80.0.0" ? Seriously? Where did the "v" come from?
         expected = %w{upgrade --version=v80.0.0 --ignore-dependencies branan/eight_hundred}
-        subject.expects(:pmt).with(expected)
+        expect(subject).to receive(:pmt).with(expected)
         subject.sync
       end
     end
@@ -70,7 +70,7 @@ describe R10K::Module::Forge do
       it "should try to downgrade the module" do
         # Again with the magical "v" prefix to the version.
         expected = %w{upgrade --version=v7.0.0 --ignore-dependencies branan/eight_hundred}
-        subject.expects(:pmt).with(expected)
+        expect(subject).to receive(:pmt).with(expected)
         subject.sync
       end
     end
@@ -83,7 +83,7 @@ describe R10K::Module::Forge do
 
       it "should try to install the module" do
         expected = %w{install --version=v8.0.0 --ignore-dependencies branan/eight_hundred}
-        subject.expects(:pmt).with(expected)
+        expect(subject).to receive(:pmt).with(expected)
         subject.sync
       end
     end
