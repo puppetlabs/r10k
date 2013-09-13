@@ -69,7 +69,7 @@ class Environment
 
   # Strip out non-word characters in an environment directory name
   #
-  # Puppet can only use word characers (letter, digit, underscore) in
+  # Puppet can only use word characters (letter, digit, underscore) in
   # environment names; this cleans up environment names to avoid traversals
   # and similar issues.
   #
