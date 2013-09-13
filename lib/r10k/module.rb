@@ -2,9 +2,8 @@ require 'r10k'
 
 module R10K::Module
 
-  # Register an inheriting  class for later generation
-  def self.included(klass)
-    klass.extend self
+  # Register an module implementation for later generation
+  def self.register(klass)
     @klasses ||= []
     @klasses << klass
   end
@@ -30,13 +29,7 @@ module R10K::Module
     end
   end
 
-  attr_accessor :name, :basedir
-
-  # @return [String] The full filesystem path to the module.
-  def full_path
-    File.join(@basedir, @name)
-  end
+  require 'r10k/module/base'
+  require 'r10k/module/git'
+  require 'r10k/module/forge'
 end
-
-require 'r10k/module/git'
-require 'r10k/module/forge'

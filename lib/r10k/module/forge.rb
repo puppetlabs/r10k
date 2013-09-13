@@ -1,4 +1,3 @@
-require 'r10k'
 require 'r10k/module'
 require 'r10k/errors'
 require 'r10k/logging'
@@ -8,11 +7,9 @@ require 'systemu'
 require 'semver'
 require 'json'
 
-module R10K
-module Module
-class Forge
+class R10K::Module::Forge < R10K::Module::Base
 
-  include R10K::Module
+  R10K::Module.register(self)
 
   def self.implement?(name, args)
     !!(name.match %r[\w+/\w+])
@@ -100,6 +97,4 @@ class Forge
     end
     stdout
   end
-end
-end
 end

@@ -1,12 +1,10 @@
-require 'r10k'
 require 'r10k/module'
 require 'r10k/git/working_dir'
 require 'forwardable'
 
-module R10K
-module Module
-class Git
-  include R10K::Module
+class R10K::Module::Git < R10K::Module::Base
+
+  R10K::Module.register(self)
 
   def self.implement?(name, args)
     args.is_a? Hash and args.has_key?(:git)
@@ -29,6 +27,4 @@ class Git
   def version
     @ref
   end
-end
-end
 end
