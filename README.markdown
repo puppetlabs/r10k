@@ -138,7 +138,7 @@ site.pp would contain your node definitions, and the Puppetfile would specify th
 to be installed.  r10k automatically creates the 'modules' directory when it applies the
 Puppetfile.
 
-It's important to put the modules directory in .gitignore so that git doesnt' accidentally 
+It's important to put the modules directory in .gitignore so that git doesn't accidentally
 put it into the repo.
 
     modules/
@@ -168,6 +168,22 @@ For example, your Git repository would have a structure something like this:
     ├── dist         # Internally developed generic modules
     └── site         # Modules for deploying custom services
 
+### Puppet master configuration
+
+In order to use dynamic environments, your Puppet masters will need to be
+configured to load manifests and modules relative to the requested environment:
+
+    [master]
+        modulepath = /etc/puppet/environments/$environment/modules:/etc/puppet/environments/$environment/dist
+
+        # If you use a top level manifest dir
+        manifestdir = /etc/puppet/environments/$environment/manifests
+        # If you use a specific site wide manifest
+        manifest = /etc/puppet/environments/$environment/manifests/nodes.pp
+
+Note that these settings go into the `[master]` section; you don't need to
+explicitly configure an environment section for each environment you want to
+use. (But you can if you want.)
 
 ### Using dynamic environments with a Puppetfile
 
@@ -221,14 +237,14 @@ location is in /etc/r10k.yaml and can be specified on the command line.
 
 
 Multiple git repositories can be specified, which is handy if environments are broken up by application.
-Application 1 could have its own environment repository with app1_dev, app1_tst, and app1_prd branches while 
+Application 1 could have its own environment repository with app1_dev, app1_tst, and app1_prd branches while
 Application 2 could have its own environment repository with app2_dev, app2_tst, app2_prd branches.
 
 You might want to take this approach if your environments vary greatly.  If you often find yourself making
 changes to your Application 1 environments that don't belong in your Application 2 environments, merging changes
 can become difficult if all of your environment branches are in a single repository.
 
-This approach also makes security easier as teams can be given access to control their application's environments 
+This approach also makes security easier as teams can be given access to control their application's environments
 without being able to accidentally impact other groups.
 
 ### Multiple Environment Repositories Example
