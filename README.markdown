@@ -3,6 +3,8 @@ r10k
 
 Puppet environment and module deployment
 
+[![Build Status](https://travis-ci.org/adrienthebo/r10k.png?branch=master)](https://travis-ci.org/adrienthebo/r10k)
+
 Description
 -----------
 
