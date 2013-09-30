@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'rspec', '~> 2.14.0'
 
-  s.files        = Dir.glob "{bin,lib}/**/*"
+  s.files        = Dir.glob "{bin,lib,spec}/**/*"
   s.require_path = 'lib'
   s.bindir       = 'bin'
   s.executables  = 'r10k'
