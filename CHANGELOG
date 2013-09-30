@@ -1,6 +1,67 @@
 CHANGELOG
 =========
 
+1.1.0
+-----
+
+2013-09-30
+
+This is a backwards compatible bugfix and feature release.
+
+### User notes
+
+(GH-35) Puppetfiles can now specify a path to the moduledir, instead of assuming
+'/modules'. It can be set with the Puppetfile `moduledir` directive. Note that
+this is not compatible with librarian-puppet.
+
+(GH-53) Multiple environment sources can now be specified in a single
+directory. When multiple sources are specified, each environment will be
+prefixed with the source name. This can be enabled and disabled with the
+source `prefix` option.
+
+(GH-45) Documentation has been greatly expanded.
+
+(GH-56) New subcommand: `r10k puppetfile check` allows you to validate the
+syntax of a Puppetfile.
+
+(GH-66) Initial clones use `git checkout` when switching to a new branch
+instead of just `git reset`; without this change it would look like the wrong
+branch was checked out.
+
+(GH-59) r10k can now pull from Pulp repositories for Forge based modules.
+
+### Developer notes
+
+The method mocking framework has been switched from mocha to rspec-mocks. Mocha
+is notoriously bad about breaking changes between versions and rspec-mocks is
+very robust, so Mocha has been ripped out and dropped as a dependency.
+
+Rspec expectations now use the `expect(thing).to` syntax instead `thing.should`
+
+A quasi settings framework has been extracted to make application settings less
+bad. In the long term a general application framework will be extracted from
+r10k to handle generic 'application' problems like this, but for now the settings
+framework is the way to handle singleton data.
+
+R10K:Git::Cache object memoization has been extracted into a standalone class
+instead of being grafted onto the class. All hail the single responsibility
+principle!
+
+R10K::Module code has been refactored. There's now a real base class instead of
+a hacky mixin with some metadata magic on top.
+
+### Thanks
+
+Thanks to the following contributors for their help in 1.1.0:
+
+  * Alex Linden Levy
+  * Abhay Chrungoo
+  * Adam Vessey
+  * Chuck Schweizer
+  * Elias Probst
+  * Greg Baker
+  * Jochen Schalanda
+
 1.0.0
 -----
 
