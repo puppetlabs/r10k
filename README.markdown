@@ -280,8 +280,4 @@ The original impetus for r10k is explained at http://somethingsinistral.net/blog
 Contributors
 ------------
 
-  - Justen Walker (https://github.com/justenwalker)
-  - John-John Tedro (https://github.com/udoprog)
-  - Lars Tobias Skjong-Børsting (https://github.com/larstobi)
-  - Chuck (https://github.com/csschwe)
-  - Greg Baker (https://github.com/Ancillas)
+Please see the CHANGELOG for a listing of the (very awesome) contributors.
