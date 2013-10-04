@@ -13,7 +13,7 @@ class Cache < R10K::Git::Repository
 
   include R10K::Settings::Mixin
 
-  def_setting_attr :cache_root, File.expand_path('~/.r10k/git')
+  def_setting_attr :cache_root, File.expand_path(ENV['HOME'] ? '~/.r10k/git': '/root/.r10k/git')
 
   def self.registry
     @registry ||= R10K::Registry.new(self)
