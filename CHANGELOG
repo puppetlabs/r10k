@@ -30,6 +30,10 @@ branch was checked out.
 
 (GH-59) r10k can now pull from Pulp repositories for Forge based modules.
 
+(GH-70) Handle unset HOME - in case that HOME is unset, assume that the current
+user is root. This mainly occurs when r10k is being run as the `prerun` command
+under Puppet.
+
 ### Developer notes
 
 The method mocking framework has been switched from mocha to rspec-mocks. Mocha
@@ -61,6 +65,7 @@ Thanks to the following contributors for their help in 1.1.0:
   * Elias Probst
   * Greg Baker
   * Jochen Schalanda
+  * Theo Chatzimichos
 
 1.0.0
 -----
