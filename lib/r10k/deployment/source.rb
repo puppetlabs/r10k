@@ -1,5 +1,6 @@
 require 'r10k/git/cache'
 require 'r10k/deployment/environment'
+require 'r10k/deployment/basedir'
 require 'r10k/util/purgeable'
 
 module R10K
