@@ -232,12 +232,6 @@ location is in /etc/r10k.yaml and can be specified on the command line.
         remote: 'git@github.com:my-org/org-shared-modules'
         basedir: '/etc/puppet/environments'
 
-    # This directory will be purged of any directory that doesn't map to a
-    # git branch
-    :purgedirs:
-      - '/etc/puppet/environments'
-
-
 Multiple git repositories can be specified, which is handy if environments are broken up by application.
 Application 1 could have its own environment repository with app1_dev, app1_tst, and app1_prd branches while
 Application 2 could have its own environment repository with app2_dev, app2_tst, app2_prd branches.
@@ -264,13 +258,6 @@ without being able to accidentally impact other groups.
       :app2:
         remote: 'git@github.com:my-org/app2-environments'
         basedir: '/etc/puppet/environments'
-
-    # This directory will be purged of any directory that doesn't map to a
-    # git branch
-    :purgedirs:
-      - '/etc/puppet/environments'
-
-
 
 More information
 ----------------
