@@ -102,21 +102,14 @@ module Deployment
 
     def initialize(deployment)
       @deployment = deployment
+      @basedirs   = @deployment.sources.map { |x| x.basedir }.uniq
     end
 
     def call
-      @deployment.sources.each do |source|
-        stale_envs = source.stale_contents
-
-        dir = source.managed_directory
-
-        if stale_envs.empty?
-          logger.debug "No stale environments in #{dir}"
-        else
-          logger.info "Purging stale environments from #{dir}"
-          logger.debug "Stale modules in #{dir}: #{stale_envs.join(', ')}"
-          source.purge!
-        end
+      @basedirs.each do |path|
+        basedir = R10K::Deployment::Basedir.new(path,@deployment)
+        logger.info "Purging stale environments from #{path}"
+        basedir.purge!
       end
     end
   end
