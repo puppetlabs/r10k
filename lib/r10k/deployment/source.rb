@@ -28,6 +28,20 @@ class Source
   #   @return [Array<R10K::Deployment::Environment>] All environments for this source
   attr_reader :environments
 
+  # Create a new source from a hash representation
+  #
+  # @param name [String] The name of the source
+  # @param opts [Hash] The properties to use for the source
+  # @param prefix [true, false] Whether to prefix the source name to created
+  #   environments
+  #
+  # @options opts [String] :remote The git remote for the given source
+  # @options opts [String] :basedir The directory to create environments in
+  # @options opts [true, false] :prefix Whether the environment names should
+  #   be prefixed by the source name. Defaults to false. This takes precedence
+  #   over the `prefix` argument
+  #
+  # @return [R10K::Deployment::Source]
   def self.vivify(name, attrs, prefix = false)
     remote  = (attrs.delete(:remote) || attrs.delete('remote'))
     basedir = (attrs.delete(:basedir) || attrs.delete('basedir'))
