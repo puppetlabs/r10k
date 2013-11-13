@@ -35,9 +35,9 @@ class Source
   # @param prefix [true, false] Whether to prefix the source name to created
   #   environments
   #
-  # @options opts [String] :remote The git remote for the given source
-  # @options opts [String] :basedir The directory to create environments in
-  # @options opts [true, false] :prefix Whether the environment names should
+  # @option opts [String] :remote The git remote for the given source
+  # @option opts [String] :basedir The directory to create environments in
+  # @option opts [true, false] :prefix Whether the environment names should
   #   be prefixed by the source name. Defaults to false. This takes precedence
   #   over the `prefix` argument
   #
