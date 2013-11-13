@@ -60,9 +60,8 @@ class Deployment
 
   def load_sources
     sources = @config.setting(:sources)
-    prefix = sources.length > 1
     @_sources = sources.map do |(name, hash)|
-      R10K::Deployment::Source.vivify(name, hash, prefix)
+      R10K::Deployment::Source.vivify(name, hash)
     end
   end
 
