@@ -68,7 +68,7 @@ Common Commands
 
     r10k deploy display
 
-### Display all environment being managed by r10k, and their modules.
+### Display all environments being managed by r10k, and their modules.
 
     r10k deploy display -p
 
@@ -128,7 +128,7 @@ Basic Environment Structure
 r10k supports Dynamic Environments (see below), but simple environment structures
 are also supported.
 
-The basic structure of an environments that uses a Puppetfile to install modules is
+The basic structure of an environment that uses a Puppetfile to install modules is
 
     .
     |-- manifests
@@ -149,7 +149,7 @@ Dynamic environment support
 ---------------------------
 
 r10k implements the dynamic environment workflow. Given a git repository with
-multiple branches R10k can create an environment for each branch. This means
+multiple branches r10k can create an environment for each branch. This means
 that you can use git with the normal branch-develop-merge workflow, and easily
 test your changes as you work.
 
