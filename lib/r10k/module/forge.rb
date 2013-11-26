@@ -26,7 +26,7 @@ class R10K::Module::Forge < R10K::Module::Base
     @owner, @name = name.split('/')
 
     if args.is_a? String
-      @version = SemVer.new(args)
+      @expected_version = SemVer.new(args)
     end
   end
 
@@ -39,7 +39,7 @@ class R10K::Module::Forge < R10K::Module::Base
 
       cmd = []
       cmd << 'upgrade'
-      cmd << "--version=#{@version}" if @version
+      cmd << "--version=#{@expected_version}" if @expected_version
       cmd << "--ignore-dependencies"
       cmd << @full_name
       pmt cmd
@@ -47,7 +47,7 @@ class R10K::Module::Forge < R10K::Module::Base
       FileUtils.mkdir @basedir unless File.directory? @basedir
       cmd = []
       cmd << 'install'
-      cmd << "--version=#{@version}" if @version
+      cmd << "--version=#{@expected_version}" if @expected_version
       cmd << "--ignore-dependencies"
       cmd << @full_name
       pmt cmd
@@ -64,7 +64,7 @@ class R10K::Module::Forge < R10K::Module::Base
   end
 
   def insync?
-    @version == version
+    @expected_version == version
   end
 
   def metadata
