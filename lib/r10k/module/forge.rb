@@ -34,9 +34,8 @@ class R10K::Module::Forge < R10K::Module::Base
     return if insync?
 
     if insync?
-      #logger.debug1 "Module #{@full_name} already matches version #{@version}"
+
     elsif File.exist? metadata_path
-      #logger.debug "Module #{@full_name} is installed but doesn't match version #{@version}, upgrading"
 
       cmd = []
       cmd << 'upgrade'
@@ -46,7 +45,6 @@ class R10K::Module::Forge < R10K::Module::Base
       pmt cmd
     else
       FileUtils.mkdir @basedir unless File.directory? @basedir
-      #logger.debug "Module #{@full_name} is not installed"
       cmd = []
       cmd << 'install'
       cmd << "--version=#{@version}" if @version
