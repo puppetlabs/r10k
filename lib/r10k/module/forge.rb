@@ -1,9 +1,9 @@
 require 'r10k/module'
 require 'r10k/errors'
 require 'r10k/logging'
+require 'r10k/execution'
 
 require 'fileutils'
-require 'systemu'
 require 'semver'
 require 'json'
 
@@ -77,23 +77,12 @@ class R10K::Module::Forge < R10K::Module::Base
 
   private
 
+  include R10K::Execution
+
   def pmt(args)
     cmd = "puppet module --modulepath '#{@basedir}' #{args.join(' ')}"
     log_event = "puppet module #{args.join(' ')}, modulepath: #{@basedir.inspect}"
-    logger.debug1 "Execute: #{cmd}"
 
-    status, stdout, stderr = systemu(cmd)
-
-    logger.debug2 "[#{log_event}] STDOUT: #{stdout.chomp}" unless stdout.empty?
-    logger.debug2 "[#{log_event}] STDERR: #{stderr.chomp}" unless stderr.empty?
-
-    unless status == 0
-      e = R10K::ExecutionFailure.new("#{cmd.inspect} returned with non-zero exit value #{status.inspect}")
-      e.exit_code = status
-      e.stdout    = stdout
-      e.stderr    = stderr
-      raise e
-    end
-    stdout
+    execute(cmd, :event => log_event)
   end
 end
