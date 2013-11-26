@@ -38,15 +38,9 @@ class R10K::Module::Forge < R10K::Module::Base
     elsif File.exist? metadata_path
       #logger.debug "Module #{@full_name} is installed but doesn't match version #{@version}, upgrading"
 
-      # A Pulp based puppetforge http://www.pulpproject.org/ wont support
-      # `puppet module install abc/xyz --version=v1.5.9` but puppetlabs forge
-      # will support `puppet module install abc/xyz --version=1.5.9`
-      #
-      # Removing v from the semver for constructing the command ensures
-      # compatibility across both
       cmd = []
       cmd << 'upgrade'
-      cmd << "--version=#{@version.to_s.sub(/^v/,'')}" if @version
+      cmd << "--version=#{@version}" if @version
       cmd << "--ignore-dependencies"
       cmd << @full_name
       pmt cmd
@@ -55,7 +49,7 @@ class R10K::Module::Forge < R10K::Module::Base
       #logger.debug "Module #{@full_name} is not installed"
       cmd = []
       cmd << 'install'
-      cmd << "--version=#{@version.to_s.sub(/^v/,'')}" if @version
+      cmd << "--version=#{@version}" if @version
       cmd << "--ignore-dependencies"
       cmd << @full_name
       pmt cmd
