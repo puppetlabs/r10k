@@ -17,13 +17,25 @@ class R10K::Module::Forge < R10K::Module::Base
 
   include R10K::Logging
 
-  attr_accessor :owner, :full_name
+  # @!attribute [r] author
+  #   @return [String] The Forge module author
+  attr_reader :author
+
+  # @deprecated
+  def owner
+    logger.warn "#{self.inspect}#owner is deprecated; use #author instead"
+    @author
+  end
+
+  # @!attribute [r] full_name
+  #   @return [String] The fully qualified module name
+  attr_reader :full_name
 
   def initialize(name, basedir, args)
     @full_name = name
     @basedir   = basedir
 
-    @owner, @name = name.split('/')
+    @author, @name = name.split('/')
 
     if args.is_a? String
       @expected_version = SemVer.new(args)
@@ -33,24 +45,13 @@ class R10K::Module::Forge < R10K::Module::Base
   def sync(options = {})
     return if insync?
 
-    if insync?
-
-    elsif File.exist? metadata_path
-
-      cmd = []
-      cmd << 'upgrade'
-      cmd << "--version=#{@expected_version}" if @expected_version
-      cmd << "--ignore-dependencies"
-      cmd << @full_name
-      pmt cmd
-    else
-      FileUtils.mkdir @basedir unless File.directory? @basedir
-      cmd = []
-      cmd << 'install'
-      cmd << "--version=#{@expected_version}" if @expected_version
-      cmd << "--ignore-dependencies"
-      cmd << @full_name
-      pmt cmd
+    case status
+    when :absent
+      install
+    when :outdated
+      upgrade
+    when :replaced
+      reinstall
     end
   end
 
@@ -67,6 +68,18 @@ class R10K::Module::Forge < R10K::Module::Base
     @expected_version == version
   end
 
+  def status
+    if not File.exist?(metadata_path)
+      :absent
+    elsif @expected_version != version
+      :outdated
+    elsif ! matches_author?
+      :replaced
+    else
+      :insync
+    end
+  end
+
   def metadata
     @metadata = JSON.parse(File.read(metadata_path)) rescue nil
   end
@@ -76,6 +89,38 @@ class R10K::Module::Forge < R10K::Module::Base
   end
 
   private
+
+  def install
+    FileUtils.mkdir @basedir unless File.directory? @basedir
+    cmd = []
+    cmd << 'install'
+    cmd << "--version=#{@expected_version}" if @expected_version
+    cmd << "--ignore-dependencies"
+    cmd << @full_name
+    pmt cmd
+  end
+
+  def upgrade
+    cmd = []
+    cmd << 'upgrade'
+    cmd << "--version=#{@expected_version}" if @expected_version
+    cmd << "--ignore-dependencies"
+    cmd << @full_name
+    pmt cmd
+  end
+
+  def reinstall
+    FileUtils.rm_rf full_path
+    install
+  end
+
+  def matches_author?
+    @author == metadata_author
+  end
+
+  def metadata_author
+    metadata['name'].split('-').first
+  end
 
   include R10K::Execution
 
