@@ -1,5 +1,6 @@
 require 'r10k/logging'
 require 'r10k/git/repository'
+require 'r10k/git/errors'
 
 require 'r10k/settings'
 require 'r10k/registry'
@@ -66,6 +67,12 @@ class Cache < R10K::Git::Repository
       end
 
       git "clone --mirror #{@remote} #{@path}"
+    end
+  rescue R10K::ExecutionFailure => e
+    if (msg = e.stderr[/^fatal: .*$/])
+      raise R10K::Git::GitError, "Couldn't update git cache for #{@remote}: #{msg.inspect}"
+    else
+      raise e
     end
   end
 
