@@ -34,4 +34,26 @@ Gem::Specification.new do |s|
   s.executables  = 'r10k'
 
   s.test_files   = Dir.glob("spec/**/*_spec.rb")
+
+  s.post_install_message = <<-EOD.gsub(/^ {4}/, '')
+    NOTICE
+    ======
+
+    If you are upgrading from 1.1.0 and are using multiple sources, please read
+    this. (If not, feel free to continue with your regularly scheduled day.)
+
+    GH-48 (https://github.com/adrienthebo/r10k/issues/48) introduced the ability
+    for environments to be prefixed with the source name so that multiple sources
+    installed into the same directory would not overwrite each other. However
+    prefixing was automatically enabled and would break existing setups where
+    multiple sources were cloned into different directories.
+
+    Because this introduced a breaking change, SemVer dictates that the automatic
+    prefixing has to be rolled back. Prefixing can be enabled but always defaults
+    to off. If you are relying on this behavior you will need to update your r10k.yaml
+    to enable prefixing on a per-source basis.
+
+    Please see the issue (https://github.com/adrienthebo/r10k/issues/48) for more
+    information.
+  EOD
 end
