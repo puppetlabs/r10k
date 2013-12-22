@@ -1,6 +1,28 @@
 CHANGELOG
 =========
 
+1.1.1rc1
+-----
+
+2013-12-11
+
+This is a backwards compatible bugfix release.
+
+### User notes
+
+  * (GH-48) Environment prefixing always defaults to off. Users were already
+    using r10k with multiple sources but in different directories, and
+    prefixing breaks this behavior. Since this was a backwards incompatible
+    change this has to be rolled back.
+  * (GH-64) Multiple sources in a single directory no longer purge each other.
+
+### Thanks
+
+Thanks to the following contributors for their help in 1.1.1:
+
+  * Stig Sandbeck Mathisen
+  * Gabriel M Schuyler
+
 1.1.0
 -----
 
