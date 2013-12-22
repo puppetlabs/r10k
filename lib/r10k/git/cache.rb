@@ -43,11 +43,7 @@ class Cache < R10K::Git::Repository
   end
 
   def sync
-    if @synced
-      # XXX This gets really spammy. Might be good to turn it on later, but for
-      # general work it's way much.
-      #logger.debug "#{@remote} already synced this run, not syncing again"
-    else
+    if not @synced
       sync!
       @synced = true
     end
@@ -55,13 +51,11 @@ class Cache < R10K::Git::Repository
 
   def sync!
     if cached?
-      # XXX This gets really spammy. Might be good to turn it on later, but for
-      # general work it's way much.
-      #logger.debug "Updating existing cache at #{@path}"
       git "fetch --prune", :git_dir => @path
     else
       logger.debug "Creating new git cache for #{@remote.inspect}"
 
+      # TODO extract this to an initialization step
       unless File.exist? settings[:cache_root]
         FileUtils.mkdir_p settings[:cache_root]
       end
