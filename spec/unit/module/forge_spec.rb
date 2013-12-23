@@ -5,11 +5,9 @@ require 'spec_helper'
 describe R10K::Module::Forge do
   before :each do
     allow_any_instance_of(described_class).to receive(:execute).and_raise "Tests should never invoke system calls"
-  end
 
-  before :each do
     log = double('stub logger').as_null_object
-    described_class.any_instance.stub(:logger).and_return log
+    allow_any_instance_of(described_class).to receive(:logger).and_return log
   end
 
   let(:fixture_modulepath) { File.expand_path('spec/fixtures/module/forge', PROJECT_ROOT) }
@@ -17,15 +15,15 @@ describe R10K::Module::Forge do
 
   describe "implementing the Puppetfile spec" do
     it "should implement 'branan/eight_hundred', '8.0.0'" do
-      described_class.should be_implement('branan/eight_hundred', '8.0.0')
+      expect(described_class).to be_implement('branan/eight_hundred', '8.0.0')
     end
 
     it "should fail with an invalid full name" do
-      described_class.should_not be_implement('branan-eight_hundred', '8.0.0')
+      expect(described_class).to_not be_implement('branan-eight_hundred', '8.0.0')
     end
 
     it "should fail with an invalid version" do
-      described_class.should_not be_implement('branan-eight_hundred', 'not a semantic version')
+      expect(described_class).to_not be_implement('branan-eight_hundred', 'not a semantic version')
     end
   end
 
