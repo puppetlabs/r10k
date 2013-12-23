@@ -1,9 +1,9 @@
 require 'r10k/module'
 require 'r10k/errors'
 require 'r10k/logging'
+require 'r10k/execution'
 
 require 'fileutils'
-require 'systemu'
 require 'semver'
 require 'json'
 
@@ -17,48 +17,41 @@ class R10K::Module::Forge < R10K::Module::Base
 
   include R10K::Logging
 
-  attr_accessor :owner, :full_name
+  # @!attribute [r] author
+  #   @return [String] The Forge module author
+  attr_reader :author
+
+  # @deprecated
+  def owner
+    logger.warn "#{self.inspect}#owner is deprecated; use #author instead"
+    @author
+  end
+
+  # @!attribute [r] full_name
+  #   @return [String] The fully qualified module name
+  attr_reader :full_name
 
   def initialize(name, basedir, args)
     @full_name = name
     @basedir   = basedir
 
-    @owner, @name = name.split('/')
+    @author, @name = name.split('/')
 
     if args.is_a? String
-      @version = SemVer.new(args)
+      @expected_version = SemVer.new(args)
     end
   end
 
   def sync(options = {})
     return if insync?
 
-    if insync?
-      #logger.debug1 "Module #{@full_name} already matches version #{@version}"
-    elsif File.exist? metadata_path
-      #logger.debug "Module #{@full_name} is installed but doesn't match version #{@version}, upgrading"
-
-      # A Pulp based puppetforge http://www.pulpproject.org/ wont support
-      # `puppet module install abc/xyz --version=v1.5.9` but puppetlabs forge
-      # will support `puppet module install abc/xyz --version=1.5.9`
-      #
-      # Removing v from the semver for constructing the command ensures
-      # compatibility across both
-      cmd = []
-      cmd << 'upgrade'
-      cmd << "--version=#{@version.to_s.sub(/^v/,'')}" if @version
-      cmd << "--ignore-dependencies"
-      cmd << @full_name
-      pmt cmd
-    else
-      FileUtils.mkdir @basedir unless File.directory? @basedir
-      #logger.debug "Module #{@full_name} is not installed"
-      cmd = []
-      cmd << 'install'
-      cmd << "--version=#{@version.to_s.sub(/^v/,'')}" if @version
-      cmd << "--ignore-dependencies"
-      cmd << @full_name
-      pmt cmd
+    case status
+    when :absent
+      install
+    when :outdated
+      upgrade
+    when :replaced
+      reinstall
     end
   end
 
@@ -72,7 +65,19 @@ class R10K::Module::Forge < R10K::Module::Base
   end
 
   def insync?
-    @version == version
+    @expected_version == version
+  end
+
+  def status
+    if not File.exist?(metadata_path)
+      :absent
+    elsif @expected_version != version
+      :outdated
+    elsif ! matches_author?
+      :replaced
+    else
+      :insync
+    end
   end
 
   def metadata
@@ -85,23 +90,44 @@ class R10K::Module::Forge < R10K::Module::Base
 
   private
 
+  def install
+    FileUtils.mkdir @basedir unless File.directory? @basedir
+    cmd = []
+    cmd << 'install'
+    cmd << "--version=#{@expected_version}" if @expected_version
+    cmd << "--ignore-dependencies"
+    cmd << @full_name
+    pmt cmd
+  end
+
+  def upgrade
+    cmd = []
+    cmd << 'upgrade'
+    cmd << "--version=#{@expected_version}" if @expected_version
+    cmd << "--ignore-dependencies"
+    cmd << @full_name
+    pmt cmd
+  end
+
+  def reinstall
+    FileUtils.rm_rf full_path
+    install
+  end
+
+  def matches_author?
+    @author == metadata_author
+  end
+
+  def metadata_author
+    metadata['name'].split('-').first
+  end
+
+  include R10K::Execution
+
   def pmt(args)
     cmd = "puppet module --modulepath '#{@basedir}' #{args.join(' ')}"
     log_event = "puppet module #{args.join(' ')}, modulepath: #{@basedir.inspect}"
-    logger.debug1 "Execute: #{cmd}"
 
-    status, stdout, stderr = systemu(cmd)
-
-    logger.debug2 "[#{log_event}] STDOUT: #{stdout.chomp}" unless stdout.empty?
-    logger.debug2 "[#{log_event}] STDERR: #{stderr.chomp}" unless stderr.empty?
-
-    unless status == 0
-      e = R10K::ExecutionFailure.new("#{cmd.inspect} returned with non-zero exit value #{status.inspect}")
-      e.exit_code = status
-      e.stdout    = stdout
-      e.stderr    = stderr
-      raise e
-    end
-    stdout
+    execute(cmd, :event => log_event)
   end
 end
