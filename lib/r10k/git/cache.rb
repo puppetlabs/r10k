@@ -1,5 +1,6 @@
 require 'r10k/logging'
 require 'r10k/git/repository'
+require 'r10k/git/errors'
 
 require 'r10k/settings'
 require 'r10k/registry'
@@ -42,11 +43,7 @@ class Cache < R10K::Git::Repository
   end
 
   def sync
-    if @synced
-      # XXX This gets really spammy. Might be good to turn it on later, but for
-      # general work it's way much.
-      #logger.debug "#{@remote} already synced this run, not syncing again"
-    else
+    if not @synced
       sync!
       @synced = true
     end
@@ -54,36 +51,29 @@ class Cache < R10K::Git::Repository
 
   def sync!
     if cached?
-      # XXX This gets really spammy. Might be good to turn it on later, but for
-      # general work it's way much.
-      #logger.debug "Updating existing cache at #{@path}"
       git "fetch --prune", :git_dir => @path
     else
       logger.debug "Creating new git cache for #{@remote.inspect}"
 
+      # TODO extract this to an initialization step
       unless File.exist? settings[:cache_root]
         FileUtils.mkdir_p settings[:cache_root]
       end
 
       git "clone --mirror #{@remote} #{@path}"
     end
+  rescue R10K::ExecutionFailure => e
+    if (msg = e.stderr[/^fatal: .*$/])
+      raise R10K::Git::GitError, "Couldn't update git cache for #{@remote}: #{msg.inspect}"
+    else
+      raise e
+    end
   end
 
   # @return [Array<String>] A list the branches for the git repository
   def branches
-    output = git "branch", :git_dir => @path
-    output.split("\n").map do |str|
-      # the `git branch` command returns output like this:
-      # <pre>
-      #   0.11.x
-      #   0.12.x
-      # * master
-      #   passenger_scoping
-      # </pre>
-      #
-      # The string index notation strips off the leading whitespace/asterisk
-      str[2..-1]
-    end
+    output = git 'for-each-ref refs/heads --format "%(refname)"', :git_dir => @path
+    output.scan(%r[refs/heads/(.*)$]).flatten
   end
 
   # @return [true, false] If the repository has been locally cached

@@ -1,6 +1,10 @@
 module R10K
 module Git
-  class NonexistentHashError < StandardError
+
+  class GitError < StandardError
+  end
+
+  class NonexistentHashError < GitError
     # Raised when a hash was requested that can't be found in the repository
 
     attr_reader :hash
