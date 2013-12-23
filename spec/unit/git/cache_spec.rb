@@ -9,6 +9,14 @@ describe R10K::Git::Cache do
     expect(cache).to receive(:execute).never
   end
 
+  describe "updating the cache" do
+    it "only updates the cache once" do
+      expect(cache).to receive(:sync!).exactly(1).times
+      cache.sync
+      cache.sync
+    end
+  end
+
 
   describe "enumerating branches" do
     let(:refs) do
@@ -28,4 +36,3 @@ describe R10K::Git::Cache do
   end
 
 end
-
