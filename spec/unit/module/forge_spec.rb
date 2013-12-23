@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe R10K::Module::Forge do
   before :each do
-    allow_any_instance_of(Object).to receive(:systemu).and_raise "Tests should never invoke system calls"
+    allow_any_instance_of(described_class).to receive(:execute).and_raise "Tests should never invoke system calls"
   end
 
   before :each do
