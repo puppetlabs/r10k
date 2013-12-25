@@ -3,12 +3,9 @@ require 'semver'
 require 'spec_helper'
 
 describe R10K::Module::Forge do
-  before :each do
-    allow_any_instance_of(described_class).to receive(:execute).and_raise "Tests should never invoke system calls"
 
-    log = double('stub logger').as_null_object
-    allow_any_instance_of(described_class).to receive(:logger).and_return log
-  end
+  include_context 'stub logging'
+  include_context 'fail on execution'
 
   let(:fixture_modulepath) { File.expand_path('spec/fixtures/module/forge', PROJECT_ROOT) }
   let(:empty_modulepath) { File.expand_path('spec/fixtures/empty', PROJECT_ROOT) }
@@ -38,108 +35,159 @@ describe R10K::Module::Forge do
   end
 
   describe "when syncing" do
-
-    describe "and the module is in sync" do
-      subject { described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0') }
-
-      it { should be_insync }
-      its(:version) { should eq '8.0.0' }
+    let(:metadata) do
+      double('metadata',
+             :exist? => true,
+             :author => 'branan',
+             :version => SemVer.new('8.0.0'))
     end
 
-    describe "and the desired version is newer than the installed version" do
-      subject { described_class.new('branan/eight_hundred', fixture_modulepath, '80.0.0') }
+    subject { described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0') }
 
-      it { should_not be_insync }
-      its(:version) { should eq 'v8.0.0' }
+    before { allow(R10K::Module::Metadata).to receive(:new).and_return metadata }
 
-      it "should try to upgrade the module" do
-        expected = %w{upgrade --version=80.0.0 --ignore-dependencies branan/eight_hundred}
-        expect(subject).to receive(:pmt).with(expected)
+    describe "and the module is in sync" do
+      before do
+        allow(subject).to receive(:status).and_return :insync
+      end
+
+      it "is in sync" do
+        expect(subject).to be_insync
+      end
+
+      it "doesn't act when syncing anything" do
+        expect(subject).to receive(:install).never
+        expect(subject).to receive(:upgrade).never
+        expect(subject).to receive(:reinstall).never
         subject.sync
       end
     end
 
-    describe "and the desired version is older than the installed version" do
-      subject { described_class.new('branan/eight_hundred', fixture_modulepath, '7.0.0') }
+    describe "and the module is mismatched" do
+      before do
+        allow(subject).to receive(:status).and_return :mismatched
+      end
 
-      it { should_not be_insync }
-      its(:version) { should eq '8.0.0' }
+      it "is not in sync" do
+        expect(subject).to_not be_insync
+      end
 
-      it "should try to downgrade the module" do
-        # Again with the magical "v" prefix to the version.
-        expected = %w{upgrade --version=7.0.0 --ignore-dependencies branan/eight_hundred}
-        expect(subject).to receive(:pmt).with(expected)
+      it "reinstalls the module" do
+        expect(subject).to receive(:reinstall)
+        subject.sync
+      end
+
+      it "reinstalls by removing the existing directory and calling the module tool" do
+        expect(FileUtils).to receive(:rm_rf)
+        expect(subject).to receive(:pmt) do |args|
+          expect(args).to include 'install'
+          expect(args).to include '--version=8.0.0'
+          expect(args).to include 'branan/eight_hundred'
+        end
+
+        subject.sync
+      end
+    end
+
+    describe "and the module is outdated" do
+      before do
+        allow(subject).to receive(:status).and_return :outdated
+      end
+
+      it "is not in sync" do
+        expect(subject).to_not be_insync
+      end
+
+      it "upgrades the module" do
+        expect(subject).to receive(:upgrade)
+        subject.sync
+      end
+
+      it "upgrades by calling the module tool" do
+        expect(subject).to receive(:pmt) do |args|
+          expect(args).to include 'upgrade'
+          expect(args).to include '--version=8.0.0'
+          expect(args).to include 'branan/eight_hundred'
+        end
+
         subject.sync
       end
     end
 
     describe "and the module is not installed" do
-      subject { described_class.new('branan/eight_hundred', empty_modulepath, '8.0.0') }
+      before do
+        allow(subject).to receive(:status).and_return :absent
+      end
 
-      it { should_not be_insync }
-      its(:version) { should eq SemVer::MIN }
+      it "is not in sync" do
+        expect(subject).to_not be_insync
+      end
 
-      it "should try to install the module" do
-        expected = %w{install --version=8.0.0 --ignore-dependencies branan/eight_hundred}
-        expect(subject).to receive(:pmt).with(expected)
+      it "installs the module" do
+        expect(subject).to receive(:uninstall).never
+        expect(subject).to receive(:install)
+        subject.sync
+      end
+
+      it "installs by calling the module tool" do
+        expect(subject).to receive(:pmt) do |args|
+          expect(args).to include 'install'
+          expect(args).to include '--version=8.0.0'
+          expect(args).to include 'branan/eight_hundred'
+        end
+
         subject.sync
       end
     end
   end
 
   describe "determining the status" do
+
+    let(:metadata) { double 'metadata', :version => SemVer.new('8.0.0'), :author => 'branan' }
+
     subject { described_class.new('branan/eight_hundred', empty_modulepath, '8.0.0') }
 
-    let(:metadata) do
-      str = <<-EOD
-{
-  "checksums": {
-    "Modulefile": "1e780d794bcd6629dc3006129fc02edf"
-  },
-  "license": "Apache License 2.0",
-  "types": [
-
-  ],
-  "version": "8.0.0",
-  "dependencies": [
-
-  ],
-  "summary": "800 modules! WOOOOOOO!",
-  "source": "https://github.com/branan/puppet-module-eight_hundred",
-  "description": "800 modules! WOOOOOOOOOOOOOOOOOO!",
-  "author": "Branan Purvine-Riley",
-  "name": "branan-eight_hundred",
-  "project_page": "https://github.com/branan/puppet-module-eight_hundred"
-}
-      EOD
+    before do
+      allow(R10K::Module::Metadata).to receive(:new).and_return metadata
     end
 
-    it "is :absent if the metadata file is absent" do
-      allow(File).to receive(:exist?).with(subject.metadata_path).and_return false
+    it "is :absent if the module directory is absent" do
+      allow(File).to receive(:exist?).with(subject.full_path).and_return false
       expect(subject.status).to eq :absent
     end
 
+    it "is :mismatched if there is no module metadata" do
+      allow(File).to receive(:exist?).with(subject.full_path).and_return true
+      allow(metadata).to receive(:exist?).and_return false
+
+      expect(subject.status).to eq :mismatched
+    end
+
+    it "is :mismatched if the metadata author doesn't match the expected author" do
+      allow(File).to receive(:exist?).with(subject.full_path).and_return true
+
+      allow(metadata).to receive(:exist?).and_return true
+      allow(metadata).to receive(:author).and_return 'blargh'
+
+      expect(subject.status).to eq :mismatched
+    end
+
     it "is :outdated if the metadata version doesn't match the expected version" do
-      allow(File).to receive(:exist?).with(subject.metadata_path).and_return true
-      allow(File).to receive(:read).with(subject.metadata_path).and_return metadata
+      allow(File).to receive(:exist?).with(subject.full_path).and_return true
 
-      allow(subject).to receive(:version).and_return '7.0.0'
-
-      expect(subject.status).to eq :outdated
-    end
-
-    it "is :replaced if the metadata author doesn't match the expected author" do
-      allow(File).to receive(:exist?).with(subject.metadata_path).and_return true
-      allow(File).to receive(:read).with(subject.metadata_path).and_return metadata
-
-      allow(subject).to receive(:version).and_return '7.0.0'
+      allow(metadata).to receive(:exist?).and_return true
+      allow(metadata).to receive(:author).and_return 'branan'
+      allow(metadata).to receive(:version).and_return SemVer.new('7.0.0')
 
       expect(subject.status).to eq :outdated
     end
 
-    it "is insync if the version and the author are in sync" do
-      allow(File).to receive(:exist?).with(subject.metadata_path).and_return true
-      allow(File).to receive(:read).with(subject.metadata_path).and_return metadata
+    it "is :insync if the version and the author are in sync" do
+      allow(File).to receive(:exist?).with(subject.full_path).and_return true
+
+      allow(metadata).to receive(:exist?).and_return true
+      allow(metadata).to receive(:author).and_return 'branan'
+      allow(metadata).to receive(:version).and_return SemVer.new('8.0.0')
 
       expect(subject.status).to eq :insync
     end

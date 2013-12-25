@@ -6,7 +6,7 @@ describe R10K::Deployment::Source do
   let(:remote) { 'git://github.com/adrienthebo/r10k-fixture-repo' }
   let(:basedir)    { '/tmp' }
 
-  describe 'environments' do
+  describe 'environments', :integration => true do
     it 'uses the name as a prefix when told' do
       subject = described_class.new(name, remote, basedir, true)
       subject.fetch_remote()

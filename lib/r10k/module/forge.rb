@@ -2,7 +2,9 @@ require 'r10k/module'
 require 'r10k/errors'
 require 'r10k/logging'
 require 'r10k/execution'
+require 'r10k/module/metadata'
 
+require 'pathname'
 require 'fileutils'
 require 'semver'
 require 'json'
@@ -31,11 +33,15 @@ class R10K::Module::Forge < R10K::Module::Base
   #   @return [String] The fully qualified module name
   attr_reader :full_name
 
-  def initialize(name, basedir, args)
-    @full_name = name
+  def initialize(full_name, basedir, args)
+    @full_name = full_name
     @basedir   = basedir
 
-    @author, @name = name.split('/')
+    @author, @name = full_name.split('/')
+
+    @full_path = Pathname.new(File.join(@basedir, @name))
+
+    @metadata = R10K::Module::Metadata.new(@full_path + 'metadata.json')
 
     if args.is_a? String
       @expected_version = SemVer.new(args)
@@ -50,42 +56,44 @@ class R10K::Module::Forge < R10K::Module::Base
       install
     when :outdated
       upgrade
-    when :replaced
+    when :mismatched
       reinstall
     end
   end
 
   # @return [SemVer, NilClass]
   def version
-    if metadata
-      SemVer.new(metadata['version'])
-    else
-      SemVer::MIN
-    end
+    @metadata.version
   end
 
   def insync?
-    @expected_version == version
+    status == :insync
   end
 
+  # Determine the status of the forge module.
+  #
+  # @return [Symbol] :absent If the directory doesn't exist
+  # @return [Symbol] :mismatched If the module is not a forge module, or
+  #   isn't the right forge module
+  # @return [Symbol] :outdated If the installed module is older than expected
+  # @return [Symbol] :insync If the module is in the desired state
   def status
-    if not File.exist?(metadata_path)
+    if not File.exist?(full_path)
+      # The module is not installed
       :absent
-    elsif @expected_version != version
+    elsif not @metadata.exist?
+      # The directory exists but doesn't have a metadata file; it probably
+      # isn't a forge module.
+      :mismatched
+    elsif not @author == @metadata.author
+      # This is a forge module but the installed module is a different author
+      # than the expected author.
+      :mismatched
+    elsif @expected_version != @metadata.version
       :outdated
-    elsif ! matches_author?
-      :replaced
     else
       :insync
     end
-  end
-
-  def metadata
-    @metadata = JSON.parse(File.read(metadata_path)) rescue nil
-  end
-
-  def metadata_path
-    File.join(full_path, 'metadata.json')
   end
 
   private
@@ -109,17 +117,13 @@ class R10K::Module::Forge < R10K::Module::Base
     pmt cmd
   end
 
-  def reinstall
+  def uninstall
     FileUtils.rm_rf full_path
+  end
+
+  def reinstall
+    uninstall
     install
-  end
-
-  def matches_author?
-    @author == metadata_author
-  end
-
-  def metadata_author
-    metadata['name'].split('-').first
   end
 
   include R10K::Execution
