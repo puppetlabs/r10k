@@ -76,6 +76,17 @@ describe R10K::Module::Forge do
         expect(subject).to receive(:reinstall)
         subject.sync
       end
+
+      it "reinstalls by removing the existing directory and calling the module tool" do
+        expect(FileUtils).to receive(:rm_rf)
+        expect(subject).to receive(:pmt) do |args|
+          expect(args).to include 'install'
+          expect(args).to include '--version=8.0.0'
+          expect(args).to include 'branan/eight_hundred'
+        end
+
+        subject.sync
+      end
     end
 
     describe "and the module is outdated" do
@@ -89,6 +100,16 @@ describe R10K::Module::Forge do
 
       it "upgrades the module" do
         expect(subject).to receive(:upgrade)
+        subject.sync
+      end
+
+      it "upgrades by calling the module tool" do
+        expect(subject).to receive(:pmt) do |args|
+          expect(args).to include 'upgrade'
+          expect(args).to include '--version=8.0.0'
+          expect(args).to include 'branan/eight_hundred'
+        end
+
         subject.sync
       end
     end
@@ -105,6 +126,16 @@ describe R10K::Module::Forge do
       it "installs the module" do
         expect(subject).to receive(:uninstall).never
         expect(subject).to receive(:install)
+        subject.sync
+      end
+
+      it "installs by calling the module tool" do
+        expect(subject).to receive(:pmt) do |args|
+          expect(args).to include 'install'
+          expect(args).to include '--version=8.0.0'
+          expect(args).to include 'branan/eight_hundred'
+        end
+
         subject.sync
       end
     end
