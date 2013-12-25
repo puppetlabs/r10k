@@ -14,6 +14,19 @@ describe R10K::ModuleRepository::Forge do
     expect(forge.forge).to eq 'forge.example.local'
   end
 
-  it "can fetch all versions of a given module"
-  it "can fetch the latest version of a given module"
+  describe "looking up versions", :vcr => true do
+    subject(:forge) { described_class.new }
+
+    before do
+      forge.conn.builder.insert_before(Faraday::Adapter::NetHttp, VCR::Middleware::Faraday)
+    end
+
+    it "can fetch all versions of a given module" do
+      expect(forge.versions('adrien/boolean')).to eq ["0.9.0-rc1", "0.9.0", "1.0.0", "1.0.1"]
+    end
+
+    it "can fetch the latest version of a given module" do
+      expect(forge.latest_version('adrien/boolean')).to eq "1.0.1"
+    end
+  end
 end

@@ -31,6 +31,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'faraday_middleware-multi_json', '~> 0.0.5'
 
   s.add_development_dependency 'rspec', '~> 2.14.0'
+  s.add_development_dependency 'vcr',   '~> 2.8.0'
+
   s.add_development_dependency 'yard', '~> 0.8.7.3'
 
   s.files        = Dir.glob "{bin,lib,spec}/**/*"

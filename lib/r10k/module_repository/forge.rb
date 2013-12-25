@@ -3,6 +3,7 @@ require 'r10k/version'
 
 require 'faraday'
 require 'faraday_middleware/multi_json'
+require 'faraday_middleware'
 
 class R10K::ModuleRepository::Forge
 
@@ -21,10 +22,14 @@ class R10K::ModuleRepository::Forge
       :url => "https://#{@forge}",
       :user_agent => "Ruby/r10k #{R10K::VERSION}"
     ) do |builder|
-      builder.adapter Faraday.default_adapter
       builder.request :multi_json
       builder.response :multi_json
+
+      # This needs to be _after_ request/response configuration for testing
+      # purposes. This comment is the result of much consternation.
+      builder.adapter Faraday.default_adapter
     end
+
   end
 
   # Query for all published versions of a module
@@ -37,11 +42,9 @@ class R10K::ModuleRepository::Forge
   # @param module_name [String] The fully qualified module name
   # @return [Array<String>] All published versions of the given module
   def versions(module_name)
-    resp = @conn.get("/api/v1/releases.json", {'module' => module_name})
+    response = @conn.get("/api/v1/releases.json", {'module' => module_name})
 
-    body = resp.body
-
-    body[module_name].map do |version_info|
+    response.body[module_name].map do |version_info|
       version_info['version']
     end
   end
