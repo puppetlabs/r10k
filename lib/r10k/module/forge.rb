@@ -7,7 +7,6 @@ require 'r10k/module/metadata'
 require 'pathname'
 require 'fileutils'
 require 'semver'
-require 'json'
 
 class R10K::Module::Forge < R10K::Module::Base
 
@@ -59,10 +58,15 @@ class R10K::Module::Forge < R10K::Module::Base
     end
   end
 
-  # @return [SemVer, NilClass]
-  def version
+  # @return [SemVer] The expected version that the module
+  attr_reader :expected_version
+
+  # @return [SemVer] The version of the currently installed module
+  def current_version
     @metadata.version
   end
+
+  alias version current_version
 
   def insync?
     status == :insync
