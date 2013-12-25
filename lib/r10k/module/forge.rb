@@ -68,12 +68,21 @@ class R10K::Module::Forge < R10K::Module::Base
     @expected_version == version
   end
 
+  # Determine the status of the forge module.
+  #
+  # @return [Symbol] :absent If the directory doesn't exist
+  # @return [Symbol] :mismatched If the module is not a forge module, or
+  #   isn't the right forge module
+  # @return [Symbol] :outdated If the installed module is older than expected
+  # @return [Symbol] :insync If the module is in the desired state
   def status
     if not File.exist?(metadata_path)
+      # XXX THIS DOESN'T MATCH THE DOCUMENTATION
       :absent
     elsif @expected_version != version
       :outdated
     elsif ! matches_author?
+      # XXX This needs to be evaluated before the version
       :replaced
     else
       :insync
