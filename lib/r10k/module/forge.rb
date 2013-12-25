@@ -49,8 +49,6 @@ class R10K::Module::Forge < R10K::Module::Base
   end
 
   def sync(options = {})
-    return if insync?
-
     case status
     when :absent
       install
