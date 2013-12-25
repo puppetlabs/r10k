@@ -3,12 +3,9 @@ require 'semver'
 require 'spec_helper'
 
 describe R10K::Module::Forge do
-  before :each do
-    allow_any_instance_of(described_class).to receive(:execute).and_raise "Tests should never invoke system calls"
 
-    log = double('stub logger').as_null_object
-    allow_any_instance_of(described_class).to receive(:logger).and_return log
-  end
+  include_context 'stub logging'
+  include_context 'fail on execution'
 
   let(:fixture_modulepath) { File.expand_path('spec/fixtures/module/forge', PROJECT_ROOT) }
   let(:empty_modulepath) { File.expand_path('spec/fixtures/empty', PROJECT_ROOT) }
