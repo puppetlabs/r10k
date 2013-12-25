@@ -95,7 +95,7 @@ describe R10K::Module::Forge do
 
     describe "and the module is not installed" do
       before do
-        allow(subject).to receive(:status).and_return :mismatched
+        allow(subject).to receive(:status).and_return :absent
       end
 
       it "is not in sync" do
@@ -103,6 +103,7 @@ describe R10K::Module::Forge do
       end
 
       it "installs the module" do
+        expect(subject).to receive(:uninstall).never
         expect(subject).to receive(:install)
         subject.sync
       end

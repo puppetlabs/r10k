@@ -117,8 +117,12 @@ class R10K::Module::Forge < R10K::Module::Base
     pmt cmd
   end
 
-  def reinstall
+  def uninstall
     FileUtils.rm_rf full_path
+  end
+
+  def reinstall
+    uninstall
     install
   end
 
