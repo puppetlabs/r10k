@@ -114,12 +114,30 @@ describe R10K::Module::Forge do
       EOD
     end
 
-    it "is :absent if the metadata file is absent" do
-      allow(File).to receive(:exist?).with(subject.metadata_path).and_return false
+    it "is :absent if the module directory is absent" do
+      allow(File).to receive(:exist?).with(subject.full_path).and_return false
       expect(subject.status).to eq :absent
     end
 
+    it "is :mismatched if there is no module metadata" do
+      allow(File).to receive(:exist?).with(subject.full_path).and_return true
+      allow(File).to receive(:exist?).with(subject.metadata_path).and_return false
+
+      expect(subject.status).to eq :mismatched
+    end
+
+    it "is :mismatched if the metadata author doesn't match the expected author" do
+      allow(File).to receive(:exist?).with(subject.full_path).and_return true
+      allow(File).to receive(:exist?).with(subject.metadata_path).and_return true
+      allow(File).to receive(:read).with(subject.metadata_path).and_return metadata
+
+      allow(subject).to receive(:metadata_author).and_return 'blargh'
+
+      expect(subject.status).to eq :mismatched
+    end
+
     it "is :outdated if the metadata version doesn't match the expected version" do
+      allow(File).to receive(:exist?).with(subject.full_path).and_return true
       allow(File).to receive(:exist?).with(subject.metadata_path).and_return true
       allow(File).to receive(:read).with(subject.metadata_path).and_return metadata
 
@@ -128,16 +146,8 @@ describe R10K::Module::Forge do
       expect(subject.status).to eq :outdated
     end
 
-    it "is :replaced if the metadata author doesn't match the expected author" do
-      allow(File).to receive(:exist?).with(subject.metadata_path).and_return true
-      allow(File).to receive(:read).with(subject.metadata_path).and_return metadata
-
-      allow(subject).to receive(:version).and_return '7.0.0'
-
-      expect(subject.status).to eq :outdated
-    end
-
-    it "is insync if the version and the author are in sync" do
+    it "is :insync if the version and the author are in sync" do
+      allow(File).to receive(:exist?).with(subject.full_path).and_return true
       allow(File).to receive(:exist?).with(subject.metadata_path).and_return true
       allow(File).to receive(:read).with(subject.metadata_path).and_return metadata
 

@@ -31,11 +31,14 @@ class R10K::Module::Forge < R10K::Module::Base
   #   @return [String] The fully qualified module name
   attr_reader :full_name
 
-  def initialize(name, basedir, args)
-    @full_name = name
+  def initialize(full_name, basedir, args)
+    @full_name = full_name
     @basedir   = basedir
 
-    @author, @name = name.split('/')
+    @author, @name = full_name.split('/')
+
+    @full_path = Pathname.new(File.join(@basedir, @name))
+    @metadata_path = @full_path + 'metadata.json'
 
     if args.is_a? String
       @expected_version = SemVer.new(args)
@@ -76,14 +79,19 @@ class R10K::Module::Forge < R10K::Module::Base
   # @return [Symbol] :outdated If the installed module is older than expected
   # @return [Symbol] :insync If the module is in the desired state
   def status
-    if not File.exist?(metadata_path)
-      # XXX THIS DOESN'T MATCH THE DOCUMENTATION
+    if not File.exist?(full_path)
+      # The module is not installed
       :absent
+    elsif not File.exist?(metadata_path)
+      # The directory exists but doesn't have a metadata file; it probably
+      # isn't a forge module.
+      :mismatched
+    elsif ! matches_author?
+      # This is a forge module but the installed module is a different author
+      # than the expected author.
+      :mismatched
     elsif @expected_version != version
       :outdated
-    elsif ! matches_author?
-      # XXX This needs to be evaluated before the version
-      :replaced
     else
       :insync
     end
