@@ -186,7 +186,7 @@ describe R10K::Module::Forge do
     end
   end
 
-  describe "and the expected version is :latest", :vcr => true do
+  describe "and the expected version is :latest", :vcr => true, :unless => (RUBY_VERSION == '1.8.7') do
     subject { described_class.new('branan/eight_hundred', '/moduledir', :latest) }
 
     let(:_metadata) do
