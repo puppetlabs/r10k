@@ -5,18 +5,49 @@ require 'r10k/module/svn'
 describe R10K::Module::SVN do
 
   describe "determining it implements a Puppetfile mod" do
-    it "implements mods with the :svn hash key"
+    it "implements mods with the :svn hash key" do
+      implements = described_class.implement?('r10k-fixture-repo', :svn => 'https://github.com/adrienthebo/r10k-fixture-repo')
+      expect(implements).to eq true
+    end
   end
 
   describe "instantiating based on Puppetfile configuration" do
-    it "can specify a revision"
-    it "can specify a path within the SVN repo"
+    it "can specify a revision with the :rev key" do
+      svn = described_class.new('foo', '/moduledir', :rev => 'r10')
+      expect(svn.expected_revision).to eq 'r10'
+    end
+
+    it "can specify a revision with the :revision key" do
+      svn = described_class.new('foo', '/moduledir', :revision => 'r10')
+      expect(svn.expected_revision).to eq 'r10'
+    end
+
+    it "can specify a path within the SVN repo" do
+      svn = described_class.new('foo', '/moduledir', :svn_path => 'branches/something/foo')
+      expect(svn.svn_path).to eq 'branches/something/foo'
+    end
   end
 
   describe "determining the status" do
-    it "is :absent if the module directory is absent"
-    it "is :mismatched if the directory is present but not an SVN repo"
-    it "is :mismatched if the directory URL doesn't match the expected repo"
+    subject { described_class.new('foo', '/moduledir', :svn => 'https://github.com/adrienthebo/r10k-fixture-repo') }
+
+    let(:working_dir) { stub 'working_dir' }
+
+    before do
+      allow(R10K::SVN::WorkingDir).to receive(:new).and_return working_dir
+    end
+
+    it "is :absent if the module directory is absent" do
+      allow(subject).to receive(:exist?).and_return false
+      expect(subject.status).to eq :absent
+    end
+
+    it "is :mismatched if the directory is present but not an SVN repo" do
+      allow(subject).to receive(:exist?).and_return true
+      allow(working_dir).to receive(:is_svn?).and_return false
+
+      expect(subject.status).to eq :mismatched
+    end
 
     it "is some state when the wrong working copy path is checked out"
 
