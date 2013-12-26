@@ -3,6 +3,7 @@ require 'r10k/errors'
 require 'r10k/logging'
 require 'r10k/execution'
 require 'r10k/module/metadata'
+require 'r10k/module_repository/forge'
 
 require 'pathname'
 require 'fileutils'
@@ -44,6 +45,8 @@ class R10K::Module::Forge < R10K::Module::Base
 
     if args.is_a? String
       @expected_version = SemVer.new(args)
+    elsif args.is_a? Symbol and args == :latest
+      @expected_version = args
     end
   end
 
@@ -68,6 +71,10 @@ class R10K::Module::Forge < R10K::Module::Base
 
   alias version current_version
 
+  def exist?
+    @full_path.exist?
+  end
+
   def insync?
     status == :insync
   end
@@ -80,22 +87,30 @@ class R10K::Module::Forge < R10K::Module::Base
   # @return [Symbol] :outdated If the installed module is older than expected
   # @return [Symbol] :insync If the module is in the desired state
   def status
-    if not File.exist?(full_path)
+    if not self.exist?
       # The module is not installed
-      :absent
+      return :absent
     elsif not @metadata.exist?
       # The directory exists but doesn't have a metadata file; it probably
       # isn't a forge module.
-      :mismatched
+      return :mismatched
     elsif not @author == @metadata.author
       # This is a forge module but the installed module is a different author
       # than the expected author.
-      :mismatched
-    elsif @expected_version != @metadata.version
-      :outdated
-    else
-      :insync
+      return :mismatched
     end
+
+    # The module is installed is the right author, but we may need to determine
+    # which version to install.
+    if @expected_version == :latest
+      set_version_from_forge
+    end
+
+    if @expected_version != @metadata.version
+      return :outdated
+    end
+
+    return :insync
   end
 
   private
@@ -135,5 +150,11 @@ class R10K::Module::Forge < R10K::Module::Base
     log_event = "puppet module #{args.join(' ')}, modulepath: #{@basedir.inspect}"
 
     execute(cmd, :event => log_event)
+  end
+
+  def set_version_from_forge
+    repo = R10K::ModuleRepository::Forge.new
+    expected = repo.latest_version(@full_name)
+    @expected_version = SemVer.new(expected)
   end
 end

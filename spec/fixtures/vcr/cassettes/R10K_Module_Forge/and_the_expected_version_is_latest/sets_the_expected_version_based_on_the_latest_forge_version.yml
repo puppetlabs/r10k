@@ -1,0 +1,42 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://forge.puppetlabs.com/api/v1/releases.json?module=branan%2Feight_hundred
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v0.8.8
+  response:
+    status:
+      code: 200
+      message: 
+    headers:
+      server:
+      - nginx
+      date:
+      - Thu, 26 Dec 2013 03:36:17 GMT
+      content-type:
+      - application/json
+      content-length:
+      - '133'
+      connection:
+      - close
+      status:
+      - 200 OK
+      x-frame-options:
+      - sameorigin
+      x-xss-protection:
+      - 1; mode=block
+      x-node:
+      - forgeweb01
+      x-revision:
+      - b288c1e7e86f82eef7692085670c78693062c84d
+    body:
+      encoding: US-ASCII
+      string: ! '{"branan/eight_hundred":[{"file":"/system/releases/b/branan/branan-eight_hundred-8.0.0.tar.gz","version":"8.0.0","dependencies":[]}]}'
+    http_version: 
+  recorded_at: Thu, 26 Dec 2013 03:37:31 GMT
+recorded_with: VCR 2.8.0

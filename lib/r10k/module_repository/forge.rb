@@ -18,6 +18,7 @@ class R10K::ModuleRepository::Forge
 
   def initialize(forge = 'forge.puppetlabs.com')
     @forge = forge
+
     @conn = Faraday.new(
       :url => "https://#{@forge}",
       :user_agent => "Ruby/r10k #{R10K::VERSION}"
@@ -29,7 +30,6 @@ class R10K::ModuleRepository::Forge
       # purposes. This comment is the result of much consternation.
       builder.adapter Faraday.default_adapter
     end
-
   end
 
   # Query for all published versions of a module
