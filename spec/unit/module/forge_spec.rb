@@ -143,53 +143,68 @@ describe R10K::Module::Forge do
 
   describe "determining the status" do
 
-    let(:metadata) { double 'metadata', :version => SemVer.new('8.0.0'), :author => 'branan' }
+    let(:metadata) { double 'metadata', :version => SemVer.new('8.0.0'), :author => 'branan', :exist? => true }
 
-    subject { described_class.new('branan/eight_hundred', empty_modulepath, '8.0.0') }
+    subject { described_class.new('branan/eight_hundred', '/moduledir', '8.0.0') }
 
     before do
       allow(R10K::Module::Metadata).to receive(:new).and_return metadata
     end
 
     it "is :absent if the module directory is absent" do
-      allow(File).to receive(:exist?).with(subject.full_path).and_return false
+      allow(subject).to receive(:exist?).and_return false
       expect(subject.status).to eq :absent
     end
 
     it "is :mismatched if there is no module metadata" do
-      allow(File).to receive(:exist?).with(subject.full_path).and_return true
+      allow(subject).to receive(:exist?).and_return true
       allow(metadata).to receive(:exist?).and_return false
 
       expect(subject.status).to eq :mismatched
     end
 
     it "is :mismatched if the metadata author doesn't match the expected author" do
-      allow(File).to receive(:exist?).with(subject.full_path).and_return true
+      allow(subject).to receive(:exist?).and_return true
 
-      allow(metadata).to receive(:exist?).and_return true
       allow(metadata).to receive(:author).and_return 'blargh'
 
       expect(subject.status).to eq :mismatched
     end
 
     it "is :outdated if the metadata version doesn't match the expected version" do
-      allow(File).to receive(:exist?).with(subject.full_path).and_return true
+      allow(subject).to receive(:exist?).and_return true
 
-      allow(metadata).to receive(:exist?).and_return true
-      allow(metadata).to receive(:author).and_return 'branan'
       allow(metadata).to receive(:version).and_return SemVer.new('7.0.0')
 
       expect(subject.status).to eq :outdated
     end
 
     it "is :insync if the version and the author are in sync" do
-      allow(File).to receive(:exist?).with(subject.full_path).and_return true
-
-      allow(metadata).to receive(:exist?).and_return true
-      allow(metadata).to receive(:author).and_return 'branan'
-      allow(metadata).to receive(:version).and_return SemVer.new('8.0.0')
+      allow(subject).to receive(:exist?).and_return true
 
       expect(subject.status).to eq :insync
+    end
+  end
+
+  describe "and the expected version is :latest", :vcr => true do
+    subject { described_class.new('branan/eight_hundred', '/moduledir', :latest) }
+
+    let(:_metadata) do
+      double('metadata',
+             :version => SemVer.new('7.0.0'),
+             :author => 'branan',
+             :exist? => true
+            )
+    end
+
+    before do
+      allow(R10K::Module::Metadata).to receive(:new).and_return _metadata
+    end
+
+    it "sets the expected version based on the latest forge version" do
+      allow(subject).to receive(:exist?).and_return true
+      expect(subject.status).to eq :outdated
+      expect(subject.expected_version).to eq SemVer.new('8.0.0')
     end
   end
 end

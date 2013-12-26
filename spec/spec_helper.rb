@@ -2,6 +2,13 @@ require 'r10k'
 
 PROJECT_ROOT = File.expand_path('..', File.dirname(__FILE__))
 
+require 'vcr'
+VCR.configure do |vcr|
+  vcr.cassette_library_dir = File.expand_path('spec/fixtures/vcr/cassettes', PROJECT_ROOT)
+  vcr.hook_into :faraday
+  vcr.configure_rspec_metadata!
+end
+
 RSpec.configure do |config|
   # Filter out integration tests by default
   #
