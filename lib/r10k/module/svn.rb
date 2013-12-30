@@ -31,6 +31,10 @@ class R10K::Module::SVN
       :absent
     elsif not @working_dir.is_svn?
       :mismatched
+    elsif not @url == @working_dir.url
+      :mismatched
+    elsif not @expected_revision == @working_dir.revision
+      :outdated
     else
       :insync
     end
@@ -49,6 +53,8 @@ class R10K::Module::SVN
   def parse_options(hash)
     hash.each_pair do |key, value|
       case key
+      when :svn
+        @url = value
       when :rev, :revision
         @expected_revision = value
       when :svn_path

@@ -29,7 +29,7 @@ describe R10K::Module::SVN do
   end
 
   describe "determining the status" do
-    subject { described_class.new('foo', '/moduledir', :svn => 'https://github.com/adrienthebo/r10k-fixture-repo') }
+    subject { described_class.new('foo', '/moduledir', :svn => 'https://github.com/adrienthebo/r10k-fixture-repo', :rev => 123) }
 
     let(:working_dir) { stub 'working_dir' }
 
@@ -39,21 +39,50 @@ describe R10K::Module::SVN do
 
     it "is :absent if the module directory is absent" do
       allow(subject).to receive(:exist?).and_return false
+
       expect(subject.status).to eq :absent
     end
 
     it "is :mismatched if the directory is present but not an SVN repo" do
       allow(subject).to receive(:exist?).and_return true
+
       allow(working_dir).to receive(:is_svn?).and_return false
 
       expect(subject.status).to eq :mismatched
     end
 
-    it "is some state when the wrong working copy path is checked out"
+    it "is mismatched when the wrong SVN URL is checked out" do
+      allow(subject).to receive(:exist?).and_return true
 
-    it "is :outdated when the expected rev doesn't match the actual rev"
+      allow(working_dir).to receive(:is_svn?).and_return true
+      allow(working_dir).to receive(:url).and_return 'svn://nope/trunk'
 
-    it "is :insync if all other conditions are satisfied"
+      expect(subject.status).to eq :mismatched
+    end
+
+    it "is :outdated when the expected rev doesn't match the actual rev" do
+      allow(subject).to receive(:exist?).and_return true
+
+      allow(working_dir).to receive(:is_svn?).and_return true
+      allow(working_dir).to receive(:url).and_return 'https://github.com/adrienthebo/r10k-fixture-repo'
+      allow(working_dir).to receive(:revision).and_return 99
+
+      expect(subject.status).to eq :outdated
+    end
+
+    it "is :insync if all other conditions are satisfied" do
+      allow(subject).to receive(:exist?).and_return true
+
+      allow(working_dir).to receive(:is_svn?).and_return true
+      allow(working_dir).to receive(:url).and_return 'https://github.com/adrienthebo/r10k-fixture-repo'
+      allow(working_dir).to receive(:revision).and_return 123
+
+      expect(subject.status).to eq :insync
+    end
+  end
+
+  describe "and the expected version is :latest" do
+    it "sets the expected version based on the latest SVN revision"
   end
 
   describe "synchronizing" do
