@@ -33,7 +33,7 @@ describe R10K::Module::SVN do
   describe "determining the status" do
     subject { described_class.new('foo', '/moduledir', :svn => 'https://github.com/adrienthebo/r10k-fixture-repo', :rev => 123) }
 
-    let(:working_dir) { stub 'working_dir' }
+    let(:working_dir) { double 'working_dir' }
 
     before do
       allow(R10K::SVN::WorkingDir).to receive(:new).and_return working_dir
@@ -106,18 +106,53 @@ describe R10K::Module::SVN do
     end
 
     describe "and the state is :mismatched" do
-      it "reinstalls the module"
-      it "removes the existing directory"
-      it "performs an SVN checkout of the repository"
+      before { allow(subject).to receive(:status).and_return :mismatched }
+
+      it "reinstalls the module" do
+        expect(subject).to receive(:reinstall)
+
+        subject.sync
+      end
+
+      it "removes the existing directory" do
+        expect(subject.full_path).to receive(:unlink)
+        allow(subject).to receive(:install)
+
+        subject.sync
+      end
+
+      it "performs an SVN checkout of the repository" do
+        expect(subject).to receive(:svn).with('checkout', 'https://github.com/adrienthebo/r10k-fixture-repo', Pathname.new('/moduledir'))
+        allow(subject).to receive(:uninstall)
+        subject.sync
+      end
     end
 
     describe "and the state is :outdated" do
-      it "upgrades the repository"
-      it "performs an svn update on the repository"
+      before { allow(subject).to receive(:status).and_return :outdated }
+
+      it "upgrades the repository" do
+        expect(subject).to receive(:update)
+
+        subject.sync
+      end
+
+      it "performs an svn update on the repository" do
+        expect(subject).to receive(:svn).with('update', '-r', 123)
+        subject.sync
+      end
     end
 
     describe "and the state is :insync" do
-      it "doesn't change anything"
+      before { allow(subject).to receive(:status).and_return :insync }
+
+      it "doesn't change anything" do
+        expect(subject).to receive(:install).never
+        expect(subject).to receive(:reinstall).never
+        expect(subject).to receive(:update).never
+
+        subject.sync
+      end
     end
   end
 end

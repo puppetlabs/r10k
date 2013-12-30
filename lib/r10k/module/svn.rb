@@ -16,6 +16,10 @@ class R10K::Module::SVN
   #   @return [String] The path inside of the SVN repository to have checked out
   attr_reader :svn_path
 
+  # @!attribute [r] full_path
+  #   @return [Pathname] The filesystem path to the SVN repo
+  attr_reader :full_path
+
   def initialize(name, basedir, args)
     @name = name
     @basedir = basedir
@@ -44,6 +48,10 @@ class R10K::Module::SVN
     case status
     when :absent
       install
+    when :mismatched
+      reinstall
+    when :outdated
+      update
     end
   end
 
@@ -55,6 +63,19 @@ class R10K::Module::SVN
 
   def install
     svn "checkout", @url, @full_path.parent
+  end
+
+  def uninstall
+    @full_path.unlink
+  end
+
+  def reinstall
+    uninstall
+    install
+  end
+
+  def update
+    svn "update", "-r", @expected_revision
   end
 
   def parse_options(hash)
