@@ -41,7 +41,10 @@ class R10K::Module::SVN
   end
 
   def sync
-
+    case status
+    when :absent
+      install
+    end
   end
 
   def exist?
@@ -49,6 +52,10 @@ class R10K::Module::SVN
   end
 
   private
+
+  def install
+    svn "checkout", @url, @full_path.parent
+  end
 
   def parse_options(hash)
     hash.each_pair do |key, value|
@@ -61,5 +68,13 @@ class R10K::Module::SVN
         @svn_path = value
       end
     end
+  end
+
+  def svn(args, path = @full_path)
+
+    cmd = "svn #{args.join(' ')}"
+    log_event = "#{cmd.inspect}, repository: #{path}"
+
+    execute(cmd, :event => log_event, :cwd => path.to_s)
   end
 end

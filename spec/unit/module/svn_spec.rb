@@ -4,6 +4,8 @@ require 'r10k/module/svn'
 
 describe R10K::Module::SVN do
 
+  include_context 'fail on execution'
+
   describe "determining it implements a Puppetfile mod" do
     it "implements mods with the :svn hash key" do
       implements = described_class.implement?('r10k-fixture-repo', :svn => 'https://github.com/adrienthebo/r10k-fixture-repo')
@@ -86,9 +88,21 @@ describe R10K::Module::SVN do
   end
 
   describe "synchronizing" do
+
+    subject { described_class.new('foo', '/moduledir', :svn => 'https://github.com/adrienthebo/r10k-fixture-repo', :rev => 123) }
+
     describe "and the state is :absent" do
-      it "installs the SVN module"
-      it "performs an SVN checkout of the repository"
+      before { allow(subject).to receive(:status).and_return :absent }
+
+      it "installs the SVN module" do
+        expect(subject).to receive(:install)
+        subject.sync
+      end
+
+      it "performs an SVN checkout of the repository" do
+        expect(subject).to receive(:svn).with('checkout', 'https://github.com/adrienthebo/r10k-fixture-repo', Pathname.new('/moduledir'))
+        subject.sync
+      end
     end
 
     describe "and the state is :mismatched" do
