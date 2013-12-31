@@ -3,3 +3,4 @@ Gemfile.local
 Gemfile.lock
 .bundle
 bundle
+/.rspec_system
