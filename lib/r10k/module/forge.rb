@@ -62,7 +62,13 @@ class R10K::Module::Forge < R10K::Module::Base
   end
 
   # @return [SemVer] The expected version that the module
-  attr_reader :expected_version
+  def expected_version
+    if @expected_version == :latest
+      set_version_from_forge
+    end
+    @expected_version
+  end
+
 
   # @return [SemVer] The version of the currently installed module
   def current_version
@@ -100,13 +106,7 @@ class R10K::Module::Forge < R10K::Module::Base
       return :mismatched
     end
 
-    # The module is installed is the right author, but we may need to determine
-    # which version to install.
-    if @expected_version == :latest
-      set_version_from_forge
-    end
-
-    if @expected_version != @metadata.version
+    if expected_version != @metadata.version
       return :outdated
     end
 
@@ -119,7 +119,7 @@ class R10K::Module::Forge < R10K::Module::Base
     FileUtils.mkdir @basedir unless File.directory? @basedir
     cmd = []
     cmd << 'install'
-    cmd << "--version=#{@expected_version}" if @expected_version
+    cmd << "--version=#{expected_version}" if expected_version
     cmd << "--ignore-dependencies"
     cmd << @full_name
     pmt cmd
@@ -128,7 +128,7 @@ class R10K::Module::Forge < R10K::Module::Base
   def upgrade
     cmd = []
     cmd << 'upgrade'
-    cmd << "--version=#{@expected_version}" if @expected_version
+    cmd << "--version=#{expected_version}" if expected_version
     cmd << "--ignore-dependencies"
     cmd << @full_name
     pmt cmd
