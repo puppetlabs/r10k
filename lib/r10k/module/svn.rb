@@ -1,7 +1,9 @@
 require 'r10k/module'
 require 'r10k/svn/working_dir'
 
-class R10K::Module::SVN
+class R10K::Module::SVN < R10K::Module::Base
+
+  R10K::Module.register(self)
 
   def self.implement?(name, args)
     args.is_a? Hash and args.has_key? :svn
