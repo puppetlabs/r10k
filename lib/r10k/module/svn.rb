@@ -1,4 +1,6 @@
 require 'r10k/module'
+require 'r10k/execution'
+require 'r10k/logging'
 require 'r10k/svn/working_dir'
 
 class R10K::Module::SVN < R10K::Module::Base
@@ -64,7 +66,8 @@ class R10K::Module::SVN < R10K::Module::Base
   private
 
   def install
-    svn "checkout", @url, @full_path.parent
+    FileUtils.mkdir @basedir unless File.directory? @basedir
+    svn ["checkout", @url, @name, @full_name.to_s], @basedir.to_s
   end
 
   def uninstall
@@ -92,6 +95,9 @@ class R10K::Module::SVN < R10K::Module::Base
       end
     end
   end
+
+  include R10K::Logging
+  include R10K::Execution
 
   def svn(args, path = @full_path)
 
