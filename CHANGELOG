@@ -1,6 +1,19 @@
 CHANGELOG
 =========
 
+1.1.2
+-----
+
+2014-01-06
+
+This is a backwards compatible maintenance release.
+
+### Developer notes
+
+  * If Puppet and r10k are required in the same namespace, it's possible for
+    the vendored copy of SemVer to conflict with the Puppet version. This was
+    fixed by renaming the copy vendored in r10k and putting it under a namespace.
+
 1.1.1
 -----
 
