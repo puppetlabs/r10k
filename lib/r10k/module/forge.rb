@@ -4,7 +4,7 @@ require 'r10k/logging'
 
 require 'fileutils'
 require 'systemu'
-require 'semver'
+require 'r10k/semver'
 require 'json'
 
 class R10K::Module::Forge < R10K::Module::Base
@@ -26,7 +26,7 @@ class R10K::Module::Forge < R10K::Module::Base
     @owner, @name = name.split('/')
 
     if args.is_a? String
-      @version = SemVer.new(args)
+      @version = R10K::SemVer.new(args)
     end
   end
 
@@ -62,12 +62,12 @@ class R10K::Module::Forge < R10K::Module::Base
     end
   end
 
-  # @return [SemVer, NilClass]
+  # @return [R10K::SemVer, NilClass]
   def version
     if metadata
-      SemVer.new(metadata['version'])
+      R10K::SemVer.new(metadata['version'])
     else
-      SemVer::MIN
+      R10K::SemVer::MIN
     end
   end
 

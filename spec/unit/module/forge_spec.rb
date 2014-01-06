@@ -1,5 +1,5 @@
 require 'r10k/module/forge'
-require 'semver'
+require 'r10k/semver'
 require 'spec_helper'
 
 describe R10K::Module::Forge do
@@ -78,7 +78,7 @@ describe R10K::Module::Forge do
       subject { described_class.new('branan/eight_hundred', empty_modulepath, '8.0.0') }
 
       it { should_not be_insync }
-      its(:version) { should eq SemVer::MIN }
+      its(:version) { should eq R10K::SemVer::MIN }
 
       it "should try to install the module" do
         expected = %w{install --version=8.0.0 --ignore-dependencies branan/eight_hundred}
