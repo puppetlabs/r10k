@@ -7,8 +7,8 @@ describe R10K::Module::Metadata do
 
   subject(:metadata) { described_class.new(path) }
 
-  it "defaults the version to SemVer::MIN" do
-    expect(metadata.version).to eq SemVer::MIN
+  it "defaults the version to R10K::SemVer::MIN" do
+    expect(metadata.version).to eq R10K::SemVer::MIN
   end
 
   describe "determining if the metadata file exists" do
@@ -61,8 +61,8 @@ describe R10K::Module::Metadata do
     end
 
     it "extracts the module version" do
-      expect(metadata.version).to be_a_kind_of SemVer
-      expect(metadata.version).to eq SemVer.new('8.0.0')
+      expect(metadata.version).to be_a_kind_of R10K::SemVer
+      expect(metadata.version).to eq R10K::SemVer.new('8.0.0')
     end
   end
 end

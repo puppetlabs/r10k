@@ -1,5 +1,5 @@
 require 'r10k/module/forge'
-require 'semver'
+require 'r10k/semver'
 require 'spec_helper'
 
 describe R10K::Module::Forge do
@@ -39,7 +39,7 @@ describe R10K::Module::Forge do
       double('metadata',
              :exist? => true,
              :author => 'branan',
-             :version => SemVer.new('8.0.0'))
+             :version => R10K::SemVer.new('8.0.0'))
     end
 
     subject { described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0') }
@@ -143,7 +143,7 @@ describe R10K::Module::Forge do
 
   describe "determining the status" do
 
-    let(:metadata) { double 'metadata', :version => SemVer.new('8.0.0'), :author => 'branan', :exist? => true }
+    let(:metadata) { double 'metadata', :version => R10K::SemVer.new('8.0.0'), :author => 'branan', :exist? => true }
 
     subject { described_class.new('branan/eight_hundred', '/moduledir', '8.0.0') }
 
@@ -174,7 +174,7 @@ describe R10K::Module::Forge do
     it "is :outdated if the metadata version doesn't match the expected version" do
       allow(subject).to receive(:exist?).and_return true
 
-      allow(metadata).to receive(:version).and_return SemVer.new('7.0.0')
+      allow(metadata).to receive(:version).and_return R10K::SemVer.new('7.0.0')
 
       expect(subject.status).to eq :outdated
     end
@@ -191,7 +191,7 @@ describe R10K::Module::Forge do
 
     let(:_metadata) do
       double('metadata',
-             :version => SemVer.new('7.0.0'),
+             :version => R10K::SemVer.new('7.0.0'),
              :author => 'branan',
              :exist? => true
             )
@@ -204,7 +204,7 @@ describe R10K::Module::Forge do
     it "sets the expected version based on the latest forge version" do
       allow(subject).to receive(:exist?).and_return true
       expect(subject.status).to eq :outdated
-      expect(subject.expected_version).to eq SemVer.new('8.0.0')
+      expect(subject.expected_version).to eq R10K::SemVer.new('8.0.0')
     end
   end
 end

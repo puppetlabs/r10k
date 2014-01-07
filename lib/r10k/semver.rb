@@ -3,6 +3,7 @@
 # We need to subclass Numeric to force range comparisons not to try to iterate over SemVer
 # and instead use numeric comparisons (eg >, <, >=, <=)
 # Ruby 1.8 already did this for all ranges, but Ruby 1.9 changed range include behavior
+module R10K
 class SemVer < Numeric
   include Comparable
 
@@ -121,4 +122,5 @@ class SemVer < Numeric
   MAX = SemVer.new('8.0.0')
   MAX.instance_variable_set(:@major, (1.0/0)) # => Infinity
   MAX.instance_variable_set(:@vstring, 'vMAX')
+end
 end

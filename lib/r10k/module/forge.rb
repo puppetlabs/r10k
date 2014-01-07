@@ -7,7 +7,7 @@ require 'r10k/module_repository/forge'
 
 require 'pathname'
 require 'fileutils'
-require 'semver'
+require 'r10k/semver'
 
 class R10K::Module::Forge < R10K::Module::Base
 
@@ -44,7 +44,7 @@ class R10K::Module::Forge < R10K::Module::Base
     @metadata = R10K::Module::Metadata.new(@full_path + 'metadata.json')
 
     if args.is_a? String
-      @expected_version = SemVer.new(args)
+      @expected_version = R10K::SemVer.new(args)
     elsif args.is_a? Symbol and args == :latest
       @expected_version = args
     end
@@ -61,7 +61,7 @@ class R10K::Module::Forge < R10K::Module::Base
     end
   end
 
-  # @return [SemVer] The expected version that the module
+  # @return [R10K::SemVer] The expected version that the module
   def expected_version
     if @expected_version == :latest
       set_version_from_forge
@@ -70,7 +70,7 @@ class R10K::Module::Forge < R10K::Module::Base
   end
 
 
-  # @return [SemVer] The version of the currently installed module
+  # @return [R10K::SemVer] The version of the currently installed module
   def current_version
     @metadata.version
   end
@@ -155,6 +155,6 @@ class R10K::Module::Forge < R10K::Module::Base
   def set_version_from_forge
     repo = R10K::ModuleRepository::Forge.new
     expected = repo.latest_version(@full_name)
-    @expected_version = SemVer.new(expected)
+    @expected_version = R10K::SemVer.new(expected)
   end
 end

@@ -1,6 +1,6 @@
 require 'r10k/module'
+require 'r10k/semver'
 require 'json'
-require 'semver'
 
 class R10K::Module::Metadata
 
@@ -13,14 +13,14 @@ class R10K::Module::Metadata
   attr_reader :author
 
   # @!attribute [r] version
-  #   @return [SemVer] The module version
+  #   @return [R10K::SemVer] The module version
   attr_reader :version
 
   # @param metadata_path [Pathname] The file path to the metadata
   def initialize(metadata_path)
     @metadata_path = metadata_path
 
-    @version = SemVer::MIN
+    @version = R10K::SemVer::MIN
   end
 
   # Does the metadata file itself exist?
@@ -42,6 +42,6 @@ class R10K::Module::Metadata
 
   def attributes_from_hash(json)
     @author, _, @name = json['name'].partition('-')
-    @version = SemVer.new(json['version'])
+    @version = R10K::SemVer.new(json['version'])
   end
 end
