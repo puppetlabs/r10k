@@ -67,7 +67,13 @@ class R10K::Module::SVN < R10K::Module::Base
 
   def install
     FileUtils.mkdir @basedir unless File.directory? @basedir
-    svn ["checkout", @url, @name, @full_name.to_s], @basedir.to_s
+
+    args = ["checkout", @url, @full_path.to_s]
+    if @expected_revision
+      args << '-r' << @expected_revision
+    end
+
+    svn args, @basedir.to_s
   end
 
   def uninstall
