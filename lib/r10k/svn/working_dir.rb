@@ -16,21 +16,25 @@ module R10K
       end
 
       def revision
-        info = svn "info"
         info.slice(/^Revision: (\d+)$/, 1)
       end
 
       def url
-        info = svn "info"
         info.slice(/^URL: (.*)$/, 1)
       end
 
       def root
-        info = svn "info"
         info.slice(/^Repository Root: (.*)$/, 1)
       end
 
       private
+
+      def info
+        svn ["info"]
+      end
+
+      include R10K::Execution
+      include R10K::Logging
 
       def svn(args)
         cmd = "svn #{args.join(' ')}"
