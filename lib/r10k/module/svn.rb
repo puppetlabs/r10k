@@ -86,7 +86,13 @@ class R10K::Module::SVN < R10K::Module::Base
   end
 
   def update
-    svn "update", "-r", @expected_revision
+    args = %w[update]
+
+    if @expected_revision
+      args << "-r" << @expected_revision
+    end
+
+    svn args, @full_path.to_s
   end
 
   def parse_options(hash)
