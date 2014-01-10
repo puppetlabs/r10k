@@ -1,6 +1,8 @@
 require 'rspec-system/spec_helper'
 require 'rspec-system-serverspec/helpers'
 
+require 'system/system-helpers'
+
 require 'system-provisioning/el'
 
 RSpec.configure do |c|

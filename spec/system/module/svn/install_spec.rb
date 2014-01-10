@@ -9,8 +9,9 @@ describe 'installing modules from SVN' do
 
   describe 'when no version is specified' do
 
+    include_context 'system module installation'
+
     before(:all) do
-      shell %[rm -r modules]
       shell %[echo "mod 'gitolite', :svn => 'https://github.com/nvalentine-puppetlabs/puppet-gitolite/trunk'" > ./Puppetfile]
     end
 
@@ -23,15 +24,13 @@ describe 'installing modules from SVN' do
     it "creates the svn module" do
       expect(file('modules/gitolite/.svn')).to be_directory
     end
-
-    after(:all) do
-      shell %[rm -r modules]
-    end
   end
 
   describe 'when a revision is specified' do
+
+    include_context 'system module installation'
+
     before(:all) do
-      shell %[rm -r modules]
       shell %[echo "mod 'gitolite', :svn => 'https://github.com/nvalentine-puppetlabs/puppet-gitolite/trunk', :rev => '10'" > ./Puppetfile]
     end
 
@@ -48,15 +47,14 @@ describe 'installing modules from SVN' do
     it "checks out the specific revision" do
       expect(command('cd modules/gitolite; svn info')).to return_stdout /Revision: 10/
     end
-
-    after(:all) do
-      shell %[rm -r modules]
-    end
   end
 
   describe 'updating to a specific revision' do
+
+    include_context 'system module installation'
+
     before(:all) do
-      shell %[rm -r modules]
+      expect(file('modules')).to_not be_exist
       shell %[echo "mod 'gitolite', :svn => 'https://github.com/nvalentine-puppetlabs/puppet-gitolite/trunk', :rev => '10'" > ./Puppetfile]
       shell %[r10k puppetfile install]
       shell %[echo "mod 'gitolite', :svn => 'https://github.com/nvalentine-puppetlabs/puppet-gitolite/trunk', :rev => '20'" > ./Puppetfile]
@@ -70,10 +68,6 @@ describe 'installing modules from SVN' do
 
     it "checks out the specific revision" do
       expect(command('cd modules/gitolite; svn info')).to return_stdout /Revision: 20/
-    end
-
-    after(:all) do
-      shell %[rm -r modules]
     end
   end
 end
