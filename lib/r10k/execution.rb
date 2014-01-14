@@ -13,6 +13,7 @@ module Execution
   # @params [Hash] opts
   #
   # @option opts [String] :event An optional log event name. Defaults to cmd.
+  # @option opts [String] :cwd The working directory to use when executing the command
   #
   # @raise [R10K::ExecutionFailure] If the executed command exited with a
   #   nonzero exit code.
@@ -20,11 +21,11 @@ module Execution
   # @return [String] the stdout from the command
   def execute(cmd, opts = {})
 
-    event = opts[:event] || cmd
+    event = (opts.delete(:event) || cmd)
 
     logger.debug1 "Execute: #{event.inspect}"
 
-    status, stdout, stderr = systemu(cmd)
+    status, stdout, stderr = systemu(cmd, opts)
 
     logger.debug2 "[#{event}] STDOUT: #{stdout.chomp}" unless stdout.empty?
     logger.debug2 "[#{event}] STDERR: #{stderr.chomp}" unless stderr.empty?

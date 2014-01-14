@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 gemspec
 
 group(:system) do
+  gem 'rake'
   gem 'rspec-system', '~> 2.8.0'
   gem 'rspec-system-serverspec', '~> 2.0.1'
   gem 'vagrant', :git => 'git://github.com/mitchellh/vagrant', :tag => 'v1.4.1'

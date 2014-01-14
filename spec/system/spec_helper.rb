@@ -1,12 +1,20 @@
 require 'rspec-system/spec_helper'
 require 'rspec-system-serverspec/helpers'
 
+require 'system/system-helpers'
+
+require 'system-provisioning/el'
+
 RSpec.configure do |c|
-  def install_rubygems
-    shell 'rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/x86_64/epel-release-5-4.noarch.rpm'
-    shell 'rpm -Uvh http://yum.puppetlabs.com/puppetlabs-release-el-5.noarch.rpm'
-    shell 'yum -y install rubygems'
-    shell 'yum -y install puppet'
+
+  include SystemProvisioning::EL
+
+  def install_deps
+    install_epel_release
+    install_puppetlabs_release
+
+    yum_install %w[ruby rubygems]
+    yum_install %w[puppet]
   end
 
   def build_artifact
@@ -34,9 +42,13 @@ RSpec.configure do |c|
     shell 'gem list | cut -d" " -f1 | xargs gem uninstall -aIx'
   end
 
+  def purge_r10k
+    shell 'gem uninstall -aIx r10k'
+  end
+
   c.before(:suite) do
-    purge_gems
-    install_rubygems
+    purge_r10k
+    install_deps
     name = build_artifact
     upload_artifact(name)
     install_artifact(name)
