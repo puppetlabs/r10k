@@ -91,6 +91,10 @@ describe R10K::Module::SVN do
 
     subject { described_class.new('foo', '/moduledir', :svn => 'https://github.com/adrienthebo/r10k-fixture-repo', :rev => 123) }
 
+    before do
+      allow(File).to receive(:directory?).with('/moduledir').and_return true
+    end
+
     describe "and the state is :absent" do
       before { allow(subject).to receive(:status).and_return :absent }
 
@@ -100,7 +104,7 @@ describe R10K::Module::SVN do
       end
 
       it "performs an SVN checkout of the repository" do
-        expect(subject).to receive(:svn).with('checkout', 'https://github.com/adrienthebo/r10k-fixture-repo', Pathname.new('/moduledir'))
+        expect(subject).to receive(:svn).with(['checkout', 'https://github.com/adrienthebo/r10k-fixture-repo', '/moduledir/foo', '-r', 123], '/moduledir')
         subject.sync
       end
     end
@@ -122,7 +126,7 @@ describe R10K::Module::SVN do
       end
 
       it "performs an SVN checkout of the repository" do
-        expect(subject).to receive(:svn).with('checkout', 'https://github.com/adrienthebo/r10k-fixture-repo', Pathname.new('/moduledir'))
+        expect(subject).to receive(:svn).with(['checkout', 'https://github.com/adrienthebo/r10k-fixture-repo', '/moduledir/foo', '-r', 123], '/moduledir')
         allow(subject).to receive(:uninstall)
         subject.sync
       end
@@ -138,7 +142,7 @@ describe R10K::Module::SVN do
       end
 
       it "performs an svn update on the repository" do
-        expect(subject).to receive(:svn).with('update', '-r', 123)
+        expect(subject).to receive(:svn).with(['update', '-r', 123], '/moduledir/foo')
         subject.sync
       end
     end
