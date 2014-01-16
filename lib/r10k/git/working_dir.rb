@@ -23,6 +23,10 @@ class WorkingDir < R10K::Git::Repository
   #   @return [String] The git reference to use check out in the given directory
   attr_reader :ref
 
+  # @!attribute [r] remote
+  #   @return [String] The actual remote used as an upstream for this module.
+  attr_reader :remote
+
   # Instantiates a new git synchro and optionally prepares for caching
   #
   # @param [String] ref
