@@ -1,6 +1,5 @@
 require 'r10k/module'
 require 'r10k/git/working_dir'
-require 'forwardable'
 
 class R10K::Module::Git < R10K::Module::Base
 
@@ -11,9 +10,6 @@ class R10K::Module::Git < R10K::Module::Base
   rescue
     false
   end
-
-  extend Forwardable
-  def_delegator :@working_dir, :sync
 
   def initialize(name, basedir, args)
     @name, @basedir, @args = name, basedir, args
@@ -26,5 +22,9 @@ class R10K::Module::Git < R10K::Module::Base
 
   def version
     @ref
+  end
+
+  def sync
+    @working_dir.sync
   end
 end
