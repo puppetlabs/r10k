@@ -1,13 +1,12 @@
 require 'r10k/logging'
+
+require 'r10k/git'
 require 'r10k/git/repository'
-require 'r10k/git/errors'
 
 require 'r10k/settings'
 require 'r10k/registry'
 
-module R10K
-module Git
-class Cache < R10K::Git::Repository
+class R10K::Git::Cache < R10K::Git::Repository
   # Mirror a git repository for use shared git object repositories
   #
   # @see man git-clone(1)
@@ -91,6 +90,4 @@ class Cache < R10K::Git::Repository
   def git_dir
     @path
   end
-end
-end
 end

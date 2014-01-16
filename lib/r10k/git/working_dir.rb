@@ -1,10 +1,9 @@
 require 'forwardable'
 require 'r10k/logging'
+require 'r10k/git'
 require 'r10k/git/cache'
 
-module R10K
-module Git
-class WorkingDir < R10K::Git::Repository
+class R10K::Git::WorkingDir < R10K::Git::Repository
   # Implements sparse git repositories with shared objects
   #
   # Working directory instances use the git alternatives object store, so that
@@ -149,6 +148,4 @@ class WorkingDir < R10K::Git::Repository
   def git_dir
     File.join(@full_path, '.git')
   end
-end
-end
 end

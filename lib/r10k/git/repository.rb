@@ -1,9 +1,7 @@
+require 'r10k/git'
 require 'r10k/execution'
-require 'r10k/git/errors'
 
-module R10K
-module Git
-class Repository
+class R10K::Git::Repository
   # Define an abstract base class for git repositories.
 
   include R10K::Execution
@@ -69,6 +67,4 @@ class Repository
 
     execute(cmd, :event => log_event)
   end
-end
-end
 end
