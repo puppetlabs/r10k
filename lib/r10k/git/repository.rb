@@ -11,11 +11,11 @@ class R10K::Git::Repository
   attr_reader :remote
 
   # @!attribute [r] basedir
-  #   @return [String] The basedir for the working directory
+  #   @return [String] The directory containing the repository
   attr_reader :basedir
 
   # @!attribute [r] dirname
-  #   @return [String] The name for the directory
+  #   @return [String] The name of the directory
   attr_reader :dirname
 
   # Resolve a ref to a commit hash
