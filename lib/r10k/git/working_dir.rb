@@ -61,6 +61,12 @@ class WorkingDir < R10K::Git::Repository
   end
   alias :git? :cloned?
 
+  # Does a directory exist where we expect a working dir to be?
+  # @return [true, false]
+  def exist?
+    File.directory? @full_path
+  end
+
   private
 
   def set_cache_remote
