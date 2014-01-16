@@ -11,6 +11,11 @@ class R10K::Module::Git < R10K::Module::Base
     false
   end
 
+  # @!attribute [r] working_dir
+  #   @api private
+  #   @return [R10K::Git::WorkingDir]
+  attr_reader :working_dir
+
   def initialize(name, basedir, args)
     @name, @basedir, @args = name, basedir, args
 
