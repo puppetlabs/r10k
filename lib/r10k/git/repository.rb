@@ -21,10 +21,11 @@ class R10K::Git::Repository
   # Resolve a ref to a commit hash
   #
   # @param [String] ref
+  # @param [String] object_type The object type to look up
   #
   # @return [String] The dereferenced hash of `ref`
-  def rev_parse(ref)
-    commit = git "rev-parse #{ref}^{commit}", :git_dir => git_dir
+  def rev_parse(ref, object_type = 'commit')
+    commit = git "rev-parse #{ref}^{#{object_type}}", :git_dir => git_dir
     commit.chomp
   rescue R10K::ExecutionFailure
     raise R10K::Git::NonexistentHashError.new(ref, git_dir)
