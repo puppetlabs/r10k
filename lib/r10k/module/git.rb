@@ -27,4 +27,16 @@ class R10K::Module::Git < R10K::Module::Base
   def sync
     @working_dir.sync
   end
+
+  def status
+    if not @working_dir.exist?
+      :absent
+    elsif not @working_dir.git?
+      :mismatched
+    elsif not @remote == @working_dir.remote
+      :mismatched
+    else
+      :insync
+    end
+  end
 end
