@@ -59,6 +59,7 @@ class WorkingDir < R10K::Git::Repository
   def cloned?
     File.directory? git_dir
   end
+  alias :git? :cloned?
 
   private
 
