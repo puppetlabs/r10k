@@ -18,6 +18,10 @@ class R10K::Git::Repository
   #   @return [String] The name of the directory
   attr_reader :dirname
 
+  # @!attribute [r] git_dir
+  #   @return [String] The path to the git directory
+  attr_reader :git_dir
+
   # Resolve a ref to a commit hash
   #
   # @param [String] ref
@@ -29,6 +33,17 @@ class R10K::Git::Repository
     commit.chomp
   rescue R10K::ExecutionFailure
     raise R10K::Git::NonexistentHashError.new(ref, git_dir)
+  end
+
+  protected
+
+  # Set the path to the git directory. For git repositories with working copies
+  # this will be `$working_dir/.git`; for bare repositories this will be
+  # `bare-repo.git`
+  #
+  # @param path [String]
+  def git_dir=(path)
+    @git_dir = path
   end
 
   private
