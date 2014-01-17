@@ -22,6 +22,12 @@ class R10K::Git::Ref
     @repository = repository
   end
 
+  # Do we need to update the repository in order to resolve this to a commit?
+  # TODO use magic heuristics to determine this
+  def resolvable?
+    true
+  end
+
   def sha1
     if @repository.nil?
       raise ArgumentError, "Cannot resolve #{self.inspect}: not associated git repository"
