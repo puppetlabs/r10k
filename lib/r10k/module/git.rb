@@ -19,8 +19,7 @@ class R10K::Module::Git < R10K::Module::Base
   def initialize(name, basedir, args)
     @name, @basedir, @args = name, basedir, args
 
-    @remote = @args[:git]
-    @ref    = (@args[:ref] || 'master')
+    parse_options(args)
 
     @working_dir = R10K::Git::WorkingDir.new(@ref, @remote, @basedir, @name)
   end
@@ -42,6 +41,30 @@ class R10K::Module::Git < R10K::Module::Base
       :mismatched
     else
       :insync
+    end
+  end
+
+  def parse_options(options)
+    @remote = options.delete(:git)
+
+    cache = R10K::Git::Cache.generate(@remote)
+
+    if options[:branch]
+      @ref = R10K::Git::Head.new(options.delete(:branch), cache)
+    end
+
+    if options[:tag]
+      @ref = R10K::Git::Tag.new(options.delete(:tag), cache)
+    end
+
+    if options[:ref]
+      @ref = R10K::Git::Ref.new(options.delete(:ref), cache)
+    end
+
+    @ref ||= R10K::Git::Ref.new('master', cache)
+
+    unless options.empty?
+      raise ArgumentError, "Unhandled options #{options.keys.inspect} given to #{self.class}#parse_options"
     end
   end
 end
