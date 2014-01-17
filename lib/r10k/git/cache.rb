@@ -25,10 +25,6 @@ class R10K::Git::Cache < R10K::Git::Repository
 
   include R10K::Logging
 
-  # @!attribute [r] remote
-  #   @return [String] The git repository remote
-  attr_reader :remote
-
   # @!attribute [r] path
   #   @deprecated
   #   @return [String] The path to the git cache repository
