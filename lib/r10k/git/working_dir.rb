@@ -79,7 +79,7 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
 
   def set_cache_remote
     if self.remote != @cache.remote
-      git "remote set-url cache #{@cache.path}", :path => @full_path
+      git "remote set-url cache #{@cache.git_dir}", :path => @full_path
     end
   end
 
@@ -87,8 +87,8 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
   def clone
     # We do the clone against the target repo using the `--reference` flag so
     # that doing a normal `git pull` on a directory will work.
-    git "clone --reference #{@cache.path} #{@remote} #{@full_path}"
-    git "remote add cache #{@cache.path}", :path => @full_path
+    git "clone --reference #{@cache.git_dir} #{@remote} #{@full_path}"
+    git "remote add cache #{@cache.git_dir}", :path => @full_path
     git "checkout #{@ref}", :path => @full_path
   end
 
