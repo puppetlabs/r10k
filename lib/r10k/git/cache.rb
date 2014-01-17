@@ -30,8 +30,11 @@ class R10K::Git::Cache < R10K::Git::Repository
   attr_reader :remote
 
   # @!attribute [r] path
+  #   @deprecated
   #   @return [String] The path to the git cache repository
-  attr_reader :path
+  def path
+    logger.warn "#{self.class}#path is deprecated; use #git_dir"
+  end
 
   # @param [String] remote
   # @param [String] cache_root
@@ -39,6 +42,7 @@ class R10K::Git::Cache < R10K::Git::Repository
     @remote = remote
 
     @path = File.join(settings[:cache_root], sanitized_dirname)
+    git_dir = @path
   end
 
   def sync
@@ -50,7 +54,7 @@ class R10K::Git::Cache < R10K::Git::Repository
 
   def sync!
     if cached?
-      git "fetch --prune", :git_dir => @path
+      git "fetch --prune", :git_dir => git_dir
     else
       logger.debug "Creating new git cache for #{@remote.inspect}"
 
@@ -59,7 +63,7 @@ class R10K::Git::Cache < R10K::Git::Repository
         FileUtils.mkdir_p settings[:cache_root]
       end
 
-      git "clone --mirror #{@remote} #{@path}"
+      git "clone --mirror #{@remote} #{git_dir}"
     end
   rescue R10K::ExecutionFailure => e
     if (msg = e.stderr[/^fatal: .*$/])
@@ -71,13 +75,13 @@ class R10K::Git::Cache < R10K::Git::Repository
 
   # @return [Array<String>] A list the branches for the git repository
   def branches
-    output = git 'for-each-ref refs/heads --format "%(refname)"', :git_dir => @path
+    output = git 'for-each-ref refs/heads --format "%(refname)"', :git_dir => git_dir
     output.scan(%r[refs/heads/(.*)$]).flatten
   end
 
   # @return [true, false] If the repository has been locally cached
   def cached?
-    File.exist? @path
+    File.exist? git_dir
   end
 
   private
@@ -85,9 +89,5 @@ class R10K::Git::Cache < R10K::Git::Repository
   # Reformat the remote name into something that can be used as a directory
   def sanitized_dirname
     @remote.gsub(/[^@\w\.-]/, '-')
-  end
-
-  def git_dir
-    @path
   end
 end
