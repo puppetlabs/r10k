@@ -38,7 +38,7 @@ class R10K::Git::Cache < R10K::Git::Repository
     @remote = remote
 
     @path = File.join(settings[:cache_root], sanitized_dirname)
-    git_dir = @path
+    @git_dir = path
   end
 
   def sync
