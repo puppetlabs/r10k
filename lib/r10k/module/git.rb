@@ -1,5 +1,5 @@
 require 'r10k/module'
-require 'r10k/git/working_dir'
+require 'r10k/git'
 
 class R10K::Module::Git < R10K::Module::Base
 
