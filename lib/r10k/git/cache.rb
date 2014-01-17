@@ -30,6 +30,7 @@ class R10K::Git::Cache < R10K::Git::Repository
   #   @return [String] The path to the git cache repository
   def path
     logger.warn "#{self.class}#path is deprecated; use #git_dir"
+    @git_dir
   end
 
   # @param [String] remote
@@ -37,8 +38,7 @@ class R10K::Git::Cache < R10K::Git::Repository
   def initialize(remote)
     @remote = remote
 
-    @path = File.join(settings[:cache_root], sanitized_dirname)
-    @git_dir = path
+    @git_dir = File.join(settings[:cache_root], sanitized_dirname)
   end
 
   def sync
