@@ -72,12 +72,13 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
 
   private
 
+  def fetch
+    set_cache_remote
+    git "fetch --prune cache", :path => @full_path
+  end
+
   def set_cache_remote
-    # XXX This is crude but it'll ensure that the right remote is used for
-    # the cache.
-    if remote_url('cache') == @cache.path
-      logger.debug1 "Git repo #{@full_path} cache remote already set correctly"
-    else
+    if self.remote != @cache.remote
       git "remote set-url cache #{@cache.path}", :path => @full_path
     end
   end
@@ -89,11 +90,6 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     git "clone --reference #{@cache.path} #{@remote} #{@full_path}"
     git "remote add cache #{@cache.path}", :path => @full_path
     git "checkout #{@ref}", :path => @full_path
-  end
-
-  def fetch
-    set_cache_remote
-    git "fetch --prune cache", :path => @full_path
   end
 
   # Reset a git repo with a working directory to a specific ref
@@ -125,24 +121,6 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
   rescue R10K::ExecutionFailure => e
     logger.error "Could not resolve ref #{ref.inspect} for git repo #{@full_path}"
     raise
-  end
-
-  # @param [String] name The remote to retrieve the URl for
-  # @return [String] The git remote URL
-  def remote_url(remote_name)
-    output = git "remote -v", :path => @full_path
-
-    remotes = {}
-
-    output.each_line do |line|
-      if mdata = line.match(/^(\S+)\s+(\S+)\s+\(fetch\)/)
-        name   = mdata[1]
-        remote = mdata[2]
-        remotes[name] = remote
-      end
-    end
-
-    remotes[remote_name]
   end
 
   def git_dir
