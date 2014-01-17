@@ -31,6 +31,8 @@ class R10K::Git::Repository
     raise R10K::Git::NonexistentHashError.new(ref, git_dir)
   end
 
+  private
+
   # Wrap git commands
   #
   # @param [String] command_line_args The arguments for the git prompt
