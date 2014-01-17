@@ -34,14 +34,20 @@ class R10K::Module::Git < R10K::Module::Base
 
   def status
     if not @working_dir.exist?
-      :absent
+      return :absent
     elsif not @working_dir.git?
-      :mismatched
+      return :mismatched
     elsif not @remote == @working_dir.remote
-      :mismatched
-    else
-      :insync
+      return :mismatched
     end
+
+    # Determine what kind of object the expected ref is. If a tag or commit,
+    # compare the expected ref to the currently checked out ref. If a head,
+    # ensure that the head can be resolved to the latest possible commit
+    # (aka update the cache) and then compare that commit to the currently
+    # checked out ref.
+
+    return :insync
   end
 
   def parse_options(options)
@@ -56,6 +62,9 @@ class R10K::Module::Git < R10K::Module::Base
     if options[:tag]
       @ref = R10K::Git::Tag.new(options.delete(:tag), cache)
     end
+
+    # TODO add options[:commit] so that we can bypass updating the git
+    # repository if the commit is alreay available
 
     if options[:ref]
       @ref = R10K::Git::Ref.new(options.delete(:ref), cache)
