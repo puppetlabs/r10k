@@ -16,6 +16,7 @@ class R10K::Git::Ref
   # @!attribute [rw] repository
   #   @return [R10K::Git::Repository] A git repository that can be used to
   #     resolve the git reference to a commit.
+  attr_accessor :repository
 
   def initialize(ref, repository = nil)
     @ref = ref
@@ -25,12 +26,12 @@ class R10K::Git::Ref
   # Do we need to update the repository in order to resolve this to a commit?
   # TODO use magic heuristics to determine this
   def resolvable?
-    true
+    false
   end
 
   def sha1
     if @repository.nil?
-      raise ArgumentError, "Cannot resolve #{self.inspect}: not associated git repository"
+      raise ArgumentError, "Cannot resolve #{self.inspect}: no associated git repository"
     else
       @repository.rev_parse(@ref)
     end
@@ -38,9 +39,15 @@ class R10K::Git::Ref
 
   def ==(other)
     other.sha1 == self.sha1
+  rescue ArgumentError
+    false
   end
 
   def to_s
-    @ref
+    ref
+  end
+
+  def inspect
+    "#<#{self.class}: #{to_s}>"
   end
 end

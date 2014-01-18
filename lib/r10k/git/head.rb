@@ -8,7 +8,7 @@ require 'r10k/git/repository'
 #
 # @see https://www.kernel.org/pub/software/scm/git/docs/gitglossary.html
 # @api private
-class R10K::Git::Tag < R10K::Git::Ref
+class R10K::Git::Head < R10K::Git::Ref
 
   # @!attribute [r] head
   #   @return [String] The git head
@@ -25,4 +25,3 @@ class R10K::Git::Tag < R10K::Git::Ref
   #   hooliganism.
   #end
 end
-

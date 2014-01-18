@@ -1,4 +1,3 @@
-require 'r10k/git'
 require 'r10k/git/ref'
 require 'r10k/git/repository'
 
