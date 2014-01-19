@@ -28,6 +28,13 @@ describe R10K::Git::Ref do
       expect(repo).to receive(:rev_parse).with(ref).and_return 'hash'
       expect(subject.sha1).to eq 'hash'
     end
+
+    it "invokes the #ref method" do
+      subject.repository = repo
+      expect(repo).to receive(:rev_parse).with(ref).and_return 'hash'
+      expect(subject).to receive(:ref).and_return ref
+      expect(subject.sha1).to eq 'hash'
+    end
   end
 
   describe "determining if the ref can be resolved" do

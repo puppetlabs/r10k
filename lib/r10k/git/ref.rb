@@ -39,7 +39,7 @@ class R10K::Git::Ref
     if @repository.nil?
       raise ArgumentError, "Cannot resolve #{self.inspect}: no associated git repository"
     else
-      @repository.rev_parse(@ref)
+      @repository.rev_parse(ref)
     end
   end
 
