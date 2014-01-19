@@ -44,9 +44,10 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     @cache = R10K::Git::Cache.generate(@remote)
 
     if ref.is_a? String
-      @ref = R10K::Git::Ref.new(ref, @cache)
+      @ref = R10K::Git::Ref.new(ref, self)
     else
       @ref = ref
+      @ref.repository = self
     end
   end
 
