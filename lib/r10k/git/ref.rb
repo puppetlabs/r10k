@@ -23,8 +23,9 @@ class R10K::Git::Ref
     @repository = repository
   end
 
-  # Do we need to update the repository in order to resolve this to a commit?
-  # TODO use magic heuristics to determine this
+  # Can we locate the commit in the related repository?
+  # @todo use heuristics to determine the ref type and determine if we can
+  #   always resolve the given object based on the type
   def resolvable?
     false
   end
@@ -39,7 +40,7 @@ class R10K::Git::Ref
 
   def ==(other)
     other.sha1 == self.sha1
-  rescue ArgumentError
+  rescue ArgumentError, R10K::Git::NonexistentHashError
     false
   end
 

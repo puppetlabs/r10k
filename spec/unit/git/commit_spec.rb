@@ -19,5 +19,3 @@ describe R10K::Git::Commit do
 
   it_behaves_like "a git ref"
 end
-
-

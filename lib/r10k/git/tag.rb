@@ -20,16 +20,19 @@ class R10K::Git::Tag < R10K::Git::Ref
     @repository = repository
   end
 
-  # TODO only fetch if the tag cannot be resolved to a commit
+  # Can we locate the commit in the related repository?
   def resolvable?
+    sha1
     true
+  rescue R10K::Git::NonexistentHashError
+    false
   end
 
   def sha1
     if @repository.nil?
-      raise ArgumentError, "Cannot resolve #{self.inspect}: not associated git repository"
+      raise ArgumentError, "Cannot resolve #{self.inspect}: no associated git repository"
     else
-      @repository.rev_parse(@tag, 'tag')
+      @repository.rev_parse(@tag, :tag)
     end
   end
 end
