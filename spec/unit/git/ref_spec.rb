@@ -46,6 +46,13 @@ describe R10K::Git::Ref do
     end
   end
 
+  describe "determining if the ref needs to be fetched" do
+    it "uses the result of #resolvable? if the ref is a tag"
+    it "uses the result of #resolvable? if the ref is a commit"
+
+    it "is true if the ref is a head"
+  end
+
   it "can be converted to a string" do
     expect(subject.to_s).to eq ref
   end

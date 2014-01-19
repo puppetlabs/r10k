@@ -23,4 +23,8 @@ class R10K::Git::Commit < R10K::Git::Ref
   rescue R10K::Git::NonexistentHashError
     true
   end
+
+  def fetch?
+    ! resolvable?
+  end
 end

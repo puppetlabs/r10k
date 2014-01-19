@@ -24,4 +24,10 @@ class R10K::Git::Head < R10K::Git::Ref
   #   TODO ensure that @head is an actual head as opposed to a tag or other
   #   hooliganism.
   #end
+
+  # If we are tracking a branch, we should always try to fetch a newer version
+  # of that branch.
+  def fetch?
+    true
+  end
 end

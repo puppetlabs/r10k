@@ -33,3 +33,17 @@ shared_examples_for "a git ref" do
     end
   end
 end
+
+shared_examples_for "an immutable git ref" do
+  describe "determining if the ref needs to be fetched" do
+    it "is false when the ref can be resolved" do
+      expect(subject).to receive(:resolvable?).and_return true
+      expect(subject.fetch?).to be_false
+    end
+
+    it "is true when the ref cannot be resolved" do
+      expect(subject).to receive(:resolvable?).and_return false
+      expect(subject.fetch?).to be_true
+    end
+  end
+end

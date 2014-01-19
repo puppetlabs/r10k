@@ -30,6 +30,11 @@ class R10K::Git::Ref
     false
   end
 
+  # Should we try to fetch this ref?
+  def fetch?
+    true
+  end
+
   def sha1
     if @repository.nil?
       raise ArgumentError, "Cannot resolve #{self.inspect}: no associated git repository"

@@ -27,4 +27,5 @@ describe R10K::Git::Tag do
   end
 
   it_behaves_like "a git ref"
+  it_behaves_like "an immutable git ref"
 end

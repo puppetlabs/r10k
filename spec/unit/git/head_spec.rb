@@ -12,6 +12,12 @@ describe R10K::Git::Head do
     it "is always false"
   end
 
+  describe "determining if the head needs to be fetched" do
+    it "is always true" do
+      expect(subject.fetch?).to be_true
+    end
+  end
+
   it "can be converted to a string" do
     expect(subject.to_s).to eq ref
   end
