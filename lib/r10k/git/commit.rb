@@ -19,9 +19,9 @@ class R10K::Git::Commit < R10K::Git::Ref
   # Can we locate the commit in the related repository?
   def resolvable?
     sha1
-    false
-  rescue R10K::Git::NonexistentHashError
     true
+  rescue R10K::Git::NonexistentHashError
+    false
   end
 
   def fetch?
