@@ -53,15 +53,14 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
 
   # Synchronize the local git repository.
   def sync
-    # TODO stop forcing a sync every time.
-    @cache.sync
-
-    if cloned?
-      fetch_from_cache
-    else
+    if not cloned?
       clone
+    elsif fetch?
+      fetch_from_cache
+      checkout(@ref)
+    elsif needs_checkout?
+      checkout(@ref)
     end
-    checkout(@ref)
   end
 
   # Determine if repo has been cloned into a specific dir
@@ -80,8 +79,13 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
 
   private
 
+  def fetch?
+    @ref.fetch?
+  end
+
   def fetch_from_cache
     set_cache_remote
+    @cache.sync
     fetch(:cache)
   end
 
@@ -93,6 +97,8 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
 
   # Perform a non-bare clone of a git repository.
   def clone
+    @cache.sync
+
     # We do the clone against the target repo using the `--reference` flag so
     # that doing a normal `git pull` on a directory will work.
     git "clone --reference #{@cache.git_dir} #{@remote} #{@full_path}"
@@ -100,25 +106,27 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     checkout(@ref)
   end
 
+  def needs_fetch?
+    ref.fetch?
+  end
+
+  # Does the expected ref match the actual ref?
+  def needs_checkout?
+    expected = ref.sha1
+    actual   = rev_parse('HEAD')
+
+    ! (expected == actual)
+  end
+
   # check out the given ref
   #
   # @param ref [#to_s] The git reference to check out
   def checkout(ref)
-    commit  = @cache.rev_parse(ref)
-    current = rev_parse('HEAD')
-
-    if commit == current
-      logger.debug1 "Git repo #{@full_path} is already at #{commit}, no need to checkout"
-      return
-    end
-
     begin
-      git "checkout --force #{commit}", :path => @full_path
+      git "checkout --force #{@ref}", :path => @full_path
     rescue R10K::ExecutionFailure => e
-      logger.error "Unable to locate commit object #{commit} in git repo #{@full_path}"
+      logger.error "Unable to locate commit object #{@ref} in git repo #{@full_path}"
       raise
     end
   end
-
-  private :rev_parse
 end
