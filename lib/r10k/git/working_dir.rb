@@ -19,21 +19,21 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
   attr_reader :cache
 
   # @!attribute [r] ref
-  #   @return [String] The git reference to use check out in the given directory
+  #   @return [R10K::Git::Ref] The git reference to use check out in the given directory
   attr_reader :ref
 
   # @!attribute [r] remote
   #   @return [String] The actual remote used as an upstream for this module.
   attr_reader :remote
 
-  # Instantiates a new git synchro and optionally prepares for caching
+  # Create a new shallow git working directory
   #
-  # @param [String] ref
-  # @param [String] remote
-  # @param [String] basedir
-  # @param [String] dirname
+  # @param ref     [String, R10K::Git::Ref]
+  # @param remote  [String]
+  # @param basedir [String]
+  # @param dirname [String]
   def initialize(ref, remote, basedir, dirname = nil)
-    @ref     = ref
+
     @remote  = remote
     @basedir = basedir
     @dirname = dirname || ref
@@ -42,6 +42,12 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     @git_dir   = File.join(@full_path, '.git')
 
     @cache = R10K::Git::Cache.generate(@remote)
+
+    if ref.is_a? String
+      @ref = R10K::Git::Ref.new(ref, @cache)
+    else
+      @ref = ref
+    end
   end
 
   # Synchronize the local git repository.
