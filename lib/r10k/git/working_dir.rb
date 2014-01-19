@@ -3,12 +3,12 @@ require 'r10k/logging'
 require 'r10k/git'
 require 'r10k/git/cache'
 
+# Implements sparse git repositories with shared objects
+#
+# Working directory instances use the git alternatives object store, so that
+# working directories only contain checked out files and all object files are
+# shared.
 class R10K::Git::WorkingDir < R10K::Git::Repository
-  # Implements sparse git repositories with shared objects
-  #
-  # Working directory instances use the git alternatives object store, so that
-  # working directories only contain checked out files and all object files are
-  # shared.
 
   include R10K::Logging
 

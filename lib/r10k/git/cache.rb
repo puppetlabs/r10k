@@ -6,10 +6,10 @@ require 'r10k/git/repository'
 require 'r10k/settings'
 require 'r10k/registry'
 
+# Mirror a git repository for use shared git object repositories
+#
+# @see man git-clone(1)
 class R10K::Git::Cache < R10K::Git::Repository
-  # Mirror a git repository for use shared git object repositories
-  #
-  # @see man git-clone(1)
 
   include R10K::Settings::Mixin
 

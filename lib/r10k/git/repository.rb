@@ -1,8 +1,8 @@
 require 'r10k/git'
 require 'r10k/execution'
 
+# Define an abstract base class for git repositories.
 class R10K::Git::Repository
-  # Define an abstract base class for git repositories.
 
   include R10K::Execution
 
