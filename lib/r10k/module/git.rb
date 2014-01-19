@@ -61,8 +61,9 @@ class R10K::Module::Git < R10K::Module::Base
       @ref = R10K::Git::Tag.new(options.delete(:tag))
     end
 
-    # TODO add options[:commit] so that we can bypass updating the git
-    # repository if the commit is alreay available
+    if options[:commit]
+      @ref = R10K::Git::Commit.new(options.delete(:commit))
+    end
 
     if options[:ref]
       @ref = R10K::Git::Ref.new(options.delete(:ref))
