@@ -39,6 +39,7 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     @dirname = dirname || ref
 
     @full_path = File.join(@basedir, @dirname)
+    @git_dir   = File.join(@full_path, '.git')
 
     @cache = R10K::Git::Cache.generate(@remote)
   end
@@ -60,7 +61,7 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
   #
   # @return [true, false] If the repo has already been cloned
   def cloned?
-    File.directory? git_dir
+    File.directory? @git_dir
   end
   alias :git? :cloned?
 
@@ -121,9 +122,5 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
   rescue R10K::ExecutionFailure => e
     logger.error "Could not resolve ref #{ref.inspect} for git repo #{@full_path}"
     raise
-  end
-
-  def git_dir
-    File.join(@full_path, '.git')
   end
 end
