@@ -53,24 +53,22 @@ class R10K::Module::Git < R10K::Module::Base
   def parse_options(options)
     @remote = options.delete(:git)
 
-    cache = R10K::Git::Cache.generate(@remote)
-
     if options[:branch]
-      @ref = R10K::Git::Head.new(options.delete(:branch), cache)
+      @ref = R10K::Git::Head.new(options.delete(:branch))
     end
 
     if options[:tag]
-      @ref = R10K::Git::Tag.new(options.delete(:tag), cache)
+      @ref = R10K::Git::Tag.new(options.delete(:tag))
     end
 
     # TODO add options[:commit] so that we can bypass updating the git
     # repository if the commit is alreay available
 
     if options[:ref]
-      @ref = R10K::Git::Ref.new(options.delete(:ref), cache)
+      @ref = R10K::Git::Ref.new(options.delete(:ref))
     end
 
-    @ref ||= R10K::Git::Ref.new('master', cache)
+    @ref ||= R10K::Git::Ref.new('master')
 
     unless options.empty?
       raise ArgumentError, "Unhandled options #{options.keys.inspect} given to #{self.class}#parse_options"
