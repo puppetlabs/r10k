@@ -54,7 +54,7 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     else
       clone
     end
-    reset
+    checkout(@ref)
   end
 
   # Determine if repo has been cloned into a specific dir
@@ -90,37 +90,28 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     # that doing a normal `git pull` on a directory will work.
     git "clone --reference #{@cache.git_dir} #{@remote} #{@full_path}"
     git "remote add cache #{@cache.git_dir}", :path => @full_path
-    git "checkout #{@ref}", :path => @full_path
+    checkout(@ref)
   end
 
-  # Reset a git repo with a working directory to a specific ref
-  def reset
-    commit  = cache.rev_parse(@ref)
+  # check out the given ref
+  #
+  # @param ref [#to_s] The git reference to check out
+  def checkout(ref)
+    commit  = @cache.rev_parse(ref)
     current = rev_parse('HEAD')
 
     if commit == current
-      logger.debug1 "Git repo #{@full_path} is already at #{commit}, no need to reset"
+      logger.debug1 "Git repo #{@full_path} is already at #{commit}, no need to checkout"
       return
     end
 
     begin
-      git "reset --hard #{commit}", :path => @full_path
+      git "checkout --force #{commit}", :path => @full_path
     rescue R10K::ExecutionFailure => e
       logger.error "Unable to locate commit object #{commit} in git repo #{@full_path}"
       raise
     end
   end
 
-  # Resolve a ref to a commit hash
-  #
-  # @param [String] ref
-  #
-  # @return [String] The dereferenced hash of `ref`
-  def rev_parse(ref)
-    commit = git "rev-parse #{ref}^{commit}", :path => @full_path
-    commit.chomp
-  rescue R10K::ExecutionFailure => e
-    logger.error "Could not resolve ref #{ref.inspect} for git repo #{@full_path}"
-    raise
-  end
+  private :rev_parse
 end
