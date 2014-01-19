@@ -50,7 +50,7 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     @cache.sync
 
     if cloned?
-      fetch
+      fetch_from_cache
     else
       clone
     end
@@ -73,9 +73,9 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
 
   private
 
-  def fetch
+  def fetch_from_cache
     set_cache_remote
-    git "fetch --prune cache", :path => @full_path
+    fetch(:cache)
   end
 
   def set_cache_remote

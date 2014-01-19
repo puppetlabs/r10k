@@ -50,7 +50,7 @@ class R10K::Git::Cache < R10K::Git::Repository
 
   def sync!
     if cached?
-      git "fetch --prune", :git_dir => git_dir
+      fetch
     else
       logger.debug "Creating new git cache for #{@remote.inspect}"
 

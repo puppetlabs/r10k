@@ -40,6 +40,13 @@ class R10K::Git::Repository
 
   private
 
+  # Fetch objects and refs from the given git remote
+  #
+  # @param remote [#to_s] The remote name to fetch from
+  def fetch(remote = :origin)
+    git "fetch --prune #{remote}", :git_dir => @git_dir
+  end
+
   # Wrap git commands
   #
   # @param [String] command_line_args The arguments for the git prompt
