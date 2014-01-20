@@ -6,6 +6,7 @@ require 'system/system-helpers'
 require 'system-provisioning/el'
 
 require 'rspec-system-r10k/tmpdir'
+require 'rspec-system-r10k/puppetfile'
 
 RSpec.configure do |c|
 
