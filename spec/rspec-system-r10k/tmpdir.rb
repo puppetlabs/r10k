@@ -26,7 +26,6 @@ RSpec.configure do |config|
     end
   end
 
-
   config.after(:all, :rs_tmpdir => true) do |example|
     RSpec.configuration.tmpdir_stack.pop
   end

@@ -34,6 +34,7 @@ RSpec.configure do |c|
 
   def upload_artifact(name)
     rcp :sp => "./#{name}", :dp => '/root'
+    FileUtils.rm name
   end
 
   def install_artifact(name)
