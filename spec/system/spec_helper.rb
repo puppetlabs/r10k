@@ -5,6 +5,8 @@ require 'system/system-helpers'
 
 require 'system-provisioning/el'
 
+require 'rspec-system-r10k/tmpdir'
+
 RSpec.configure do |c|
 
   include SystemProvisioning::EL
