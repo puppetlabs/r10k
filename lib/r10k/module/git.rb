@@ -72,7 +72,7 @@ class R10K::Module::Git < R10K::Module::Base
     @ref ||= R10K::Git::Ref.new('master')
 
     unless options.empty?
-      raise ArgumentError, "Unhandled options #{options.keys.inspect} given to #{self.class}#parse_options"
+      raise ArgumentError, "Unhandled options #{options.keys.inspect} specified for #{self.class}"
     end
   end
 end
