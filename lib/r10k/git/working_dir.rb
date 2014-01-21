@@ -77,6 +77,20 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     File.directory? @full_path
   end
 
+  # check out the given ref
+  #
+  # @param ref [R10K::Git::Ref] The git reference to check out
+  def checkout(ref)
+    if ref.resolvable?
+      git "checkout --force #{@ref.ref}", :path => @full_path
+    else
+      raise R10K::Git::NonexistentHashError, "Cannot check out unresolvable ref #{@ref}"
+    end
+  rescue R10K::ExecutionFailure => e
+    logger.error "Unable to locate commit object #{@ref} in git repo #{@full_path}"
+    raise
+  end
+
   private
 
   def fetch?
@@ -116,17 +130,5 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     actual   = rev_parse('HEAD')
 
     ! (expected == actual)
-  end
-
-  # check out the given ref
-  #
-  # @param ref [#to_s] The git reference to check out
-  def checkout(ref)
-    begin
-      git "checkout --force #{@ref}", :path => @full_path
-    rescue R10K::ExecutionFailure => e
-      logger.error "Unable to locate commit object #{@ref} in git repo #{@full_path}"
-      raise
-    end
   end
 end
