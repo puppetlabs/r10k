@@ -91,6 +91,13 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     raise
   end
 
+  # The currently checked out HEAD
+  #
+  # @return [R10k::Git::Head]
+  def current
+    R10K::Git::Head.new('HEAD', self)
+  end
+
   private
 
   def fetch?
