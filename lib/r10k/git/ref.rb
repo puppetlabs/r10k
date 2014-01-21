@@ -24,13 +24,17 @@ class R10K::Git::Ref
   end
 
   # Can we locate the commit in the related repository?
-  # @todo use heuristics to determine the ref type and determine if we can
-  #   always resolve the given object based on the type
   def resolvable?
+    sha1
+    true
+  rescue R10K::Git::NonexistentHashError
     false
   end
 
   # Should we try to fetch this ref?
+  #
+  # Since we don't know the type of this ref, we have to assume that it might
+  # be a branch and always update accordingly.
   def fetch?
     true
   end
