@@ -82,13 +82,10 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
   # @param ref [R10K::Git::Ref] The git reference to check out
   def checkout(ref)
     if ref.resolvable?
-      git "checkout --force #{@ref.ref}", :path => @full_path
+      git ["checkout", "--force", @ref.ref], :path => @full_path
     else
       raise R10K::Git::NonexistentHashError, "Cannot check out unresolvable ref #{@ref}"
     end
-  rescue R10K::ExecutionFailure => e
-    logger.error "Unable to locate commit object #{@ref} in git repo #{@full_path}"
-    raise
   end
 
   # The currently checked out HEAD
@@ -107,12 +104,12 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
   def fetch_from_cache
     set_cache_remote
     @cache.sync
-    fetch(:cache)
+    fetch('cache')
   end
 
   def set_cache_remote
     if self.remote != @cache.remote
-      git "remote set-url cache #{@cache.git_dir}", :path => @full_path
+      git ["remote", "set-url", "cache", @cache.git_dir], :path => @full_path
     end
   end
 
@@ -122,8 +119,8 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
 
     # We do the clone against the target repo using the `--reference` flag so
     # that doing a normal `git pull` on a directory will work.
-    git "clone --reference #{@cache.git_dir} #{@remote} #{@full_path}"
-    git "remote add cache #{@cache.git_dir}", :path => @full_path
+    git ["clone", "--reference", @cache.git_dir, @remote, @full_path]
+    git ["remote", "add", "cache", @cache.git_dir], :path => @full_path
     checkout(@ref)
   end
 
