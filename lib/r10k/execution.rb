@@ -21,6 +21,8 @@ module Execution
   # @return [String] the stdout from the command
   def execute(cmd, opts = {})
 
+    logger.warn "R10K::Execution#execute is deprecated, use R10K::Util::Subprocess"
+
     event = (opts.delete(:event) || cmd)
 
     logger.debug1 "Execute: #{event.inspect}"

@@ -1,10 +1,8 @@
 require 'r10k/git'
-require 'r10k/execution'
+require 'r10k/util/subprocess'
 
 # Define an abstract base class for git repositories.
 class R10K::Git::Repository
-
-  include R10K::Execution
 
   # @!attribute [r] remote
   #   @return [String] The URL to the git repository
@@ -32,9 +30,9 @@ class R10K::Git::Repository
   #
   # @return [String] The dereferenced hash of `ref`
   def rev_parse(ref, object_type = 'commit')
-    commit = git "rev-parse #{ref}^{#{object_type}}", :git_dir => git_dir
+    commit = git ['rev-parse', "#{ref}^{#{object_type}}"], :git_dir => git_dir
     commit.chomp
-  rescue R10K::ExecutionFailure
+  rescue R10K::Util::Subprocess::SubprocessError
     raise R10K::Git::NonexistentHashError.new(ref, git_dir)
   end
 
@@ -43,45 +41,50 @@ class R10K::Git::Repository
   # Fetch objects and refs from the given git remote
   #
   # @param remote [#to_s] The remote name to fetch from
-  def fetch(remote = :origin)
-    git "fetch --prune #{remote}", :git_dir => @git_dir
+  def fetch(remote = 'origin')
+    git ['fetch', '--prune', remote], :git_dir => @git_dir
   end
 
   # Wrap git commands
   #
-  # @param [String] command_line_args The arguments for the git prompt
-  # @param [Hash] opts
+  # @param cmd [Array<String>] cmd The arguments for the git prompt
+  # @param opts [Hash] opts
   #
+  # @option opts [String] :path
   # @option opts [String] :git_dir
-  # @option opts [String] :work_tree
   # @option opts [String] :work_tree
   #
   # @raise [R10K::ExecutionFailure] If the executed command exited with a
   #   nonzero exit code.
   #
   # @return [String] The git command output
-  def git(command_line_args, opts = {})
-    args = %w{git}
-
-    log_event = "git #{command_line_args}"
-    log_event << ", args: #{opts.inspect}" unless opts.empty?
-
+  def git(cmd, opts = {})
+    argv = %w{git}
 
     if opts[:path]
-      args << "--git-dir #{opts[:path]}/.git"
-      args << "--work-tree #{opts[:path]}"
+      argv << "--git-dir"   << File.join(opts[:path], '.git')
+      argv << "--work-tree" << opts[:path]
     else
       if opts[:git_dir]
-        args << "--git-dir #{opts[:git_dir]}"
+        argv << "--git-dir" << opts[:git_dir]
       end
       if opts[:work_tree]
-        args << "--work-tree #{opts[:work_tree]}"
+        argv << "--work-tree" << opts[:work_tree]
       end
     end
 
-    args << command_line_args
-    cmd = args.join(' ')
+    argv.concat(cmd)
 
-    execute(cmd, :event => log_event)
+    subproc = R10K::Util::Subprocess.new(argv)
+    subproc.raise_on_fail = true
+
+    logger.debug1 "Execute: #{argv.join(' ')}"
+    result = subproc.execute
+
+    # todo ensure that logging always occurs even if the command fails to run
+    logger.debug2 "[git #{result.cmd}] STDOUT: #{result.stdout.chomp}" unless result.stdout.empty?
+    logger.debug2 "[git #{result.cmd}] STDERR: #{result.stderr.chomp}" unless result.stderr.empty?
+
+    result.stdout
   end
 end

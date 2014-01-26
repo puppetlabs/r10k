@@ -59,10 +59,11 @@ class R10K::Git::Cache < R10K::Git::Repository
         FileUtils.mkdir_p settings[:cache_root]
       end
 
-      git "clone --mirror #{@remote} #{git_dir}"
+      git ['clone', '--mirror', @remote, git_dir]
     end
-  rescue R10K::ExecutionFailure => e
-    if (msg = e.stderr[/^fatal: .*$/])
+  rescue R10K::Util::Subprocess::SubprocessError => e
+    msg = e.result.stderr.slice(/^fatal: .*$/)
+    if msg
       raise R10K::Git::GitError, "Couldn't update git cache for #{@remote}: #{msg.inspect}"
     else
       raise e
@@ -71,7 +72,7 @@ class R10K::Git::Cache < R10K::Git::Repository
 
   # @return [Array<String>] A list the branches for the git repository
   def branches
-    output = git 'for-each-ref refs/heads --format "%(refname)"', :git_dir => git_dir
+    output = git %w[for-each-ref refs/heads --format %(refname)], :git_dir => git_dir
     output.scan(%r[refs/heads/(.*)$]).flatten
   end
 
