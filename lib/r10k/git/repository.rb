@@ -81,9 +81,9 @@ class R10K::Git::Repository
     logger.debug1 "Execute: #{argv.join(' ')}"
     result = subproc.execute
 
-
-    logger.debug2 "[git #{cmd.join(' ')}] STDOUT: #{result.stdout.chomp}" unless result.stdout.empty?
-    logger.debug2 "[git #{cmd.join(' ')}] STDERR: #{result.stderr.chomp}" unless result.stderr.empty?
+    # todo ensure that logging always occurs even if the command fails to run
+    logger.debug2 "[git #{result.cmd}] STDOUT: #{result.stdout.chomp}" unless result.stdout.empty?
+    logger.debug2 "[git #{result.cmd}] STDERR: #{result.stderr.chomp}" unless result.stderr.empty?
 
     result.stdout
   end
