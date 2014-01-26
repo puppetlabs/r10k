@@ -24,7 +24,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'cri',       '~> 2.4.0'
 
   s.add_dependency 'systemu',   '~> 2.5.2'
-  s.add_dependency 'childprocess', '~> 0.3.7'
 
   s.add_dependency 'log4r',     '>= 1.1.10'
   s.add_dependency 'multi_json', '~> 1.8.2'

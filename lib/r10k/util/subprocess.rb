@@ -1,89 +1,88 @@
-require 'childprocess'
 require 'r10k/logging'
+require 'r10k/errors'
 
 module R10K
   module Util
+
+    # The subprocess namespace implements a subset of childprocess. It has
+    # three # main differences.
+    #
+    #   1. child processes invoke setsid()
+    #   2. there are no dependencies on C extensions (ffi)
+    #   3. it only support unixy systems.
     class Subprocess
-      # Name shamelessly stolen from vagrant :3
+
+      require 'r10k/util/subprocess/runner'
+      require 'r10k/util/subprocess/io'
+      require 'r10k/util/subprocess/result'
 
       attr_accessor :raise_on_fail
 
-      def initialize(args)
-        @args = args
-        @options = (args.last.is_a? Hash) ? args.pop : {}
+      def initialize(argv)
+        @argv = argv
 
         @raise_on_fail = false
-
       end
 
       def execute
-        child_process = ChildProcess.build(*@args)
+        subprocess = R10K::Util::Subprocess::Runner.new(@argv)
 
-        stdout_r, stdout_w = IO.pipe
-        stderr_r, stderr_w = IO.pipe
+        stdout_r, stdout_w = attach_pipe(subprocess.io, :stdout, :reader)
+        stderr_r, stderr_w = attach_pipe(subprocess.io, :stderr, :reader)
 
-        child_process.io.stdout = stdout_w
-        child_process.io.stderr = stderr_w
-
-        child_process.start
+        subprocess.start
         stdout_w.close
         stderr_w.close
-        child_process.wait
-
-        raise Exception if $zapped
+        subprocess.wait
 
         stdout = stdout_r.read
         stderr = stderr_r.read
 
-        result = Result.new(@args.join(" "), stdout, stderr, child_process.exit_code)
+        result = Result.new(@argv, stdout, stderr, subprocess.exit_code)
 
-        if @raise_on_fail and child_process.crashed?
+        if @raise_on_fail and subprocess.crashed?
           raise SubProcessError.new(:result => result)
         end
 
         result
-      ensure
-        Signal.trap('INT', 'DEFAULT')
       end
 
       private
 
-      class Result
-        attr_reader :cmd, :stdout, :stderr, :exit_code
+      # Attach a pipe to the given process, and return the requested end of the
+      # pipe.
+      #
+      # @param subproc [Runner]
+      # @param name [Symbol] The name of the setter method on the subproc
+      # @param type [Symbol] One of (:reader, :writer) denoting the type to return
+      #
+      # @return [Array<IO>] The reader and writer endpoints of the pipe
+      def attach_pipe(subproc, name, type)
+        rd, wr = ::IO.pipe
 
-        def initialize(cmd, stdout, stderr, exit_code)
-          @cmd = cmd
-          @stdout = stdout
-          @stderr = stderr
-          @exit_code = exit_code
+        case type
+        when :reader
+          other = wr
+        when :writer
+          other = rd
         end
 
-        # We're a hash now! Yay!
-        def [](field)
-          send(field)
-        end
+        subproc.send("#{name}=", other)
+
+        [rd, wr]
       end
 
-      class SubProcessError < StandardError
+      class SubProcessError < R10KError
+
+        attr_reader :result
+
         def initialize(message = nil, options = {})
-          if message.is_a? String
-            super(message)
-          elsif message.is_a? Hash
-            options = message
-            message = nil
-          end
+          super
 
-          parse_options(options)
-        end
-
-        private
-
-        def parse_options(options)
-          if (result = options[:result])
-            @result = result
-          end
+          @result = @options[:result]
         end
       end
+
     end
   end
 end
