@@ -41,7 +41,7 @@ module R10K
         result = Result.new(@argv, stdout, stderr, subprocess.exit_code)
 
         if @raise_on_fail and subprocess.crashed?
-          raise SubProcessError.new(:result => result)
+          raise SubprocessError.new(:result => result)
         end
 
         result
@@ -72,7 +72,7 @@ module R10K
         [rd, wr]
       end
 
-      class SubProcessError < R10KError
+      class SubprocessError < R10KError
 
         attr_reader :result
 

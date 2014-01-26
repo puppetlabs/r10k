@@ -32,7 +32,7 @@ class R10K::Git::Repository
   def rev_parse(ref, object_type = 'commit')
     commit = git ['rev-parse', "#{ref}^{#{object_type}}"], :git_dir => git_dir
     commit.chomp
-  rescue R10K::Util::Subprocess::SubProcessError
+  rescue R10K::Util::Subprocess::SubprocessError
     raise R10K::Git::NonexistentHashError.new(ref, git_dir)
   end
 

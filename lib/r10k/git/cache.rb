@@ -61,7 +61,7 @@ class R10K::Git::Cache < R10K::Git::Repository
 
       git ['clone', '--mirror', @remote, git_dir]
     end
-  rescue R10K::Util::Subprocess::SubProcessError => e
+  rescue R10K::Util::Subprocess::SubprocessError => e
     msg = e.result.stderr.slice(/^fatal: .*$/)
     if msg
       raise R10K::Git::GitError, "Couldn't update git cache for #{@remote}: #{msg.inspect}"
