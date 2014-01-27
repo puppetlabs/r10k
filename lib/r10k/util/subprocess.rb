@@ -76,13 +76,19 @@ module R10K
 
         attr_reader :result
 
-        def initialize(message = nil, options = {})
+        def initialize(mesg = nil, options = {})
           super
-
           @result = @options[:result]
         end
-      end
 
+        def to_s
+          if @mesg
+            @mesg
+          else
+            "Command #{@result.cmd} exited with #{@result.exit_code}: #{@result.stderr}"
+          end
+        end
+      end
     end
   end
 end
