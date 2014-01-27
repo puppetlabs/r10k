@@ -32,14 +32,14 @@ class R10K::Git::Repository
   def resolve_ref(pattern)
     commit = nil
     begin
-      commit = git ['rev-parse', "#{ref}^{commit}"], :git_dir => git_dir
+      all_commits = git ['show-ref', '-s', pattern], :git_dir => git_dir
+      commit = all_commits.lines.first
     rescue R10K::Util::Subprocess::SubprocessError
     end
 
     if commit.nil?
       begin
-        all_commits = git ['show-ref', '-s', pattern], :git_dir => git_dir
-        commit = all_commits.lines.first
+        commit = git ['rev-parse', "#{ref}^{commit}"], :git_dir => git_dir
       rescue R10K::Util::Subprocess::SubprocessError
       end
     end
