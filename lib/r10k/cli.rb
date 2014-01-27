@@ -16,7 +16,7 @@ module R10K::CLI
         complex environments.
       EOD
 
-      flag :h, :help, 'show help for this command'
+      flag :h, :help, 'Show help for this command'
       flag :t, :trace, 'Display stack traces on application crash'
 
       optional :v, :verbose, 'Set verbosity level' do |value, cmd|

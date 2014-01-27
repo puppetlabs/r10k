@@ -34,7 +34,7 @@ module R10K::CLI
         @cmd ||= Cri::Command.define do
           name    'environment'
           usage   'environment <options> <environment> <...>'
-          summary 'deploy environments and their dependent modules'
+          summary 'Deploy environments and their dependent modules'
 
           description <<-DESCRIPTION
 `r10k deploy environment` creates and updates Puppet environments based on Git
@@ -78,7 +78,7 @@ scheduled. On subsequent deployments, Puppetfile deployment will default to off.
         @cmd ||= Cri::Command.define do
           name  'module'
           usage 'module [module] <module ...>'
-          summary 'deploy modules in all environments'
+          summary 'Deploy modules in all environments'
 
           description <<-DESCRIPTION
 `r10k deploy module` Deploys and updates modules inside of Puppet environments.
