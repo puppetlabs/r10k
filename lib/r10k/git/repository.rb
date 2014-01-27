@@ -23,18 +23,34 @@ class R10K::Git::Repository
   #   @return [String] The path to the git directory
   attr_reader :git_dir
 
-  # Resolve a ref to a commit hash
+  # Resolve a ref to a git commit. The given pattern can be a commit, tag,
+  # or a local or remote branch
   #
-  # @param [String] ref
-  # @param [String] object_type The object type to look up
+  # @param [String] pattern
   #
-  # @return [String] The dereferenced hash of `ref`
-  def rev_parse(ref, object_type = 'commit')
-    commit = git ['rev-parse', "#{ref}^{#{object_type}}"], :git_dir => git_dir
-    commit.chomp
-  rescue R10K::Util::Subprocess::SubprocessError
-    raise R10K::Git::NonexistentHashError.new(ref, git_dir)
+  # @return [String] The dereferenced hash of `pattern`
+  def resolve_ref(pattern)
+    commit = nil
+    begin
+      commit = git ['rev-parse', "#{ref}^{commit}"], :git_dir => git_dir
+    rescue R10K::Util::Subprocess::SubprocessError
+    end
+
+    if commit.nil?
+      begin
+        all_commits = git ['show-ref', '-s', pattern], :git_dir => git_dir
+        commit = all_commits.lines.first
+      rescue R10K::Util::Subprocess::SubprocessError
+      end
+    end
+
+    if commit
+      commit.chomp
+    else
+      raise R10K::Git::NonexistentHashError.new(pattern, git_dir)
+    end
   end
+  alias rev_parse resolve_ref
 
   private
 
