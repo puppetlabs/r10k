@@ -82,7 +82,7 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
   # @param ref [R10K::Git::Ref] The git reference to check out
   def checkout(ref)
     if ref.resolvable?
-      git ["checkout", "--force", @ref.ref], :path => @full_path
+      git ["checkout", "--force", @ref.sha1], :path => @full_path
     else
       raise R10K::Git::NonexistentHashError, "Cannot check out unresolvable ref #{@ref}"
     end
