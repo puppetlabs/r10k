@@ -1,6 +1,18 @@
 CHANGELOG
 =========
 
+1.1.3
+-----
+
+2014-01-26
+
+This is a backwards compatible maintenance release.
+
+### Notes
+
+  * (GH-82) Added all git managed files, including README.markdown, CHANGELOG,
+    and LICENSE to the gemspec for better compatibility with non-gem packages.
+
 1.1.2
 -----
 
