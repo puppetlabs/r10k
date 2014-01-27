@@ -5,6 +5,9 @@ require 'system/system-helpers'
 
 require 'system-provisioning/el'
 
+require 'rspec-system-r10k/tmpdir'
+require 'rspec-system-r10k/puppetfile'
+
 RSpec.configure do |c|
 
   include SystemProvisioning::EL
@@ -31,6 +34,7 @@ RSpec.configure do |c|
 
   def upload_artifact(name)
     rcp :sp => "./#{name}", :dp => '/root'
+    FileUtils.rm name
   end
 
   def install_artifact(name)

@@ -1,15 +1,14 @@
 require 'forwardable'
 require 'r10k/logging'
+require 'r10k/git'
 require 'r10k/git/cache'
 
-module R10K
-module Git
-class WorkingDir < R10K::Git::Repository
-  # Implements sparse git repositories with shared objects
-  #
-  # Working directory instances use the git alternatives object store, so that
-  # working directories only contain checked out files and all object files are
-  # shared.
+# Implements sparse git repositories with shared objects
+#
+# Working directory instances use the git alternatives object store, so that
+# working directories only contain checked out files and all object files are
+# shared.
+class R10K::Git::WorkingDir < R10K::Git::Repository
 
   include R10K::Logging
 
@@ -20,124 +19,120 @@ class WorkingDir < R10K::Git::Repository
   attr_reader :cache
 
   # @!attribute [r] ref
-  #   @return [String] The git reference to use check out in the given directory
+  #   @return [R10K::Git::Ref] The git reference to use check out in the given directory
   attr_reader :ref
 
-  # Instantiates a new git synchro and optionally prepares for caching
+  # @!attribute [r] remote
+  #   @return [String] The actual remote used as an upstream for this module.
+  attr_reader :remote
+
+  # Create a new shallow git working directory
   #
-  # @param [String] ref
-  # @param [String] remote
-  # @param [String] basedir
-  # @param [String] dirname
+  # @param ref     [String, R10K::Git::Ref]
+  # @param remote  [String]
+  # @param basedir [String]
+  # @param dirname [String]
   def initialize(ref, remote, basedir, dirname = nil)
-    @ref     = ref
+
     @remote  = remote
     @basedir = basedir
     @dirname = dirname || ref
 
     @full_path = File.join(@basedir, @dirname)
+    @git_dir   = File.join(@full_path, '.git')
 
     @cache = R10K::Git::Cache.generate(@remote)
+
+    if ref.is_a? String
+      @ref = R10K::Git::Ref.new(ref, self)
+    else
+      @ref = ref
+      @ref.repository = self
+    end
   end
 
   # Synchronize the local git repository.
   def sync
-    # TODO stop forcing a sync every time.
-    @cache.sync
-
-    if cloned?
-      fetch
-    else
+    if not cloned?
       clone
+    elsif fetch?
+      fetch_from_cache
+      checkout(@ref)
+    elsif needs_checkout?
+      checkout(@ref)
     end
-    reset
   end
 
   # Determine if repo has been cloned into a specific dir
   #
   # @return [true, false] If the repo has already been cloned
   def cloned?
-    File.directory? git_dir
+    File.directory? @git_dir
+  end
+  alias :git? :cloned?
+
+  # Does a directory exist where we expect a working dir to be?
+  # @return [true, false]
+  def exist?
+    File.directory? @full_path
+  end
+
+  # check out the given ref
+  #
+  # @param ref [R10K::Git::Ref] The git reference to check out
+  def checkout(ref)
+    if ref.resolvable?
+      git ["checkout", "--force", @ref.sha1], :path => @full_path
+    else
+      raise R10K::Git::NonexistentHashError, "Cannot check out unresolvable ref #{@ref}"
+    end
+  end
+
+  # The currently checked out HEAD
+  #
+  # @return [R10k::Git::Head]
+  def current
+    R10K::Git::Head.new('HEAD', self)
   end
 
   private
 
+  def fetch?
+    @ref.fetch?
+  end
+
+  def fetch_from_cache
+    set_cache_remote
+    @cache.sync
+    fetch('cache')
+  end
+
   def set_cache_remote
-    # XXX This is crude but it'll ensure that the right remote is used for
-    # the cache.
-    if remote_url('cache') == @cache.path
-      logger.debug1 "Git repo #{@full_path} cache remote already set correctly"
-    else
-      git "remote set-url cache #{@cache.path}", :path => @full_path
+    if self.remote != @cache.remote
+      git ["remote", "set-url", "cache", @cache.git_dir], :path => @full_path
     end
   end
 
   # Perform a non-bare clone of a git repository.
   def clone
+    @cache.sync
+
     # We do the clone against the target repo using the `--reference` flag so
     # that doing a normal `git pull` on a directory will work.
-    git "clone --reference #{@cache.path} #{@remote} #{@full_path}"
-    git "remote add cache #{@cache.path}", :path => @full_path
-    git "checkout #{@ref}", :path => @full_path
+    git ["clone", "--reference", @cache.git_dir, @remote, @full_path]
+    git ["remote", "add", "cache", @cache.git_dir], :path => @full_path
+    checkout(@ref)
   end
 
-  def fetch
-    set_cache_remote
-    git "fetch --prune cache", :path => @full_path
+  def needs_fetch?
+    ref.fetch?
   end
 
-  # Reset a git repo with a working directory to a specific ref
-  def reset
-    commit  = cache.rev_parse(@ref)
-    current = rev_parse('HEAD')
+  # Does the expected ref match the actual ref?
+  def needs_checkout?
+    expected = ref.sha1
+    actual   = rev_parse('HEAD')
 
-    if commit == current
-      logger.debug1 "Git repo #{@full_path} is already at #{commit}, no need to reset"
-      return
-    end
-
-    begin
-      git "reset --hard #{commit}", :path => @full_path
-    rescue R10K::ExecutionFailure => e
-      logger.error "Unable to locate commit object #{commit} in git repo #{@full_path}"
-      raise
-    end
+    ! (expected == actual)
   end
-
-  # Resolve a ref to a commit hash
-  #
-  # @param [String] ref
-  #
-  # @return [String] The dereferenced hash of `ref`
-  def rev_parse(ref)
-    commit = git "rev-parse #{ref}^{commit}", :path => @full_path
-    commit.chomp
-  rescue R10K::ExecutionFailure => e
-    logger.error "Could not resolve ref #{ref.inspect} for git repo #{@full_path}"
-    raise
-  end
-
-  # @param [String] name The remote to retrieve the URl for
-  # @return [String] The git remote URL
-  def remote_url(remote_name)
-    output = git "remote -v", :path => @full_path
-
-    remotes = {}
-
-    output.each_line do |line|
-      if mdata = line.match(/^(\S+)\s+(\S+)\s+\(fetch\)/)
-        name   = mdata[1]
-        remote = mdata[2]
-        remotes[name] = remote
-      end
-    end
-
-    remotes[remote_name]
-  end
-
-  def git_dir
-    File.join(@full_path, '.git')
-  end
-end
-end
 end

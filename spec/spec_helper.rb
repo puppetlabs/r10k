@@ -1,5 +1,7 @@
 require 'r10k'
 
+require 'shared-examples/git-ref'
+
 PROJECT_ROOT = File.expand_path('..', File.dirname(__FILE__))
 
 require 'vcr'

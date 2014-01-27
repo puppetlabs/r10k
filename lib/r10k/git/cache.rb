@@ -1,16 +1,15 @@
 require 'r10k/logging'
+
+require 'r10k/git'
 require 'r10k/git/repository'
-require 'r10k/git/errors'
 
 require 'r10k/settings'
 require 'r10k/registry'
 
-module R10K
-module Git
-class Cache < R10K::Git::Repository
-  # Mirror a git repository for use shared git object repositories
-  #
-  # @see man git-clone(1)
+# Mirror a git repository for use shared git object repositories
+#
+# @see man git-clone(1)
+class R10K::Git::Cache < R10K::Git::Repository
 
   include R10K::Settings::Mixin
 
@@ -26,20 +25,20 @@ class Cache < R10K::Git::Repository
 
   include R10K::Logging
 
-  # @!attribute [r] remote
-  #   @return [String] The git repository remote
-  attr_reader :remote
-
   # @!attribute [r] path
+  #   @deprecated
   #   @return [String] The path to the git cache repository
-  attr_reader :path
+  def path
+    logger.warn "#{self.class}#path is deprecated; use #git_dir"
+    @git_dir
+  end
 
   # @param [String] remote
   # @param [String] cache_root
   def initialize(remote)
     @remote = remote
 
-    @path = File.join(settings[:cache_root], sanitized_dirname)
+    @git_dir = File.join(settings[:cache_root], sanitized_dirname)
   end
 
   def sync
@@ -51,7 +50,7 @@ class Cache < R10K::Git::Repository
 
   def sync!
     if cached?
-      git "fetch --prune", :git_dir => @path
+      fetch
     else
       logger.debug "Creating new git cache for #{@remote.inspect}"
 
@@ -60,10 +59,11 @@ class Cache < R10K::Git::Repository
         FileUtils.mkdir_p settings[:cache_root]
       end
 
-      git "clone --mirror #{@remote} #{@path}"
+      git ['clone', '--mirror', @remote, git_dir]
     end
-  rescue R10K::ExecutionFailure => e
-    if (msg = e.stderr[/^fatal: .*$/])
+  rescue R10K::Util::Subprocess::SubprocessError => e
+    msg = e.result.stderr.slice(/^fatal: .*$/)
+    if msg
       raise R10K::Git::GitError, "Couldn't update git cache for #{@remote}: #{msg.inspect}"
     else
       raise e
@@ -72,13 +72,13 @@ class Cache < R10K::Git::Repository
 
   # @return [Array<String>] A list the branches for the git repository
   def branches
-    output = git 'for-each-ref refs/heads --format "%(refname)"', :git_dir => @path
-    output.scan(%r[refs/heads/(.*)$]).flatten
+    output = git %w[for-each-ref refs/heads --format %(refname)], :git_dir => git_dir
+    output.scan(%r[refs/heads/(.*)$]).flatten.reverse
   end
 
   # @return [true, false] If the repository has been locally cached
   def cached?
-    File.exist? @path
+    File.exist? git_dir
   end
 
   private
@@ -87,10 +87,4 @@ class Cache < R10K::Git::Repository
   def sanitized_dirname
     @remote.gsub(/[^@\w\.-]/, '-')
   end
-
-  def git_dir
-    @path
-  end
-end
-end
 end
