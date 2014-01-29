@@ -30,7 +30,7 @@ module Deployment
         to_deploy = @environments.keys
       end
 
-      to_deploy.each do |env_name|
+      to_deploy.reverse.each do |env_name|
         if (env = @environments[env_name])
           yield env
         else
