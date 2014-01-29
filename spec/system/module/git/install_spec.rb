@@ -17,8 +17,8 @@ describe 'installing modules from git' do
     it "defaults to 'master'" do
       puppetfile_install
 
-      shell %[git --git-dir=modules/boolean/.git rev-parse --abbrev-ref HEAD] do |results|
-        expect(results.stdout).to match /master/
+      shell %[git --git-dir=modules/boolean/.git rev-parse HEAD] do |results|
+        expect(results.stdout).to match /157011a4eaa27f1202a9d94335ee4876b26d377e/
       end
     end
   end
@@ -108,8 +108,8 @@ describe 'installing modules from git' do
     it "checks out the branch" do
       puppetfile_install
 
-      shell %[git --git-dir=modules/boolean/.git rev-parse --abbrev-ref HEAD] do |results|
-        expect(results.stdout).to match /master/
+      shell %[git --git-dir=modules/boolean/.git rev-parse HEAD] do |results|
+        expect(results.stdout).to match /157011a4eaa27f1202a9d94335ee4876b26d377e/
       end
     end
   end
