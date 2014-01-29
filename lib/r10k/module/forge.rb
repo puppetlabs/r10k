@@ -100,13 +100,19 @@ class R10K::Module::Forge < R10K::Module::Base
       # The directory exists but doesn't have a metadata file; it probably
       # isn't a forge module.
       return :mismatched
-    elsif not @author == @metadata.author
+    end
+
+    # The module is present and has a metadata file, read the metadata to
+    # determine the state of the module.
+    @metadata.read
+
+    if not @author == @metadata.author
       # This is a forge module but the installed module is a different author
       # than the expected author.
       return :mismatched
     end
 
-    if expected_version != @metadata.version
+    if expected_version && (expected_version != @metadata.version)
       return :outdated
     end
 
