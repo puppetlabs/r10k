@@ -143,7 +143,7 @@ describe R10K::Module::Forge do
 
   describe "determining the status" do
 
-    let(:metadata) { double 'metadata', :version => R10K::SemVer.new('8.0.0'), :author => 'branan', :exist? => true }
+    let(:metadata) { double 'metadata', :version => R10K::SemVer.new('8.0.0'), :author => 'branan', :exist? => true, :read => nil }
 
     subject { described_class.new('branan/eight_hundred', '/moduledir', '8.0.0') }
 
@@ -193,7 +193,8 @@ describe R10K::Module::Forge do
       double('metadata',
              :version => R10K::SemVer.new('7.0.0'),
              :author => 'branan',
-             :exist? => true
+             :exist? => true,
+             :read   => nil,
             )
     end
 
