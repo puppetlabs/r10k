@@ -16,7 +16,10 @@ module R10K
       require 'r10k/util/subprocess/io'
       require 'r10k/util/subprocess/result'
 
+      include R10K::Logging
+
       attr_accessor :raise_on_fail
+      attr_writer :logger
 
       def initialize(argv)
         @argv = argv
@@ -30,6 +33,8 @@ module R10K
         stdout_r, stdout_w = attach_pipe(subprocess.io, :stdout, :reader)
         stderr_r, stderr_w = attach_pipe(subprocess.io, :stderr, :reader)
 
+        logger.debug1 "Execute: #{@argv.join(' ')}"
+
         subprocess.start
         stdout_w.close
         stderr_w.close
@@ -39,6 +44,9 @@ module R10K
         stderr = stderr_r.read
 
         result = Result.new(@argv, stdout, stderr, subprocess.exit_code)
+
+        logger.debug2 "[#{result.cmd}] STDOUT: #{result.stdout.chomp}" unless result.stdout.empty?
+        logger.debug2 "[#{result.cmd}] STDERR: #{result.stderr.chomp}" unless result.stderr.empty?
 
         if @raise_on_fail and subprocess.crashed?
           raise SubprocessError.new(:result => result)
