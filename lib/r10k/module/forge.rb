@@ -1,8 +1,8 @@
 require 'r10k/module'
 require 'r10k/errors'
 require 'r10k/logging'
-require 'r10k/execution'
 require 'r10k/module/metadata'
+require 'r10k/util/subprocess'
 require 'r10k/module_repository/forge'
 
 require 'pathname'
@@ -149,13 +149,21 @@ class R10K::Module::Forge < R10K::Module::Base
     install
   end
 
-  include R10K::Execution
+  # Wrap puppet module commands
+  #
+  # @param argv [Array<String>]
+  #
+  # @return [String] The stdout from the executed command
+  def pmt(argv)
+    argv = ['puppet', 'module', '--modulepath', @basedir] + argv
 
-  def pmt(args)
-    cmd = "puppet module --modulepath '#{@basedir}' #{args.join(' ')}"
-    log_event = "puppet module #{args.join(' ')}, modulepath: #{@basedir.inspect}"
+    subproc = R10K::Util::Subprocess.new(argv)
+    subproc.raise_on_fail = true
+    subproc.logger = self.logger
 
-    execute(cmd, :event => log_event)
+    result = subproc.execute
+
+    result.stdout
   end
 
   def set_version_from_forge

@@ -36,7 +36,9 @@ module R10K
         stdout_r, stdout_w = attach_pipe(subprocess.io, :stdout, :reader)
         stderr_r, stderr_w = attach_pipe(subprocess.io, :stderr, :reader)
 
-        logger.debug1 "Execute: #{@argv.join(' ')} (cwd: #{@cwd})"
+        logmsg = "Execute: #{@argv.join(' ')}"
+        logmsg << "(cwd: #{@cwd})" if @cwd
+        logger.debug1 logmsg
 
         subprocess.start
         stdout_w.close
