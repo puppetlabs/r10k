@@ -19,6 +19,8 @@ module R10K
       include R10K::Logging
 
       attr_accessor :raise_on_fail
+      attr_accessor :cwd
+
       attr_writer :logger
 
       def initialize(argv)
@@ -29,11 +31,12 @@ module R10K
 
       def execute
         subprocess = R10K::Util::Subprocess::Runner.new(@argv)
+        subprocess.cwd = @cwd
 
         stdout_r, stdout_w = attach_pipe(subprocess.io, :stdout, :reader)
         stderr_r, stderr_w = attach_pipe(subprocess.io, :stderr, :reader)
 
-        logger.debug1 "Execute: #{@argv.join(' ')}"
+        logger.debug1 "Execute: #{@argv.join(' ')} (cwd: #{@cwd})"
 
         subprocess.start
         stdout_w.close
