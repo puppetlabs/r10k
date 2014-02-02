@@ -28,5 +28,6 @@ end
 shared_context 'fail on execution' do
   before do
     allow_any_instance_of(described_class).to receive(:execute).and_raise "Tests should never invoke system calls"
+    allow_any_instance_of(R10K::Util::Subprocess).to receive(:execute).and_raise "Tests should never invoke system calls"
   end
 end

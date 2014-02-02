@@ -1,5 +1,5 @@
 require 'r10k/logging'
-require 'r10k/execution'
+require 'r10k/util/subprocess'
 
 module R10K
   module SVN
@@ -27,20 +27,49 @@ module R10K
         info.slice(/^Repository Root: (.*)$/, 1)
       end
 
+      def update(revision = nil)
+        argv = %w[update]
+        argv << '-r' << revision if revision
+
+        svn argv, :cwd => @full_path
+      end
+
+      def checkout(url, revision = nil)
+        argv = ['checkout', url]
+        argv << '-r' << revision if revision
+        argv << @full_path.basename.to_s
+
+        svn argv, :cwd => @full_path.parent
+      end
+
       private
 
       def info
-        svn ["info"]
+        svn ["info"], :cwd => @full_path
       end
 
       include R10K::Execution
       include R10K::Logging
 
-      def svn(args)
-        cmd = "svn #{args.join(' ')}"
-        log_event = "#{cmd.inspect}, repository: #{@full_path}"
+      # Wrap SVN commands
+      #
+      # @param argv [Array<String>]
+      # @param opts [Hash]
+      #
+      # @option opts [Pathname] :cwd The directory to run the command in
+      #
+      # @return [String] The stdout from the given command
+      def svn(argv, opts = {})
+        argv.unshift('svn')
 
-        execute(cmd, :event => log_event, :cwd => @full_path.to_s)
+        subproc = R10K::Util::Subprocess.new(argv)
+        subproc.raise_on_fail = true
+        subproc.logger = self.logger
+
+        subproc.cwd = opts[:cwd]
+        result = subproc.execute
+
+        result.stdout
       end
     end
   end

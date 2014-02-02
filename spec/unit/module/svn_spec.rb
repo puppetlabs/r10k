@@ -102,11 +102,6 @@ describe R10K::Module::SVN do
         expect(subject).to receive(:install)
         subject.sync
       end
-
-      it "performs an SVN checkout of the repository" do
-        expect(subject).to receive(:svn).with(['checkout', 'https://github.com/adrienthebo/r10k-fixture-repo', '/moduledir/foo', '-r', 123], '/moduledir')
-        subject.sync
-      end
     end
 
     describe "and the state is :mismatched" do
@@ -124,12 +119,6 @@ describe R10K::Module::SVN do
 
         subject.sync
       end
-
-      it "performs an SVN checkout of the repository" do
-        expect(subject).to receive(:svn).with(['checkout', 'https://github.com/adrienthebo/r10k-fixture-repo', '/moduledir/foo', '-r', 123], '/moduledir')
-        allow(subject).to receive(:uninstall)
-        subject.sync
-      end
     end
 
     describe "and the state is :outdated" do
@@ -138,11 +127,6 @@ describe R10K::Module::SVN do
       it "upgrades the repository" do
         expect(subject).to receive(:update)
 
-        subject.sync
-      end
-
-      it "performs an svn update on the repository" do
-        expect(subject).to receive(:svn).with(['update', '-r', 123], '/moduledir/foo')
         subject.sync
       end
     end

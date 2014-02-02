@@ -68,12 +68,7 @@ class R10K::Module::SVN < R10K::Module::Base
   def install
     FileUtils.mkdir @basedir unless File.directory? @basedir
 
-    args = ["checkout", @url, @full_path.to_s]
-    if @expected_revision
-      args << '-r' << @expected_revision
-    end
-
-    svn args, @basedir.to_s
+    @working_dir.checkout(@url, @expected_revision)
   end
 
   def uninstall
@@ -86,13 +81,7 @@ class R10K::Module::SVN < R10K::Module::Base
   end
 
   def update
-    args = %w[update]
-
-    if @expected_revision
-      args << "-r" << @expected_revision
-    end
-
-    svn args, @full_path.to_s
+    @working_dir.update(@expected_revision)
   end
 
   def parse_options(hash)
@@ -106,16 +95,5 @@ class R10K::Module::SVN < R10K::Module::Base
         @svn_path = value
       end
     end
-  end
-
-  include R10K::Logging
-  include R10K::Execution
-
-  def svn(args, path = @full_path)
-
-    cmd = "svn #{args.join(' ')}"
-    log_event = "#{cmd.inspect}, repository: #{path}"
-
-    execute(cmd, :event => log_event, :cwd => path.to_s)
   end
 end
