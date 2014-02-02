@@ -84,7 +84,9 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     if ref.resolvable?
       git ["checkout", "--force", @ref.sha1], :path => @full_path
     else
-      raise R10K::Git::NonexistentHashError, "Cannot check out unresolvable ref #{@ref}"
+      raise R10K::Git::UnresolvableRefError.new(
+        "Cannot check out unresolvable ref '#{@ref}'",
+        :git_dir => @full_path)
     end
   end
 

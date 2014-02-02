@@ -19,10 +19,13 @@ module R10K
     def initialize(mesg = nil, options = {})
       if mesg.is_a? String
         super(mesg)
+        @mesg    = mesg
         @options = options
       elsif mesg.is_a? Hash
+        @mesg    = nil
         @options = mesg
-        @mesg = nil
+      elsif mesg.nil? and options
+        @options = options
       end
     end
   end

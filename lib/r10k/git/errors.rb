@@ -1,34 +1,39 @@
+require 'r10k/errors'
+
 module R10K
   module Git
 
-    class GitError < StandardError
+    class GitError < R10KError
     end
 
-    # Raised when a hash was requested that can't be found in the repository
-    class NonexistentHashError < GitError
+    class UnresolvableRefError < GitError
 
-      attr_reader :hash
+      attr_reader :ref
       attr_reader :git_dir
 
-      def initialize(msg = nil, git_dir = nil)
-        super(msg)
+      def initialize(*args)
+        super
 
-        @git_dir = git_dir
+        @hash    = @options[:ref]
+        @git_dir = @options[:git_dir]
       end
 
       HASHLIKE = %r[[A-Fa-f0-9]]
 
       # Print a friendly error message if an object hash is given as the message
       def message
-        msg = super
-        if msg and msg.match(HASHLIKE)
-          msg = "Could not locate hash #{msg.inspect} in repository"
-        elsif msg.nil?
-          msg = "Could not locate hash in repository"
+        if @mesg
+          msg = @mesg
+        else
+          msg = "Could not locate hash"
+
+          if @hash
+            msg << " '#{@hash}'"
+          end
         end
 
         if @git_dir
-          msg << " at #{@git_dir}. (Does the remote repository need to be updated?)"
+          msg << " at #{@git_dir}"
         end
 
         msg
