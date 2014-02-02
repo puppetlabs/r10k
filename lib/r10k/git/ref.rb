@@ -27,7 +27,7 @@ class R10K::Git::Ref
   def resolvable?
     sha1
     true
-  rescue R10K::Git::NonexistentHashError
+  rescue R10K::Git::UnresolvableRefError
     false
   end
 
@@ -49,7 +49,7 @@ class R10K::Git::Ref
 
   def ==(other)
     other.sha1 == self.sha1
-  rescue ArgumentError, R10K::Git::NonexistentHashError
+  rescue ArgumentError, R10K::Git::UnresolvableRefError
     false
   end
 

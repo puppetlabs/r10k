@@ -28,7 +28,7 @@ shared_examples_for "a git ref" do
 
     it "is false if a nonexistenthasherror is raised while comparing the SHA1s" do
       expect(other).to receive(:sha1).and_return 'fcf6140cf3e0b3738583167702176867833ec2a7'
-      expect(subject).to receive(:sha1).and_raise(R10K::Git::NonexistentHashError, "hash")
+      expect(subject).to receive(:sha1).and_raise(R10K::Git::UnresolvableRefError, :ref => "hash")
       expect(subject == other).to be_false
     end
   end

@@ -16,7 +16,7 @@ describe R10K::Git::Tag do
     end
 
     it "is false if the tag cannot be resolved" do
-      expect(repo).to receive(:rev_parse).with(ref).and_raise(R10K::Git::NonexistentHashError, ref)
+      expect(repo).to receive(:rev_parse).with(ref).and_raise(R10K::Git::UnresolvableRefError, :ref => ref)
       subject.repository = repo
       expect(subject).to_not be_resolvable
     end

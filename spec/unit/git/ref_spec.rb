@@ -16,11 +16,11 @@ describe R10K::Git::Ref do
 
     it "raises an error if the SHA1 could not be resolved" do
       subject.repository = repo
-      expect(repo).to receive(:rev_parse).with(ref).and_raise(R10K::Git::NonexistentHashError)
+      expect(repo).to receive(:rev_parse).with(ref).and_raise(R10K::Git::UnresolvableRefError)
 
       expect {
         subject.sha1
-      }.to raise_error(R10K::Git::NonexistentHashError)
+      }.to raise_error(R10K::Git::UnresolvableRefError)
     end
 
     it "looks up the ref against the linked repository" do

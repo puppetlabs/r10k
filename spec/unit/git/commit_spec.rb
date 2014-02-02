@@ -19,7 +19,7 @@ describe R10K::Git::Commit do
     end
 
     it "is true if the commit cannot be rev-parsed" do
-      expect(repo).to receive(:rev_parse).with(ref).and_raise(R10K::Git::NonexistentHashError, ref)
+      expect(repo).to receive(:rev_parse).with(ref).and_raise(R10K::Git::UnresolvableRefError, :ref => ref)
       expect(subject).to_not be_resolvable
     end
   end
