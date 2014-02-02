@@ -1,7 +1,7 @@
 ---
 language: ruby
 bundler_args: "--without system"
-script: "bundle exec rspec --color --format documentation spec/unit spec/integration"
+script: "bundle exec rspec --color --format documentation spec/unit"
 notifications:
   email: false
 rvm:
