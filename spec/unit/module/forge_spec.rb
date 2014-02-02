@@ -194,8 +194,7 @@ describe R10K::Module::Forge do
              :version => R10K::SemVer.new('7.0.0'),
              :author => 'branan',
              :exist? => true,
-             :read   => nil,
-            )
+             :read   => nil)
     end
 
     before do
