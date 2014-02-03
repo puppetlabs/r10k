@@ -1,6 +1,32 @@
 CHANGELOG
 =========
 
+1.2.0
+-----
+
+2014/02/08
+
+### User Notes
+
+Preliminary support for Puppetfile modules from SVN sources. SVN repositories
+can track the latest available revision or may be pinned to a specific revision.
+
+Forge modules can now track the latest available version. This can be enabled by
+setting the module version to `:latest`.
+
+Git based Puppetfile modules can now be specified as branches, tags, and
+commits. When tags and commits are specified r10k can perform optimizations
+when updating the given repositories to reduce network accesses.
+
+Command execution has been greatly improved. The old library for executing
+commands (systemu) had very high overhead and was 50 - 100 times slower than
+%x[] or fork/exec. It's been replaced with a custom process execution
+implementation.
+
+Modules can swap out sources. When an existing module is changed from Forge to
+Git, for instance, the existing module will be removed before the new module is
+installed. (GH-30)
+
 1.1.3
 -----
 
