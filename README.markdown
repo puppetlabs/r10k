@@ -75,9 +75,11 @@ Common Commands
 Puppetfile support
 ------------------
 
-r10k can operate on a Puppetfile as a drop-in replacement for librarian-puppet.
+r10k can operate on a Puppetfile using the same syntax as librarian-puppet uses.
 Puppetfiles are a simple Ruby based DSL that specifies a list of modules to
-install, what version to install, and where to fetch them from.
+install, what version to install, and where to fetch them from. Unlike
+librarian-puppet dependency resolution is not yet implemented but is on the
+roadmap.
 
 Puppetfile based commands are under the `r10k puppetfile` subcommand.
 
