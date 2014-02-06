@@ -1,15 +1,15 @@
 require 'r10k/logging'
+
+require 'r10k/git'
 require 'r10k/git/repository'
 
 require 'r10k/settings'
 require 'r10k/registry'
 
-module R10K
-module Git
-class Cache < R10K::Git::Repository
-  # Mirror a git repository for use shared git object repositories
-  #
-  # @see man git-clone(1)
+# Mirror a git repository for use shared git object repositories
+#
+# @see man git-clone(1)
+class R10K::Git::Cache < R10K::Git::Repository
 
   include R10K::Settings::Mixin
 
@@ -25,28 +25,24 @@ class Cache < R10K::Git::Repository
 
   include R10K::Logging
 
-  # @!attribute [r] remote
-  #   @return [String] The git repository remote
-  attr_reader :remote
-
   # @!attribute [r] path
+  #   @deprecated
   #   @return [String] The path to the git cache repository
-  attr_reader :path
+  def path
+    logger.warn "#{self.class}#path is deprecated; use #git_dir"
+    @git_dir
+  end
 
   # @param [String] remote
   # @param [String] cache_root
   def initialize(remote)
     @remote = remote
 
-    @path = File.join(settings[:cache_root], sanitized_dirname)
+    @git_dir = File.join(settings[:cache_root], sanitized_dirname)
   end
 
   def sync
-    if @synced
-      # XXX This gets really spammy. Might be good to turn it on later, but for
-      # general work it's way much.
-      #logger.debug "#{@remote} already synced this run, not syncing again"
-    else
+    if not @synced
       sync!
       @synced = true
     end
@@ -54,41 +50,35 @@ class Cache < R10K::Git::Repository
 
   def sync!
     if cached?
-      # XXX This gets really spammy. Might be good to turn it on later, but for
-      # general work it's way much.
-      #logger.debug "Updating existing cache at #{@path}"
-      git "fetch --prune", :git_dir => @path
+      fetch
     else
       logger.debug "Creating new git cache for #{@remote.inspect}"
 
+      # TODO extract this to an initialization step
       unless File.exist? settings[:cache_root]
         FileUtils.mkdir_p settings[:cache_root]
       end
 
-      git "clone --mirror #{@remote} #{@path}"
+      git ['clone', '--mirror', @remote, git_dir]
+    end
+  rescue R10K::Util::Subprocess::SubprocessError => e
+    msg = e.result.stderr.slice(/^fatal: .*$/)
+    if msg
+      raise R10K::Git::GitError, "Couldn't update git cache for #{@remote}: #{msg.inspect}"
+    else
+      raise e
     end
   end
 
   # @return [Array<String>] A list the branches for the git repository
   def branches
-    output = git "branch", :git_dir => @path
-    output.split("\n").map do |str|
-      # the `git branch` command returns output like this:
-      # <pre>
-      #   0.11.x
-      #   0.12.x
-      # * master
-      #   passenger_scoping
-      # </pre>
-      #
-      # The string index notation strips off the leading whitespace/asterisk
-      str[2..-1]
-    end
+    output = git %w[for-each-ref refs/heads --format %(refname)], :git_dir => git_dir
+    output.scan(%r[refs/heads/(.*)$]).flatten
   end
 
   # @return [true, false] If the repository has been locally cached
   def cached?
-    File.exist? @path
+    File.exist? git_dir
   end
 
   private
@@ -97,10 +87,4 @@ class Cache < R10K::Git::Repository
   def sanitized_dirname
     @remote.gsub(/[^@\w\.-]/, '-')
   end
-
-  def git_dir
-    @path
-  end
-end
-end
 end

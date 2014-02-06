@@ -22,11 +22,21 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'colored',   '>= 1.2'
   s.add_dependency 'cri',       '~> 2.4.0'
+
   s.add_dependency 'systemu',   '~> 2.5.2'
+
   s.add_dependency 'log4r',     '>= 1.1.10'
-  s.add_dependency 'json_pure'
+  s.add_dependency 'multi_json', '~> 1.8.2'
+  s.add_dependency 'json_pure',  '~> 1.8.1'
+
+  s.add_dependency 'faraday',                       '~> 0.8.8'
+  s.add_dependency 'faraday_middleware',            '~> 0.9.0'
+  s.add_dependency 'faraday_middleware-multi_json', '~> 0.0.5'
 
   s.add_development_dependency 'rspec', '~> 2.14.0'
+  s.add_development_dependency 'vcr',   '~> 2.8.0'
+
+  s.add_development_dependency 'yard', '~> 0.8.7.3'
 
   s.files        = %x[git ls-files].split($/)
   s.require_path = 'lib'

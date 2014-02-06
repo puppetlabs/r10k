@@ -1,0 +1,7 @@
+---
+default_set: 'centos-59-x64'
+sets:
+  'centos-59-x64':
+    nodes:
+      "main":
+        prefab: 'centos-59-x64'

@@ -1,11 +1,13 @@
 require 'r10k/module'
 require 'r10k/errors'
 require 'r10k/logging'
+require 'r10k/module/metadata'
+require 'r10k/util/subprocess'
+require 'r10k/module_repository/forge'
 
+require 'pathname'
 require 'fileutils'
-require 'systemu'
 require 'r10k/semver'
-require 'json'
 
 class R10K::Module::Forge < R10K::Module::Base
 
@@ -17,91 +19,156 @@ class R10K::Module::Forge < R10K::Module::Base
 
   include R10K::Logging
 
-  attr_accessor :owner, :full_name
+  # @!attribute [r] author
+  #   @return [String] The Forge module author
+  attr_reader :author
 
-  def initialize(name, basedir, args)
-    @full_name = name
+  # @deprecated
+  def owner
+    logger.warn "#{self.inspect}#owner is deprecated; use #author instead"
+    @author
+  end
+
+  # @!attribute [r] full_name
+  #   @return [String] The fully qualified module name
+  attr_reader :full_name
+
+  def initialize(full_name, basedir, args)
+    @full_name = full_name
     @basedir   = basedir
 
-    @owner, @name = name.split('/')
+    @author, @name = full_name.split('/')
+
+    @full_path = Pathname.new(File.join(@basedir, @name))
+
+    @metadata = R10K::Module::Metadata.new(@full_path + 'metadata.json')
 
     if args.is_a? String
-      @version = R10K::SemVer.new(args)
+      @expected_version = R10K::SemVer.new(args)
+    elsif args.is_a? Symbol and args == :latest
+      @expected_version = args
     end
   end
 
   def sync(options = {})
-    return if insync?
-
-    if insync?
-      #logger.debug1 "Module #{@full_name} already matches version #{@version}"
-    elsif File.exist? metadata_path
-      #logger.debug "Module #{@full_name} is installed but doesn't match version #{@version}, upgrading"
-
-      # A Pulp based puppetforge http://www.pulpproject.org/ wont support
-      # `puppet module install abc/xyz --version=v1.5.9` but puppetlabs forge
-      # will support `puppet module install abc/xyz --version=1.5.9`
-      #
-      # Removing v from the semver for constructing the command ensures
-      # compatibility across both
-      cmd = []
-      cmd << 'upgrade'
-      cmd << "--version=#{@version.to_s.sub(/^v/,'')}" if @version
-      cmd << "--ignore-dependencies"
-      cmd << @full_name
-      pmt cmd
-    else
-      FileUtils.mkdir @basedir unless File.directory? @basedir
-      #logger.debug "Module #{@full_name} is not installed"
-      cmd = []
-      cmd << 'install'
-      cmd << "--version=#{@version.to_s.sub(/^v/,'')}" if @version
-      cmd << "--ignore-dependencies"
-      cmd << @full_name
-      pmt cmd
+    case status
+    when :absent
+      install
+    when :outdated
+      upgrade
+    when :mismatched
+      reinstall
     end
   end
 
-  # @return [R10K::SemVer, NilClass]
-  def version
-    if metadata
-      R10K::SemVer.new(metadata['version'])
-    else
-      R10K::SemVer::MIN
+  # @return [R10K::SemVer] The expected version that the module
+  def expected_version
+    if @expected_version == :latest
+      set_version_from_forge
     end
+    @expected_version
+  end
+
+
+  # @return [R10K::SemVer] The version of the currently installed module
+  def current_version
+    @metadata.version
+  end
+
+  alias version current_version
+
+  def exist?
+    @full_path.exist?
   end
 
   def insync?
-    @version == version
+    status == :insync
   end
 
-  def metadata
-    @metadata = JSON.parse(File.read(metadata_path)) rescue nil
-  end
+  # Determine the status of the forge module.
+  #
+  # @return [Symbol] :absent If the directory doesn't exist
+  # @return [Symbol] :mismatched If the module is not a forge module, or
+  #   isn't the right forge module
+  # @return [Symbol] :outdated If the installed module is older than expected
+  # @return [Symbol] :insync If the module is in the desired state
+  def status
+    if not self.exist?
+      # The module is not installed
+      return :absent
+    elsif not @metadata.exist?
+      # The directory exists but doesn't have a metadata file; it probably
+      # isn't a forge module.
+      return :mismatched
+    end
 
-  def metadata_path
-    File.join(full_path, 'metadata.json')
+    # The module is present and has a metadata file, read the metadata to
+    # determine the state of the module.
+    @metadata.read
+
+    if not @author == @metadata.author
+      # This is a forge module but the installed module is a different author
+      # than the expected author.
+      return :mismatched
+    end
+
+    if expected_version && (expected_version != @metadata.version)
+      return :outdated
+    end
+
+    return :insync
   end
 
   private
 
-  def pmt(args)
-    cmd = "puppet module --modulepath '#{@basedir}' #{args.join(' ')}"
-    log_event = "puppet module #{args.join(' ')}, modulepath: #{@basedir.inspect}"
-    logger.debug1 "Execute: #{cmd}"
+  def install
+    FileUtils.mkdir @basedir unless File.directory? @basedir
+    cmd = []
+    cmd << 'install'
+    cmd << "--version=#{expected_version}" if expected_version
+    cmd << "--ignore-dependencies"
+    cmd << @full_name
+    pmt cmd
+  end
 
-    status, stdout, stderr = systemu(cmd)
+  def upgrade
+    cmd = []
+    cmd << 'upgrade'
+    cmd << "--version=#{expected_version}" if expected_version
+    cmd << "--ignore-dependencies"
+    cmd << @full_name
+    pmt cmd
+  end
 
-    logger.debug2 "[#{log_event}] STDOUT: #{stdout.chomp}" unless stdout.empty?
-    logger.debug2 "[#{log_event}] STDERR: #{stderr.chomp}" unless stderr.empty?
+  def uninstall
+    FileUtils.rm_rf full_path
+  end
 
-    unless status == 0
-      e = R10K::ExecutionFailure.new("#{cmd.inspect} returned with non-zero exit value #{status.inspect}")
-      e.exit_code = status
-      e.stdout    = stdout
-      e.stderr    = stderr
-      raise e
-    end
-    stdout
+  def reinstall
+    uninstall
+    install
+  end
+
+  # Wrap puppet module commands
+  #
+  # @param argv [Array<String>]
+  #
+  # @return [String] The stdout from the executed command
+  def pmt(argv)
+    argv = ['puppet', 'module', '--modulepath', @basedir] + argv
+
+    subproc = R10K::Util::Subprocess.new(argv)
+    subproc.raise_on_fail = true
+    subproc.logger = self.logger
+
+    result = subproc.execute
+
+    result.stdout
+  end
+
+  def set_version_from_forge
+    repo = R10K::ModuleRepository::Forge.new
+    expected = repo.latest_version(@full_name)
+    @expected_version = R10K::SemVer.new(expected)
   end
 end

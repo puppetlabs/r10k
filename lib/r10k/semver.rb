@@ -112,7 +112,7 @@ class SemVer < Numeric
   end
 
   def inspect
-    @vstring || "v#{@major}.#{@minor}.#{@tiny}#{@special}"
+    @vstring || "#{@major}.#{@minor}.#{@tiny}#{@special}"
   end
   alias :to_s :inspect
 
