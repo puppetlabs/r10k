@@ -114,7 +114,7 @@ describe R10K::Module::SVN do
       end
 
       it "removes the existing directory" do
-        expect(subject.full_path).to receive(:unlink)
+        expect(subject.full_path).to receive(:rmtree)
         allow(subject).to receive(:install)
 
         subject.sync
