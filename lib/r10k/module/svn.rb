@@ -72,7 +72,7 @@ class R10K::Module::SVN < R10K::Module::Base
   end
 
   def uninstall
-    @full_path.unlink
+    @full_path.rmtree
   end
 
   def reinstall

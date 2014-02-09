@@ -21,6 +21,8 @@ class R10K::Module::Git < R10K::Module::Base
 
     parse_options(args)
 
+    @full_path = Pathname.new(File.join(basedir, name))
+
     @working_dir = R10K::Git::WorkingDir.new(@ref, @remote, @basedir, @name)
   end
 
@@ -29,7 +31,15 @@ class R10K::Module::Git < R10K::Module::Base
   end
 
   def sync
-    @working_dir.sync
+    case status
+    when :absent
+      install
+    when :mismatched
+      uninstall
+      install
+    when :outdated
+      @working_dir.sync
+    end
   end
 
   def status
@@ -41,13 +51,21 @@ class R10K::Module::Git < R10K::Module::Base
       return :mismatched
     end
 
-    # Determine what kind of object the expected ref is. If a tag or commit,
-    # compare the expected ref to the currently checked out ref. If a head,
-    # ensure that the head can be resolved to the latest possible commit
-    # (aka update the cache) and then compare that commit to the currently
-    # checked out ref.
+    if @working_dir.outdated?
+      return :outdated
+    end
 
     return :insync
+  end
+
+  private
+
+  def install
+    @working_dir.sync
+  end
+
+  def uninstall
+    @full_path.rmtree
   end
 
   def parse_options(options)

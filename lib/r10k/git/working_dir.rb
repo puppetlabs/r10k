@@ -63,6 +63,15 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     end
   end
 
+  def update
+    if fetch?
+      fetch_from_cache
+      checkout(@ref)
+    elsif needs_checkout?
+      checkout(@ref)
+    end
+  end
+
   # Determine if repo has been cloned into a specific dir
   #
   # @return [true, false] If the repo has already been cloned
@@ -95,6 +104,10 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
   # @return [R10k::Git::Head]
   def current
     R10K::Git::Head.new('HEAD', self)
+  end
+
+  def outdated?
+    @ref.fetch? or needs_checkout?
   end
 
   private
