@@ -31,12 +31,15 @@ class R10K::Git::Repository
   # @return [String] The dereferenced hash of `pattern`
   def resolve_ref(pattern)
     commit = nil
+
+    # Try to resolve the pattern as a ref first
     begin
       all_commits = git ['show-ref', '-s', pattern], :git_dir => git_dir
       commit = all_commits.lines.first
     rescue R10K::Util::Subprocess::SubprocessError
     end
 
+    # If the given object can't be resolved as a ref, perhaps it's a commit SHA1
     if commit.nil?
       begin
         commit = git ['rev-parse', "#{ref}^{commit}"], :git_dir => git_dir
@@ -51,6 +54,28 @@ class R10K::Git::Repository
     end
   end
   alias rev_parse resolve_ref
+
+  def resolve_tag(pattern)
+    all = git ['show-ref', '--tags', '-s', pattern], :git_dir => git_dir
+    all.lines.first
+  rescue R10K::Util::Subprocess::SubprocessError
+    raise R10K::Git::UnresolvableRefError.new(:ref => pattern, :git_dir => git_dir)
+  end
+
+  def resolve_head(pattern)
+    all = git ['show-ref', '--heads', '-s', pattern], :git_dir => git_dir
+    all.lines.first
+  rescue R10K::Util::Subprocess::SubprocessError
+    raise R10K::Git::UnresolvableRefError.new(:ref => pattern, :git_dir => git_dir)
+  end
+
+  # Define the same inter
+  def resolve_commit(pattern)
+    commit = git ['rev-parse', "#{pattern}^{commit}"], :git_dir => git_dir
+    commit.chomp
+  rescue R10K::Util::Subprocess::SubprocessError
+    raise R10K::Git::UnresolvableRefError.new(:ref => pattern, :git_dir => git_dir)
+  end
 
   private
 
