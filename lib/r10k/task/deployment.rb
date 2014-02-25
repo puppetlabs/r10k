@@ -11,32 +11,39 @@ module Deployment
 
     private
 
-    def load_environments!
-      @environments = @deployment.environments.inject({}) do |hash, env|
-        hash[env.dirname] = env
-        hash
+    def active_environments(names)
+
+      active = []
+
+      all_environments = @deployment.environments
+      if names.empty?
+        active = all_environments
+      else
+        # This has average case O(N^2) but N should remain relatively small, so
+        # while this should be optimized that optimization can wait a while.
+        names.each do |env_name|
+
+          matching = all_environments.select do |env|
+            env.dirname == env_name
+          end
+
+          if matching.empty?
+            logger.warn "Environment #{env_name} not found in any source"
+            task_runner.succeeded = false
+          else
+            active.concat(matching)
+          end
+        end
       end
+
+      active.reverse
     end
 
     # @param [Array<String>] names The list of environments to deploy.
     #
-    def with_environments(names = [], &block)
-      load_environments!
-
-      # If an explicit list of environments were not given, deploy everything
-      if names.size > 0
-        to_deploy = names
-      else
-        to_deploy = @environments.keys
-      end
-
-      to_deploy.reverse.each do |env_name|
-        if (env = @environments[env_name])
-          yield env
-        else
-          logger.warn "Environment #{env_name} not found in any source"
-          task_runner.succeeded = false
-        end
+    def with_environments(names = [])
+      active_environments(names).each do |env|
+        yield env
       end
     end
   end
