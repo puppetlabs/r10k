@@ -1,6 +1,27 @@
 CHANGELOG
 =========
 
+1.1.4
+-----
+
+2014-02-24
+
+This is a backwards compatible bugfix release.
+
+### Notes
+
+  * (GH-90) Multiple environments with the same name but with different sources
+    were previously colliding and some environments were being ignored. This has
+    been fixed and all environments should be deployed when updates are run.
+
+### Thanks
+
+Thanks to the following contributors for their their extraordinary patience and
+help in for chasing down GH-90:
+
+  * Andreas Ntaflos (antaflos)
+  * Igor Galić (igalic)
+
 1.1.3
 -----
 
