@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'r10k/git'
 
 describe R10K::Git::WorkingDir do
 

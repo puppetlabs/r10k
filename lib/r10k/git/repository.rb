@@ -77,6 +77,21 @@ class R10K::Git::Repository
     raise R10K::Git::UnresolvableRefError.new(:ref => pattern, :git_dir => git_dir)
   end
 
+  # @return [Hash<String, String>] A hash of remote names and fetch URLs
+  # @api private
+  def remotes
+    output = git ['remote', '-v'], :git_dir => git_dir
+
+    ret = {}
+    output.each_line do |line|
+      next if line.match /\(push\)/
+      name, url, _ = line.split(/\s+/)
+      ret[name] = url
+    end
+
+    ret
+  end
+
   private
 
   # Fetch objects and refs from the given git remote
