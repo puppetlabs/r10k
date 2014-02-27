@@ -73,7 +73,7 @@ class R10K::Git::Cache < R10K::Git::Repository
   # @return [Array<String>] A list the branches for the git repository
   def branches
     output = git %w[for-each-ref refs/heads --format %(refname)], :git_dir => git_dir
-    output.scan(%r[refs/heads/(.*)$]).flatten
+    output.stdout.scan(%r[refs/heads/(.*)$]).flatten
   end
 
   # @return [true, false] If the repository has been locally cached

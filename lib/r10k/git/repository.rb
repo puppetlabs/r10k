@@ -30,19 +30,10 @@ class R10K::Git::Repository
   #
   # @return [String] The dereferenced hash of `pattern`
   def resolve_ref(pattern)
-    commit = nil
-    begin
-      all_commits = git ['show-ref', '-s', pattern], :git_dir => git_dir
-      commit = all_commits.lines.first
-    rescue R10K::Util::Subprocess::SubprocessError
-    end
-
-    if commit.nil?
-      begin
-        commit = git ['rev-parse', "#{ref}^{commit}"], :git_dir => git_dir
-      rescue R10K::Util::Subprocess::SubprocessError
-      end
-    end
+    commit   = resolve_tag(pattern)
+    commit ||= resolve_remote_head(pattern)
+    commit ||= resolve_head(pattern)
+    commit ||= resolve_commit(pattern)
 
     if commit
       commit.chomp
@@ -51,6 +42,55 @@ class R10K::Git::Repository
     end
   end
   alias rev_parse resolve_ref
+
+  def resolve_tag(pattern)
+    output = git ['show-ref', '--tags', '-s', pattern], :git_dir => git_dir, :raise_on_fail => false
+
+    if output.success?
+      output.stdout.lines.first
+    end
+  end
+
+  def resolve_head(pattern)
+    output = git ['show-ref', '--heads', '-s', pattern], :git_dir => git_dir, :raise_on_fail => false
+
+    if output.success?
+      output.stdout.lines.first
+    end
+  end
+
+  def resolve_remote_head(pattern, remote = 'origin')
+    pattern = "refs/remotes/#{remote}/#{pattern}"
+    output = git ['show-ref', '-s', pattern], :git_dir => git_dir, :raise_on_fail => false
+
+    if output.success?
+      output.stdout.lines.first
+    end
+  end
+
+  # Define the same interface for resolving refs.
+  def resolve_commit(pattern)
+    output = git ['rev-parse', "#{pattern}^{commit}"], :git_dir => git_dir, :raise_on_fail => false
+
+    if output.success?
+      output.stdout.chomp
+    end
+  end
+
+  # @return [Hash<String, String>] A hash of remote names and fetch URLs
+  # @api private
+  def remotes
+    output = git ['remote', '-v'], :git_dir => git_dir
+
+    ret = {}
+    output.stdout.each_line do |line|
+      next if line.match /\(push\)/
+      name, url, _ = line.split(/\s+/)
+      ret[name] = url
+    end
+
+    ret
+  end
 
   private
 
@@ -69,12 +109,15 @@ class R10K::Git::Repository
   # @option opts [String] :path
   # @option opts [String] :git_dir
   # @option opts [String] :work_tree
+  # @option opts [String] :raise_on_fail
   #
   # @raise [R10K::ExecutionFailure] If the executed command exited with a
   #   nonzero exit code.
   #
   # @return [String] The git command output
   def git(cmd, opts = {})
+    raise_on_fail = opts.fetch(:raise_on_fail, true)
+
     argv = %w{git}
 
     if opts[:path]
@@ -92,12 +135,11 @@ class R10K::Git::Repository
     argv.concat(cmd)
 
     subproc = R10K::Util::Subprocess.new(argv)
-    subproc.raise_on_fail = true
+    subproc.raise_on_fail = raise_on_fail
     subproc.logger = self.logger
 
     result = subproc.execute
 
-    # todo ensure that logging always occurs even if the command fails to run
-    result.stdout
+    result
   end
 end

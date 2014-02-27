@@ -55,11 +55,8 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
   def sync
     if not cloned?
       clone
-    elsif fetch?
-      fetch_from_cache
-      checkout(@ref)
-    elsif needs_checkout?
-      checkout(@ref)
+    else
+      update
     end
   end
 
@@ -110,6 +107,11 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     @ref.fetch? or needs_checkout?
   end
 
+  # Prefer remote heads from the 'cache' remote over the real remote
+  def resolve_remote_head(pattern, remote = 'cache')
+    super(pattern, remote)
+  end
+
   private
 
   def fetch?
@@ -136,6 +138,7 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     # that doing a normal `git pull` on a directory will work.
     git ["clone", "--reference", @cache.git_dir, @remote, @full_path]
     git ["remote", "add", "cache", @cache.git_dir], :path => @full_path
+    git ['fetch', 'cache'], :path => @full_path
     checkout(@ref)
   end
 
