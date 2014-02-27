@@ -29,7 +29,7 @@ describe R10K::Git::Cache do
     end
 
     it "lists local branches using git for-each-ref" do
-      expect(cache).to receive(:git).with(%w[for-each-ref refs/heads --format %(refname)], anything).and_return refs
+      expect(cache).to receive(:git).with(%w[for-each-ref refs/heads --format %(refname)], anything).and_return(double(:stdout => refs))
 
       expect(cache.branches).to eq %w[master next next-fetch-errors next-update-forge-modules]
     end

@@ -30,22 +30,10 @@ class R10K::Git::Repository
   #
   # @return [String] The dereferenced hash of `pattern`
   def resolve_ref(pattern)
-    commit = nil
-
-    # Try to resolve the pattern as a ref first
-    begin
-      all_commits = git ['show-ref', '-s', pattern], :git_dir => git_dir
-      commit = all_commits.lines.first
-    rescue R10K::Util::Subprocess::SubprocessError
-    end
-
-    # If the given object can't be resolved as a ref, perhaps it's a commit SHA1
-    if commit.nil?
-      begin
-        commit = git ['rev-parse', "#{ref}^{commit}"], :git_dir => git_dir
-      rescue R10K::Util::Subprocess::SubprocessError
-      end
-    end
+    commit   = resolve_tag(pattern)
+    commit ||= resolve_remote_head(pattern)
+    commit ||= resolve_head(pattern)
+    commit ||= resolve_commit(pattern)
 
     if commit
       commit.chomp
@@ -56,33 +44,37 @@ class R10K::Git::Repository
   alias rev_parse resolve_ref
 
   def resolve_tag(pattern)
-    all = git ['show-ref', '--tags', '-s', pattern], :git_dir => git_dir
-    all.lines.first
-  rescue R10K::Util::Subprocess::SubprocessError
-    raise R10K::Git::UnresolvableRefError.new(:ref => pattern, :git_dir => git_dir)
+    output = git ['show-ref', '--tags', '-s', pattern], :git_dir => git_dir, :raise_on_fail => false
+
+    if output.success?
+      output.stdout.lines.first
+    end
   end
 
   def resolve_head(pattern)
-    all = git ['show-ref', '--heads', '-s', pattern], :git_dir => git_dir
-    all.lines.first
-  rescue R10K::Util::Subprocess::SubprocessError
-    raise R10K::Git::UnresolvableRefError.new(:ref => pattern, :git_dir => git_dir)
+    output = git ['show-ref', '--heads', '-s', pattern], :git_dir => git_dir, :raise_on_fail => false
+
+    if output.success?
+      output.stdout.lines.first
+    end
   end
 
   def resolve_remote_head(pattern, remote = 'origin')
     pattern = "refs/remotes/#{remote}/#{pattern}"
-    all = git ['show-ref', pattern], :git_dir => git_dir
-    all.lines.first
-  rescue R10K::Util::Subprocess::SubprocessError
-    raise R10K::Git::UnresolvableRefError.new(:ref => pattern, :git_dir => git_dir)
+    output = git ['show-ref', '-s', pattern], :git_dir => git_dir, :raise_on_fail => false
+
+    if output.success?
+      output.stdout.lines.first
+    end
   end
 
-  # Define the same inter
+  # Define the same interface for resolving refs.
   def resolve_commit(pattern)
-    commit = git ['rev-parse', "#{pattern}^{commit}"], :git_dir => git_dir
-    commit.chomp
-  rescue R10K::Util::Subprocess::SubprocessError
-    raise R10K::Git::UnresolvableRefError.new(:ref => pattern, :git_dir => git_dir)
+    output = git ['rev-parse', "#{pattern}^{commit}"], :git_dir => git_dir, :raise_on_fail => false
+
+    if output.success?
+      output.stdout.chomp
+    end
   end
 
   # @return [Hash<String, String>] A hash of remote names and fetch URLs
@@ -91,7 +83,7 @@ class R10K::Git::Repository
     output = git ['remote', '-v'], :git_dir => git_dir
 
     ret = {}
-    output.each_line do |line|
+    output.stdout.each_line do |line|
       next if line.match /\(push\)/
       name, url, _ = line.split(/\s+/)
       ret[name] = url
@@ -148,7 +140,6 @@ class R10K::Git::Repository
 
     result = subproc.execute
 
-    # todo ensure that logging always occurs even if the command fails to run
-    result.stdout
+    result
   end
 end
