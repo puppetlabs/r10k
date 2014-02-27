@@ -21,7 +21,6 @@ class R10K::Util::Subprocess::Result
   #   @return [Integer]
   attr_reader :exit_code
 
-
   def initialize(argv, stdout, stderr, exit_code)
     @argv = argv
     @cmd = argv.join(' ')
@@ -32,5 +31,13 @@ class R10K::Util::Subprocess::Result
 
   def [](field)
     send(field)
+  end
+
+  def failed?
+    exit_code != 0
+  end
+
+  def success?
+    exit_code == 0
   end
 end
