@@ -138,6 +138,7 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     # that doing a normal `git pull` on a directory will work.
     git ["clone", "--reference", @cache.git_dir, @remote, @full_path]
     git ["remote", "add", "cache", @cache.git_dir], :path => @full_path
+    git ['fetch', 'cache'], :path => @full_path
     checkout(@ref)
   end
 
