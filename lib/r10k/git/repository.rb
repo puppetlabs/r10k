@@ -109,12 +109,15 @@ class R10K::Git::Repository
   # @option opts [String] :path
   # @option opts [String] :git_dir
   # @option opts [String] :work_tree
+  # @option opts [String] :raise_on_fail
   #
   # @raise [R10K::ExecutionFailure] If the executed command exited with a
   #   nonzero exit code.
   #
   # @return [String] The git command output
   def git(cmd, opts = {})
+    raise_on_fail = opts.fetch(:raise_on_fail, true)
+
     argv = %w{git}
 
     if opts[:path]
@@ -132,7 +135,7 @@ class R10K::Git::Repository
     argv.concat(cmd)
 
     subproc = R10K::Util::Subprocess.new(argv)
-    subproc.raise_on_fail = true
+    subproc.raise_on_fail = raise_on_fail
     subproc.logger = self.logger
 
     result = subproc.execute
