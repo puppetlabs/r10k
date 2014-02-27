@@ -110,6 +110,11 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     @ref.fetch? or needs_checkout?
   end
 
+  # Prefer remote heads from the 'cache' remote over the real remote
+  def resolve_remote_head(pattern, remote = 'cache')
+    super(pattern, remote)
+  end
+
   private
 
   def fetch?

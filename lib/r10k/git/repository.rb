@@ -69,6 +69,14 @@ class R10K::Git::Repository
     raise R10K::Git::UnresolvableRefError.new(:ref => pattern, :git_dir => git_dir)
   end
 
+  def resolve_remote_head(pattern, remote = 'origin')
+    pattern = "refs/remotes/#{remote}/#{pattern}"
+    all = git ['show-ref', pattern], :git_dir => git_dir
+    all.lines.first
+  rescue R10K::Util::Subprocess::SubprocessError
+    raise R10K::Git::UnresolvableRefError.new(:ref => pattern, :git_dir => git_dir)
+  end
+
   # Define the same inter
   def resolve_commit(pattern)
     commit = git ['rev-parse', "#{pattern}^{commit}"], :git_dir => git_dir
