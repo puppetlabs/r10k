@@ -55,11 +55,8 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
   def sync
     if not cloned?
       clone
-    elsif fetch?
-      fetch_from_cache
-      checkout(@ref)
-    elsif needs_checkout?
-      checkout(@ref)
+    else
+      update
     end
   end
 
