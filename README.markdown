@@ -26,7 +26,7 @@ those versions should be considered a bug.
 For general use, you should install r10k from Ruby gems:
 
     gem install r10k
-    r10k --help
+    r10k help
 
 ### Bundler
 
@@ -36,14 +36,14 @@ a git repository using Bundler for dependencies:
     git clone git://github.com/adrienthebo/r10k
     cd r10k
     bundle install
-    bundle exec r10k --help
+    bundle exec r10k help
 
 ### Puppet Enterprise
 
 Puppet Enterprise uses its own Ruby, so you need to use the correct version of gem when installing r10k.
 
     /opt/puppet/bin/gem install r10k
-    r10k --help
+    r10k help
 
 Common Commands
 ---------------
