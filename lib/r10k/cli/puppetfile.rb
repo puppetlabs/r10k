@@ -59,7 +59,7 @@ Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
             puppetfile_root = Dir.getwd
             puppetfile_path = ENV['PUPPETFILE_DIR']
             puppetfile      = ENV['PUPPETFILE']
-            
+
             puppetfile = R10K::Puppetfile.new(puppetfile_root, puppetfile_path, puppetfile)
             begin
               puppetfile.load
