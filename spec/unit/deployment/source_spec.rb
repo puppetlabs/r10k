@@ -21,4 +21,38 @@ describe R10K::Deployment::Source do
       subject.environments.first.dirname.should_not start_with name
     end
   end
+
+  describe 'environments' do
+
+    let(:branch1) { double(:ref => "branch1") }
+    let(:environment1) { double(:ref => "environment1") }
+    let(:branch2) { double(:ref => "branch2") }
+    let(:environment2) { double(:ref => "environment2") }
+    let(:cache)   { double(:sync => nil, :cached? => true, :branches =>  [branch1, branch2] ) }
+
+    before :each do
+      R10K::Git::Cache.stub(:generate).and_return(cache)
+    end
+
+    context 'when prefix is not set' do
+      it 'creates an environment for each git branch' do
+        R10K::Deployment::Environment.should_receive(:new).with(branch1, remote, basedir).and_return environment1
+        R10K::Deployment::Environment.should_receive(:new).with(branch2, remote, basedir).and_return environment2
+        subject = described_class.new(name, remote, basedir, false)
+        subject.environments.should  match_array [environment1, environment2]
+      end
+    end
+
+    context 'when prefix is set' do
+      it 'creates an environment for each git branch with source name set' do
+        R10K::Deployment::Environment.should_receive(:new).with(branch1, remote, basedir, nil, name).and_return environment1
+        R10K::Deployment::Environment.should_receive(:new).with(branch2, remote, basedir, nil, name).and_return environment2
+        subject = described_class.new(name, remote, basedir, true)
+        subject.environments.should  match_array [environment1, environment2]
+      end
+    end
+
+
+  end
+
 end
