@@ -24,11 +24,12 @@ describe R10K::Deployment::Source do
 
   describe 'environments' do
 
-    let(:branch1) { double(:ref => "branch1") }
+    let(:branch1) {  "master" }
     let(:environment1) { double(:ref => "environment1") }
-    let(:branch2) { double(:ref => "branch2") }
+    let(:branch2) {  "branch2" }
     let(:environment2) { double(:ref => "environment2") }
     let(:cache)   { double(:sync => nil, :cached? => true, :branches =>  [branch1, branch2] ) }
+    let(:environment_refs) { { 'master' => { 'ref' => 'stable'} } }
 
     before :each do
       R10K::Git::Cache.stub(:generate).and_return(cache)
@@ -36,8 +37,8 @@ describe R10K::Deployment::Source do
 
     context 'when prefix is not set' do
       it 'creates an environment for each git branch' do
-        R10K::Deployment::Environment.should_receive(:new).with(branch1, remote, basedir).and_return environment1
-        R10K::Deployment::Environment.should_receive(:new).with(branch2, remote, basedir).and_return environment2
+        R10K::Deployment::Environment.should_receive(:new).with(branch1, remote, basedir, nil, branch1).and_return environment1
+        R10K::Deployment::Environment.should_receive(:new).with(branch2, remote, basedir, nil, branch2).and_return environment2
         subject = described_class.new(name, remote, basedir, false)
         subject.environments.should  match_array [environment1, environment2]
       end
@@ -45,10 +46,26 @@ describe R10K::Deployment::Source do
 
     context 'when prefix is set' do
       it 'creates an environment for each git branch with source name set' do
-        R10K::Deployment::Environment.should_receive(:new).with(branch1, remote, basedir, name).and_return environment1
-        R10K::Deployment::Environment.should_receive(:new).with(branch2, remote, basedir, name).and_return environment2
+        R10K::Deployment::Environment.should_receive(:new).with(branch1, remote, basedir, name, branch1).and_return environment1
+        R10K::Deployment::Environment.should_receive(:new).with(branch2, remote, basedir, name, branch2).and_return environment2
         subject = described_class.new(name, remote, basedir, true)
         subject.environments.should  match_array [environment1, environment2]
+      end
+    end
+
+    context 'when an environment has a custom ref' do
+      it 'should construct the environment with the custom ref' do
+        R10K::Deployment::Environment.should_receive(:new).with(branch1, remote, basedir, nil, 'stable').and_return environment1
+        R10K::Deployment::Environment.should_receive(:new).with(branch2, remote, basedir, nil, branch2).and_return environment2
+        described_class.new(name, remote, basedir, false, environment_refs)
+      end
+    end
+
+    context 'when an environment has no custom refs' do
+      it 'should use the environment name as a ref' do
+        R10K::Deployment::Environment.should_receive(:new).with(branch1, remote, basedir, nil, branch1).and_return environment1
+        R10K::Deployment::Environment.should_receive(:new).with(branch2, remote, basedir, nil, branch2).and_return environment2
+        described_class.new(name, remote, basedir, false)
       end
     end
 
