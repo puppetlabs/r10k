@@ -23,19 +23,24 @@ class Environment
   #   @return [String] The directory name to use for the environment
   attr_reader :dirname
 
+  # @!attribute [r] ref
+  #   @return [String] Git ref that this environment is based on
+  attr_reader :ref
+
   # @param [String] name
   # @param [String] remote
   # @param [String] basedir
-  # @param [String] dirname The directory to clone the root into, defaults to name
   # @param [String] source_name An additional string which may be used with name to build dirname
-  def initialize(name, remote, basedir, source_name = "")
+  # @param [String] ref Optional git ref to use
+  def initialize(name, remote, basedir, source_name = nil, ref = nil)
     @name     = name
     @remote  = remote
     @basedir = basedir
-    alternate_name =  source_name.empty? ? name : source_name + "_" + name
+    alternate_name =  source_name.nil? ? name : source_name + "_" + name
     @dirname = sanitize_dirname(alternate_name)
+    @ref = ref.nil? ? name : ref
 
-    @working_dir = R10K::Git::WorkingDir.new(@name, @remote, @basedir, @dirname)
+    @working_dir = R10K::Git::WorkingDir.new(@ref, @remote, @basedir, @dirname)
 
     @full_path = File.join(@basedir, @dirname)
   end
