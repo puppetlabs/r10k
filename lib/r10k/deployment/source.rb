@@ -53,12 +53,12 @@ class Source
     new(name, remote, basedir, prefix_outcome, environment_refs)
   end
 
-  def initialize(name, remote, basedir, prefix = nil, environment_refs = {})
+  def initialize(name, remote, basedir, prefix = nil, environment_refs = nil)
     @name    = name
     @remote  = remote
     @basedir = basedir
     @prefix = prefix.nil? ? false : prefix
-    @environment_refs = environment_refs
+    @environment_refs = environment_refs.nil? ? {} : environment_refs
 
     @cache   = R10K::Git::Cache.generate(@remote)
 
