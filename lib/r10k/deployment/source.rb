@@ -97,7 +97,7 @@ class Source
     if @cache.cached?
       @environments = @cache.branches.map do |branch|
         if @prefix
-          R10K::Deployment::Environment.new(branch, @remote, @basedir, nil, @name.to_s())
+          R10K::Deployment::Environment.new(branch, @remote, @basedir, @name.to_s())
         else
           R10K::Deployment::Environment.new(branch, @remote, @basedir)
         end

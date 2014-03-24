@@ -45,8 +45,8 @@ describe R10K::Deployment::Source do
 
     context 'when prefix is set' do
       it 'creates an environment for each git branch with source name set' do
-        R10K::Deployment::Environment.should_receive(:new).with(branch1, remote, basedir, nil, name).and_return environment1
-        R10K::Deployment::Environment.should_receive(:new).with(branch2, remote, basedir, nil, name).and_return environment2
+        R10K::Deployment::Environment.should_receive(:new).with(branch1, remote, basedir, name).and_return environment1
+        R10K::Deployment::Environment.should_receive(:new).with(branch2, remote, basedir, name).and_return environment2
         subject = described_class.new(name, remote, basedir, true)
         subject.environments.should  match_array [environment1, environment2]
       end

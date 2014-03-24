@@ -12,13 +12,9 @@ describe R10K::Deployment::Environment do
     end
 
     it 'uses the ref and a provided source name in the default dirname' do
-      subject = described_class.new(ref, remote, '/tmp', nil, "the")
+      subject = described_class.new(ref, remote, '/tmp', "the")
       subject.dirname.should == 'the_master'
     end
 
-    it 'allows a specific dirname to be set' do
-      subject = described_class.new(ref, remote, '/tmp', 'sourcename_master')
-      subject.dirname.should == 'sourcename_master'
-    end
   end
 end

@@ -28,12 +28,12 @@ class Environment
   # @param [String] basedir
   # @param [String] dirname The directory to clone the root into, defaults to ref
   # @param [String] source_name An additional string which may be used with ref to build dirname
-  def initialize(ref, remote, basedir, dirname = nil, source_name = "")
+  def initialize(ref, remote, basedir, source_name = "")
     @ref     = ref
     @remote  = remote
     @basedir = basedir
     alternate_name =  source_name.empty? ? ref : source_name + "_" + ref
-    @dirname = sanitize_dirname(dirname || alternate_name)
+    @dirname = sanitize_dirname(alternate_name)
 
     @working_dir = R10K::Git::WorkingDir.new(@ref, @remote, @basedir, @dirname)
 
