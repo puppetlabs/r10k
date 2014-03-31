@@ -15,17 +15,47 @@ r10k provides a general purpose toolset for deploying Puppet environments and
 modules. It implements the [Puppetfile][librarian-puppet] format and provides a native
 implementation of Puppet [dynamic environments][workflow].
 
+Requirements
+------------
+
+Ruby versions:
+
+  * 1.8.7 (Unix platforms only)
+  * 1.9.3
+  * 2.0.0
+  * 2.1.x
+
 Installation
 ------------
 
-r10k should be compatible with Ruby 1.8.7, 1.9.3, and 2.0.0. Any issue with
-those versions should be considered a bug.
+### Puppet Module
+
+[acidprime/r10k]: https://github.com/acidprime/r10k
+
+r10k can be installed and configured using the [acidprime/r10k][acidprime/r10k]
+Puppet module. This in turn can be installed by the Puppet module tool:
+
+    `puppet module install acidprime/r10k`
+    `puppet apply -e "class { 'r10k': remote => 'git://github.com/username/puppet-modules' }"`
+
+[module-readme]: https://github.com/acidprime/r10k/blob/master/README.md
+
+For more information about the puppet r10k module, consult the project [README][module-readme].
 
 ### Rubygems
 
 For general use, you should install r10k from Ruby gems:
 
     gem install r10k
+    r10k help
+
+### Puppet Enterprise
+
+Puppet Enterprise uses its own Ruby, so you need to use the correct version of
+gem when installing r10k. Note: This is handled automatically via the r10k
+Puppet module.
+
+    /opt/puppet/bin/gem install r10k
     r10k help
 
 ### Bundler
@@ -37,13 +67,6 @@ a git repository using Bundler for dependencies:
     cd r10k
     bundle install
     bundle exec r10k help
-
-### Puppet Enterprise
-
-Puppet Enterprise uses its own Ruby, so you need to use the correct version of gem when installing r10k.
-
-    /opt/puppet/bin/gem install r10k
-    r10k help
 
 Common Commands
 ---------------
