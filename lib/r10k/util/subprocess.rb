@@ -5,7 +5,7 @@ module R10K
   module Util
 
     # The subprocess namespace implements a subset of childprocess. It has
-    # three # main differences.
+    # three main differences.
     #
     #   1. child processes invoke setsid()
     #   2. there are no dependencies on C extensions (ffi)
@@ -15,6 +15,12 @@ module R10K
       require 'r10k/util/subprocess/runner'
       require 'r10k/util/subprocess/io'
       require 'r10k/util/subprocess/result'
+
+      require 'r10k/util/subprocess/posix'
+
+      def self.runner
+        R10K::Util::Subprocess::POSIX::Runner
+      end
 
       include R10K::Logging
 
@@ -30,7 +36,7 @@ module R10K
       end
 
       def execute
-        subprocess = R10K::Util::Subprocess::Runner.new(@argv)
+        subprocess = self.class.runner.new(@argv)
         subprocess.cwd = @cwd
 
         stdout_r, stdout_w = attach_pipe(subprocess.io, :stdout, :reader)
