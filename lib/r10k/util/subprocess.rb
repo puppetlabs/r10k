@@ -1,5 +1,6 @@
 require 'r10k/logging'
 require 'r10k/errors'
+require 'r10k/util/platform'
 
 module R10K
   module Util
@@ -17,9 +18,14 @@ module R10K
       require 'r10k/util/subprocess/result'
 
       require 'r10k/util/subprocess/posix'
+      require 'r10k/util/subprocess/windows'
 
       def self.runner
-        R10K::Util::Subprocess::POSIX::Runner
+        if R10K::Util::Platform.windows?
+          R10K::Util::Subprocess::Windows::Runner
+        else
+          R10K::Util::Subprocess::POSIX::Runner
+        end
       end
 
       include R10K::Logging
