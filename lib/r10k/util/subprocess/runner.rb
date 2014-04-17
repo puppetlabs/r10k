@@ -9,11 +9,17 @@ class R10K::Util::Subprocess::Runner
 
   attr_reader :status
 
+  attr_reader :result
+
   def initialize(argv)
     raise NotImplementedError
   end
 
   def start
+    raise NotImplementedError
+  end
+
+  def run
     raise NotImplementedError
   end
 

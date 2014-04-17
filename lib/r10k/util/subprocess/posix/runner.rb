@@ -1,16 +1,28 @@
 require 'fcntl'
 
+# Implement a POSIX command runner by using fork/exec.
+#
+# This implementation is optimized to run commands in the background, and has
+# a few noteworthy implementation details.
+#
+# First off, when the child process is forked, it calls setsid() to detach from
+# the controlling TTY. This has two main ramifications: sending signals will
+# never be send to the forked process, and the forked process does not have
+# access to stdin.
+#
 # @api private
 class R10K::Util::Subprocess::POSIX::Runner < R10K::Util::Subprocess::Runner
 
   def initialize(argv)
     @argv = argv
-
     @io = R10K::Util::Subprocess::POSIX::IO.new
+
+    attach_pipes
   end
 
   def start
     exec_r, exec_w = status_pipe()
+
 
     @pid = fork do
       exec_r.close
@@ -25,6 +37,17 @@ class R10K::Util::Subprocess::POSIX::Runner < R10K::Util::Subprocess::Runner
     if @pid
       _, @status = Process.waitpid2(@pid)
     end
+
+    stdout = @stdout_r.read
+    stderr = @stderr_r.read
+
+    @result = R10K::Util::Subprocess::Result.new(@argv, stdout, stderr, @status.exitstatus)
+  end
+
+  def run
+    start
+    wait
+    @result
   end
 
   def crashed?
@@ -58,6 +81,8 @@ class R10K::Util::Subprocess::POSIX::Runner < R10K::Util::Subprocess::Runner
   end
 
   def execute_parent(exec_r)
+    @stdout_w.close
+    @stderr_w.close
 
     if not exec_r.eof?
       msg = exec_r.read || "exec() failed"
@@ -76,5 +101,13 @@ class R10K::Util::Subprocess::POSIX::Runner < R10K::Util::Subprocess::Runner
     w_pipe.fcntl(Fcntl::F_SETFD, Fcntl::FD_CLOEXEC)
 
     [r_pipe, w_pipe]
+  end
+
+  def attach_pipes
+    @stdout_r, @stdout_w = ::IO.pipe
+    @stderr_r, @stderr_w = ::IO.pipe
+
+    @io.stdout = @stdout_w
+    @io.stderr = @stderr_w
   end
 end
