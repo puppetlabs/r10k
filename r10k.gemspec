@@ -32,6 +32,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'faraday',                       '~> 0.8.8'
   s.add_dependency 'faraday_middleware',            '~> 0.9.0'
   s.add_dependency 'faraday_middleware-multi_json', '~> 0.0.5'
+  s.add_dependency 'librarian-puppet',              '~> 0.9.15'
 
   s.add_development_dependency 'rspec', '~> 2.14.0'
   s.add_development_dependency 'vcr',   '~> 2.8.0'
