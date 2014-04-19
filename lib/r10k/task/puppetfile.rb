@@ -7,25 +7,19 @@ module R10K
 module Task
 module Puppetfile
   class Sync < R10K::Task::Base
-    def initialize(puppetfile)
-      @puppetfile = puppetfile
+    def initialize(puppetfile_provider)
+      @puppetfile_provider = puppetfile_provider
     end
 
     def call
       logger.info "Loading modules from Puppetfile into queue"
-
-      @puppetfile.load
-      @puppetfile.modules.each do |mod|
-        task = R10K::Task::Module::Sync.new(mod)
-        task_runner.insert_task_after(self, task)
-      end
-
-      purge_task = Purge.new(@puppetfile)
-      task_runner.append_task purge_task
+      @puppetfile_provider.sync
     end
   end
 
   class DeployModules < R10K::Task::Base
+
+    # FIXME: DeployModules gets passed a puppetfile_provider and explodes
 
     attr_accessor :module_names
 
@@ -74,24 +68,12 @@ module Puppetfile
   end
 
   class Purge < R10K::Task::Base
-    def initialize(puppetfile)
-      @puppetfile = puppetfile
+    def initialize(puppetfile_provider)
+      @puppetfile_provider = puppetfile_provider
     end
 
     def call
-      moduledir = @puppetfile.moduledir
-
-      @puppetfile.load
-
-      stale_mods = @puppetfile.stale_contents
-
-      if stale_mods.empty?
-        logger.debug "No stale modules in #{moduledir}"
-      else
-        logger.info "Purging stale modules from #{moduledir}"
-        logger.debug "Stale modules in #{moduledir}: #{stale_mods.join(', ')}"
-        @puppetfile.purge!
-      end
+      @puppetfile_provider.purge
     end
   end
 end

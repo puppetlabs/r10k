@@ -1,7 +1,6 @@
 require 'r10k/cli'
 require 'r10k/puppetfile'
-require 'r10k/librarian_environment'
-require 'r10k/task/librarian_environment'
+require 'r10k/puppetfile_provider/factory'
 
 require 'cri'
 
@@ -37,11 +36,10 @@ Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
             puppetfile_path = ENV['PUPPETFILE_DIR']
             puppetfile      = ENV['PUPPETFILE']
 
-            #puppetfile = R10K::Puppetfile.new(puppetfile_root, puppetfile_path, puppetfile)
-            librarian_environment = R10K::LibrarianEnvironment.new(puppetfile_root)
+            puppetfile_provider = R10K::PuppetfileProvider::Factory.driver(puppetfile_root, puppetfile_path, puppetfile)
+
             runner = R10K::TaskRunner.new(opts)
-            #task   = R10K::Task::Puppetfile::Sync.new(puppetfile)
-            task = R10K::Task::LibrarianEnvironment::Install.new(librarian_environment)
+            task   = R10K::Task::Puppetfile::Sync.new(puppetfile_provider)
             runner.append_task task
 
             runner.run
@@ -91,10 +89,10 @@ Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
             puppetfile_path = ENV['PUPPETFILE_DIR']
             puppetfile      = ENV['PUPPETFILE']
 
-            puppetfile = R10K::Puppetfile.new(puppetfile_root, puppetfile_path, puppetfile)
+            puppetfile_provider = R10K::PuppetfileProvider::Factory.driver(puppetfile_root, puppetfile_path, puppetfile)
 
             runner = R10K::TaskRunner.new(opts)
-            task   = R10K::Task::Puppetfile::Purge.new(puppetfile)
+            task   = R10K::Task::Puppetfile::Purge.new(puppetfile_provider)
             runner.append_task task
 
             runner.run

@@ -21,4 +21,31 @@ describe R10K::Deployment::Environment do
       subject.dirname.should == 'sourcename_master'
     end
   end
+
+  describe '#sync' do
+
+    let(:working_dir) { double("working_dir") }
+    let(:puppetfile_provider) { double("puppetfile_provider") }
+    let(:environment) { described_class.new(ref, remote, '/tmp') }
+
+    before :each do
+      allow(R10K::Git::WorkingDir).to receive(:new).and_return working_dir
+      allow(R10K::PuppetfileProvider::Factory).to receive(:driver).and_return puppetfile_provider
+      allow(working_dir).to receive(:sync)
+    end
+
+    describe 'working dir is not cloned' do
+      it 'should sync puppetfile modules' do
+        expect(working_dir).to receive(:cloned?).and_return false
+        expect(puppetfile_provider).to receive(:sync_modules)
+        environment.sync
+      end
+    end
+    describe 'working dir is cloned' do
+      it 'should not sync puppetfile modules' do
+        expect(working_dir).to receive(:cloned?).and_return true
+        environment.sync
+      end
+    end
+  end
 end
