@@ -94,4 +94,10 @@ describe R10K::PuppetfileProvider::LibrarianPuppet do
     end
   end
 
+  describe '#sync_module' do
+    it 'should raise an error when called' do
+      expect{librarian.sync_module(module1)}.to raise_error
+    end
+  end
+
 end

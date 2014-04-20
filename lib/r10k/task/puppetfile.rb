@@ -19,8 +19,6 @@ module Puppetfile
 
   class DeployModules < R10K::Task::Base
 
-    # FIXME: DeployModules gets passed a puppetfile_provider and explodes
-
     attr_accessor :module_names
 
     def initialize(puppetfile)
@@ -29,7 +27,6 @@ module Puppetfile
 
     def call
       logger.debug "Updating module list for Puppetfile #{@puppetfile.basedir}"
-      @puppetfile.load
       load_modulemap!
 
       existing = @modulemap.keys
@@ -40,8 +37,7 @@ module Puppetfile
 
       to_deploy.each do |mod_name|
         mod = @modulemap[mod_name]
-        task = R10K::Task::Module::Sync.new(mod)
-        task_runner.insert_task_after(self, task)
+        @puppetfile.sync_module(mod)
       end
     end
 

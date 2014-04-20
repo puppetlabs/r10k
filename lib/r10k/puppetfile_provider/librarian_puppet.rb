@@ -17,6 +17,10 @@ module PuppetfileProvider
       sync
     end
 
+    def sync_module(mod)
+      raise "Librarian Puppet does not support individual module deployment"
+    end
+
     def sync
       execute_if_puppetfile_exists do
         Librarian::Action::Install.new(environment, {}).run

@@ -10,6 +10,10 @@ module PuppetfileProvider
       puppetfile.modules.each { |mod| mod.sync }
     end
 
+    def sync_module(mod)
+      mod.sync
+    end
+
     def sync
       sync_modules
       purge

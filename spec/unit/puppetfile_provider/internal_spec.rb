@@ -66,8 +66,13 @@ describe R10K::PuppetfileProvider::Internal do
       end
 
     end
+  end
 
-
+  describe '#sync_module' do
+    it 'sync the module passed into it' do
+      expect(module1).to receive(:sync)
+      internal.sync_module(module1)
+    end
   end
 
 end
