@@ -7,9 +7,12 @@ describe R10K::PuppetfileProvider::LibrarianPuppet do
   let(:environment) { double("environment", :config_db => config_db) }
   let(:config_db) { double("config_db", :local => {}) }
   let(:librarian) { described_class.new(environment_directory) }
+  let(:module1) { double('module1', :name => 'mod1', :defined_version => '1') }
+  let(:module2) { double('module2', :name => 'mod2', :defined_version => '1.3') }
 
   before :each do
     allow(Librarian::Puppet::Environment).to receive(:new).with(:pwd => environment_directory).and_return environment
+    allow(environment).to receive(:lock).and_return double('lock', :manifests => [module1, module2])
   end
 
   describe '#sync_modules' do
@@ -66,6 +69,29 @@ describe R10K::PuppetfileProvider::LibrarianPuppet do
       end
     end
 
+  end
+
+  describe '#modules' do
+    describe 'when a Puppetfile exists' do
+
+      before :each do
+        allow(File).to receive(:exists?).with("#{environment_directory}/Puppetfile").and_return true
+      end
+
+      it 'returns a list of modules' do
+        expect(librarian.modules).to match_array [module1, module2]
+      end
+      it 'has modules that have a version' do
+        expect(librarian.modules.first.version).to eql '1'
+      end
+
+    end
+    describe 'when a Puppetfile does not exist' do
+      it 'returns an empty list' do
+        allow(File).to receive(:exists?).with("#{environment_directory}/Puppetfile").and_return false
+        expect(librarian.modules).to match_array []
+      end
+    end
   end
 
 end

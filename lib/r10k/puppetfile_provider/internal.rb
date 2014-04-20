@@ -30,6 +30,11 @@ module PuppetfileProvider
       end
     end
 
+    def modules
+      puppetfile.load
+      puppetfile.modules
+    end
+
     private
 
     def puppetfile

@@ -5,8 +5,8 @@ describe R10K::PuppetfileProvider::Internal do
 
   let(:environment_directory) { '/a/dir/with/a/puppet/file' }
   let(:puppetfile) { double('puppetfile') }
-  let(:module1) { double('module1') }
-  let(:module2) { double('module2') }
+  let(:module1) { double('module1', :name => 'mod1', :version => '1') }
+  let(:module2) { double('module2', :name => 'mod2', :version => '1.3') }
   let(:internal) { described_class.new(environment_directory) }
 
   before :each do
@@ -50,6 +50,23 @@ describe R10K::PuppetfileProvider::Internal do
       end
 
     end
+
+  end
+
+  describe '#modules' do
+    describe 'when a Puppetfile exists' do
+      it 'returns a list of modules' do
+        expect(internal.modules).to match_array [module1, module2]
+      end
+    end
+    describe 'when an environment does not have a Puppetfile' do
+      it 'returns an empty list' do
+        allow(puppetfile).to receive(:modules).and_return []
+        expect(internal.modules).to match_array []
+      end
+
+    end
+
 
   end
 

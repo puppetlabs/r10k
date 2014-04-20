@@ -136,7 +136,6 @@ module Deployment
 
         if @puppetfile
           puppetfile = env.puppetfile
-          puppetfile.load
 
           puppetfile.modules.each do |mod|
             puts "    - #{mod.name} (#{mod.version})"

@@ -5,6 +5,12 @@ require 'librarian/puppet/extension' # patches Install to be non-destructive
 
 module R10K
 module PuppetfileProvider
+  module LibrarianVersion
+    def version
+      defined_version
+    end
+  end
+
   class LibrarianPuppet < Driver
 
     def sync_modules
@@ -26,6 +32,16 @@ module PuppetfileProvider
         end
       end
 
+    end
+
+    def modules
+      if puppetfile_exists?
+        environment.lock.manifests.collect do |mod|
+           mod.extend(LibrarianVersion)
+        end
+      else
+        []
+      end
     end
 
     private
