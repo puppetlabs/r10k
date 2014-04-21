@@ -89,6 +89,8 @@ module R10K
 
       class SubprocessError < R10KError
 
+        # !@attribute [r] result
+        #   @return [R10K::Util::Subprocess::Result]
         attr_reader :result
 
         def initialize(mesg = nil, options = {})

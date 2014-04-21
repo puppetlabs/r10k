@@ -1,5 +1,11 @@
 require 'open3'
 
+# Run processes on Windows.
+#
+# This implementation relies on Open3.capture3 to run commands and capture
+# results. In contrast to the POSIX runner this cannot be used in an
+# asynchronous manner as-is; implementing that will probably mean launching a
+# thread and invoking #capture3 in that thread.
 class R10K::Util::Subprocess::Windows::Runner < R10K::Util::Subprocess::Runner
 
   def initialize(argv)
