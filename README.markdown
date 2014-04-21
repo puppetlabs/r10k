@@ -18,8 +18,12 @@ implementation of Puppet [dynamic environments][workflow].
 Installation
 ------------
 
-r10k should be compatible with Ruby 1.8.7, 1.9.3, and 2.0.0. Any issue with
-those versions should be considered a bug.
+r10k supports the following Ruby versions:
+
+  - 1.8.7 (POSIX minimum version)
+  - 1.9.3 (Windows minimum version)
+  - 2.0.0
+  - 2.1.0
 
 ### Rubygems
 

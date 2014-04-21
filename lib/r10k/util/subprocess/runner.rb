@@ -1,88 +1,50 @@
-require 'fcntl'
-
+# Define an abstract interface for external command runners.
+#
 # @api private
 class R10K::Util::Subprocess::Runner
 
+  # @!attribute [rw] cwd
+  #   @return [String] The directory to be used as the cwd when executing
+  #     the command.
   attr_accessor :cwd
 
   attr_reader :io
 
   attr_reader :pid
 
+  # @!attribute [r] status
+  #   @return [Process::Status]
   attr_reader :status
 
+  # @!attribute [r] result
+  #   @return [R10K::Util::Subprocess::Result]
+  attr_reader :result
+
   def initialize(argv)
-    @argv = argv
-
-    @io = R10K::Util::Subprocess::IO.new
+    raise NotImplementedError
   end
 
+  def run
+    raise NotImplementedError
+  end
+
+  # Start the process asynchronously and return. Not all runners will implement this.
   def start
-    exec_r, exec_w = status_pipe()
-
-    @pid = fork do
-      exec_r.close
-      execute_child(exec_w)
-    end
-
-    exec_w.close
-    execute_parent(exec_r)
+    raise NotImplementedError
   end
 
+  # Wait for the process to exit. Not all runners will implement this.
   def wait
-    if @pid
-      _, @status = Process.waitpid2(@pid)
-    end
+    raise NotImplementedError
   end
 
+  # Did the given process exit with a non-zero exit code?
   def crashed?
-    exit_code != 0
+    raise NotImplementedError
   end
 
+  # @return [Integer] The exit status of the given process.
   def exit_code
-    @status.exitstatus
-  end
-
-  private
-
-  def execute_child(exec_w)
-    if @cwd
-      Dir.chdir @cwd
-    end
-
-    # Create a new session for the forked child. This prevents children from
-    # ever being the foreground process on a TTY, which is almost always what
-    # we want in r10k.
-    Process.setsid
-
-    # Reopen file descriptors
-    STDOUT.reopen(io.stdout)
-    STDERR.reopen(io.stderr)
-
-    executable = @argv.shift
-    exec([executable, executable], *@argv)
-  rescue SystemCallError => e
-    exec_w.write(e.message)
-  end
-
-  def execute_parent(exec_r)
-
-    if not exec_r.eof?
-      msg = exec_r.read || "exec() failed"
-      raise "Could not execute #{@argv.join(' ')}: #{msg}"
-    end
-  end
-
-  # Create a pipe so that the parent can verify that the child process
-  # successfully executed. The pipe will be closed on a successful exec(),
-  # and will contain an error message on failure.
-  #
-  # @return [IO, IO] The reader and writer for this pipe
-  def status_pipe
-    r_pipe, w_pipe = ::IO.pipe
-
-    w_pipe.fcntl(Fcntl::F_SETFD, Fcntl::FD_CLOEXEC)
-
-    [r_pipe, w_pipe]
+    raise NotImplementedError
   end
 end
