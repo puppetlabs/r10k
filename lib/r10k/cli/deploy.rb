@@ -51,6 +51,10 @@ scheduled. On subsequent deployments, Puppetfile deployment will default to off.
           DESCRIPTION
 
           flag :p, :puppetfile, 'Deploy modules from a puppetfile'
+          flag :h, :help, 'Show help for this command' do |value, cmd|
+            puts cmd.help
+            exit 0
+          end
 
           run do |opts, args, cmd|
             deploy = R10K::Deployment.load_config(opts[:config])
@@ -86,6 +90,11 @@ It will load the Puppetfile configurations out of all environments, and will
 try to deploy the given module names in all environments.
           DESCRIPTION
 
+          flag :h, :help, 'Show help for this command' do |value, cmd|
+            puts cmd.help
+            exit 0
+          end
+
           run do |opts, args, cmd|
             deploy = R10K::Deployment.load_config(opts[:config])
 
@@ -111,6 +120,10 @@ try to deploy the given module names in all environments.
           summary 'Display environments and modules in the deployment'
 
           flag :p, :puppetfile, 'Display Puppetfile modules'
+          flag :h, :help, 'Show help for this command' do |value, cmd|
+            puts cmd.help
+            exit 0
+          end
 
           run do |opts, args, cmd|
             deploy = R10K::Deployment.load_config(opts[:config])
