@@ -1,6 +1,25 @@
 CHANGELOG
 =========
 
+1.2.1
+-----
+
+2014/04/21
+
+### User Notes
+
+(GH-93) r10k deploy subcommands now respect the --help flag.
+
+(GH-100) The addition of a faster command execution library was POSIX centric,
+but there were a number of users that were running r10k on Windows, which brike
+their environments. Support for Windows has been re-added and Windows is now a
+supported platform for using the r10k puppetfile commands. Please note that
+r10k now requires Ruby 1.9.3 on Windows to function.
+
+### Thanks
+
+Thanks to Sam Kottler and Daniel Dreier for their their work on this release.
+
 1.2.0
 -----
 
