@@ -1,6 +1,5 @@
 require 'r10k/module'
 require 'r10k/execution'
-require 'r10k/logging'
 require 'r10k/svn/working_dir'
 
 class R10K::Module::SVN < R10K::Module::Base

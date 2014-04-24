@@ -1,5 +1,4 @@
 require 'r10k'
-require 'r10k/logging'
 require 'r10k/version'
 require 'r10k/cli/ext/logging'
 

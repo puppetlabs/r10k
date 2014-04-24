@@ -1,6 +1,5 @@
 require 'r10k/module'
 require 'r10k/errors'
-require 'r10k/logging'
 require 'r10k/module/metadata'
 require 'r10k/util/subprocess'
 require 'r10k/module_repository/forge'

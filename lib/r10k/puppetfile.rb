@@ -1,5 +1,4 @@
 require 'r10k/module'
-require 'r10k/logging'
 require 'r10k/util/purgeable'
 
 module R10K

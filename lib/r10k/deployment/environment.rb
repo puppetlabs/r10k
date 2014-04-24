@@ -1,5 +1,4 @@
 require 'r10k/module'
-require 'r10k/logging'
 
 module R10K
 class Deployment
