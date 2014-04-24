@@ -6,6 +6,10 @@ class R10K::Environment::Git < R10K::Environment::Base
 
   include R10K::Logging
 
+  # @!attribute [r] remote
+  #   @return [String] The URL to the remote git repository
+  attr_reader :remote
+
   # @!attribute [r] working_dir
   #   @api private
   #   @return [R10K::Git::WorkingDir] The git working directory backing this environment

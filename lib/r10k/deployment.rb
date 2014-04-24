@@ -27,7 +27,7 @@ class Deployment
 
   def fetch_sources
     sources.each do |source|
-      source.fetch_remote
+      source.fetch
     end
     load_environments
   end
