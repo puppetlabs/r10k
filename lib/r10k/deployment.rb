@@ -1,12 +1,14 @@
 require 'r10k'
-require 'r10k/deployment/source'
-require 'r10k/deployment/config'
-
 require 'yaml'
 
 module R10K
 class Deployment
   # Model a full installation of module directories and modules.
+
+  require 'r10k/deployment/environment'
+  require 'r10k/deployment/basedir'
+  require 'r10k/deployment/source'
+  require 'r10k/deployment/config'
 
   # Generate a deployment object based on a config
   #
