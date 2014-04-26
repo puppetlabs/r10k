@@ -8,27 +8,24 @@ class Source
   #
   # @param name [String] The name of the source
   # @param opts [Hash] The properties to use for the source
-  # @param prefix [true, false] Whether to prefix the source name to created
-  #   environments
   #
   # @option opts [String] :remote The git remote for the given source
   # @option opts [String] :basedir The directory to create environments in
   # @option opts [true, false] :prefix Whether the environment names should
-  #   be prefixed by the source name. Defaults to false. This takes precedence
-  #   over the `prefix` argument
+  #   be prefixed by the source name. Defaults to false.
   #
   # @return [R10K::Deployment::Source]
-  def self.vivify(name, attrs, prefix = false)
+  def self.vivify(name, attrs)
 
     attrs.extend R10K::Util::CoreExt::HashExt::SymbolizeKeys
     attrs.symbolize_keys!
+
     remote  = attrs.delete(:remote)
     basedir = attrs.delete(:basedir)
-    prefix_config = attrs.delete(:prefix)
-    prefix_outcome = prefix_config.nil? ? prefix : prefix_config
+    prefix  = attrs.delete(:prefix)
 
     raise ArgumentError, "Unrecognized attributes for #{self.name}: #{attrs.inspect}" unless attrs.empty?
-    new(name, remote, basedir, prefix_outcome)
+    new(name, remote, basedir, prefix)
   end
 
   def self.new(name, remote, basedir, prefix)
