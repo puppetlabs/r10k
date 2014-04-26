@@ -1,4 +1,5 @@
 require 'r10k/source'
+require 'r10k/util/core_ext/hash_ext'
 
 module R10K
 class Deployment
@@ -18,9 +19,12 @@ class Source
   #
   # @return [R10K::Deployment::Source]
   def self.vivify(name, attrs, prefix = false)
-    remote  = (attrs.delete(:remote) || attrs.delete('remote'))
-    basedir = (attrs.delete(:basedir) || attrs.delete('basedir'))
-    prefix_config = (attrs.delete(:prefix) || attrs.delete('prefix'))
+
+    attrs.extend R10K::Util::CoreExt::HashExt::SymbolizeKeys
+    attrs.symbolize_keys!
+    remote  = attrs.delete(:remote)
+    basedir = attrs.delete(:basedir)
+    prefix_config = attrs.delete(:prefix)
     prefix_outcome = prefix_config.nil? ? prefix : prefix_config
 
     raise ArgumentError, "Unrecognized attributes for #{self.name}: #{attrs.inspect}" unless attrs.empty?
