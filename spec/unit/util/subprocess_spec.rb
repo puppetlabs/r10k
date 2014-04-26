@@ -46,6 +46,10 @@ describe R10K::Util::Subprocess do
       end
 
       it "raises an exception if raise_on_fail is true" do
+        if RUBY_VERSION =~ /^2\./
+          pending "Ruby 2.x and RSpec 2.x fail when raising an exception with a custom #to_s method"
+        end
+
         subject.raise_on_fail = true
 
         allow(result).to receive(:exit_code).and_return(255)
