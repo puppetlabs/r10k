@@ -11,6 +11,7 @@ module PuppetfileProvider
     end
 
     def sync_module(mod)
+      logger.info "Deploying #{mod.name} into #{mod.basedir}"
       mod.sync
     end
 
