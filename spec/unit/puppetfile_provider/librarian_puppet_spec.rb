@@ -56,16 +56,17 @@ describe R10K::PuppetfileProvider::LibrarianPuppet do
       before :each do
         environment.config_db.local['destructive'] = 'false'
         expect(librarian).to receive(:while_destructive).and_call_original
-        expect(environment.config_db.local['destructive']).to eql 'false'
       end
 
       it 'temporarily enables destruction when #sync is called' do
         expect(librarian).to receive(:sync)
         librarian.purge
+        expect(environment.config_db.local['destructive']).to eql 'false'
       end
       it 'stays non-destructive when there is a problem calling #sync' do
         expect(librarian).to receive(:sync).and_raise Exception
         expect{librarian.purge}.to raise_error
+        expect(environment.config_db.local['destructive']).to eql 'false'
       end
     end
 
