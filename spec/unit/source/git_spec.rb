@@ -83,3 +83,13 @@ describe R10K::Source::Git, 'when prefixing is enabled' do
     end
   end
 end
+
+describe R10K::Source::Git, 'registering as a source' do
+  it "registers with the :git key" do
+    expect(R10K::Source.retrieve(:git)).to eq described_class
+  end
+
+  it "registers with the nil key" do
+    expect(R10K::Source.retrieve(nil)).to eq described_class
+  end
+end

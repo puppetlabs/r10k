@@ -4,6 +4,10 @@ require 'r10k/util/purgeable'
 
 class R10K::Source::Git < R10K::Source::Base
 
+  R10K::Source.register(:git, self)
+  # Register git as the default source
+  R10K::Source.register(nil, self)
+
   # @!attribute [r] remote
   #   @return [String] The URL to the remote git repository
   attr_reader :remote
