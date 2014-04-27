@@ -1,5 +1,4 @@
 require 'r10k/task'
-require 'r10k/task/module'
 
 require 'r10k/task_runner'
 
