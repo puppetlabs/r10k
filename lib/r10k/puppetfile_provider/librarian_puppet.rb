@@ -57,7 +57,7 @@ module PuppetfileProvider
     def while_destructive
       environment.config_db.local['destructive'] = 'true'
       yield if block_given?
-      ensure
+    ensure
         environment.config_db.local['destructive'] = 'false'
     end
 
