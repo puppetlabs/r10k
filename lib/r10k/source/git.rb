@@ -41,7 +41,7 @@ class R10K::Source::Git < R10K::Source::Base
 
     @environments = @cache.branches.map do |branch|
       dirname = dirname_for_branch(branch)
-      R10K::Environment::Git.new(@basedir, dirname, {:remote => remote, :ref => branch})
+      R10K::Environment::Git.new(branch, @basedir, dirname, {:remote => remote, :ref => branch})
     end
   end
 

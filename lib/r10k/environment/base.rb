@@ -1,5 +1,9 @@
 class R10K::Environment::Base
 
+  # @!attribute [r] name
+  #   @return [String] A name for this environment that is unique to the given source
+  attr_reader :name
+
   # @!attribute [r] basedir
   #   @return [String] The path that this environment will be created in
   attr_reader :basedir
@@ -8,7 +12,8 @@ class R10K::Environment::Base
   #   @return [String] The directory name for the given environment
   attr_reader :dirname
 
-  def initialize(basedir, dirname, options = {})
+  def initialize(name, basedir, dirname, options = {})
+    @name    = name
     @basedir = basedir
     @dirname = dirname
     @options = options
