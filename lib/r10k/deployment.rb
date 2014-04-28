@@ -1,5 +1,6 @@
-require 'r10k'
 require 'yaml'
+require 'r10k'
+require 'r10k/source'
 
 module R10K
 class Deployment
@@ -63,7 +64,7 @@ class Deployment
   def load_sources
     sources = @config.setting(:sources)
     @_sources = sources.map do |(name, hash)|
-      R10K::Deployment::Source.vivify(name, hash)
+      R10K::Source.from_hash(name, hash)
     end
   end
 
