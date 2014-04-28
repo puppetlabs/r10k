@@ -14,7 +14,7 @@ class Source
   # @option opts [true, false] :prefix Whether the environment names should
   #   be prefixed by the source name. Defaults to false.
   #
-  # @return [R10K::Deployment::Source]
+  # @return [R10K::Source::Base]
   def self.vivify(name, attrs)
 
     attrs.extend R10K::Util::CoreExt::HashExt::SymbolizeKeys

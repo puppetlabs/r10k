@@ -39,7 +39,7 @@ class Deployment
   # used directly as it could be legitimately unset if we're doing lazy
   # loading.
   #
-  # @return [Array<R10K::Deployment::Source>] All repository sources
+  # @return [Array<R10K::Source::Base>] All repository sources
   #   specified in the config
   def sources
     load_sources if @_sources.nil?
@@ -52,7 +52,7 @@ class Deployment
   # used directly as it could be legitimately unset if we're doing lazy
   # loading.
   #
-  # @return [Array<R10K::Deployment::Environment>] All enviroments across
+  # @return [Array<R10K::Environment::Base>] All enviroments across
   #   all sources
   def environments
     load_environments if @_environments.nil?
