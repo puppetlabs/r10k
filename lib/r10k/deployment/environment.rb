@@ -12,6 +12,6 @@ class R10K::Deployment::Environment
     alternate_name =  source_name.empty? ? ref : source_name + "_" + ref
     dirname = dirname || alternate_name
 
-    R10K::Environment::Git.new(basedir, ref, {:remote => remote, :ref => ref})
+    R10K::Environment::Git.new(basedir, dirname, {:remote => remote, :ref => ref})
   end
 end
