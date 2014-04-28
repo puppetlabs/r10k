@@ -10,6 +10,10 @@ class R10K::Environment::Git < R10K::Environment::Base
   #   @return [String] The URL to the remote git repository
   attr_reader :remote
 
+  # @!attribute [r] ref
+  #   @return [String] The git reference to use for this environment
+  attr_reader :ref
+
   # @!attribute [r] working_dir
   #   @api private
   #   @return [R10K::Git::WorkingDir] The git working directory backing this environment
@@ -20,7 +24,7 @@ class R10K::Environment::Git < R10K::Environment::Base
   #   @return [R10K::Puppetfile] The puppetfile instance associated with this environment
   attr_reader :puppetfile
 
-  def initialize(basedir, dirname, options = {})
+  def initialize(name, basedir, dirname, options = {})
     super
     @remote = options[:remote]
     @ref    = options[:ref]
