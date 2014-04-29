@@ -4,6 +4,8 @@ require 'r10k/util/purgeable'
 
 class R10K::Source::Git < R10K::Source::Base
 
+  include R10K::Logging
+
   R10K::Source.register(:git, self)
   # Register git as the default source
   R10K::Source.register(nil, self)
@@ -39,9 +41,20 @@ class R10K::Source::Git < R10K::Source::Base
   def load
     return unless @cache.cached?
 
-    @environments = @cache.branches.map do |branch|
-      dirname = dirname_for_branch(branch)
-      R10K::Environment::Git.new(branch, @basedir, dirname, {:remote => remote, :ref => branch})
+    branch_names.each do |bn|
+      e = nil
+      if bn.valid?
+        e = R10K::Environment::Git.new(bn.name, @basedir, bn.dirname,
+                                       {:remote => remote, :ref => bn.name})
+      elsif bn.correct?
+       logger.warn "Environment #{bn.name.inspect} contained non-word characters, correcting name to #{bn.dirname}"
+        e = R10K::Environment::Git.new(bn.name, @basedir, bn.dirname,
+                                       {:remote => remote, :ref => bn.name})
+      elsif bn.validate?
+       logger.warn "Environment #{bn.name.inspect} contained non-word characters, ignoring it."
+      end
+
+      @environments << e if e
     end
   end
 
@@ -70,14 +83,61 @@ class R10K::Source::Git < R10K::Source::Base
 
   private
 
-  # @todo branch sanitization?
-  def dirname_for_branch(branch)
-    if @prefix
-      branch_dirname = "#{@name}_#{branch}"
-    else
-      branch_dirname = branch
+  def branch_names
+    @cache.branches.map do |branch|
+
+      branch_opts = {
+        :prefix     => @prefix,
+        :sourcename => @name,
+        :validate   => true,
+        :correct    => true
+      }
+      bn = BranchName.new(branch, branch_opts)
+    end
+  end
+
+  # @api private
+  class BranchName
+
+    attr_reader :name
+
+    INVALID_CHARACTERS = %r[\W]
+
+    def initialize(name, opts)
+      @name = name
+      @opts = opts
+
+      @prefix = opts[:prefix]
+      @sourcename = opts[:sourcename]
+
+      @validate = opts[:validate]
+      @correct  = opts[:correct]
     end
 
-    branch_dirname
+    def correct?; @correct end
+    def validate?; @validate end
+
+    def valid?
+      if @validate
+        ! @name.match(INVALID_CHARACTERS)
+      else
+        true
+      end
+    end
+
+    def dirname
+      dir = @name.dup
+
+      if @prefix
+        dir = "#{@sourcename}_#{dir}"
+      end
+
+      if @correct
+        dir.gsub!(INVALID_CHARACTERS, '_')
+      end
+
+      dir
+    end
+
   end
 end
