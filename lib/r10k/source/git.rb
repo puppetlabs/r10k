@@ -109,9 +109,22 @@ class R10K::Source::Git < R10K::Source::Base
 
       @prefix = opts[:prefix]
       @sourcename = opts[:sourcename]
+      @invalid = opts[:invalid]
 
-      @validate = opts[:validate]
-      @correct  = opts[:correct]
+      case @invalid
+      when 'correct_and_warn'
+        @validate = true
+        @correct  = true
+      when 'correct'
+        @validate = false
+        @correct  = true
+      when 'error'
+        @validate = true
+        @correct  = false
+      when NilClass
+        @validate = opts[:validate]
+        @correct = opts[:correct]
+      end
     end
 
     def correct?; @correct end

@@ -95,7 +95,6 @@ describe R10K::Source::Git, 'registering as a source' do
 end
 
 describe R10K::Source::Git::BranchName do
-
   describe "prefixing" do
     it "uses the branch name as the dirname when prefixing is off" do
       bn = described_class.new('mybranch', {:prefix => false, :sourcename => 'foo'})
@@ -105,6 +104,20 @@ describe R10K::Source::Git::BranchName do
     it "prepends the source name when prefixing is on" do
       bn = described_class.new('mybranch', {:prefix => true, :sourcename => 'foo'})
       expect(bn.dirname).to eq 'foo_mybranch'
+    end
+  end
+
+  describe "determining the validate behavior with :invalid" do
+    [
+      ['correct_and_warn', {:validate => true, :correct => true}],
+      ['correct',          {:validate => false, :correct => true}],
+      ['error',            {:validate => true, :correct => false}],
+    ].each do |(setting, outcome)|
+      it "treats #{setting} as #{outcome.inspect}" do
+        bn = described_class.new('mybranch', {:invalid => setting})
+        expect(bn.validate?).to eq outcome[:validate]
+        expect(bn.correct?).to eq outcome[:correct]
+      end
     end
   end
 
