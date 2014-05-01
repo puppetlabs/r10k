@@ -1,5 +1,6 @@
 require 'r10k/module'
 require 'r10k/logging'
+require 'r10k/puppetfile_provider/factory'
 
 module R10K
 class Deployment
@@ -46,24 +47,15 @@ class Environment
 
     if recursive_needed
       logger.debug "Environment #{@full_path} is a fresh clone; automatically updating modules."
-      sync_modules
+      puppetfile.sync_modules
     end
   end
 
-  def sync_modules
-    modules.each do |mod|
-      mod.sync
-    end
-  end
 
   def puppetfile
-    @puppetfile ||= R10K::Puppetfile.new(@full_path)
+    @puppetfile ||= R10K::PuppetfileProvider::Factory.driver(@full_path)
   end
 
-  def modules
-    puppetfile.load
-    puppetfile.modules
-  end
 
   private
 

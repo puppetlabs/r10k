@@ -10,6 +10,11 @@ group(:system) do
   gem 'vagrant', :git => 'git://github.com/mitchellh/vagrant', :tag => 'v1.4.1'
 end
 
+group(:development) do
+  gem 'librarian-puppet', '~> 0.9.15'
+  gem 'puppet'
+end
+
 if File.exists? "#{__FILE__}.local"
   eval(File.read("#{__FILE__}.local"), binding)
 end
