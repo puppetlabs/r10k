@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'r10k/puppetfile_provider/librarian_puppet'
+require 'librarian/puppet'
 
 describe R10K::PuppetfileProvider::LibrarianPuppet do
 
