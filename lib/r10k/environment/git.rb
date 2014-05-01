@@ -55,25 +55,4 @@ class R10K::Environment::Git < R10K::Environment::Base
     @puppetfile.load
     @puppetfile.modules
   end
-
-  private
-
-  # Strip out non-word characters in an environment directory name
-  #
-  # Puppet can only use word characters (letter, digit, underscore) in
-  # environment names; this cleans up environment names to avoid traversals
-  # and similar issues.
-  #
-  # @param input [String] The raw branch name
-  #
-  # @return [String] The sanitized branch dirname
-  def sanitize_dirname(input)
-    output  = input.dup
-    invalid = %r[\W+]
-    if output.gsub!(invalid, '_')
-      logger.warn "Environment #{input.inspect} contained non-word characters; sanitizing to #{output.inspect}"
-    end
-
-    output
-  end
 end
