@@ -1,6 +1,7 @@
 require 'r10k/git'
 require 'r10k/environment'
 require 'r10k/util/purgeable'
+require 'r10k/util/core_ext/hash_ext'
 
 class R10K::Source::Git < R10K::Source::Base
 
@@ -19,10 +20,19 @@ class R10K::Source::Git < R10K::Source::Base
   #   @return [R10K::Git::Cache] The git cache associated with this source
   attr_reader :cache
 
+  # @!attribute [r] settings
+  #   @return [Hash<Symbol, Object>] Additional settings that configure how
+  #     the source should behave.
+  attr_reader :settings
+
   def initialize(basedir, name, options = {})
     super
 
-    @remote = options[:remote]
+    @remote   = options[:remote]
+    @settings = options[:settings] || {}
+    @settings.extend R10K::Util::CoreExt::HashExt::SymbolizeKeys
+    @settings.symbolize_keys!
+
     @cache  = R10K::Git::Cache.generate(@remote)
   end
 
@@ -39,23 +49,29 @@ class R10K::Source::Git < R10K::Source::Base
   #
   # @return [void]
   def load
-    return unless @cache.cached?
+    return [] unless @cache.cached?
+    return @environments unless @environments.empty?
 
+    @environments = generate_environments()
+  end
+
+
+  def generate_environments
+    envs = []
     branch_names.each do |bn|
-      e = nil
       if bn.valid?
-        e = R10K::Environment::Git.new(bn.name, @basedir, bn.dirname,
+        envs << R10K::Environment::Git.new(bn.name, @basedir, bn.dirname,
                                        {:remote => remote, :ref => bn.name})
       elsif bn.correct?
        logger.warn "Environment #{bn.name.inspect} contained non-word characters, correcting name to #{bn.dirname}"
-        e = R10K::Environment::Git.new(bn.name, @basedir, bn.dirname,
+        envs << R10K::Environment::Git.new(bn.name, @basedir, bn.dirname,
                                        {:remote => remote, :ref => bn.name})
       elsif bn.validate?
-       logger.warn "Environment #{bn.name.inspect} contained non-word characters, ignoring it."
+       logger.error "Environment #{bn.name.inspect} contained non-word characters, ignoring it."
       end
-
-      @environments << e if e
     end
+
+    envs
   end
 
   include R10K::Util::Purgeable
@@ -85,14 +101,11 @@ class R10K::Source::Git < R10K::Source::Base
 
   def branch_names
     @cache.branches.map do |branch|
-
-      branch_opts = {
+      BranchName.new(branch, {
         :prefix     => @prefix,
         :sourcename => @name,
-        :validate   => true,
-        :correct    => true
-      }
-      bn = BranchName.new(branch, branch_opts)
+        :invalid    => @settings.fetch(:invalid, 'correct_and_warn')
+      })
     end
   end
 

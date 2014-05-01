@@ -16,36 +16,86 @@ describe R10K::Source::Git do
     end
   end
 
-  describe "generating environments" do
-    describe "when the cache has not been created" do
-      before { allow(subject.cache).to receive(:cached?).and_return false }
-
-      it "has an empty list of environments" do
-        subject.load
-        expect(subject.environments).to be_empty
-      end
+  describe "lazily generating environments" do
+    it "returns an empty list of environments when the cache has not been created" do
+      allow(subject.cache).to receive(:cached?).and_return false
+      expect(subject.load).to be_empty
     end
 
-    describe "when the cache has been created" do
-      before do
-        allow(subject.cache).to receive(:cached?).and_return true
-        allow(subject.cache).to receive(:branches).and_return %w[master]
-        subject.load
+    it "generates environments when the cache is present and environments have not been loaded" do
+      allow(subject.cache).to receive(:cached?).and_return true
+      allow(subject).to receive(:generate_environments).and_return %w[hi]
+      expect(subject.load).to have(1).items
+    end
+
+    it "doesn't recreate environments if they have already been loaded" do
+      allow(subject.cache).to receive(:cached?).and_return true
+      allow(subject).to receive(:generate_environments).once.and_return %w[hi]
+      expect(subject.load).to have(1).items
+      expect(subject.load).to have(1).items
+    end
+  end
+
+  describe "eagerly generating environments" do
+    before do
+      allow(subject.cache).to receive(:branches).and_return %w[master]
+    end
+
+    let(:master_env) { subject.generate_environments.first }
+
+    it "creates an environment for each branch" do
+      expect(subject.generate_environments).to have(1).items
+    end
+
+    it "copies the source remote to the environment" do
+      expect(master_env.remote).to eq subject.remote
+    end
+
+    it "uses the branch name as the directory by default" do
+      expect(master_env.dirname).to eq 'master'
+    end
+  end
+end
+
+describe R10K::Source::Git, "handling invalid branch names" do
+  %w[correct_and_warn correct].each do |setting|
+    describe "when invalid is #{setting}" do
+      subject do
+        described_class.new('/some/nonexistent/dir', 'mysource', {
+          :remote   => 'https://git-server/repo.git',
+          :settings => { :invalid => setting }
+        })
       end
 
-      let(:master_env) { subject.environments.first }
+      before do
+        allow(subject.cache).to receive(:branches).and_return ['master', 'invalid-branch']
+      end
 
       it "creates an environment for each branch" do
-        expect(subject.environments).to have(1).items
+        expect(subject.generate_environments).to have(2).items
       end
 
-      it "copies the source remote to the environment" do
-        expect(master_env.remote).to eq subject.remote
+      it "removes invalid characters from branch names" do
+        invalid_env = subject.generate_environments.last
+        expect(invalid_env.dirname).to eq 'invalid_branch'
       end
+    end
+  end
 
-      it "uses the branch name as the directory by default" do
-        expect(master_env.dirname).to eq 'master'
-      end
+  describe "when invalid is 'error'" do
+    subject do
+      described_class.new('/some/nonexistent/dir', 'mysource', {
+        :remote   => 'https://git-server/repo.git',
+        :settings => { :invalid => 'error' }
+      })
+    end
+
+    before do
+      allow(subject.cache).to receive(:branches).and_return ['master', 'invalid-branch']
+    end
+
+    it "only creates an environment for valid branches" do
+      expect(subject.generate_environments).to have(1).items
     end
   end
 end
