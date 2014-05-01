@@ -1,7 +1,5 @@
 require 'r10k/puppetfile_provider/driver'
 
-require 'librarian/action/install'
-require 'librarian/puppet/extension' # patches Install to be non-destructive
 
 module R10K
 module PuppetfileProvider
@@ -12,6 +10,21 @@ module PuppetfileProvider
   end
 
   class LibrarianPuppet < Driver
+
+    def initialize(basedir, moduledir = nil, puppetfile_path = nil)
+      load_librarian_gem
+      super
+    end
+
+    def load_librarian_gem
+      begin
+        require 'puppet' # librarian bails out completely (with an `exit 1`) if Puppet cannot be loaded so try it here
+        require 'librarian/action/install'
+        require 'librarian/puppet/extension' # patches Install to be non-destructive
+      rescue LoadError
+        raise 'Install `librarian-puppet` and `puppet` Gems to use Librarian-puppet integration'
+      end
+    end
 
     def sync_modules
       sync
