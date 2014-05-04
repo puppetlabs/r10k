@@ -13,18 +13,11 @@ class R10K::Source::Base
   #     environment basedir. Defaults to false
   attr_reader :prefix
 
-  # @!attribute [r] environments
-  #   @return [Array<R10K::Environment::Base>] An array of environments
-  #     created from this source.
-  attr_reader :environments
-
   def initialize(basedir, name, options = {})
     @basedir = basedir
     @name    = name
     @prefix  = options.delete(:prefix)
     @options = options
-
-    @environments = []
   end
 
   # Perform any actions needed for loading environments that may have side
@@ -38,5 +31,11 @@ class R10K::Source::Base
   # @abstract
   def preload!
 
+  end
+
+  # @return [Array<R10K::Environment::Base>] An array of environments created
+  #   from this source.
+  def environments
+    raise NotImplementedError, "#{self.class} has not implemented method #{__method__}"
   end
 end

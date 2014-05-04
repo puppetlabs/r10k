@@ -28,6 +28,8 @@ class R10K::Source::Git < R10K::Source::Base
   def initialize(basedir, name, options = {})
     super
 
+    @environments = []
+
     @remote   = options[:remote]
     @settings = options[:settings] || {}
     @settings.extend R10K::Util::CoreExt::HashExt::SymbolizeKeys
@@ -41,20 +43,22 @@ class R10K::Source::Git < R10K::Source::Base
   # @return [void]
   def fetch
     @cache.sync
-    self.load
+    environments
   end
 
-  # Load the git remote and create environments for each branch. This requires
-  # the cache to be fetched beforehand.
+  # Load the git remote and create environments for each branch. If the cache
+  # has not been fetched, this will return an empty list.
   #
-  # @return [void]
-  def load
-    return [] unless @cache.cached?
-    return @environments unless @environments.empty?
-
-    @environments = generate_environments()
+  # @return [Array<R10K::Environment::Git>]
+  def environments
+    if not @cache.cached?
+      []
+    elsif not @environments.empty?
+      @environments
+    else
+      @environments = generate_environments()
+    end
   end
-
 
   def generate_environments
     envs = []
