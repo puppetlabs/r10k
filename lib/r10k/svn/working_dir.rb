@@ -47,7 +47,6 @@ module R10K
         svn ["info"], :cwd => @full_path
       end
 
-      include R10K::Execution
       include R10K::Logging
 
       # Wrap SVN commands
