@@ -26,4 +26,17 @@ class R10K::Source::Base
 
     @environments = []
   end
+
+  # Perform any actions needed for loading environments that may have side
+  # effects.
+  #
+  # Actions done during preloading may include things like updating caches or
+  # performing network queries. If an environment has not been preloaded but
+  # {#environments} is invoked, it should return the best known state of
+  # environments or return an empty list.
+  #
+  # @abstract
+  def preload!
+
+  end
 end
