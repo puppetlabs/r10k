@@ -38,16 +38,10 @@ class R10K::Source::SVN < R10K::Source::Base
   # @todo respect environment prefixing
   # @todo respect environment name corrections
   def generate_environments
-    paths = []
 
-    @svn_remote.branch_paths.each do |remote_path|
-      paths << remote_path
-    end
-    paths << R10K::SVN::Remote::Path.new('production', @remote, @svn_remote.trunk)
-
-    paths.map do |path|
-      R10K::Environment::SVN.new(path.name, @basedir, path.name,
-                                 { :remote => path.url })
+    branch_names.map do |branch|
+      R10K::Environment::SVN.new(branch.name, @basedir, branch.dirname,
+                                 { :remote => branch.remote })
     end
   end
 
@@ -71,4 +65,36 @@ class R10K::Source::SVN < R10K::Source::Base
   end
 
   include R10K::Logging
+
+  private
+
+  def branch_names
+    branches = []
+
+    branches << BranchName.new('production', "#{@remote}/trunk", {})
+    @svn_remote.branches.each do |branch|
+      branches << BranchName.new(branch, "#{@remote}/branches/#{branch}", {})
+    end
+
+    branches
+  end
+
+  # @api private
+  # @todo respect environment prefixing
+  # @todo respect environment name corrections
+  class BranchName
+
+    attr_reader :name
+    attr_reader :remote
+
+    def initialize(name, remote, opts)
+      @name   = name
+      @remote = remote
+      @opts   = opts
+    end
+
+    def dirname
+      @name
+    end
+  end
 end

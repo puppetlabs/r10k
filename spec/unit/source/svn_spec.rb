@@ -22,15 +22,38 @@ describe R10K::Source::SVN do
   end
 
   describe "eagerly generating environments" do
-    it "creates an environment for each branch"
-    it "copies the source remote and the sub-path to the environment"
-    it "uses the branch name as the directory by default"
+    before do
+      allow(subject.svn_remote).to receive(:branches).and_return %w[apache dns robobutler]
+    end
+
+    let(:environments) { subject.generate_environments }
+
+    it "creates an environment for each branch and the trunk" do
+      expect(environments[0].name).to eq 'production'
+      expect(environments[1].name).to eq 'apache'
+      expect(environments[2].name).to eq 'dns'
+      expect(environments[3].name).to eq 'robobutler'
+    end
+
+    it "maps trunk to production" do
+      expect(environments[0].remote).to eq 'https://svn-server.site/repo/trunk'
+    end
+
+    it "sets the remote for branch environments to subdirectories of the branches/ directory" do
+      expect(environments[1].remote).to eq 'https://svn-server.site/repo/branches/apache'
+      expect(environments[2].remote).to eq 'https://svn-server.site/repo/branches/dns'
+      expect(environments[3].remote).to eq 'https://svn-server.site/repo/branches/robobutler'
+    end
+
+    it "uses the branch name as the directory by default" do
+      expect(environments[0].name).to eq 'production'
+      expect(environments[1].name).to eq 'apache'
+      expect(environments[2].name).to eq 'dns'
+      expect(environments[3].name).to eq 'robobutler'
+    end
   end
 end
 
-# Since prefixing is an immutable property of a source, it's easier to create
-# a new context and duplicate stubs in a single location rather than packing a
-# single test with all the stubs that entirely recreate the source.
 describe R10K::Source::SVN, 'when prefixing is enabled' do
 
   describe "generating prefixed environments" do

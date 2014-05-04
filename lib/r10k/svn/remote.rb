@@ -6,22 +6,18 @@ class R10K::SVN::Remote
     @baseurl = baseurl
   end
 
+  # @todo validate that the path to trunk exists in the remote
   def trunk
     "#{@baseurl}/trunk"
   end
 
+  # @todo gracefully handle cases where no branches exist
   def branches
     text = svn ['ls', "#{@baseurl}/branches"]
     text.lines.map do |line|
       line.chomp!
       line.gsub!(%r[/$], '')
       line
-    end
-  end
-
-  def branch_paths
-    branches.map do |branch|
-      Path.new(branch, @baseurl, "branches/#{branch}")
     end
   end
 
@@ -48,30 +44,5 @@ class R10K::SVN::Remote
     result = subproc.execute
 
     result.stdout
-  end
-
-  class Path
-
-    # @!attribute [r] name
-    attr_reader :name
-
-    # @!attribute [r] baseurl
-    attr_reader :baseurl
-
-    # @!attribute [r] path
-    #   @return [String] The path to the location within the SVN repository
-    #   @example
-    #     Path.new('production', 'https://svn-server.site/repo', 'trunk')
-    attr_reader :path
-
-    def initialize(name, baseurl, path)
-      @name    = name
-      @baseurl = baseurl
-      @path    = path
-    end
-
-    def url
-      "#{@baseurl}/#{@path}"
-    end
   end
 end
