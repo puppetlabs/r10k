@@ -38,13 +38,14 @@ class R10K::Source::Git < R10K::Source::Base
     @cache  = R10K::Git::Cache.generate(@remote)
   end
 
-  # Fetch the git remote and and create environments for each branch.
+  # Update the git cache for this git source to get the latest list of environments.
   #
   # @return [void]
-  def fetch
+  def preload!
+    logger.info "Determining current branches for #{@remote.inspect}"
     @cache.sync
-    environments
   end
+  alias fetch_remote preload!
 
   # Load the git remote and create environments for each branch. If the cache
   # has not been fetched, this will return an empty list.

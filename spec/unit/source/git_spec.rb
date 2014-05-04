@@ -8,11 +8,10 @@ describe R10K::Source::Git do
                         {:remote => 'https://git-server/repo.git'})
   end
 
-  describe "fetching branches" do
-    it "fetches the git cache and loads the git environments" do
+  describe "preloading" do
+    it "fetches the git cache" do
       expect(subject.cache).to receive(:sync)
-      expect(subject).to receive(:environments)
-      subject.fetch
+      subject.preload!
     end
   end
 
