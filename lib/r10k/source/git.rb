@@ -32,7 +32,18 @@ class R10K::Source::Git < R10K::Source::Base
   #     the source should behave.
   attr_reader :settings
 
-  def initialize(basedir, name, options = {})
+  # Initialize the given source.
+  #
+  # @param name [String] The identifier for this source.
+  # @param basedir [String] The base directory where the generated environments will be created.
+  # @param options [Hash] An additional set of options for this source.
+  #
+  # @option options [Boolean] :prefix Whether to prefix the source name to the
+  #   environment directory names. Defaults to false.
+  # @option options [String] :remote The URL to the base directory of the SVN repository
+  # @option options [Hash] :remote Additional settings that configure how the
+  #   source should behave.
+  def initialize(name, basedir, options = {})
     super
 
     @environments = []

@@ -4,9 +4,18 @@ require 'r10k/source'
 describe R10K::Source::SVN do
 
   subject do
-    described_class.new('/some/nonexistent/dir', 'mysource',
+    described_class.new('mysource', '/some/nonexistent/dir',
                         {:remote => 'https://svn-server.site/repo'})
   end
+
+  it "stores the name" do
+    expect(subject.name).to eq 'mysource'
+  end
+
+  it "stores the basedir" do
+    expect(subject.basedir).to eq '/some/nonexistent/dir'
+  end
+
 
   describe "lazily generating environments" do
     it "generates environments when they have not been loaded" do
@@ -57,8 +66,8 @@ end
 describe R10K::Source::SVN, 'when prefixing is enabled' do
   subject do
     described_class.new(
-      '/some/nonexistent/dir',
       'mysource',
+      '/some/nonexistent/dir',
       {
         :remote => 'https://svn-server.site/repo',
         :prefix => true

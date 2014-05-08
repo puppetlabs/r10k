@@ -29,7 +29,7 @@ class Source
   end
 
   def self.new(name, remote, basedir, prefix)
-    R10K::Source::Git.new(basedir, name, {:prefix => prefix, :remote => remote})
+    R10K::Source::Git.new(name, basedir, {:prefix => prefix, :remote => remote})
   end
 end
 end

@@ -18,17 +18,17 @@ class R10K::Source::Base
 
   # Initialize the given source.
   #
-  # @param basedir [String] The base directory where the generated environments will be created.
   # @param name [String] The identifier for this source.
+  # @param basedir [String] The base directory where the generated environments will be created.
   # @param options [Hash] An additional set of options for this source. The
   #   semantics of this hash may depend on the source implementation.
   #
   # @option options [Boolean] :prefix Whether to prefix the source name to the
   #   environment directory names. All sources should respect this option.
   #   Defaults to false.
-  def initialize(basedir, name, options = {})
-    @basedir = basedir
+  def initialize(name, basedir, options = {})
     @name    = name
+    @basedir = basedir
     @prefix  = options.delete(:prefix)
     @options = options
   end

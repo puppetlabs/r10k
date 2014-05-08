@@ -4,8 +4,16 @@ require 'r10k/source'
 describe R10K::Source::Git do
 
   subject do
-    described_class.new('/some/nonexistent/dir', 'mysource',
+    described_class.new('mysource', '/some/nonexistent/dir',
                         {:remote => 'https://git-server/repo.git'})
+  end
+
+  it "stores the name" do
+    expect(subject.name).to eq 'mysource'
+  end
+
+  it "stores the basedir" do
+    expect(subject.basedir).to eq '/some/nonexistent/dir'
   end
 
   describe "preloading" do
@@ -105,8 +113,8 @@ end
 describe R10K::Source::Git, 'when prefixing is enabled' do
   subject do
     described_class.new(
-      '/some/nonexistent/dir',
       'prefixed',
+      '/some/nonexistent/dir',
       {
         :prefix => true,
         :remote => 'https://git-server/repo.git',
