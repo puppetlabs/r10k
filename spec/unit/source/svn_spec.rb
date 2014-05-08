@@ -46,19 +46,43 @@ describe R10K::Source::SVN do
     end
 
     it "uses the branch name as the directory by default" do
-      expect(environments[0].name).to eq 'production'
-      expect(environments[1].name).to eq 'apache'
-      expect(environments[2].name).to eq 'dns'
-      expect(environments[3].name).to eq 'robobutler'
+      expect(environments[0].dirname).to eq 'production'
+      expect(environments[1].dirname).to eq 'apache'
+      expect(environments[2].dirname).to eq 'dns'
+      expect(environments[3].dirname).to eq 'robobutler'
     end
   end
 end
 
 describe R10K::Source::SVN, 'when prefixing is enabled' do
+  subject do
+    described_class.new(
+      '/some/nonexistent/dir',
+      'mysource',
+      {
+        :remote => 'https://svn-server.site/repo',
+        :prefix => true
+      }
+    )
+  end
 
   describe "generating prefixed environments" do
-    it "creates an environment for each branch"
-    it "prefixes the source name to environments when prefixing is enabled"
+    before do
+      allow(subject.svn_remote).to receive(:branches).and_return %w[apache dns robobutler]
+    end
+
+    let(:environments) { subject.generate_environments }
+
+    it "creates an environment for each branch and the trunk" do
+      expect(environments).to have(4).items
+    end
+
+    it "prefixes the source name to environments" do
+      expect(environments[0].dirname).to eq 'mysource_production'
+      expect(environments[1].dirname).to eq 'mysource_apache'
+      expect(environments[2].dirname).to eq 'mysource_dns'
+      expect(environments[3].dirname).to eq 'mysource_robobutler'
+    end
   end
 end
 

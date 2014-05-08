@@ -35,7 +35,6 @@ class R10K::Source::SVN < R10K::Source::Base
 
   # Generate a list of currently available SVN environments
   #
-  # @todo respect environment prefixing
   # @todo respect environment name corrections
   def generate_environments
 
@@ -71,16 +70,20 @@ class R10K::Source::SVN < R10K::Source::Base
   def branch_names
     branches = []
 
-    branches << BranchName.new('production', "#{@remote}/trunk", {})
+    branch_opts = {
+      :prefix     => @prefix,
+      :sourcename => @name,
+    }
+
+    branches << BranchName.new('production', "#{@remote}/trunk", branch_opts)
     @svn_remote.branches.each do |branch|
-      branches << BranchName.new(branch, "#{@remote}/branches/#{branch}", {})
+      branches << BranchName.new(branch, "#{@remote}/branches/#{branch}", branch_opts)
     end
 
     branches
   end
 
   # @api private
-  # @todo respect environment prefixing
   # @todo respect environment name corrections
   class BranchName
 
@@ -91,10 +94,19 @@ class R10K::Source::SVN < R10K::Source::Base
       @name   = name
       @remote = remote
       @opts   = opts
+
+      @prefix = opts[:prefix]
+      @sourcename = opts[:sourcename]
     end
 
     def dirname
-      @name
+      dir = @name.dup
+
+      if @prefix
+        dir = "#{@sourcename}_#{dir}"
+      end
+
+      dir
     end
   end
 end
