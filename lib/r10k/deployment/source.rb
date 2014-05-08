@@ -14,6 +14,7 @@ class Source
   # @option opts [true, false] :prefix Whether the environment names should
   #   be prefixed by the source name. Defaults to false.
   #
+  # @deprecated
   # @return [R10K::Source::Base]
   def self.vivify(name, attrs)
 
