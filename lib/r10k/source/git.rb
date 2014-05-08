@@ -3,6 +3,13 @@ require 'r10k/environment'
 require 'r10k/util/purgeable'
 require 'r10k/util/core_ext/hash_ext'
 
+# This class implements a source for Git environments.
+#
+# A Git source generates environments by locally caching the given Git
+# repository and enumerating the branches for the Git repository. Branches
+# are mapped to environments without modification.
+#
+# @since 1.3.0
 class R10K::Source::Git < R10K::Source::Base
 
   include R10K::Logging

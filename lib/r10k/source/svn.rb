@@ -3,6 +3,17 @@ require 'r10k/environment'
 require 'r10k/util/purgeable'
 require 'r10k/util/core_ext/hash_ext'
 
+# This class implements a source for SVN environments.
+#
+# An SVN source generates environments by enumerating the branches and trunk
+# for a given SVN remote. SVN repositories must conform to the conventional
+# SVN repository structure with the directories trunk/, branches/, and
+# optionally tags/ in the root of the repository. The trunk/ directory is
+# specifically mapped to the production environment, branches are created
+# as environments with the name of the given branch.
+#
+# @see http://svnbook.red-bean.com/en/1.7/svn.branchmerge.maint.html
+# @since 1.3.0
 class R10K::Source::SVN < R10K::Source::Base
 
   R10K::Source.register(:svn, self)
@@ -16,6 +27,15 @@ class R10K::Source::SVN < R10K::Source::Base
   #   @return [R10K::SVN::Remote]
   attr_reader :svn_remote
 
+  # Initialize the given source.
+  #
+  # @param basedir [String] The base directory where the generated environments will be created.
+  # @param name [String] The identifier for this source.
+  # @param options [Hash] An additional set of options for this source.
+  #
+  # @option options [Boolean] :prefix Whether to prefix the source name to the
+  #   environment directory names. Defaults to false.
+  # @option options [String] :remote The URL to the base directory of the SVN repository
   def initialize(basedir, name, options = {})
     super
 
@@ -25,6 +45,10 @@ class R10K::Source::SVN < R10K::Source::Base
     @svn_remote = R10K::SVN::Remote.new(@remote)
   end
 
+  # Enumerate the environments associated with this SVN source.
+  #
+  # @return [Array<R10K::Environment::SVN>] An array of environments created
+  #   from this source.
   def environments
     if @environments.empty?
       @environments = generate_environments()
@@ -36,6 +60,10 @@ class R10K::Source::SVN < R10K::Source::Base
   # Generate a list of currently available SVN environments
   #
   # @todo respect environment name corrections
+  #
+  # @api protected
+  # @return [Array<R10K::Environment::SVN>] An array of environments created
+  #   from this source.
   def generate_environments
 
     branch_names.map do |branch|
