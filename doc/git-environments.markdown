@@ -1,8 +1,9 @@
-Dynamic Environments
-====================
+Git Based Dynamic Environments
+==============================
 
-r10k implements the dynamic environment workflow with Puppet. This allows you to
-create, modify, and remove Puppet environments on the fly with Git branches.
+r10k can use Git repositories to implement dynamic environments. You can create,
+update, and delete Puppet environments automatically as part of your normal Git
+workflow.
 
 Dynamic Environments in a nutshell
 ----------------------------------
