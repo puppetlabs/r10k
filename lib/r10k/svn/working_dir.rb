@@ -1,4 +1,3 @@
-require 'r10k/logging'
 require 'r10k/util/subprocess'
 
 module R10K

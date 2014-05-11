@@ -1,12 +1,15 @@
-require 'r10k'
-require 'r10k/deployment/source'
-require 'r10k/deployment/config'
-
 require 'yaml'
+require 'r10k'
+require 'r10k/source'
 
 module R10K
 class Deployment
   # Model a full installation of module directories and modules.
+
+  require 'r10k/deployment/environment'
+  require 'r10k/deployment/basedir'
+  require 'r10k/deployment/source'
+  require 'r10k/deployment/config'
 
   # Generate a deployment object based on a config
   #
@@ -25,7 +28,7 @@ class Deployment
 
   def fetch_sources
     sources.each do |source|
-      source.fetch_remote
+      source.fetch
     end
     load_environments
   end
@@ -36,7 +39,7 @@ class Deployment
   # used directly as it could be legitimately unset if we're doing lazy
   # loading.
   #
-  # @return [Array<R10K::Deployment::Source>] All repository sources
+  # @return [Array<R10K::Source::Base>] All repository sources
   #   specified in the config
   def sources
     load_sources if @_sources.nil?
@@ -49,7 +52,7 @@ class Deployment
   # used directly as it could be legitimately unset if we're doing lazy
   # loading.
   #
-  # @return [Array<R10K::Deployment::Environment>] All enviroments across
+  # @return [Array<R10K::Environment::Base>] All enviroments across
   #   all sources
   def environments
     load_environments if @_environments.nil?
@@ -61,7 +64,7 @@ class Deployment
   def load_sources
     sources = @config.setting(:sources)
     @_sources = sources.map do |(name, hash)|
-      R10K::Deployment::Source.vivify(name, hash)
+      R10K::Source.from_hash(name, hash)
     end
   end
 

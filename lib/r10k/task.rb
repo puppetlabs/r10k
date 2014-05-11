@@ -1,5 +1,3 @@
-require 'r10k/logging'
-
 module R10K
 module Task
   class Base

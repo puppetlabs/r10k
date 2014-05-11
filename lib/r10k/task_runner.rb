@@ -1,5 +1,4 @@
 require 'r10k/task'
-require 'r10k/logging'
 
 module R10K
 class TaskRunner

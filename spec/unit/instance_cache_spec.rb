@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-require 'r10k/registry'
+require 'r10k/instance_cache'
 
-describe R10K::Registry do
+describe R10K::InstanceCache do
 
-  describe "setting up a new registry" do
+  describe "setting up a new instance cache" do
     let(:klass) do
       dubs = double('test class')
       allow(dubs).to receive(:new) { |*args| args }
