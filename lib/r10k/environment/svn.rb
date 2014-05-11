@@ -1,25 +1,20 @@
-require 'r10k/logging'
 require 'r10k/puppetfile'
-require 'r10k/git/working_dir'
+require 'r10k/svn/working_dir'
 
-# This class implements an environment based on a Git branch.
+# This class implements an environment based on an SVN branch.
 #
 # @since 1.3.0
-class R10K::Environment::Git < R10K::Environment::Base
+class R10K::Environment::SVN < R10K::Environment::Base
 
   include R10K::Logging
 
   # @!attribute [r] remote
-  #   @return [String] The URL to the remote git repository
+  #   @return [String] The URL to the remote SVN branch to check out
   attr_reader :remote
-
-  # @!attribute [r] ref
-  #   @return [String] The git reference to use for this environment
-  attr_reader :ref
 
   # @!attribute [r] working_dir
   #   @api private
-  #   @return [R10K::Git::WorkingDir] The git working directory backing this environment
+  #   @return [R10K::SVN::WorkingDir] The SVN working directory backing this environment
   attr_reader :working_dir
 
   # @!attribute [r] puppetfile
@@ -34,18 +29,17 @@ class R10K::Environment::Git < R10K::Environment::Base
   # @param dirname [String] The directory name for this environment.
   # @param options [Hash] An additional set of options for this environment.
   #
-  # @param options [String] :remote The URL to the remote git repository
-  # @param options [String] :ref The git reference to use for this environment
+  # @param options [String] :remote The URL to the remote SVN branch to check out
   def initialize(name, basedir, dirname, options = {})
     super
-    @remote = options[:remote]
-    @ref    = options[:ref]
 
-    @working_dir = R10K::Git::WorkingDir.new(@ref, @remote, @basedir, @dirname)
+    @remote = options[:remote]
+
+    @working_dir = R10K::SVN::WorkingDir.new(Pathname.new(@full_path))
     @puppetfile  = R10K::Puppetfile.new(@full_path)
   end
 
-  # Clone or update the given Git environment.
+  # Perform an initial checkout of the SVN repository or update the repository.
   #
   # If the environment is being created for the first time, it will
   # automatically update all modules to ensure that the environment is complete.
@@ -53,20 +47,12 @@ class R10K::Environment::Git < R10K::Environment::Base
   # @api public
   # @return [void]
   def sync
-    recursive_needed = !(@working_dir.cloned?)
-    @working_dir.sync
-
-    if recursive_needed
+    if @working_dir.is_svn?
+      @working_dir.update
+    else
+      @working_dir.checkout(@remote)
       logger.debug "Environment #{@full_path} is a fresh clone; automatically updating modules."
       sync_modules
-    end
-  end
-
-  # @api private
-  def sync_modules
-    modules.each do |mod|
-      logger.debug "Deploying module #{mod.name}"
-      mod.sync
     end
   end
 
@@ -75,5 +61,13 @@ class R10K::Environment::Git < R10K::Environment::Base
   def modules
     @puppetfile.load
     @puppetfile.modules
+  end
+
+  # @api private
+  def sync_modules
+    modules.each do |mod|
+      logger.debug "Deploying module #{mod.name}"
+      mod.sync
+    end
   end
 end

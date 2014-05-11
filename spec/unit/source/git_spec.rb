@@ -4,35 +4,42 @@ require 'r10k/source'
 describe R10K::Source::Git do
 
   subject do
-    described_class.new('/some/nonexistent/dir', 'mysource',
+    described_class.new('mysource', '/some/nonexistent/dir',
                         {:remote => 'https://git-server/repo.git'})
   end
 
-  describe "fetching branches" do
-    it "fetches the git cache and loads the git environments" do
+  it "stores the name" do
+    expect(subject.name).to eq 'mysource'
+  end
+
+  it "stores the basedir" do
+    expect(subject.basedir).to eq '/some/nonexistent/dir'
+  end
+
+  describe "preloading" do
+    it "fetches the git cache" do
       expect(subject.cache).to receive(:sync)
-      expect(subject).to receive(:load)
-      subject.fetch
+      subject.preload!
     end
   end
 
   describe "lazily generating environments" do
     it "returns an empty list of environments when the cache has not been created" do
       allow(subject.cache).to receive(:cached?).and_return false
-      expect(subject.load).to be_empty
+      expect(subject.environments).to be_empty
     end
 
     it "generates environments when the cache is present and environments have not been loaded" do
       allow(subject.cache).to receive(:cached?).and_return true
       allow(subject).to receive(:generate_environments).and_return %w[hi]
-      expect(subject.load).to have(1).items
+      expect(subject.environments).to have(1).items
     end
 
     it "doesn't recreate environments if they have already been loaded" do
       allow(subject.cache).to receive(:cached?).and_return true
       allow(subject).to receive(:generate_environments).once.and_return %w[hi]
-      expect(subject.load).to have(1).items
-      expect(subject.load).to have(1).items
+      expect(subject.environments).to have(1).items
+      expect(subject.environments).to have(1).items
     end
   end
 
@@ -106,8 +113,8 @@ end
 describe R10K::Source::Git, 'when prefixing is enabled' do
   subject do
     described_class.new(
-      '/some/nonexistent/dir',
       'prefixed',
+      '/some/nonexistent/dir',
       {
         :prefix => true,
         :remote => 'https://git-server/repo.git',
@@ -118,7 +125,6 @@ describe R10K::Source::Git, 'when prefixing is enabled' do
     before do
       allow(subject.cache).to receive(:cached?).and_return true
       allow(subject.cache).to receive(:branches).and_return %w[master other]
-      subject.load
     end
 
     let(:environments) { subject.environments }

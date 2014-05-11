@@ -67,8 +67,7 @@ module Deployment
     end
 
     def call
-      logger.info "Loading environments from all sources"
-      @deployment.fetch_sources
+      @deployment.preload!
 
       with_environments(@environment_names) do |env|
         task = R10K::Task::Environment::Deploy.new(env)

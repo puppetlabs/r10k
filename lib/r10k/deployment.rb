@@ -22,16 +22,12 @@ class Deployment
 
   def initialize(config)
     @config = config
-
-    load_environments
   end
 
-  def fetch_sources
-    sources.each do |source|
-      source.fetch
-    end
-    load_environments
+  def preload!
+    sources.each(&:preload!)
   end
+  alias fetch_sources preload!
 
   # Lazily load all sources
   #

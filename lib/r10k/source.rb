@@ -29,10 +29,11 @@ module R10K
       type = hash.delete(:type)
       type = type.is_a?(String) ? type.to_sym : type
 
-      generate(type, basedir, name, hash)
+      generate(type, name, basedir, hash)
     end
 
     require 'r10k/source/base'
     require 'r10k/source/git'
+    require 'r10k/source/svn'
   end
 end

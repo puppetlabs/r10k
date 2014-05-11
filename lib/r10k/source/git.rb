@@ -3,6 +3,13 @@ require 'r10k/environment'
 require 'r10k/util/purgeable'
 require 'r10k/util/core_ext/hash_ext'
 
+# This class implements a source for Git environments.
+#
+# A Git source generates environments by locally caching the given Git
+# repository and enumerating the branches for the Git repository. Branches
+# are mapped to environments without modification.
+#
+# @since 1.3.0
 class R10K::Source::Git < R10K::Source::Base
 
   include R10K::Logging
@@ -25,8 +32,21 @@ class R10K::Source::Git < R10K::Source::Base
   #     the source should behave.
   attr_reader :settings
 
-  def initialize(basedir, name, options = {})
+  # Initialize the given source.
+  #
+  # @param name [String] The identifier for this source.
+  # @param basedir [String] The base directory where the generated environments will be created.
+  # @param options [Hash] An additional set of options for this source.
+  #
+  # @option options [Boolean] :prefix Whether to prefix the source name to the
+  #   environment directory names. Defaults to false.
+  # @option options [String] :remote The URL to the base directory of the SVN repository
+  # @option options [Hash] :remote Additional settings that configure how the
+  #   source should behave.
+  def initialize(name, basedir, options = {})
     super
+
+    @environments = []
 
     @remote   = options[:remote]
     @settings = options[:settings] || {}
@@ -36,25 +56,28 @@ class R10K::Source::Git < R10K::Source::Base
     @cache  = R10K::Git::Cache.generate(@remote)
   end
 
-  # Fetch the git remote and and create environments for each branch.
+  # Update the git cache for this git source to get the latest list of environments.
   #
   # @return [void]
-  def fetch
+  def preload!
+    logger.info "Determining current branches for #{@remote.inspect}"
     @cache.sync
-    self.load
   end
+  alias fetch_remote preload!
 
-  # Load the git remote and create environments for each branch. This requires
-  # the cache to be fetched beforehand.
+  # Load the git remote and create environments for each branch. If the cache
+  # has not been fetched, this will return an empty list.
   #
-  # @return [void]
-  def load
-    return [] unless @cache.cached?
-    return @environments unless @environments.empty?
-
-    @environments = generate_environments()
+  # @return [Array<R10K::Environment::Git>]
+  def environments
+    if not @cache.cached?
+      []
+    elsif not @environments.empty?
+      @environments
+    else
+      @environments = generate_environments()
+    end
   end
-
 
   def generate_environments
     envs = []
