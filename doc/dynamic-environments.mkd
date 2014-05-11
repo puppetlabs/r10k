@@ -15,3 +15,10 @@ Table of contents
   * [Usage](dynamic-environments/usage/) A reference of r10k commands and how
     they're used.
 
+- - -
+
+Community guides
+----------------
+
+  * [Building a Functional Puppet Workflow Part 3: Dynamic Environments with R10k](http://garylarizza.com/blog/2014/02/18/puppet-workflow-part-3/)
+  * [Puppet Infrastructure with r10k](http://terrarum.net/blog/puppet-infrastructure-with-r10k.html)
