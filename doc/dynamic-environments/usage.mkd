@@ -1,0 +1,75 @@
+Usage
+=====
+
+R10k provides fairly fine grained controls over your environments to fit your
+needs. If you want to do a full update of all of your environments and modules
+and don't need it to be done in real time, you can trigger a full update and let
+it run in the background. If you are actively developing code and need to run
+very fast updates of one specific environment, you can do a targeted update of
+that code as well.
+
+All commands that deal with deploying environments are grouped under the `r10k
+deploy` subcommand.
+
+Command line invocation
+-----------------------
+
+### Deploying environments
+
+Recursively update all environments:
+
+    r10k deploy environment --puppetfile
+
+The simplest way to use r10k is by simply updating all environments and modules
+and takes the brute force approach of "update everything, ever." When this
+command is run r10k will update all sources, create new environments and delete
+old environments, and recursively update all environment modules specified in
+environment Puppetfiles. While this is the simplest method for running r10k, is
+is also the slowest by a very large degree because it does the maximum possible
+work. This should not be something you run interactively, or use on a regular
+basis.
+
+- - -
+
+Update environments while avoiding unnecessary recursion
+
+    r10k deploy environment
+
+This will update existing environments and recursively create new environments.
+Note that when an environment is deployed for the first time, it will
+automatically update all modules as well. For subsequent updates only the
+environment itself will be updated.
+
+- - -
+
+Update a single environment:
+
+    r10k deploy environment my_working_environment
+
+When you're actively developing on a given environment, this is the best way to
+deploy your changes. Note that when an environment is deployed for the first
+time, it will automatically update all modules as well. For subsequent updates
+only the environment itself will be updated.
+
+- - -
+
+Update a single environment and force an update of modules:
+
+    r10k deploy environment my_working_environment --puppetfile
+
+This will update the given environment and update all contained modules. This is
+useful if you want to make sure that a given environment is fully up to date.
+
+### Deploying modules
+
+Update a single module across all environments
+
+    r10k deploy module apache
+
+This is useful for when you're working on a module specified in a Puppetfile and want to update it across all environments.
+
+- - -
+
+Update multiple modules across all environments
+
+    r10k deploy module apache jenkins java
