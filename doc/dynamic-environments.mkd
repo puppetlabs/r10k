@@ -1,0 +1,17 @@
+Dynamic Environments
+====================
+
+Dynamic environment deployment is the core functionality of r10k.
+
+Table of contents
+-----------------
+
+  * [Introduction](dynamic-environments/introduction/): A brief description of
+    what dynamic environments are and how they work.
+  * [Git environments](dynamic-environments/git-environments/) How r10k
+    implements dynamic environments using git
+  * [Configuration](dynamic-environments/configuration/) A reference of dynamic
+    environment configuration options and how they're used
+  * [Usage](dynamic-environments/usage/) A reference of r10k commands and how
+    they're used.
+
