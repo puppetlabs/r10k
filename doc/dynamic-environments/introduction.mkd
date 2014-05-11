@@ -1,0 +1,70 @@
+Dynamic Environments
+====================
+
+One of the most important functions of r10k is its ability to dynamically manage
+your Puppet environments.
+
+When environments were originally built into Puppet they were meant to be static
+in nature. Each environment had to be defined beforehand in the master's
+puppet.conf file in a section, like so:
+
+```ini
+[master]
+# Environment independent settings
+vardir = '/var/lib/puppet'
+
+[production]
+modulepath = '/etc/puppet/environments/production/modules'
+
+[testing]
+modulepath = '/etc/puppet/environments/testing/modules'
+
+[development]
+modulepath = '/etc/puppet/environments/development/modules'
+```
+
+Static Puppet environments were frequently used to implement a pipeline for
+developing Puppet code. New Puppet code would be developed and deployed to the
+development environment, pushed to testing for validation, and then finally
+pushed to the production for general deployment.
+
+This static nature of Puppet environments turned out to be inflexible in
+practice. With a predefined list of environments it could be very cumbersome to
+develop on different parts of a Puppet codebase in isolation; you could either
+develop multiple features in the same environment and risk cross pollution, or
+manually create new environments every time you needed isolation.
+
+Dynamic environments work by dynamically determining the settings for Puppet
+environment when the environment is used, rather than by defining an explicit
+section in puppet.conf. This works by making the current environment (in the
+'$environment' variable) part of of the path to environment specific settings,
+like modulepath, manifest, and so forth.
+
+```ini
+[master]
+vardir = '/var/lib/puppet'
+modulepath = '/etc/puppet/environments/$environment/modules'
+```
+
+Running `puppet agent -t --environment myenv` will cause $environment to be
+expanded to 'myenv', so the modulepath for that environment will be set to 
+'/etc/puppet/environments/myenv/modules'.
+
+This approach of allowing environments to be defined on the fly is a complete
+reversal of the original architecture of environments. This approach means that
+it can be very easy to create new environments, update existing environments,
+and remove environments that aren't needed anymore. It's common practice
+to create a temporary environment to test an idea and destroy it shortly after.
+R10k is designed to enable this sort of fluid workflow.
+
+R10k predominantly uses version control systems to implement dynamic
+environments. This works by inspecting the VCS repositories containing your
+Puppet code and checking out that code on your masters so, that there's a 1:1
+connection between a branch in your VCS repository and a Puppet environment on
+your masters. This approach allows you to define the way you want to work and
+use that with your chosen VCS, and r10k will make Puppet implement that
+workflow.
+
+Different version control systems will implement dynamic environments in
+slightly different ways; check out the VCS specific documentation for more
+information.

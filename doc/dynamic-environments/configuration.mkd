@@ -1,0 +1,177 @@
+Dynamic Environment Configuration
+=================================
+
+r10k uses a configuration file to determine how dynamic environments should be
+deployed.
+
+Config file location
+--------------------
+
+By default r10k will try to read `/etc/r10k.yaml` for configuration settings.
+You can specify an alternate configuration file by specifying the `--config`
+option, like so:
+
+    r10k deploy -c /srv/puppet/r10k.yaml
+
+General options
+---------------
+
+### cachedir
+
+The 'cachedir' setting specifies where r10k should keep cached information.
+Right now this is predominantly used for caching git repositories but will be
+expanded as other subsystems can take advantage of caching.
+
+For example:
+
+```yaml
+---
+# Store all cache information in /var/cache
+cachedir: '/var/cache/r10k'
+```
+
+[prerun_command](http://docs.puppetlabs.com/references/latest/configuration.html#preruncommand)
+
+The cachedir setting defaults to `~/.r10k'. If the HOME environment variable is
+unset r10k will assume that r10k is being run with the Puppet [`prerun_command`][prerun_command]
+setting and will set the cachedir default to `/root/.r10k`.
+
+Deployment options
+------------------
+
+The following options configure how r10k deploys dynamic environments.
+
+### sources
+
+The `sources` setting specifies what repositories should be used for creating
+dynamic environments.  It is a hash where each key is the short name of a
+specific repository (for instance, "qa" or "web" or "ops") and the value is a
+hash of properties for that source.
+
+```yaml
+---
+sources:
+  main:
+    # Source settings follow
+```
+
+Source options
+--------------
+
+The following options are respected by all source implementations. Sources may
+implement other options in addition to the ones listed below; see the source
+specific documentation for more information.
+
+### remote
+
+The 'remote' setting specifies where the source repository should be fetched
+from. It may be any valid URL that the source may check out or clone. The remote
+must be able to be fetched without any interactive input, eg usernames or
+passwords cannot be prompted for in order to fetch the remote.
+
+```
+---
+sources:
+  mysource:
+    remote: 'git://git-server.site/my-org/main-modules'
+```
+
+### basedir
+
+The 'basedir' setting specifies where environments will be created for this
+source.  This directory will be entirely managed by r10k and any contents that
+r10k did not put there will be _removed_.
+
+```yaml
+---
+sources:
+  mysource:
+    basedir: '/etc/puppet/environments'
+```
+
+R10k will not check to make sure that different sources collide in a single base
+directory; if you are using multiple sources you are responsible for making sure
+that they do not overwrite each other. See also the prefix setting.
+
+### prefix
+
+The prefix setting allows environment names to be prefixed with the short name
+of the given source. This prevents collisions when multiple sources are deployed
+into the same directory.
+
+```yaml
+---
+sources:
+  mysource:
+    basedir: '/etc/puppet/environments'
+    prefix: true # All environments will be prefixed with "mysource_"
+```
+
+Examples
+--------
+
+### Minimal example
+
+The majority of users will only have a single repository where all modules and
+hiera data files are kept. In this case you will specify a single source:
+
+```yaml
+---
+sources:
+  operations:
+    remote: 'git://git-server.site/my-org/org-modules'
+    basedir: '/etc/puppet/environments'
+```
+
+### Separate hiera data
+
+For more complex cases where you want to store hiera data in a different
+repository and your modules in another repository, you can specify two sources:
+
+```yaml
+---
+sources:
+  operations:
+    remote: 'git://git-server.site/my-org/org-modules'
+    basedir: '/etc/puppet/environments'
+  hiera:
+    remote: 'git://git-server.site/my-org/org-hiera-data'
+    basedir: '/etc/puppet/hiera-data'
+```
+
+### Multiple tenancy
+
+Alternately you may want to create separate environments from multiple
+repositories. This is useful when you want two groups to be able to deploy
+Puppet modules but they should only have write access to their own modules and
+not the modules of other groups.
+
+```yaml
+---
+sources:
+  main:
+    remote: 'git://git-server.site/my-org/main-modules'
+    basedir: '/etc/puppet/environments'
+    prefix: false # Prefix defaults to false so this is only here for clarity
+  qa:
+    remote: 'git://git-server.site/my-org/qa-puppet-modules'
+    basedir: '/etc/puppet/environments'
+    prefix: true
+  dev:
+    remote: 'git://git-server.site/my-org/dev-puppet-modules'
+    basedir: '/etc/puppet/environments'
+    prefix: true
+```
+
+This will create the following directory structure:
+
+```
+/etc/puppet/environments
+|-- production       # main-modules repository, production branch
+|-- upgrade_apache   # main-modules repository, upgrade_apache branch
+|-- qa_production    # qa repository, production branch
+|-- qa_jenkins_test  # qa repository, jenkins_test branch
+|-- dev_production   # dev repository, production branch
+`-- dev_loadtest     # dev repository, loadtest branch
+```
+
