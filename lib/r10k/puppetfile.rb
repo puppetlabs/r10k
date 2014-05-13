@@ -59,7 +59,11 @@ class Puppetfile
 
   # @param [String] moduledir
   def set_moduledir(moduledir)
-    @moduledir = moduledir
+    if moduledir[0] != 47   # ASCII for '/' (adds $basedir if not absolute path)
+      @moduledir = File.join(@basedir, moduledir)
+    else
+      @moduledir = moduledir
+    end
   end
 
   # @param [String] name
