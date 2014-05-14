@@ -28,13 +28,15 @@ class Environment
   # @param [String] basedir
   # @param [String] dirname The directory to clone the root into, defaults to ref
   # @param [String] source_name An additional string which may be used with ref to build dirname
-  def initialize(ref, remote, basedir, dirname = nil, source_name = "")
+  def initialize(ref, remote, basedir, dirname = nil, source_name = "", puppetfile_file = nil, subdir = nil)
     @ref     = ref
     @remote  = remote
     @basedir = basedir
     alternate_name =  source_name.empty? ? ref : source_name + "_" + ref
     @dirname = sanitize_dirname(dirname || alternate_name)
-
+    @puppetfile_file = puppetfile_file
+    @subdir = subdir
+    
     @working_dir = R10K::Git::WorkingDir.new(@ref, @remote, @basedir, @dirname)
 
     @full_path = File.join(@basedir, @dirname)
@@ -57,7 +59,7 @@ class Environment
   end
 
   def puppetfile
-    @puppetfile ||= R10K::Puppetfile.new(@full_path)
+    @puppetfile ||= R10K::Puppetfile.new(@full_path, @subdir, @puppetfile_file)
   end
 
   def modules
