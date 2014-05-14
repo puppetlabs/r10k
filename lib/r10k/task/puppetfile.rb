@@ -12,7 +12,7 @@ module Puppetfile
     end
 
     def call
-      logger.info "Loading modules from Puppetfile into queue"
+      logger.info "Loading modules from #{@puppetfile.puppetfile_path} into queue"
 
       @puppetfile.load
       @puppetfile.modules.each do |mod|
