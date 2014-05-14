@@ -289,7 +289,7 @@ For example:
         puppetfile: 'Puppetfile.hiera'
         subdir: 'hieradata'
 
-The Environment Repository (site-environments) would need to have at least three files: Puppetfile (default), Puppetfile.manifests and Puppetfile.hieradata. All those three $puppetfile files would have the same format, but each would be deployed in a different subdirectory below the environment name, with the shape $basedir/<env_branch>/$subdir:
+The Environment Repository (site-environments) would need to have at least three files: Puppetfile (default), Puppetfile.manifests and Puppetfile.hiera. All those three $puppetfile files would have the same format, but each would be deployed in a different subdirectory below the environment name, with the shape $basedir/<env_branch>/$subdir:
 - git repositories defined in Puppetfile (branch X) would be deployed in /etc/puppet/environments/X/modules (default)
 - git repositories defined in Puppetfile.manifests (branch X) would be deployed in /etc/puppet/environments/X/manifests
 - git repositories defined in Puppetfile.hiera (branch X) would be deployed in /etc/puppet/environments/X/hieradata
