@@ -45,17 +45,21 @@ class Source
   def self.vivify(name, attrs, prefix = false)
     remote  = (attrs.delete(:remote) || attrs.delete('remote'))
     basedir = (attrs.delete(:basedir) || attrs.delete('basedir'))
+    subdir = (attrs.delete(:subdir) || attrs.delete('subdir'))
+    puppetfile_file = (attrs.delete(:puppetfile) || attrs.delete('puppetfile'))
     prefix_config = (attrs.delete(:prefix) || attrs.delete('prefix'))
     prefix_outcome = prefix_config.nil? ? prefix : prefix_config
 
     raise ArgumentError, "Unrecognized attributes for #{self.name}: #{attrs.inspect}" unless attrs.empty?
-    new(name, remote, basedir, prefix_outcome)
+    new(name, remote, basedir, prefix_outcome, puppetfile_file, subdir)
   end
 
-  def initialize(name, remote, basedir, prefix = nil)
+  def initialize(name, remote, basedir, prefix = nil, puppetfile_file = nil, subdir=nil)
     @name    = name
     @remote  = remote
     @basedir = basedir
+    @subdir = subdir || 'modules'
+    @puppetfile_file = puppetfile_file || 'Puppetfile'
     @prefix = prefix.nil? ? false : prefix
 
     @cache   = R10K::Git::Cache.generate(@remote)
@@ -97,9 +101,9 @@ class Source
     if @cache.cached?
       @environments = @cache.branches.map do |branch|
         if @prefix
-          R10K::Deployment::Environment.new(branch, @remote, @basedir, nil, @name.to_s())
+          R10K::Deployment::Environment.new(branch, @remote, @basedir, nil, @name.to_s(), @puppetfile_file, @subdir)
         else
-          R10K::Deployment::Environment.new(branch, @remote, @basedir)
+          R10K::Deployment::Environment.new(branch, @remote, @basedir, nil, "", @puppetfile_file, @subdir)
         end
       end
     else
