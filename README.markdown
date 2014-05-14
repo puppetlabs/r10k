@@ -265,6 +265,36 @@ without being able to accidentally impact other groups.
         remote: 'git@github.com:my-org/app2-environments'
         basedir: '/etc/puppet/environments'
 
+
+### Single Environment Repository with multiple Puppetfiles
+
+It is also possible to extend the use of environments beyond the modules themselves, by creating multiple sources that point to the same remote, each pulling from a different `Puppetfile` and deploying to a different subdirectory, by using the `puppetfile:` and the `subdir:` parameters. This is specially interesting for those cases when you need to sync groups of repositories like site manifests, hieradata, roles or profiles.
+
+For example:
+
+    :sources:
+      # This will clone the git repository and instantiate an environment per
+      # branch in /etc/puppet/environments
+      :modules:
+        remote: 'git@github.com:my-org/site-environments'
+        basedir: '/etc/puppet/environments'
+      :manifests:
+        remote: 'git@github.com:my-org/site-environments'
+        basedir: '/etc/puppet/environments'
+        puppetfile: 'Puppetfile.manifests'
+        subdir: 'manifests'
+      :hieradata:
+        remote: 'git@github.com:my-org/site-environments'
+        basedir: '/etc/puppet/environments'
+        puppetfile: 'Puppetfile.hiera'
+        subdir: 'hieradata'
+
+The Environment Repository (site-environments) would need to have at least three files: Puppetfile (default), Puppetfile.manifests and Puppetfile.hieradata. All those three $puppetfile files would have the same format, but each would be deployed in a different subdirectory below the environment name, with the shape $basedir/<env_branch>/$subdir:
+- git repositories defined in Puppetfile (branch X) would be deployed in /etc/puppet/environments/X/modules (default)
+- git repositories defined in Puppetfile.manifests (branch X) would be deployed in /etc/puppet/environments/X/manifests
+- git repositories defined in Puppetfile.hiera (branch X) would be deployed in /etc/puppet/environments/X/hieradata
+
+
 More information
 ----------------
 
