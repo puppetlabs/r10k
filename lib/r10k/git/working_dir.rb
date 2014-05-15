@@ -1,5 +1,4 @@
 require 'forwardable'
-require 'r10k/logging'
 require 'r10k/git'
 require 'r10k/git/cache'
 

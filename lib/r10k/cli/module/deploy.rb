@@ -1,6 +1,5 @@
 require 'r10k/cli/module'
 require 'r10k/deployment'
-require 'r10k/logging'
 require 'cri'
 
 require 'fileutils'
