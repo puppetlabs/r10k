@@ -265,6 +265,21 @@ without being able to accidentally impact other groups.
         remote: 'git@github.com:my-org/app2-environments'
         basedir: '/etc/puppet/environments'
 
+### Locking an environment to a ref
+
+You may want to lock an environment to a specific git ref (such as a 'tested' tag). This can be specified in the
+yaml configuration file.
+
+        :cachedir: '/var/cache/r10k'
+        :sources:
+          # branch in /etc/puppet/environments
+          :plops:
+            remote: 'git@github.com:my-org/org-shared-modules'
+            basedir: '/etc/puppet/environments'
+            environment:
+              master:
+                ref: 'tested'
+
 More information
 ----------------
 

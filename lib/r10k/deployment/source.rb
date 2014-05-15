@@ -46,17 +46,19 @@ class Source
     remote  = (attrs.delete(:remote) || attrs.delete('remote'))
     basedir = (attrs.delete(:basedir) || attrs.delete('basedir'))
     prefix_config = (attrs.delete(:prefix) || attrs.delete('prefix'))
+    environment_refs = (attrs.delete(:environment) || attrs.delete('environment'))
     prefix_outcome = prefix_config.nil? ? prefix : prefix_config
 
     raise ArgumentError, "Unrecognized attributes for #{self.name}: #{attrs.inspect}" unless attrs.empty?
-    new(name, remote, basedir, prefix_outcome)
+    new(name, remote, basedir, prefix_outcome, environment_refs)
   end
 
-  def initialize(name, remote, basedir, prefix = nil)
+  def initialize(name, remote, basedir, prefix = nil, environment_refs = nil)
     @name    = name
     @remote  = remote
     @basedir = basedir
     @prefix = prefix.nil? ? false : prefix
+    @environment_refs = environment_refs.nil? ? {} : environment_refs
 
     @cache   = R10K::Git::Cache.generate(@remote)
 
@@ -97,15 +99,24 @@ class Source
     if @cache.cached?
       @environments = @cache.branches.map do |branch|
         if @prefix
-          R10K::Deployment::Environment.new(branch, @remote, @basedir, nil, @name.to_s())
+          R10K::Deployment::Environment.new(branch, @remote, @basedir, @name.to_s(), branch_ref(branch))
         else
-          R10K::Deployment::Environment.new(branch, @remote, @basedir)
+          R10K::Deployment::Environment.new(branch, @remote, @basedir, nil, branch_ref(branch))
         end
       end
     else
       @environments = []
     end
   end
+
+  def branch_ref(branch)
+    begin
+      @environment_refs.fetch(branch).fetch('ref')
+    rescue IndexError
+      branch
+    end
+  end
+
 end
 end
 end

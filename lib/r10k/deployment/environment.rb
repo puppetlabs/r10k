@@ -7,9 +7,9 @@ class Environment
 
   include R10K::Logging
 
-  # @!attribute [r] ref
-  #   The git ref to instantiate into the basedir
-  attr_reader :ref
+  # @!attribute [r] name
+  #   The git name to instantiate into the basedir
+  attr_reader :name
 
   # @!attribute [r] remote
   #   The location of the remote git repository
@@ -23,17 +23,22 @@ class Environment
   #   @return [String] The directory name to use for the environment
   attr_reader :dirname
 
-  # @param [String] ref
+  # @!attribute [r] ref
+  #   @return [String] Git ref that this environment is based on
+  attr_reader :ref
+
+  # @param [String] name
   # @param [String] remote
   # @param [String] basedir
-  # @param [String] dirname The directory to clone the root into, defaults to ref
-  # @param [String] source_name An additional string which may be used with ref to build dirname
-  def initialize(ref, remote, basedir, dirname = nil, source_name = "")
-    @ref     = ref
+  # @param [String] source_name An additional string which may be used with name to build dirname
+  # @param [String] ref Optional git ref to use
+  def initialize(name, remote, basedir, source_name = nil, ref = nil)
+    @name     = name
     @remote  = remote
     @basedir = basedir
-    alternate_name =  source_name.empty? ? ref : source_name + "_" + ref
-    @dirname = sanitize_dirname(dirname || alternate_name)
+    alternate_name =  source_name.nil? ? name : source_name + "_" + name
+    @dirname = sanitize_dirname(alternate_name)
+    @ref = ref.nil? ? name : ref
 
     @working_dir = R10K::Git::WorkingDir.new(@ref, @remote, @basedir, @dirname)
 
