@@ -13,7 +13,8 @@ class Deployment
   # @param path [String] The path to the deployment config
   # @return [R10K::Deployment] The deployment loaded with the given config
   def self.load_config(path)
-    config = R10K::Deployment::Config.new(path)
+    R10K::Deployment::Config.instance.load_config(path)
+    config = R10K::Deployment::Config.instance
     new(config)
   end
 

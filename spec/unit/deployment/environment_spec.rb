@@ -27,10 +27,13 @@ describe R10K::Deployment::Environment do
     let(:working_dir) { double("working_dir") }
     let(:puppetfile_provider) { double("puppetfile_provider") }
     let(:environment) { described_class.new(ref, remote, '/tmp') }
+    let(:config_settings_instance) { double("config") }
 
     before :each do
       allow(R10K::Git::WorkingDir).to receive(:new).and_return working_dir
       allow(R10K::PuppetfileProvider::Factory).to receive(:driver).and_return puppetfile_provider
+      allow(R10K::Deployment::Config).to receive(:instance).and_return config_settings_instance
+      allow(config_settings_instance).to receive(:setting).with(:puppetfileprovider).and_return "internal"
       allow(working_dir).to receive(:sync)
     end
 

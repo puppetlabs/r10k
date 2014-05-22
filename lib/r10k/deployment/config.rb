@@ -7,14 +7,13 @@ class Config
 
   attr_accessor :configfile
 
-  def initialize(configfile)
-    @configfile = configfile
-
-    load_config
+  def self.instance
+    @instance ||= new
   end
 
   # Perform a scan for key and check for both string and symbol keys
   def setting(key)
+    raise ConfigError, "Configuration has not been loaded. Use `load_config()` first" unless @config
     keys = [key]
     case key
     when String
@@ -33,7 +32,8 @@ class Config
   # Load and store a config file, and set relevant options
   #
   # @param [String] configfile The path to the YAML config file
-  def load_config
+  def load_config(configfile)
+    @configfile = configfile
     if @configfile.nil?
       loader = R10K::Deployment::Config::Loader.new
       @configfile = loader.search

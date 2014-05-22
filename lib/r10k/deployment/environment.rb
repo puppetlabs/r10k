@@ -1,6 +1,7 @@
 require 'r10k/module'
 require 'r10k/logging'
 require 'r10k/puppetfile_provider/factory'
+require 'r10k/deployment/config'
 
 module R10K
 class Deployment
@@ -51,9 +52,12 @@ class Environment
     end
   end
 
+  def puppetfile_provider
+    R10K::Deployment::Config.instance.setting(:puppetfileprovider).to_sym
+  end
 
   def puppetfile
-    @puppetfile ||= R10K::PuppetfileProvider::Factory.driver(@full_path)
+    @puppetfile ||= R10K::PuppetfileProvider::Factory.driver(@full_path, nil, nil, puppetfile_provider)
   end
 
 
