@@ -53,7 +53,13 @@ class Environment
   end
 
   def puppetfile_provider
-    R10K::Deployment::Config.instance.setting(:puppetfileprovider).to_sym
+    # FIXME: This class should not need to know the details of selecting a Puppetfile provider
+    begin
+      R10K::Deployment::Config.instance.setting(:puppetfileprovider).to_sym
+    rescue
+      :internal
+    end
+
   end
 
   def puppetfile
