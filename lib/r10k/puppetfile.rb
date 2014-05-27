@@ -1,3 +1,4 @@
+require 'pathname'
 require 'r10k/module'
 require 'r10k/util/purgeable'
 
@@ -58,7 +59,11 @@ class Puppetfile
 
   # @param [String] moduledir
   def set_moduledir(moduledir)
-    @moduledir = moduledir
+    @moduledir = if Pathname.new(moduledir).absolute?
+      moduledir
+    else
+      File.join(basedir, moduledir)
+    end
   end
 
   # @param [String] name
