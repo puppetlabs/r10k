@@ -73,3 +73,9 @@ This is useful for when you're working on a module specified in a Puppetfile and
 Update multiple modules across all environments
 
     r10k deploy module apache jenkins java
+
+- - -
+
+Update one or more modules in a single environment
+
+    r10k deploy module -e production apache jenkins java
