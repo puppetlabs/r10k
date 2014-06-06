@@ -40,3 +40,22 @@ appropriate Puppet environment to the latest version. Finally if there are
 Puppet environments that don't have matching Git branches, r10k will assume that
 the branches for those environments were deleted and will remove those
 environments.
+
+Configuration
+-------------
+
+The following configuration options can be specified for Git based environment
+sources.
+
+### invalid_branches:
+
+This setting specifies how Git branch names that cannot be cleanly mapped to
+Puppet environments will be handled.
+
+Valid values:
+
+  * 'correct_and_warn': Non-word characters will be replaced with underscores
+    and a warning will be emitted. (Default)
+  * 'correct': Non-word characters will silently be replaced with underscores.
+  * 'error': Branches with non-word characters will be ignored and an error will
+    be emitted.
