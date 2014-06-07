@@ -32,6 +32,11 @@ class R10K::Source::Git < R10K::Source::Base
   #     the source should behave.
   attr_reader :settings
 
+  # @!attribute [r] invalid_branches
+  #   @return [String] How Git branch names that cannot be cleanly mapped to
+  #     Puppet environments will be handled.
+  attr_reader :invalid_branches
+
   # Initialize the given source.
   #
   # @param name [String] The identifier for this source.
@@ -48,10 +53,8 @@ class R10K::Source::Git < R10K::Source::Base
 
     @environments = []
 
-    @remote   = options[:remote]
-    @settings = options[:settings] || {}
-    @settings.extend R10K::Util::CoreExt::HashExt::SymbolizeKeys
-    @settings.symbolize_keys!
+    @remote           = options[:remote]
+    @invalid_branches = (options[:invalid_branches] || 'correct_and_warn')
 
     @cache  = R10K::Git::Cache.generate(@remote)
   end
@@ -127,7 +130,7 @@ class R10K::Source::Git < R10K::Source::Base
       BranchName.new(branch, {
         :prefix     => @prefix,
         :sourcename => @name,
-        :invalid    => @settings.fetch(:invalid, 'correct_and_warn')
+        :invalid    => @invalid_branches,
       })
     end
   end

@@ -1,6 +1,69 @@
 CHANGELOG
 =========
 
+1.3.0rc1
+--------
+
+2014/06/07
+
+### User notes
+
+#### (GH-104) SVN support for environments.
+
+R10k can now dynamically generate enviroments based on SVN repositories. SVN
+repositories must SVN repositories must conform to the conventional SVN
+repository structure with the directories trunk/, branches/, and optionally
+tags/ in the root of the repository. The trunk/ directory is specifically
+mapped to the production environment, branches are created as environments with
+the name of the given branch.
+
+Please note that since SVN support for environments should be considered
+preliminary and may still have some kinks to be worked out, so use it with
+caution in production.
+
+#### (GH-112) Modules can be deployed in a single environment.
+
+When deploying modules with `r10k deploy module <modules>`, users can specify
+the `-e <environment>` flag to update modules in a single environment.
+
+#### (GH-117) Controllable behavior for invalid Git branches.
+
+Git sources can now tune how r10k behaves when it encounters a git branch with
+a non-word character. Valid values are 'correct_and_warn' which emits a warning
+and sanitizes the environment name, 'correct' which silently corrects the
+environment, and 'error' which emits an error and ignores the environment.
+
+### Developer notes
+
+#### IMPORTANT: as of 1.3.0, r10k is relaxing how it implements semantic versioning.
+
+There are a lot of internal APIs in r10k that need to be improved or
+overhauled, and making changes in a backwards compatible manner has been
+impeding development on a number of important features. There's no indication
+that there are any consumers of the r10k internal APIs, and if that's the case
+then r10k doesn't help anyone by maintaining SemVer for its internal APIs.
+
+As of 1.3.0, r10k is dropping guarantees about API compatibility for most of
+the core functionality. The `R10K::Task*` classes were designed to be the
+primary interface for external use and those will remain backwards compatible
+for 1.x. However any code around configuration parsing, deployments, sources,
+environments, and modules may have API changes in minor versions.
+
+That being said, if you are using any of these APIs and you experience breakage,
+you're not out of luck. If an API change actually does affect you please report
+it as a bug and those specific APIs can probably be fixed up. Hopefully this
+will ease development of r10k while not making the lives of external developers
+too painful.
+
+#### (GH-116) Allow alternate implementations of sources and environments
+
+This allows the groundwork for allowing users to implement plugins for sources
+and environments. A real API specification for sources and environments has
+been started, and sources and environments can be defined at runtime. In the
+long run r10k will add a plugin system for loading additional code from
+Rubygems and other sources, so r10k will be extensible without requiring
+modifications to the source.
+
 1.2.1
 -----
 

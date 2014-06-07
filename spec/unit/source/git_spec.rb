@@ -69,8 +69,8 @@ describe R10K::Source::Git, "handling invalid branch names" do
     describe "when invalid is #{setting}" do
       subject do
         described_class.new('/some/nonexistent/dir', 'mysource', {
-          :remote   => 'https://git-server/repo.git',
-          :settings => { :invalid => setting }
+          :remote           => 'https://git-server/repo.git',
+          :invalid_branches => setting
         })
       end
 
@@ -93,7 +93,7 @@ describe R10K::Source::Git, "handling invalid branch names" do
     subject do
       described_class.new('/some/nonexistent/dir', 'mysource', {
         :remote   => 'https://git-server/repo.git',
-        :settings => { :invalid => 'error' }
+        :invalid_branches => 'error',
       })
     end
 

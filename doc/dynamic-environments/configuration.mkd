@@ -30,8 +30,10 @@ For example:
 cachedir: '/var/cache/r10k'
 ```
 
+[prerun_command](http://docs.puppetlabs.com/references/latest/configuration.html#preruncommand)
+
 The cachedir setting defaults to `~/.r10k`. If the HOME environment variable is
-unset r10k will assume that r10k is being run with the Puppet [`prerun_command`](http://docs.puppetlabs.com/references/latest/configuration.html#preruncommand)
+unset r10k will assume that r10k is being run with the Puppet [`prerun_command`][prerun_command]
 setting and will set the cachedir default to `/root/.r10k`.
 
 Deployment options
