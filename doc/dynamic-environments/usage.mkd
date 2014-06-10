@@ -79,3 +79,18 @@ Update multiple modules across all environments
 Update one or more modules in a single environment
 
     r10k deploy module -e production apache jenkins java
+
+User accounts
+-------------
+
+When running commands to deploy code on a master, r10k needs to have write
+access to your Puppet environment path and should create files that are
+readable by the user account running the master. If you're using Puppet
+Enterprise this account is `pe-puppet`, and if you're using Puppet open source
+this account is `puppet`.
+
+This can be done in a few ways. First off, you can run r10k as the puppet user
+itself. You can also create a new user that has write access to the Puppet
+environment path, has the same GID as the puppet user, and has a umask of 0027.
+You can also run r10k as root, which is the simplest solution but does require
+access control to the root user.
