@@ -52,7 +52,7 @@ Puppet Enterprise uses its own Ruby, so you need to use the correct version of g
 Common Commands
 ---------------
 
-The following commands must be run either by root or via sudo unless non-root user configuration has been performed. See [usage](docs/dynamic-environments/usage.mkd) for detailed information on enabling non-root users to run r10k.
+The following commands must be run either by root or via sudo unless non-root user configuration has been performed. See [usage](doc/dynamic-environments/usage.mkd) for detailed information on enabling non-root users to run r10k.
 
 ### Deploy all environments and Puppetfile specified modules
 
