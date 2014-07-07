@@ -16,7 +16,19 @@ module R10K::CLI
         complex environments.
       EOD
 
-      flag :h, :help, 'Show help for this command'
+
+      flag :h, :help, 'Show help for this command' do |value, cmd|
+        # This is evil because we may not necessarily be called from the
+        # command line and have a meaningful ARGV to scan. However the best
+        # way of having a globally useful --help command is to define the
+        # behavior in the block of the option to immediately handle it and exit
+        # and we don't have access to the verbose option, so the simple method
+        # is to simply scan ARGV.
+        verbose = (ARGV.include?('-v') || ARGV.include?('--verbose'))
+        puts cmd.help(:verbose => verbose)
+        exit 0
+      end
+
       flag :t, :trace, 'Display stack traces on application crash'
 
       optional :v, :verbose, 'Set verbosity level' do |value, cmd|
