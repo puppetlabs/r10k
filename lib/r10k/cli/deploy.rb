@@ -110,6 +110,7 @@ try to deploy the given module names in all environments.
       def self.command
         @cmd ||= Cri::Command.define do
           name  'display'
+          aliases 'list'
           usage 'display'
           summary 'Display environments and modules in the deployment'
 
