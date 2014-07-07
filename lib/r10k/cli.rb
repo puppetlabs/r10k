@@ -31,7 +31,8 @@ module R10K::CLI
 
       flag :t, :trace, 'Display stack traces on application crash'
 
-      optional :v, :verbose, 'Set verbosity level' do |value, cmd|
+      loglevels = R10K::Logging::LOG_LEVELS.reverse.map(&:downcase).join(", ")
+      optional :v, :verbose, "Set log verbosity. Valid values: #{loglevels}" do |value, cmd|
         case value
         when true
           R10K::Logging.level = 'INFO'
