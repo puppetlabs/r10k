@@ -41,7 +41,8 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     @full_path = File.join(@basedir, @dirname)
     @git_dir   = File.join(@full_path, '.git')
 
-    @cache = R10K::Git::Cache.generate(@remote)
+    @alternates = R10K::Git::Alternates.new(@git_dir)
+    @cache      = R10K::Git::Cache.generate(@remote)
 
     if ref.is_a? String
       @ref = R10K::Git::Ref.new(ref, self)
@@ -61,7 +62,9 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
   end
 
   def update
-    if fetch?
+    update_remotes if update_remotes?
+
+    if ref_needs_fetch?
       fetch_from_cache
       checkout(@ref)
     elsif needs_checkout?
@@ -114,20 +117,15 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
 
   private
 
-  def fetch?
+  # Do we need to fetch additional objects and refs in order to resolve the given ref?
+  # @return [true, false]
+  def ref_needs_fetch?
     @ref.fetch?
   end
 
   def fetch_from_cache
-    set_cache_remote
     @cache.sync
     fetch('cache')
-  end
-
-  def set_cache_remote
-    if self.remote != @cache.remote
-      git ["remote", "set-url", "cache", @cache.git_dir], :path => @full_path
-    end
   end
 
   # Perform a non-bare clone of a git repository.
@@ -151,6 +149,22 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     expected = ref.sha1
     actual   = rev_parse('HEAD')
 
-    ! (expected == actual)
+    !(expected == actual)
+  end
+
+  def update_remotes?
+    real_remotes = remotes
+
+    expected_origin = @remote
+    expected_cache  = @cache.git_dir
+
+    !(expected_origin == real_remotes['origin'] and expected_cache == real_remotes['cache'])
+  end
+
+  def update_remotes
+    # todo: remove all existing refs as they may belong to the old remote
+    git ['remote', 'set-url', 'origin', remote], :path => @full_path
+    git ['remote', 'set-url', 'cache', @cache.git_dir], :path => @full_path
+    @alternates << File.join(@cache.git_dir, 'objects')
   end
 end
