@@ -37,7 +37,7 @@ Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
 
             puppetfile = R10K::Puppetfile.new(puppetfile_root, puppetfile_path, puppetfile)
 
-            runner = R10K::TaskRunner.new(opts)
+            runner = R10K::TaskRunner.new(:trace => opts[:trace])
             task   = R10K::Task::Puppetfile::Sync.new(puppetfile)
             runner.append_task task
 
@@ -90,7 +90,7 @@ Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
 
             puppetfile = R10K::Puppetfile.new(puppetfile_root, puppetfile_path, puppetfile)
 
-            runner = R10K::TaskRunner.new(opts)
+            runner = R10K::TaskRunner.new(:trace => opts[:trace])
             task   = R10K::Task::Puppetfile::Purge.new(puppetfile)
             runner.append_task task
 
