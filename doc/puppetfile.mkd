@@ -1,7 +1,14 @@
 Puppetfile
 ==========
 
-The Puppetfile is a way to reuse independent Puppet modules in your codebase.
+Puppetfiles are a simple Ruby based DSL that specifies a list of modules to
+install, what version to install, and where to fetch them from. r10k can use a
+Puppetfile to install a set of Puppet modules for local development, or they can
+be used with r10k environment deployments to install additional modules into a
+given environment.
+
+Unlike librarian-puppet, the r10k implementation of Puppetfiles does not include
+dependency resolution, but it is on the roadmap.
 
 When directly working with Puppetfiles, you can use the `r10k puppetfile`
 subcommand to interact with a Puppetfile.
@@ -9,17 +16,55 @@ subcommand to interact with a Puppetfile.
 When using r10k's deploy functionality, interacting with Puppetfiles is handled
 on a case by case basis.
 
-The Puppetfile format is actually implemented using a Ruby DSL so any valid Ruby
-expression can be used. That being said, being a bit too creative in the DSL
-can lead to surprising (read: bad) things happening, so consider keeping it
+Because the Puppetfile format is actually implemented using a Ruby DSL any valid
+Ruby expression can be used. That being said, being a bit too creative in the
+DSL can lead to surprising (read: bad) things happening, so consider keeping it
 simple.
+
+Commands
+--------
+
+Puppetfile subcommands assume that the Puppetfile to operate on is in the
+current working directory and modules should be installed in the 'modules'
+directory relative to the current working directory.
+
+Install or update all modules in a given Puppetfile
+into ./modules)
+
+    r10k puppetfile install
+
+Verify the Puppetfile syntax
+
+    r10k puppetfile check
+
+Remove any modules in the 'modules' directory that are not specified in the
+Puppetfile:
+
+    r10k puppetfile check
 
 Module types
 ------------
 
+r10k can install Puppet modules from a number of different sources. Right now
+modules can be installed via Git, SVN, and from the Puppet Forge.
+
 ### Git
 
-Modules can be installed via git.
+Git repositories that contain a Puppet module can be cloned and used as modules.
+When Git is used, the module version can be specified by using `:ref`, `:tag`,
+`:commit`, and `:branch`.
+
+When a module is installed using `:ref`, r10k uses some simple heuristics to
+determine the type of Git object that should be checked out. This can be used
+with a git commit, branch reference, or a tag.
+
+When a module is installed using `:tag` or `:commit`, r10k assumes that the
+given object is a tag or commit and can do some optimizations around fetching
+the object. If the tag or commit is already available r10k will skip network
+operations when updating the repo, which can speed up install times.
+
+Module versions can also be specified using `:branch`. This behaves similarly to
+`:ref`, and is mainly useful for clarity.
 
 #### Examples
 
@@ -32,21 +77,17 @@ Modules can be installed via git.
       :git => 'https://github.com/puppetlabs/puppetlabs-apache',
       :ref => 'docs_experiment'
 
-You can also use the exact object type you want to check out. This may be a
-little bit more work but it has the advantage that r10k make certain
-optimizations based on the object type that you specify.
-
+    # Install puppetlabs/apache and pin to the '0.9.0' tag
     mod 'apache',
       :git => 'https://github.com/puppetlabs/puppetlabs-apache',
       :tag => '0.9.0'
 
+    # Install puppetlabs/apache and pin to the '83401079' commit
     mod 'apache',
       :git    => 'https://github.com/puppetlabs/puppetlabs-apache',
       :commit => '83401079053dca11d61945bd9beef9ecf7576cbf'
 
-You can also explicitly specify a branch, but this behaves the same as
-specifying :ref and is mainly useful for clarity.
-
+    # Install puppetlabs/apache and track the 'docs_experiment' branch
     mod 'apache',
       :git    => 'https://github.com/puppetlabs/puppetlabs-apache',
       :branch => 'docs_experiment'
@@ -71,16 +112,18 @@ latest version available.
 
 ### SVN
 
-Modules can be installed via SVN.
+Modules can be installed via SVN. If no version is given, the module will track
+the latest version available in the main SVN repository.
 
     mod 'apache',
       :svn => 'https://github.com/puppetlabs/puppetlabs-apache/trunk'
 
+If an SVN revision number is specified with `:rev` (or `:revision`), that
+SVN revision will be kept checked out.
+
     mod 'apache',
       :svn => 'https://github.com/puppetlabs/puppetlabs-apache/trunk',
       :rev => '154'
-
-Alternately,
 
     mod 'apache',
       :svn      => 'https://github.com/puppetlabs/puppetlabs-apache/trunk',
