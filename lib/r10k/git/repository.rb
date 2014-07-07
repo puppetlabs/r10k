@@ -84,12 +84,19 @@ class R10K::Git::Repository
 
     ret = {}
     output.stdout.each_line do |line|
-      next if line.match /\(push\)/
+      next if line.match(/\(push\)/)
       name, url, _ = line.split(/\s+/)
       ret[name] = url
     end
 
     ret
+  end
+
+  def tags
+    entries = []
+    output = git(['tag', '-l'], :git_dir => @git_dir).stdout
+    output.each_line { |line| entries << line.chomp }
+    entries
   end
 
   private
