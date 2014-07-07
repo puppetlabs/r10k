@@ -15,7 +15,7 @@ r10k provides a general purpose toolset for deploying Puppet environments and
 modules. It implements the [Puppetfile][librarian-puppet] format and provides a native
 implementation of Puppet [dynamic environments][workflow].
 
-Installation
+Requirements
 ------------
 
 r10k supports the following Ruby versions:
@@ -25,11 +25,31 @@ r10k supports the following Ruby versions:
   - 2.0.0
   - 2.1.0
 
+r10k requires additional components, depending on how you plan on managing
+environments and modules.
+
+  - Installing modules from the Puppet Forge requires Puppet 3.0.0+ or later.
+  Puppet 2.7 may work, but is generally not recommended as Puppet 2.7 is EOL.
+  - Git is required for creating environments and modules from Git
+  - SVN is required for creating environments and modules from SVN
+
+Installation
+------------
+
 ### Rubygems
 
 For general use, you should install r10k from Ruby gems:
 
     gem install r10k
+    r10k help
+
+### Puppet Enterprise
+
+Puppet Enterprise bundles a copy of Ruby, so if you do not want to use the
+system version of Ruby with r10k, you need to use the bundled PE gem command for
+installation:
+
+    /opt/puppet/bin/gem install r10k
     r10k help
 
 ### Bundler
@@ -41,13 +61,6 @@ a git repository using Bundler for dependencies:
     cd r10k
     bundle install
     bundle exec r10k help
-
-### Puppet Enterprise
-
-Puppet Enterprise uses its own Ruby, so you need to use the correct version of gem when installing r10k.
-
-    /opt/puppet/bin/gem install r10k
-    r10k help
 
 Common Commands
 ---------------
