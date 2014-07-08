@@ -101,58 +101,6 @@ information see the topic specific documentation:
   * Puppetfile documentation: [doc/puppetfile.mkd](doc/puppetfile.mkd)
   * Environment deployment documentation: [doc/dynamic-environments.mkd](doc/dynamic-environments.mkd)
 
-Puppetfile support
-------------------
-
-r10k can operate on a Puppetfile using the same syntax as librarian-puppet uses.
-Puppetfiles are a simple Ruby based DSL that specifies a list of modules to
-install, what version to install, and where to fetch them from. Unlike
-librarian-puppet dependency resolution is not yet implemented but is on the
-roadmap.
-
-Puppetfile based commands are under the `r10k puppetfile` subcommand.
-
-### Installing modules from git
-
-Puppet modules can be installed from any valid git repository:
-
-    mod 'rsyslog', :git => 'git://github.com/puppetlabs-operations/puppet-rsyslog.git'
-
-You can deploy a module from a specific branch, tag, or git ref. By default r10k
-will track `master` and will assume that you want to keep the module up to date.
-If you want to track a specific branch, then
-
-Examples:
-
-    # track master
-    mod 'filemapper',
-      :git => 'git://github.com/adrienthebo/puppet-filemapper.git'
-
-    # Install the filemapper module and track the 1.1.x branch
-    mod 'filemapper',
-      :git => 'git://github.com/adrienthebo/puppet-filemapper.git',
-      :ref => '1.1.x'
-
-    # Install filemapper and use the 1.1.1 tag
-    mod 'filemapper',
-      :git => 'git://github.com/adrienthebo/puppet-filemapper.git',
-      :ref => '1.1.1'
-
-    # Install filemapper and use a specific git commit
-    mod 'filemapper',
-      :git => 'git://github.com/adrienthebo/puppet-filemapper.git',
-      :ref => 'ec2a06d287f744e324cca4e4c8dd65c38bc996e2'
-
-### Installing modules from the Puppet forge
-
-Puppet modules can be installed from the forge using the Puppet module tool.
-
-    # This is currently a noop but will be supported in the future.
-    forge 'forge.puppetlabs.com'
-
-    # Install puppetlabs-stdlib from the Forge
-    mod 'puppetlabs/stdlib', '2.5.1'
-
 Basic Environment Structure
 ---------------------------
 
