@@ -91,6 +91,16 @@ The following commands must be run either by root or via sudo unless non-root us
 
     r10k deploy display -p
 
+Usage
+-----
+
+r10k has two primary roles: installing Puppet modules using a standalone
+Puppetfile, and managing Git and SVN based dynamic environments. For more
+information see the topic specific documentation:
+
+  * Puppetfile documentation: [doc/puppetfile.mkd](doc/puppetfile.mkd)
+  * Environment deployment documentation: [doc/dynamic-environments.mkd](doc/dynamic-environments.mkd)
+
 Puppetfile support
 ------------------
 
