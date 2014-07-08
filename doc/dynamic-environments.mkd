@@ -14,6 +14,8 @@ Table of contents
     environment configuration options and how they're used
   * [Git environments](dynamic-environments/git-environments.mkd) How r10k
     implements dynamic environments using git
+  * [Master Configuration](dynamic-environments/master-configuration.mkd) How to
+    configure your Puppet masters to use dynamic environments
   * [Usage](dynamic-environments/usage.mkd) A reference of r10k commands and how
     they're used.
 

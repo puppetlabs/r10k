@@ -149,34 +149,6 @@ For example, your Git repository would have a structure something like this:
     ├── dist         # Internally developed generic modules
     └── site         # Modules for deploying custom services
 
-### Puppet master configuration
-
-In order to use dynamic environments, your Puppet masters will need to be
-configured to load manifests and modules relative to the requested environment.
-The following settings should be configured in puppet.conf.
-
-Puppet <v3.5.0:
-
-    [master]
-        modulepath = /etc/puppet/environments/$environment/modules:/etc/puppet/environments/$environment/dist
-
-        # If you use a top level manifest dir
-        manifestdir = /etc/puppet/environments/$environment/manifests
-        # If you use a specific site wide manifest
-        manifest = /etc/puppet/environments/$environment/manifests/nodes.pp
-
-Puppet >=v3.5.0:
-
-    [master]
-	    # None of modulepath, manifestdir, or manifest should be enabled
-		# See http://docs.puppetlabs.com/puppet/latest/reference/environments.html#enabling-directory-environments
-		#   for more information on the changes
-        environmentpath = $confdir/environments
-
-Note that these settings go into the `[master]` section; you don't need to
-explicitly configure an environment section for each environment you want to
-use. (But you can if you want.)
-
 ### Using dynamic environments with a Puppetfile
 
 

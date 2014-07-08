@@ -1,0 +1,70 @@
+Puppet master configuration
+===========================
+
+In order to use dynamic environments, your Puppet masters will need to be
+configured to load manifests and modules relative to the requested environment.
+The following settings should be configured in puppet.conf.
+
+## Puppet <= 3.4.x
+
+In Puppet 3.4 and earlier, dynamic environments are achieved by interpolating
+the `$environment` variable in the modulepath, manifestdir, and manifest
+settings. When environments is loaded the settings are dynamically set based on
+the name of the environment, thus allowing environments to be created on the
+fly.
+
+    [master]
+        modulepath = /etc/puppet/environments/$environment/modules:/etc/puppet/environments/$environment/dist
+
+        # If you use a top level manifest dir
+        manifestdir = /etc/puppet/environments/$environment/manifests
+        # If you use a specific site wide manifest
+        manifest = /etc/puppet/environments/$environment/manifests/nodes.pp
+
+## Puppet = 3.5.x
+
+Puppet 3.5.0 adds initial support for "directory environments", where
+environments are created by enumerating directories in `$environmentpath`.
+This new configuration expect that all modules are in the root of the
+directories in the environment path.
+
+    [master]
+    # None of modulepath, manifestdir, or manifest should be enabled
+    # See http://docs.puppetlabs.com/puppet/latest/reference/environments.html#enabling-directory-environments
+    #   for more information on the changes
+        environmentpath = $confdir/environments
+
+Note that these settings go into the `[master]` section; you don't need to
+explicitly configure an environment section for each environment you want to
+use. (But you can if you want.)
+
+## Puppet >= 3.6.0
+
+[environmentconf]: http://docs.puppetlabs.com/puppet/latest/reference/config_file_environment.html
+
+Puppet 3.6.0 adds more fine grained control over how directory environments are
+configured. Each directory based environment can have an
+[`environment.conf`][environmentconf] file in the root of that environment that
+can specify the manifest, modulepath, config_version, and environment_timeout
+for that specific environment.
+
+    # puppet.conf
+    [master]
+    # None of modulepath, manifestdir, or manifest should be enabled
+    # See http://docs.puppetlabs.com/puppet/latest/reference/environments.html#enabling-directory-environments
+    #   for more information on the changes
+        environmentpath = $confdir/environments
+
+- - -
+
+    # environment.conf
+    manifest  = site.pp
+    moduledir = modules:dist
+
+A deployed environment with a Puppetfile will look something like this:
+
+    .
+    ├── Puppetfile
+    ├── environment.conf
+    ├── dist
+    └── modules
