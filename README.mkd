@@ -62,35 +62,6 @@ a git repository using Bundler for dependencies:
     bundle install
     bundle exec r10k help
 
-Common Commands
----------------
-
-The following commands must be run either by root or via sudo unless non-root user configuration has been performed. See [usage](doc/dynamic-environments/usage.mkd) for detailed information on enabling non-root users to run r10k.
-
-### Deploy all environments and Puppetfile specified modules
-
-    r10k deploy environment -p
-
-### Deploy all environments but don't update/install modules
-
-    r10k deploy environment
-
-### Deploy a specific environment, and its Puppetfile specified modules
-
-    r10k deploy environment your_env -p
-
-### Deploy a specific environment, but not its modules
-
-    r10k deploy environment your_env
-
-### Display all environments being managed by r10k
-
-    r10k deploy display
-
-### Display all environments being managed by r10k, and their modules.
-
-    r10k deploy display -p
-
 Usage
 -----
 
