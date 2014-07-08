@@ -165,6 +165,15 @@ A deployed environment with a Puppetfile will look something like this:
     ├── modules      # Puppet modules deployed by r10k
     └── site         # Modules for deploying custom services
 
+Getting help
+------------
+
+  * IRC: r10k has a dedicated channel, `#r10k`, on Freenode where r10k questions
+  can be directed. Questions about r10k can frequently be asked in `#puppet` as well.
+  * Mailing lists: [puppet-users](https://groups.google.com/forum/#!forum/puppet-users)
+  * Q&A: [Puppet Ask](https://ask.puppetlabs.com/questions/)
+
+
 More information
 ----------------
 
