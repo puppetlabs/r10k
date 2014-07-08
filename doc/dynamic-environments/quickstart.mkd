@@ -75,7 +75,7 @@ Restart the Puppet master service.
 service puppetmaster restart
 ```
 
-Ensure the certificiate for the Puppet master was created.
+Ensure the certificate for the Puppet master was created.
 
 ```
 # puppet cert list --all
