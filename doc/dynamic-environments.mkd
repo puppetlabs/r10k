@@ -22,3 +22,4 @@ Community guides
 
   * [Building a Functional Puppet Workflow Part 3: Dynamic Environments with R10k](http://garylarizza.com/blog/2014/02/18/puppet-workflow-part-3/)
   * [Puppet Infrastructure with r10k](http://terrarum.net/blog/puppet-infrastructure-with-r10k.html)
+  * [Puppet for vSphere Admins](http://rnelson0.com/puppet-for-vsphere-admins/) Installing and using r10k in a vSphere environment
