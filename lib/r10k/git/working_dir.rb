@@ -166,5 +166,13 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     git ['remote', 'set-url', 'origin', remote], :path => @full_path
     git ['remote', 'set-url', 'cache', @cache.git_dir], :path => @full_path
     @alternates << File.join(@cache.git_dir, 'objects')
+    logger.debug("Removing stale git tags from #{@full_path}")
+    remove_tags
+  end
+
+  def remove_tags
+    tags.each do |tag|
+      git ['tag', '-d', tag], :path => @full_path
+    end
   end
 end
