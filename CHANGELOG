@@ -1,6 +1,41 @@
 CHANGELOG
 =========
 
+1.2.2
+-----
+
+UNRELEASED
+
+### User Notes
+
+(GH-165) `r10k puppetfile` only consumes handled command line options.
+
+Previously, passing `-v` or other commands when running `r10k puppetfile *`
+could result in this error:
+
+    r10k puppetfile install --help --trace
+    Error while running: #<RuntimeError: Unrecognized options: help>
+
+This was due to overly greedy code passing in all options from the command line
+to the TaskRunner. This has been fixed so only known options are passed along,
+and options that aren't relevant (such as :verbose) will be ignored.
+
+(GH-158) Log levels are now documented in the command line --help pages.
+
+(GH-137) Git remotes are now correctly updated.
+
+A regression in the Git remote handling meant that git remotes would never be
+properly updated when switching Git environments and modules from one remote
+to another, and the git alternates file was never updated properly. This has
+been fixed so that when the Git remote is updated, all references to the
+remotes and alternates will be updated.
+
+(GH-163) All Git tags are deleted when switching Git remotes
+
+Git tags cannot necessarily be transferred from one Git repository to another,
+so when a Git repo has its remotes changed all tags are deleted to prevent stale
+tags from overwriting tags from the new repo.
+
 1.2.1
 -----
 
