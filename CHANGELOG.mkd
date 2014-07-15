@@ -1,6 +1,25 @@
 CHANGELOG
 =========
 
+1.3.1
+-----
+
+UNRELEASED
+
+### User notes
+
+(GH-161) Deployments fail where a branch has \W in the git branch name
+
+In 1.3.0 environment naming was partially reworked to allow better handling of
+per-environment deployment, but unfortunately this caused a regression where
+environments would be differently named in 1.3.0. This fix changes the
+environment deployment on a per-name basis to use the normalized name instead
+of the raw Git branch name.
+
+### Thanks
+
+Thanks to Chris Spence for his work on this release.
+
 1.3.0
 -----
 
