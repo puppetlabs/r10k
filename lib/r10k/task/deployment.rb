@@ -23,8 +23,14 @@ module Deployment
         # while this should be optimized that optimization can wait a while.
         names.each do |env_name|
 
+          # Elsewhere, we sanitise the env.dirname to sub any \W to _
+          # For this to match here (a single environment deploy where the 
+          # branch name has \W we need to sanitise the branch name to match
+
+          safe_branch_name = env_name.gsub(/\W/,'_')
+
           matching = all_environments.select do |env|
-            env.dirname == env_name
+            env.dirname == safe_branch_name
           end
 
           if matching.empty?
