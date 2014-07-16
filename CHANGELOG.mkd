@@ -86,7 +86,7 @@ modifications to the source.
 1.2.2
 -----
 
-UNRELEASED
+2014/07/16
 
 ### User Notes
 
