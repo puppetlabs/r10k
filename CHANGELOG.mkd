@@ -4,7 +4,7 @@ CHANGELOG
 1.3.1
 -----
 
-UNRELEASED
+2014/07/16
 
 ### User notes
 
@@ -15,6 +15,8 @@ per-environment deployment, but unfortunately this caused a regression where
 environments would be differently named in 1.3.0. This fix changes the
 environment deployment on a per-name basis to use the normalized name instead
 of the raw Git branch name.
+
+This bugfix release also incorporates all fixes added in 1.2.2.
 
 ### Thanks
 
