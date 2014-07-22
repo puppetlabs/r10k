@@ -49,6 +49,53 @@ Puppet Enterprise uses its own Ruby, so you need to use the correct version of g
     /opt/puppet/bin/gem install r10k
     r10k help
 
+Configuration
+---------------
+
+r10k uses a yaml based configuration file when handling deployments. The default
+location is in `/etc/r10k.yaml` and can be specified on the command line.
+
+### Example
+
+    # The location to use for storing cached Git repos
+    :cachedir: '/var/cache/r10k'
+
+    # A list of git repositories to create
+    :sources:
+      # This will clone the git repository and instantiate an environment per
+      # branch in /etc/puppet/environments
+      :plops:
+        remote: 'git@github.com:my-org/org-shared-modules'
+        basedir: '/etc/puppet/environments'
+
+Multiple git repositories can be specified, which is handy if environments are broken up by application.
+Application 1 could have its own environment repository with app1_dev, app1_tst, and app1_prd branches while
+Application 2 could have its own environment repository with app2_dev, app2_tst, app2_prd branches.
+
+You might want to take this approach if your environments vary greatly.  If you often find yourself making
+changes to your Application 1 environments that don't belong in your Application 2 environments, merging changes
+can become difficult if all of your environment branches are in a single repository.
+
+This approach also makes security easier as teams can be given access to control their application's environments
+without being able to accidentally impact other groups.
+
+### Multiple Environment Repositories Example
+
+    # The location to use for storing cached Git repos
+    :cachedir: '/var/cache/r10k'
+
+    # A list of git repositories to create
+    :sources:
+      # This will clone the git repository and instantiate an environment per
+      # branch in /etc/puppet/environments
+      :app1:
+        remote: 'git@github.com:my-org/app1-environments'
+        basedir: '/etc/puppet/environments'
+      :app2:
+        remote: 'git@github.com:my-org/app2-environments'
+        basedir: '/etc/puppet/environments'
+
+
 Common Commands
 ---------------
 
@@ -233,50 +280,6 @@ Example:
     PUPPETFILE_DIR=/etc/puppet/modules/production \
     /usr/bin/r10k puppetfile install
 
-### Dynamic environment configuration
-
-r10k uses a yaml based configuration file when handling deployments. The default
-location is in /etc/r10k.yaml and can be specified on the command line.
-
-### Example
-
-    # The location to use for storing cached Git repos
-    :cachedir: '/var/cache/r10k'
-
-    # A list of git repositories to create
-    :sources:
-      # This will clone the git repository and instantiate an environment per
-      # branch in /etc/puppet/environments
-      :plops:
-        remote: 'git@github.com:my-org/org-shared-modules'
-        basedir: '/etc/puppet/environments'
-
-Multiple git repositories can be specified, which is handy if environments are broken up by application.
-Application 1 could have its own environment repository with app1_dev, app1_tst, and app1_prd branches while
-Application 2 could have its own environment repository with app2_dev, app2_tst, app2_prd branches.
-
-You might want to take this approach if your environments vary greatly.  If you often find yourself making
-changes to your Application 1 environments that don't belong in your Application 2 environments, merging changes
-can become difficult if all of your environment branches are in a single repository.
-
-This approach also makes security easier as teams can be given access to control their application's environments
-without being able to accidentally impact other groups.
-
-### Multiple Environment Repositories Example
-
-    # The location to use for storing cached Git repos
-    :cachedir: '/var/cache/r10k'
-
-    # A list of git repositories to create
-    :sources:
-      # This will clone the git repository and instantiate an environment per
-      # branch in /etc/puppet/environments
-      :app1:
-        remote: 'git@github.com:my-org/app1-environments'
-        basedir: '/etc/puppet/environments'
-      :app2:
-        remote: 'git@github.com:my-org/app2-environments'
-        basedir: '/etc/puppet/environments'
 
 More information
 ----------------
