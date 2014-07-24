@@ -6,13 +6,17 @@ Dynamic environment deployment is the core functionality of r10k.
 Table of contents
 -----------------
 
-  * [Introduction](dynamic-environments/introduction/): A brief description of
+  * [Introduction](dynamic-environments/introduction.mkd): A brief description of
     what dynamic environments are and how they work.
-  * [Git environments](dynamic-environments/git-environments/) How r10k
-    implements dynamic environments using git
-  * [Configuration](dynamic-environments/configuration/) A reference of dynamic
+  * [Quickstart](dynamic-environments/quickstart.mkd): Getting started with the
+    essentials of dynamic environments and r10k
+  * [Configuration](dynamic-environments/configuration.mkd) A reference of dynamic
     environment configuration options and how they're used
-  * [Usage](dynamic-environments/usage/) A reference of r10k commands and how
+  * [Git environments](dynamic-environments/git-environments.mkd) How r10k
+    implements dynamic environments using git
+  * [Master Configuration](dynamic-environments/master-configuration.mkd) How to
+    configure your Puppet masters to use dynamic environments
+  * [Usage](dynamic-environments/usage.mkd) A reference of r10k commands and how
     they're used.
 
 - - -

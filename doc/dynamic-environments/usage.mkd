@@ -80,6 +80,17 @@ Update one or more modules in a single environment
 
     r10k deploy module -e production apache jenkins java
 
+### Viewing environments
+
+Display all environments being managed by r10k
+
+    r10k deploy display
+
+Display all environments being managed by r10k, and modules specified in the
+Puppetfile with the desired version.
+
+    r10k deploy display -p
+
 User accounts
 -------------
 
