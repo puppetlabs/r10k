@@ -6,7 +6,7 @@ describe R10K::Git::Alternates do
   subject { described_class.new("/some/nonexistent/path/.git") }
 
   it "interacts with the alternates file in the given git repository" do
-    expect(subject.file.to_path).to eq("/some/nonexistent/path/.git/objects/info/alternates")
+    expect(subject.file.to_s).to eq("/some/nonexistent/path/.git/objects/info/alternates")
   end
 
   describe "reading alternate object entries" do
