@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+1.3.2
+-----
+
+2014/07/27
+
+This bugfix release incorporates all fixes added in 1.2.3.
+
 1.3.1
 -----
 
@@ -84,6 +91,15 @@ been started, and sources and environments can be defined at runtime. In the
 long run r10k will add a plugin system for loading additional code from
 Rubygems and other sources, so r10k will be extensible without requiring
 modifications to the source.
+
+1.2.3
+-----
+
+2014/07/27
+
+### User Notes
+
+(GH-173) Fixed a bug with Ruby 1.8.7 with Pathname objects.
 
 1.2.2
 -----
