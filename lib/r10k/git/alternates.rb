@@ -30,7 +30,7 @@ class R10K::Git::Alternates
 
   def write(entries)
     if ! @file.parent.directory?
-      raise R10K::Git::GitError, "Cannot write #{@file.to_path}; parent directory does not exist"
+      raise R10K::Git::GitError, "Cannot write #{@file}; parent directory does not exist"
     end
     @file.open("w") do |fh|
       entries.each do |entry|
