@@ -40,7 +40,7 @@ Verify the Puppetfile syntax
 Remove any modules in the 'modules' directory that are not specified in the
 Puppetfile:
 
-    r10k puppetfile check
+    r10k puppetfile purge
 
 Module types
 ------------
