@@ -45,6 +45,10 @@ class R10K::Environment::Git < R10K::Environment::Base
     @puppetfile  = R10K::Puppetfile.new(@full_path)
   end
 
+  def outdated?
+    @working_dir.outdated?
+  end
+
   # Clone or update the given Git environment.
   #
   # If the environment is being created for the first time, it will

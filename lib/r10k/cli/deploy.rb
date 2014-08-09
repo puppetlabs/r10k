@@ -51,12 +51,14 @@ scheduled. On subsequent deployments, Puppetfile deployment will default to off.
           DESCRIPTION
 
           flag :p, :puppetfile, 'Deploy modules from a puppetfile'
+          flag :i, :puppetfile_if_changed, 'Deploy modules from a puppetfile if the environment changed since last deploy'
 
           run do |opts, args, cmd|
             deploy = R10K::Deployment.load_config(opts[:config])
 
             task = R10K::Task::Deployment::DeployEnvironments.new(deploy)
             task.update_puppetfile = opts[:puppetfile]
+            task.update_puppetfile_if_changed = opts[:puppetfile_if_changed]
             task.environment_names = args
 
             purge = R10K::Task::Deployment::PurgeEnvironments.new(deploy)

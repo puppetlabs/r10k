@@ -66,9 +66,14 @@ module Deployment
     #   @return [TrueClass, FalseClass] Whether to deploy modules in a puppetfile
     attr_accessor :update_puppetfile
 
+    # @!attribute update_puppetfile_if_changed
+    #   @return [TrueClass, FalseClass] Whether to deploy modules in a puppetfile if the environment changed since last deploy
+    attr_accessor :update_puppetfile_if_changed
+
     def initialize(deployment)
       @deployment = deployment
       @update_puppetfile = false
+      @update_puppetfile_if_changed = false
       @environment_names = []
     end
 
@@ -78,6 +83,7 @@ module Deployment
       with_environments(@environment_names) do |env|
         task = R10K::Task::Environment::Deploy.new(env)
         task.update_puppetfile = @update_puppetfile
+        task.update_puppetfile_if_changed = @update_puppetfile_if_changed
         task_runner.insert_task_after(self, task)
       end
     end
