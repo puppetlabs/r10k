@@ -39,7 +39,11 @@ class R10K::Util::Subprocess::POSIX::Runner < R10K::Util::Subprocess::Runner
     end
 
     stdout = @stdout_r.read
-    stderr = @stderr_r.read
+    # Use non-blocking read for stderr_r to work around an issue with OpenSSH
+    # ControlPersist: https://bugzilla.mindrot.org/show_bug.cgi?id=1988
+    # Blocking should not occur in any other case since the process that was
+    # attached to the pipe has already terminated.
+    stderr = read_nonblock(@stderr_r)
 
     @result = R10K::Util::Subprocess::Result.new(@argv, stdout, stderr, @status.exitstatus)
   end
@@ -109,5 +113,20 @@ class R10K::Util::Subprocess::POSIX::Runner < R10K::Util::Subprocess::Runner
 
     @io.stdout = @stdout_w
     @io.stderr = @stderr_w
+  end
+
+  # Perform non-blocking reads on a pipe that could still be open
+  # Give up on reaching EOF or blocking and return what was read
+  def read_nonblock(rd_io)
+    data = ''
+    begin
+      # Loop until EOF or blocking
+      loop do
+          # do an 8k non-blocking read and append the result
+          data << rd_io.read_nonblock(8192)
+      end
+    rescue EOFError, Errno::EAGAIN, Errno::EWOULDBLOCK
+    end
+    data
   end
 end
