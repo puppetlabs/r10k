@@ -41,6 +41,8 @@ class R10K::Util::Subprocess::POSIX::Runner < R10K::Util::Subprocess::Runner
     stdout = @stdout_r.read
     stderr = @stderr_r.read
 
+    @stdout_r.close
+    @stderr_r.close
     @result = R10K::Util::Subprocess::Result.new(@argv, stdout, stderr, @status.exitstatus)
   end
 
@@ -88,6 +90,7 @@ class R10K::Util::Subprocess::POSIX::Runner < R10K::Util::Subprocess::Runner
       msg = exec_r.read || "exec() failed"
       raise "Could not execute #{@argv.join(' ')}: #{msg}"
     end
+    exec_r.close
   end
 
   # Create a pipe so that the parent can verify that the child process
@@ -106,6 +109,11 @@ class R10K::Util::Subprocess::POSIX::Runner < R10K::Util::Subprocess::Runner
   def attach_pipes
     @stdout_r, @stdout_w = ::IO.pipe
     @stderr_r, @stderr_w = ::IO.pipe
+
+    @stdout_r.fcntl(Fcntl::F_SETFD, Fcntl::FD_CLOEXEC)
+    @stdout_w.fcntl(Fcntl::F_SETFD, Fcntl::FD_CLOEXEC)
+    @stderr_r.fcntl(Fcntl::F_SETFD, Fcntl::FD_CLOEXEC)
+    @stderr_w.fcntl(Fcntl::F_SETFD, Fcntl::FD_CLOEXEC)
 
     @io.stdout = @stdout_w
     @io.stderr = @stderr_w
