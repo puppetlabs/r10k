@@ -107,6 +107,11 @@ class R10K::Util::Subprocess::POSIX::Runner < R10K::Util::Subprocess::Runner
     @stdout_r, @stdout_w = ::IO.pipe
     @stderr_r, @stderr_w = ::IO.pipe
 
+    @stdout_r.fcntl(Fcntl::F_SETFD, Fcntl::FD_CLOEXEC)
+    @stdout_w.fcntl(Fcntl::F_SETFD, Fcntl::FD_CLOEXEC)
+    @stderr_r.fcntl(Fcntl::F_SETFD, Fcntl::FD_CLOEXEC)
+    @stderr_w.fcntl(Fcntl::F_SETFD, Fcntl::FD_CLOEXEC)
+
     @io.stdout = @stdout_w
     @io.stderr = @stderr_w
   end
