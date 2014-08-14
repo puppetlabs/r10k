@@ -35,6 +35,8 @@ class TaskRunner
 
           @errors[current] = e
           @succeeded = false
+          # Clear all remaining tasks after a failure, keeps the purge from deleting valid content
+          @tasks.clear
         end
         @tasks.shift
       end
