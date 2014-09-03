@@ -75,10 +75,10 @@ class R10K::Source::Git < R10K::Source::Base
   def environments
     if not @cache.cached?
       []
-    elsif not @environments.empty?
-      @environments
-    else
+    elsif @environments.empty?
       @environments = generate_environments()
+    else
+      @environments
     end
   end
 
