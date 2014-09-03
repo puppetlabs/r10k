@@ -120,7 +120,7 @@ class R10K::Source::Git < R10K::Source::Base
   # @note This implements a required method for the Purgeable mixin
   # @return [Array<String>]
   def desired_contents
-    @environments.map {|env| env.dirname }
+    environments.map {|env| env.dirname }
   end
 
   private
