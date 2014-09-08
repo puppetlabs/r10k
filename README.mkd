@@ -72,6 +72,8 @@ information see the topic specific documentation:
   * Puppetfile documentation: [doc/puppetfile.mkd](doc/puppetfile.mkd)
   * Environment deployment documentation: [doc/dynamic-environments.mkd](doc/dynamic-environments.mkd)
 
+For more general questions, see the [FAQ](doc/faq.mkd).
+
 Getting help
 ------------
 

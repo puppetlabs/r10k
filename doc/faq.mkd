@@ -1,0 +1,51 @@
+Frequently Asked Questions
+==========================
+
+### The default Git branch is 'master', while the default Puppet environment is 'production'. How do I reconcile this?
+
+The default Git branch name is 'master', but this is a somewhat arbitrary name
+and doesn't necessarily map to every use case. In the case of R10K it's generally
+easiest to rename 'master' to 'production'. You can rename the master branch
+with the following:
+
+```
+git branch -m master production
+git push --set-upstream origin production
+```
+
+Note that this will only create a new branch called production with a copy of
+master - to change the default branch for all subsequent clones, read on.
+
+#### Changing the default branch for bare Git repositories
+
+When you clone a repository, Git checks out the [currently active branch][git-clone]
+on the remote repository. Changing this for a non-bare repository is simple - just
+check out a different branch and subsequent clones from that repository will
+use that branch.
+
+For bare repositories things are a bit more complex. Bare repositories do not
+have a working directory that can be checked out, but they do have a [symbolic
+ref][git-symbolic-ref] that serves the same role. To change this, run the
+following command:
+
+```
+git --git-dir /path/to/bare/repo symbolic-ref HEAD refs/heads/production
+```
+
+#### Changing the default branch for different Git services
+
+For Git hosting services where you may not cannot directly invoke commands,
+there are generally 
+
+  * [GitHub][github-default-branch]
+  * [Bitbucket][bitbucket-default-branch]
+  * [Gitolite v2][gitolite-v2-default-branch]
+  * [Gitolite v3][gitolite-v3-default-branch]
+
+[git-clone]: https://www.kernel.org/pub/software/scm/git/docs/git-clone.html "git-clone(1)"
+[git-symbolic-ref]: https://www.kernel.org/pub/software/scm/git/docs/git-symbolic-ref.html "git-symbolic-ref(1)"
+
+[github-default-branch]: https://help.github.com/articles/setting-the-default-branch "Setting the default branch"
+[bitbucket-default-branch]: https://answers.atlassian.com/questions/280944/how-to-change-main-branch-in-bitbucket "How to change MAIN branch in BitBucket?"
+[gitolite-v2-default-branch]: http://stackoverflow.com/questions/7091599/git-default-remote-branch-with-gitolite "git default remote branch with gitolite"
+[gitolite-v3-default-branch]: http://stackoverflow.com/questions/13949093/git-change-default-branch-gitolite "git change default branch (gitolite)"
