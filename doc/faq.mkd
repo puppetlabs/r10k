@@ -35,7 +35,8 @@ git --git-dir /path/to/bare/repo symbolic-ref HEAD refs/heads/production
 #### Changing the default branch for different Git services
 
 For Git hosting services where you may not cannot directly invoke commands,
-there are generally 
+there are usually administrative tools to allow you to change the default branch
+on your remote repositories:
 
   * [GitHub][github-default-branch]
   * [Bitbucket][bitbucket-default-branch]
