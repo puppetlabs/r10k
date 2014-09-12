@@ -1,6 +1,31 @@
 CHANGELOG
 =========
 
+1.3.3
+-----
+
+2014/09/11
+
+### User notes
+
+(GH-178) Failing to fetch a source git repo can wipe out environments
+
+When updating Git sources at the beginning of a deployment, if the fetch was
+interrupted r10k could cache an empty list of environments. This could cause
+r10k to remove all environments for that source. This was due to a method
+directly using a value that was supposed to be lazily evaluated and memoized. It
+has been fixed so that even if r10k cannot fetch a source it will still be able
+to deploy modules for environments, clean up removed environments, and correctly
+remove unmanaged environments.
+
+(GH-186) Rescue SyntaxError when checking Puppetfile syntax
+
+When a Puppetfile with invalid syntax is parsed it raises a SyntaxError,
+and the `r10k puppetfile check` code was not specifically handling that.
+Thus when checking an invalid file r10k was actually crashing and not
+gracefully handling the error. This was fixed to cleanly rescue the SyntaxError,
+optionally print stacktraces, and print an all ok message on success.
+
 1.3.2
 -----
 
