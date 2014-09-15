@@ -125,7 +125,7 @@ class R10K::Module::Forge < R10K::Module::Base
     cmd = []
     cmd << 'install'
     cmd << "--version=#{expected_version}" if expected_version
-    cmd << "--ignore-dependencies"
+    cmd << "--force"
     cmd << @full_name
     pmt cmd
   end
@@ -134,7 +134,7 @@ class R10K::Module::Forge < R10K::Module::Base
     cmd = []
     cmd << 'upgrade'
     cmd << "--version=#{expected_version}" if expected_version
-    cmd << "--ignore-dependencies"
+    cmd << "--force"
     cmd << @full_name
     pmt cmd
   end

@@ -117,6 +117,15 @@ long run r10k will add a plugin system for loading additional code from
 Rubygems and other sources, so r10k will be extensible without requiring
 modifications to the source.
 
+1.2.4
+-----
+
+2014/09/14
+
+### User Notes
+
+(GH-188) Call puppet module tool install with --force for downgrades
+
 1.2.3
 -----
 
