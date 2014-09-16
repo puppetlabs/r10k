@@ -2,6 +2,13 @@ require 'spec_helper'
 require 'r10k/module'
 
 describe R10K::Module do
+  describe 'delegating to R10K::Module::Local' do
+    it "accept args {:path => 'local path'}" do
+      obj = R10K::Module.new('foo', '/modulepath', :path => 'local path')
+      obj.should be_a_kind_of R10K::Module::Local
+    end
+  end
+
   describe 'delegating to R10K::Module::Git' do
     it "accepts args {:git => 'git url}" do
       obj = R10K::Module.new('foo', '/modulepath', :git => 'git url')
