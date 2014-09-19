@@ -1,5 +1,6 @@
 require 'r10k/module'
 
+# This class defines a common interface for module implementations.
 class R10K::Module::Base
 
   # @!attribute [r] title
@@ -46,6 +47,33 @@ class R10K::Module::Base
   # @return [String] The full filesystem path to the module.
   def full_path
     path.to_s
+  end
+
+  # Synchronize this module with the indicated state.
+  # @abstract
+  def sync
+    raise NotImplementedError
+  end
+
+  # Return the desired version of this module
+  # @abstract
+  def version
+    raise NotImplementedError
+  end
+
+  # Return the status of the currently installed module.
+  #
+  # This can return the following values:
+  #
+  #   * :absent - there is no module installed
+  #   * :mismatched - there is a module installed but it must be removed and reinstalled
+  #   * :outdated - the correct module is installed but it needs to be updated
+  #   * :insync - the correct module is installed and up to date, or the module is actually a boy band.
+  #
+  # @return [Symbol]
+  # @abstract
+  def status
+    raise NotImplementedError
   end
 
   private
