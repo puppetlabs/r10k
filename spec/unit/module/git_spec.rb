@@ -3,6 +3,56 @@ require 'r10k/module/git'
 
 describe R10K::Module::Git do
 
+  describe "setting the owner and name" do
+    describe "with a title of 'branan/eight_hundred'" do
+      subject do
+        described_class.new(
+          'branan/eight_hundred',
+          '/moduledir',
+          {
+            :git => 'git://git-server.site/branan/puppet-eight_hundred',
+          }
+        )
+      end
+
+      it "sets the owner to 'branan'" do
+        expect(subject.owner).to eq 'branan'
+      end
+
+      it "sets the name to 'eight_hundred'" do
+        expect(subject.name).to eq 'eight_hundred'
+      end
+
+      it "sets the path to '/moduledir/eight_hundred'" do
+        expect(subject.path).to eq(Pathname.new('/moduledir/eight_hundred'))
+      end
+    end
+
+    describe "with a title of 'modulename'" do
+      subject do
+        described_class.new(
+          'eight_hundred',
+          '/moduledir',
+          {
+            :git => 'git://git-server.site/branan/puppet-eight_hundred',
+          }
+        )
+      end
+
+      it "sets the owner to nil" do
+        expect(subject.owner).to be_nil
+      end
+
+      it "sets the name to 'eight_hundred'" do
+        expect(subject.name).to eq 'eight_hundred'
+      end
+
+      it "sets the path to '/moduledir/eight_hundred'" do
+        expect(subject.path).to eq(Pathname.new('/moduledir/eight_hundred'))
+      end
+    end
+  end
+
   describe "determining the status" do
     subject do
       described_class.new(
