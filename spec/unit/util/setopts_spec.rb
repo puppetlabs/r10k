@@ -9,7 +9,7 @@ describe R10K::Util::Setopts do
       attr_reader :valid, :alsovalid
 
       def initialize(opts = {})
-        setopts(opts, [:valid, :alsovalid])
+        setopts(opts, {:valid => :self, :alsovalid => :self, :validalias => :valid})
       end
     end
   end
@@ -30,6 +30,11 @@ describe R10K::Util::Setopts do
     o = klass.new(:valid => 'yep', :alsovalid => 'yarp')
     expect(o.valid).to eq 'yep'
     expect(o.alsovalid).to eq 'yarp'
+  end
+
+  it "can handle aliases" do
+    o = klass.new(:validalias => 'yuuup')
+    expect(o.valid).to eq 'yuuup'
   end
 
   it "raises an error when given an unhandled option" do

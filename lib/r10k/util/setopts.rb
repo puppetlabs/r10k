@@ -9,10 +9,26 @@ module R10K
 
       private
 
+      # @param opts [Hash]
+      # @param allowed [Hash<Symbol, Symbol>]
+      #
+      # @example
+      #   opts = {:one => "one value"}
+      #   allowed => {:one => :self}
+      #   setopts(opts, allowed)
+      #   @one # => "one value"
+      #
+      # @example
+      #   opts = {:uno => "one value"}
+      #   allowed => {:one => :one, :uno => :one}
+      #   setopts(opts, allowed)
+      #   @one # => "one value"
+      #
       def setopts(opts, allowed)
         opts.each_pair do |key, value|
-          if allowed.include?(key)
-            instance_variable_set("@#{key}".to_sym, value)
+          if (ivar = allowed[key])
+            ivar = key if ivar == :self
+            instance_variable_set("@#{ivar}".to_sym, value)
           else
             raise ArgumentError, "#{self.class.name} cannot handle option '#{key}'"
           end
