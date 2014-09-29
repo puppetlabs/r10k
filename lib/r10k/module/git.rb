@@ -16,14 +16,10 @@ class R10K::Module::Git < R10K::Module::Base
   #   @return [R10K::Git::WorkingDir]
   attr_reader :working_dir
 
-  def initialize(name, basedir, args)
-    @name, @basedir, @args = name, basedir, args
-
-    parse_options(args)
-
-    @full_path = Pathname.new(File.join(basedir, name))
-
-    @working_dir = R10K::Git::WorkingDir.new(@ref, @remote, @basedir, @name)
+  def initialize(title, dirname, args)
+    super
+    parse_options(@args)
+    @working_dir = R10K::Git::WorkingDir.new(@ref, @remote, @dirname, @name)
   end
 
   def version
@@ -65,7 +61,7 @@ class R10K::Module::Git < R10K::Module::Base
   end
 
   def uninstall
-    @full_path.rmtree
+    @path.rmtree
   end
 
   def parse_options(options)

@@ -1,10 +1,90 @@
 require 'r10k/module'
 
+# This class defines a common interface for module implementations.
 class R10K::Module::Base
-  attr_accessor :name, :basedir
 
+  # @!attribute [r] title
+  #   @return [String] The forward slash separated owner and name of the module
+  attr_reader :title
+
+  # @!attribute [r] name
+  #   @return [String] The name of the module
+  attr_reader :name
+
+  # @param [r] dirname
+  #   @return [String] The name of the directory containing this module
+  attr_reader :dirname
+
+  # @deprecated
+  alias :basedir :dirname
+
+  # @!attribute [r] owner
+  #   @return [String, nil] The owner of the module if one is specified
+  attr_reader :owner
+
+  # @!attribute [r] path
+  #   @return [Pathname] The full path of the module
+  attr_reader :path
+
+  # There's been some churn over `author` vs `owner` and `full_name` over
+  # `title`, so in the short run it's easier to support both and deprecate one
+  # later.
+  alias :author :owner
+  alias :full_name :title
+
+  # @param title [String]
+  # @param dirname [String]
+  # @param args [Array]
+  def initialize(title, dirname, args)
+    @title   = title
+    @dirname = dirname
+    @args    = args
+    @owner, @name = parse_title(title)
+    @path = Pathname.new(File.join(@dirname, @name))
+  end
+
+  # @deprecated
   # @return [String] The full filesystem path to the module.
   def full_path
-    File.join(@basedir, @name)
+    path.to_s
+  end
+
+  # Synchronize this module with the indicated state.
+  # @abstract
+  def sync
+    raise NotImplementedError
+  end
+
+  # Return the desired version of this module
+  # @abstract
+  def version
+    raise NotImplementedError
+  end
+
+  # Return the status of the currently installed module.
+  #
+  # This can return the following values:
+  #
+  #   * :absent - there is no module installed
+  #   * :mismatched - there is a module installed but it must be removed and reinstalled
+  #   * :outdated - the correct module is installed but it needs to be updated
+  #   * :insync - the correct module is installed and up to date, or the module is actually a boy band.
+  #
+  # @return [Symbol]
+  # @abstract
+  def status
+    raise NotImplementedError
+  end
+
+  private
+
+  def parse_title(title)
+    if (match = title.match(/\A(\w+)\Z/))
+      [nil, match[1]]
+    elsif (match = title.match(/\A(\w+)[-\/](\w+)\Z/))
+      [match[1], match[2]]
+    else
+      raise ArgumentError, "Module names must match either 'modulename' or 'owner/modulename'"
+    end
   end
 end

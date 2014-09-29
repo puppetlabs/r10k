@@ -18,29 +18,9 @@ class R10K::Module::Forge < R10K::Module::Base
 
   include R10K::Logging
 
-  # @!attribute [r] author
-  #   @return [String] The Forge module author
-  attr_reader :author
-
-  # @deprecated
-  def owner
-    logger.warn "#{self.inspect}#owner is deprecated; use #author instead"
-    @author
-  end
-
-  # @!attribute [r] full_name
-  #   @return [String] The fully qualified module name
-  attr_reader :full_name
-
-  def initialize(full_name, basedir, args)
-    @full_name = full_name
-    @basedir   = basedir
-
-    @author, @name = full_name.split('/')
-
-    @full_path = Pathname.new(File.join(@basedir, @name))
-
-    @metadata = R10K::Module::Metadata.new(@full_path + 'metadata.json')
+  def initialize(title, dirname, args)
+    super
+    @metadata = R10K::Module::Metadata.new(path + 'metadata.json')
 
     if args.is_a? String
       @expected_version = R10K::SemVer.new(args)
@@ -77,7 +57,7 @@ class R10K::Module::Forge < R10K::Module::Base
   alias version current_version
 
   def exist?
-    @full_path.exist?
+    path.exist?
   end
 
   def insync?
@@ -105,7 +85,7 @@ class R10K::Module::Forge < R10K::Module::Base
     # determine the state of the module.
     @metadata.read
 
-    if not @author == @metadata.author
+    if not @owner == @metadata.author
       # This is a forge module but the installed module is a different author
       # than the expected author.
       return :mismatched
@@ -121,12 +101,12 @@ class R10K::Module::Forge < R10K::Module::Base
   private
 
   def install
-    FileUtils.mkdir @basedir unless File.directory? @basedir
+    FileUtils.mkdir @dirname unless File.directory? @dirname
     cmd = []
     cmd << 'install'
     cmd << "--version=#{expected_version}" if expected_version
     cmd << "--force"
-    cmd << @full_name
+    cmd << title
     pmt cmd
   end
 
@@ -135,7 +115,7 @@ class R10K::Module::Forge < R10K::Module::Base
     cmd << 'upgrade'
     cmd << "--version=#{expected_version}" if expected_version
     cmd << "--force"
-    cmd << @full_name
+    cmd << title
     pmt cmd
   end
 
@@ -154,7 +134,7 @@ class R10K::Module::Forge < R10K::Module::Base
   #
   # @return [String] The stdout from the executed command
   def pmt(argv)
-    argv = ['puppet', 'module', '--modulepath', @basedir] + argv
+    argv = ['puppet', 'module', '--modulepath', @dirname] + argv
 
     subproc = R10K::Util::Subprocess.new(argv)
     subproc.raise_on_fail = true
@@ -167,7 +147,16 @@ class R10K::Module::Forge < R10K::Module::Base
 
   def set_version_from_forge
     repo = R10K::ModuleRepository::Forge.new
-    expected = repo.latest_version(@full_name)
+    expected = repo.latest_version(title)
     @expected_version = R10K::SemVer.new(expected)
+  end
+
+  # Override the base #parse_title to ensure we have a fully qualified name
+  def parse_title(title)
+    if (match = title.match(/\A(\w+)[-\/](\w+)\Z/))
+      [match[1], match[2]]
+    else
+      raise ArgumentError, "Forge module names must match 'owner/modulename'"
+    end
   end
 end

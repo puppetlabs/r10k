@@ -19,18 +19,10 @@ class R10K::Module::SVN < R10K::Module::Base
   #   @return [String] The path inside of the SVN repository to have checked out
   attr_reader :svn_path
 
-  # @!attribute [r] full_path
-  #   @return [Pathname] The filesystem path to the SVN repo
-  attr_reader :full_path
-
-  def initialize(name, basedir, args)
-    @name = name
-    @basedir = basedir
-
+  def initialize(title, dirname, args)
+    super
     parse_options(args)
-
-    @full_path = Pathname.new(File.join(@basedir, @name))
-    @working_dir = R10K::SVN::WorkingDir.new(@full_path)
+    @working_dir = R10K::SVN::WorkingDir.new(title)
   end
 
   def status
@@ -59,19 +51,19 @@ class R10K::Module::SVN < R10K::Module::Base
   end
 
   def exist?
-    @full_path.exist?
+    path.exist?
   end
 
   private
 
   def install
-    FileUtils.mkdir @basedir unless File.directory? @basedir
+    FileUtils.mkdir @dirname unless File.directory? @dirname
 
     @working_dir.checkout(@url, @expected_revision)
   end
 
   def uninstall
-    @full_path.rmtree
+    path.rmtree
   end
 
   def reinstall

@@ -15,8 +15,12 @@ describe R10K::Module::Forge do
       expect(described_class).to be_implement('branan/eight_hundred', '8.0.0')
     end
 
-    it "should fail with an invalid full name" do
-      expect(described_class).to_not be_implement('branan-eight_hundred', '8.0.0')
+    it "should implement 'branan-eight_hundred', '8.0.0'" do
+      expect(described_class).to be_implement('branan/eight_hundred', '8.0.0')
+    end
+
+    it "should fail with an invalid title" do
+      expect(described_class).to_not be_implement('branan!eight_hundred', '8.0.0')
     end
 
     it "should fail with an invalid version" do
@@ -29,9 +33,8 @@ describe R10K::Module::Forge do
 
     its(:name) { should eq 'eight_hundred' }
     its(:author) { should eq 'branan' }
-    its(:full_name) { should eq 'branan/eight_hundred' }
-    its(:basedir) { should eq '/moduledir' }
-    its(:full_path) { should eq '/moduledir/eight_hundred' }
+    its(:dirname) { should eq '/moduledir' }
+    its(:title) { should eq 'branan/eight_hundred' }
   end
 
   describe "when syncing" do

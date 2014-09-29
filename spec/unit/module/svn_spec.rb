@@ -13,6 +13,25 @@ describe R10K::Module::SVN do
     end
   end
 
+  describe "path variables" do
+    it "uses the module name as the name" do
+      svn = described_class.new('foo', '/moduledir', :rev => 'r10')
+      expect(svn.name).to eq 'foo'
+      expect(svn.owner).to be_nil
+      expect(svn.dirname).to eq '/moduledir'
+      expect(svn.path).to eq Pathname.new('/moduledir/foo')
+    end
+
+    it "does not include the owner in the path" do
+      svn = described_class.new('bar/foo', '/moduledir', :rev => 'r10')
+      expect(svn.name).to eq 'foo'
+      expect(svn.owner).to eq 'bar'
+      expect(svn.dirname).to eq '/moduledir'
+      expect(svn.path).to eq Pathname.new('/moduledir/foo')
+    end
+  end
+
+
   describe "instantiating based on Puppetfile configuration" do
     it "can specify a revision with the :rev key" do
       svn = described_class.new('foo', '/moduledir', :rev => 'r10')
@@ -114,7 +133,7 @@ describe R10K::Module::SVN do
       end
 
       it "removes the existing directory" do
-        expect(subject.full_path).to receive(:rmtree)
+        expect(subject.path).to receive(:rmtree)
         allow(subject).to receive(:install)
 
         subject.sync
