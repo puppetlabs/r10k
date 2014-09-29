@@ -1,6 +1,7 @@
 require 'r10k/module'
 require 'r10k/execution'
 require 'r10k/svn/working_dir'
+require 'r10k/util/setopts'
 
 class R10K::Module::SVN < R10K::Module::Base
 
@@ -19,9 +20,12 @@ class R10K::Module::SVN < R10K::Module::Base
   #   @return [String] The path inside of the SVN repository to have checked out
   attr_reader :svn_path
 
-  def initialize(title, dirname, args)
+  include R10K::Util::Setopts
+
+  def initialize(title, dirname, opts)
     super
-    parse_options(args)
+
+    setopts(opts, {:svn => :url, :rev => :expected_revision, :revision => :expected_revision, :svn_path => :self})
     @working_dir = R10K::SVN::WorkingDir.new(title)
   end
 
@@ -73,18 +77,5 @@ class R10K::Module::SVN < R10K::Module::Base
 
   def update
     @working_dir.update(@expected_revision)
-  end
-
-  def parse_options(hash)
-    hash.each_pair do |key, value|
-      case key
-      when :svn
-        @url = value
-      when :rev, :revision
-        @expected_revision = value
-      when :svn_path
-        @svn_path = value
-      end
-    end
   end
 end
