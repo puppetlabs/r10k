@@ -20,13 +20,35 @@ class R10K::Module::SVN < R10K::Module::Base
   #   @return [String] The path inside of the SVN repository to have checked out
   attr_reader :svn_path
 
+  # @!attribute [r] full_path
+  #   @return [Pathname] The filesystem path to the SVN repo
+  attr_reader :full_path
+
+  # @!attribute [r] username
+  #   @return [String, nil] The SVN username to be passed to the underlying SVN commands
+  #   @api private
+  attr_reader :username
+
+  # @!attribute [r] password
+  #   @return [String, nil] The SVN password to be passed to the underlying SVN commands
+  #   @api private
+  attr_reader :password
+
   include R10K::Util::Setopts
 
-  def initialize(title, dirname, opts)
-    super
+  INITIALIZE_OPTS = {
+    :svn => :url,
+    :rev => :expected_revision,
+    :revision => :expected_revision,
+    :svn_path => :self,
+    :username => :self,
+    :password => :self
+  }
 
-    setopts(opts, {:svn => :url, :rev => :expected_revision, :revision => :expected_revision, :svn_path => :self})
-    @working_dir = R10K::SVN::WorkingDir.new(title)
+  def initialize(name, dirname, opts)
+    super
+    setopts(opts, INITIALIZE_OPTS)
+    @working_dir = R10K::SVN::WorkingDir.new(@path, :username => @username, :password => @password)
   end
 
   def status
