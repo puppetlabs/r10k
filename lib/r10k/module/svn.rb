@@ -16,10 +16,6 @@ class R10K::Module::SVN < R10K::Module::Base
   attr_reader :expected_revision
   alias expected_version expected_revision
 
-  # @!attribute [r] svn_path
-  #   @return [String] The path inside of the SVN repository to have checked out
-  attr_reader :svn_path
-
   # @!attribute [r] full_path
   #   @return [Pathname] The filesystem path to the SVN repo
   attr_reader :full_path
@@ -40,7 +36,6 @@ class R10K::Module::SVN < R10K::Module::Base
     :svn => :url,
     :rev => :expected_revision,
     :revision => :expected_revision,
-    :svn_path => :self,
     :username => :self,
     :password => :self
   }
