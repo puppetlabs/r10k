@@ -108,7 +108,7 @@ module R10K
       #
       # @return [String] The stdout from the given command
       def svn(argv, opts = {})
-        argv.unshift('svn')
+        argv.unshift('svn', '--non-interactive')
 
         subproc = R10K::Util::Subprocess.new(argv)
         subproc.raise_on_fail = true
