@@ -4,7 +4,6 @@ require 'spec_helper'
 
 describe R10K::Module::Forge do
 
-  include_context 'stub logging'
   include_context 'fail on execution'
 
   let(:fixture_modulepath) { File.expand_path('spec/fixtures/module/forge', PROJECT_ROOT) }
