@@ -75,6 +75,7 @@ module R10K
         argv << '-r' << revision if revision
         argv << @path.basename.to_s
         argv.concat(auth)
+        argv << '-q'
 
         svn(argv, :cwd => @path.parent)
       end
