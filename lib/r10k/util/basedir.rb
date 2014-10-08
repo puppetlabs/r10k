@@ -53,10 +53,10 @@ module R10K
 
       def purge!
         @sources.each do |source|
-          logger.debug "Source #{source.name} claimed contents #{source.desired_contents.inspect}"
+          logger.debug "Source #{source.name} in #{@path} claimed contents #{source.desired_contents.inspect}"
         end
         if !stale_contents.empty?
-          logger.debug "No sources claimed contents #{stale_contents.inspect}"
+          logger.debug "No sources in #{@path} claimed contents #{stale_contents.inspect}"
         end
         super
       end
