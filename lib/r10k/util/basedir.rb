@@ -55,7 +55,9 @@ module R10K
         @sources.each do |source|
           logger.debug "Source #{source.name} claimed contents #{source.desired_contents.inspect}"
         end
-        logger.debug "No sources claimed contents #{stale_contents.inspect}"
+        if !stale_contents.empty?
+          logger.debug "No sources claimed contents #{stale_contents.inspect}"
+        end
         super
       end
     end
