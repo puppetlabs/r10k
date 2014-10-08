@@ -134,9 +134,9 @@ ln -s /etc/hiera.yaml /etc/puppet/hiera.yaml
 Populate the repository by cloning it locally and performing each of the following actions within it:
 
 ```
-mkdir {modules,manifests/profile,hiera}
+mkdir -p {modules,site/profile/manifests,hiera}
 touch hiera/common.yaml
-touch manifests/profile/base.pp
+touch site/profile/manifests/base.pp
 touch environment.conf
 touch Puppetfile
 touch site.pp
@@ -174,9 +174,10 @@ forge 'forge.puppetlabs.com'
 
 # Forge Modules
 mod 'puppetlabs/ntp', '3.0.3'
+mod 'puppetlabs/stdlib'
 ```
 
-Edit the `manifests/profile/base.pp` file and ensure it has the following contents:
+Edit the `site/profile/manifests/base.pp` file and ensure it has the following contents:
 
 ```
 class profile::base {
