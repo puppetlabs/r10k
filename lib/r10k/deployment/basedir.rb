@@ -1,5 +1,5 @@
-require 'r10k/git/cache'
-require 'r10k/deployment/environment'
+require 'r10k/deployment'
+require 'r10k/logging'
 require 'r10k/util/purgeable'
 
 module R10K
@@ -9,12 +9,25 @@ module R10K
     # @api private
     class Basedir
 
-      def initialize(path,deployment)
-        @path       = path
-        @deployment = deployment
+      include R10K::Util::Purgeable
+      include R10K::Logging
+
+      # Create a new Basedir by selecting sources from a deployment that match
+      # the specified path.
+      def self.from_deployment(path, deployment)
+        sources = deployment.sources.select { |source| source.managed_directory == path }
+        new(path, sources)
       end
 
-      include R10K::Util::Purgeable
+      # @param path [String] The path to the directory to manage
+      # @param sources [Array<R10K::Util::Purgeable>] A list of purgeable objects
+      def initialize(path, sources)
+        if sources.is_a? R10K::Deployment
+          raise ArgumentError, "Expected Array<Purgeable>, got R10K::Deployment"
+        end
+        @path    = path
+        @sources = sources
+      end
 
       # Return the path of the basedir
       # @note This implements a required method for the Purgeable mixin
@@ -27,12 +40,15 @@ module R10K
       # @note This implements a required method for the Purgeable mixin
       # @return [Array<String>]
       def desired_contents
-        @deployment.sources.inject([])do |list, source|
-          if source.managed_directory == @path
-            list += source.desired_contents
-          end
-          list
+        @sources.map(&:desired_contents).flatten
+      end
+
+      def purge!
+        @sources.each do |source|
+          logger.debug "Source #{source.name} claimed contents #{source.desired_contents.inspect}"
         end
+        logger.debug "No sources claimed contents #{stale_contents.inspect}"
+        super
       end
     end
   end

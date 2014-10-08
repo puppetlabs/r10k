@@ -119,7 +119,7 @@ module Deployment
 
     def call
       @basedirs.each do |path|
-        basedir = R10K::Deployment::Basedir.new(path,@deployment)
+        basedir = R10K::Deployment::Basedir.from_deployment(path, @deployment)
         logger.info "Purging stale environments from #{path}"
         basedir.purge!
       end

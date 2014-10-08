@@ -39,12 +39,16 @@ module Purgeable
 
   # Forcibly remove all unmanaged content in `self.managed_directory`
   def purge!
-    stale_contents.each do |fname|
-      fpath = File.join(self.managed_directory, fname)
-      FileUtils.rm_rf fpath, :secure => true
+    if stale_contents.empty?
+      logger.debug "No stale contents in #{managed_directory}, nothing to purge"
+    else
+      stale_contents.each do |fname|
+        fpath = File.join(self.managed_directory, fname)
+        logger.debug "Removing stale path #{fpath}"
+        FileUtils.rm_rf fpath, :secure => true
+      end
     end
   end
-
 end
 end
 end
