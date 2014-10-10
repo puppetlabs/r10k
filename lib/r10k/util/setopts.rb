@@ -24,11 +24,25 @@ module R10K
       #   setopts(opts, allowed)
       #   @one # => "one value"
       #
+      # @example
+      #
+      #   opts = {:trace => "something"}
+      #   allowed = {:trace => nil}
+      #   setopts(opts, allowed)
+      #   @trace # => nil
+      #
       def setopts(opts, allowed)
         opts.each_pair do |key, value|
-          if (ivar = allowed[key])
-            ivar = key if ivar == :self
-            instance_variable_set("@#{ivar}".to_sym, value)
+          if allowed.key?(key)
+            rhs = allowed[key]
+            case rhs
+            when NilClass, FalseClass
+              # Ignore nil options
+            when :self, TrueClass
+              instance_variable_set("@#{key}".to_sym, value)
+            else
+              instance_variable_set("@#{rhs}".to_sym, value)
+            end
           else
             raise ArgumentError, "#{self.class.name} cannot handle option '#{key}'"
           end
