@@ -77,19 +77,7 @@ try to deploy the given module names in all environments.
 
           required :e, :environment, 'Update the modules in the given environment'
 
-          run do |opts, args, cmd|
-            deploy = R10K::Deployment.load_config(opts[:config])
-
-            task = R10K::Task::Deployment::DeployModules.new(deploy)
-            task.module_names = args
-            task.environment_names = [opts[:environment]] if opts[:environment]
-
-            runner = R10K::TaskRunner.new(:trace => opts[:trace])
-            runner.append_task task
-            runner.run
-
-            exit runner.exit_value
-          end
+          runner R10K::Action::CriRunner.wrap(R10K::Action::Deploy::Module)
         end
       end
     end
