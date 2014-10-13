@@ -4,6 +4,8 @@ require 'r10k/task_runner'
 require 'r10k/task/environment'
 require 'r10k/task/puppetfile'
 
+require 'r10k/util/basedir'
+
 module R10K
 module Task
 module Deployment
@@ -119,7 +121,7 @@ module Deployment
 
     def call
       @basedirs.each do |path|
-        basedir = R10K::Deployment::Basedir.new(path,@deployment)
+        basedir = R10K::Util::Basedir.from_deployment(path, @deployment)
         logger.info "Purging stale environments from #{path}"
         basedir.purge!
       end
