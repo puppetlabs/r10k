@@ -28,6 +28,8 @@ module R10K
           opts[:loglevel] = loglevel
         when TrueClass
           opts[:loglevel] = 'INFO'
+        when NilClass
+          # pass
         else
           # When the type is unsure just pass it in as-is and let the internals
           # raise the appropriate errors.

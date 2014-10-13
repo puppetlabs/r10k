@@ -15,7 +15,7 @@ module R10K
       end
 
       def setup_logging
-        if @opts[:loglevel]
+        if @opts.key?(:loglevel)
           R10K::Logging.level = @opts.delete(:loglevel)
         end
       end
