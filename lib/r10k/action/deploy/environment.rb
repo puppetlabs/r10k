@@ -47,7 +47,11 @@ module R10K
 
           attempt.try do |environment|
             environment.sync
-            environment.modules if @puppetfile
+            environment.puppetfile if @puppetfile
+          end.try do |puppetfile|
+            puppetfile.load!
+            puppetfile.purge!
+            puppetfile.modules
           end.try do |mod|
             mod.sync
           end
