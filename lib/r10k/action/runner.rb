@@ -1,9 +1,9 @@
 module R10K
   module Action
     class Runner
-      def initialize(argv, opts, klass)
-        @argv = argv
+      def initialize(opts, argv, klass)
         @opts = opts
+        @argv = argv
         @klass = klass
       end
 
@@ -11,7 +11,7 @@ module R10K
         setup_logging
         setup_settings
         # check arguments
-        @klass.new(@argv, @opts).call
+        @klass.new(@opts, @argv).call
       end
 
       def setup_logging

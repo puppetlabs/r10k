@@ -18,9 +18,7 @@ module R10K
         @klass = klass
       end
 
-      # @todo swap args order for consistency
       def new(opts, args, _cmd)
-
         # Translate from the Cri verbose logging option to the internal logging setting.
         loglevel = opts.delete(:verbose)
         case loglevel
@@ -36,7 +34,7 @@ module R10K
           opts[:loglevel] = loglevel
         end
 
-        R10K::Action::Runner.new(args, opts, @klass)
+        R10K::Action::Runner.new(opts, args, @klass)
       end
     end
   end
