@@ -1,6 +1,7 @@
 require 'r10k/util/attempt'
 require 'r10k/util/setopts'
 require 'r10k/deployment'
+require 'set'
 
 module R10K
   module Action
@@ -15,7 +16,7 @@ module R10K
           setopts(opts, {
             :config     => :self,
             :puppetfile => :self,
-            #:purge      => :self,
+            :purge      => :self,
             :trace      => :nil
           })
 
@@ -33,10 +34,13 @@ module R10K
             # and execution will be halted.
             deployment.preload!
 
-            #if @purge
-            #  basedir = R10K::Util::Basedir.from_deployment(@config)
-            #  basedir.purge!
-            #end
+            if @purge
+              paths = Set.new
+              @deployment.sources.each { |source| paths.add(source.basedir) }
+              paths.each do |path|
+                R10K::Util::Basedir.new(path, @deployment.sources).purge!
+              end
+            end
 
             environments
           end
