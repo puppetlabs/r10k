@@ -67,4 +67,11 @@ describe R10K::Deployment do
       deployment.preload!
     end
   end
+
+  describe "paths" do
+    it "retrieves the path for each source" do
+      expect(deployment.paths).to include(File.join(config.confdir, 'environments'))
+      expect(deployment.paths).to include(File.join(config.confdir, 'hiera'))
+    end
+  end
 end

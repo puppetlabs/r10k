@@ -1,11 +1,12 @@
-require 'yaml'
-require 'r10k'
 require 'r10k/source'
+require 'set'
 
 module R10K
   # A deployment models the entire state of the configuration that a Puppet
   # master can use. It contains a set of sources that can produce environments
   # and manages the contents of directories where environments are deployed.
+  #
+  # @api private
   class Deployment
 
     require 'r10k/deployment/environment'
@@ -55,6 +56,15 @@ module R10K
     def environments
       load_environments if @_environments.nil?
       @_environments
+    end
+
+    # @return [Set<String>] The paths used by all contained sources
+    def paths
+      paths = Set.new
+      sources.each do |source|
+        paths.add(source.basedir)
+      end
+      paths
     end
 
     private
