@@ -106,7 +106,8 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
   end
 
   def outdated?
-    @ref.fetch? or needs_checkout?
+    fetch_from_cache
+    needs_checkout?
   end
 
   # Prefer remote heads from the 'cache' remote over the real remote
