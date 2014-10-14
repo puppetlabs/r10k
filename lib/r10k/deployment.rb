@@ -1,4 +1,5 @@
 require 'r10k/source'
+require 'r10k/util/basedir'
 require 'set'
 
 module R10K
@@ -60,11 +61,21 @@ module R10K
 
     # @return [Set<String>] The paths used by all contained sources
     def paths
-      paths = Set.new
-      sources.each do |source|
-        paths.add(source.basedir)
+      paths_and_sources.keys
+    end
+
+    # @return [Hash<String, Array<R10K::Source::Base>]
+    def paths_and_sources
+      pathmap = Hash.new { |h, k| h[k] = [] }
+      sources.each { |source| pathmap[source.basedir] << source }
+      pathmap
+    end
+
+    # Remove unmanaged content from all source paths
+    def purge!
+      paths_and_sources.each_pair do |path, sources_at_path|
+        R10K::Util::Basedir.new(path, sources_at_path).purge!
       end
-      paths
     end
 
     private

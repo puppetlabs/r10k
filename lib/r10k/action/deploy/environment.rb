@@ -1,7 +1,6 @@
 require 'r10k/util/attempt'
 require 'r10k/util/setopts'
 require 'r10k/deployment'
-require 'set'
 
 module R10K
   module Action
@@ -35,11 +34,7 @@ module R10K
             deployment.preload!
 
             if @purge
-              paths = Set.new
-              @deployment.sources.each { |source| paths.add(source.basedir) }
-              paths.each do |path|
-                R10K::Util::Basedir.new(path, @deployment.sources).purge!
-              end
+              deployment.purge!
             end
 
             environments

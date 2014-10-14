@@ -33,10 +33,10 @@ describe R10K::Deployment do
 
   subject(:deployment) { described_class.new(config) }
 
-  describe "loading" do
-    let(:control) { deployment.sources.find { |source| source.name == :control } }
-    let(:hiera)   { deployment.sources.find { |source| source.name == :hiera } }
+  let(:control) { deployment.sources.find { |source| source.name == :control } }
+  let(:hiera)   { deployment.sources.find { |source| source.name == :hiera } }
 
+  describe "loading" do
     describe "sources" do
       it "creates a source for each key in the ':sources' config entry" do
 
@@ -72,6 +72,30 @@ describe R10K::Deployment do
     it "retrieves the path for each source" do
       expect(deployment.paths).to include(File.join(config.confdir, 'environments'))
       expect(deployment.paths).to include(File.join(config.confdir, 'hiera'))
+    end
+  end
+
+  describe "paths and sources" do
+    it "retrieves the path for each source" do
+      p_a_s = deployment.paths_and_sources
+
+      expect(p_a_s[File.join(config.confdir, 'environments')]).to eq([control])
+      expect(p_a_s[File.join(config.confdir, 'hiera')]).to eq([hiera])
+    end
+  end
+
+  describe "purging" do
+    it "purges each managed directory" do
+      env_basedir = double("basedir environments")
+      hiera_basedir = double("basedir hiera")
+
+      expect(env_basedir).to receive(:purge!)
+      expect(hiera_basedir).to receive(:purge!)
+
+      expect(R10K::Util::Basedir).to receive(:new).with(File.join(config.confdir, 'environments'), [control]).and_return(env_basedir)
+      expect(R10K::Util::Basedir).to receive(:new).with(File.join(config.confdir, 'hiera'), [hiera]).and_return(hiera_basedir)
+
+      deployment.purge!
     end
   end
 end
