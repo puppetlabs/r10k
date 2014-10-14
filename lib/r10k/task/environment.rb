@@ -4,6 +4,8 @@ require 'r10k/task/puppetfile'
 module R10K
 module Task
 module Environment
+
+  # @deprecated
   class Deploy < R10K::Task::Base
 
     attr_writer :update_puppetfile

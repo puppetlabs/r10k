@@ -9,6 +9,8 @@ require 'r10k/util/basedir'
 module R10K
 module Task
 module Deployment
+
+  # @deprecated
   module SharedBehaviors
 
     private
@@ -56,6 +58,7 @@ module Deployment
     end
   end
 
+  # @deprecated
   class DeployEnvironments < R10K::Task::Base
 
     include SharedBehaviors
@@ -85,6 +88,7 @@ module Deployment
     end
   end
 
+  # @deprecated
   class DeployModules < R10K::Task::Base
 
     include SharedBehaviors
@@ -112,6 +116,7 @@ module Deployment
     end
   end
 
+  # @deprecated
   class PurgeEnvironments < R10K::Task::Base
 
     def initialize(deployment)
