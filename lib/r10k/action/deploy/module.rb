@@ -38,6 +38,8 @@ module R10K
           end
 
           attempt.run
+
+          attempt.ok?
         end
 
         private

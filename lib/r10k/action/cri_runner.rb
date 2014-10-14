@@ -8,6 +8,8 @@ module R10K
     # This class provides the necessary glue to translate behavior specific
     # to Cri and the CLI component in general to the interface agnostic runner
     # class.
+    #
+    # @api private
     class CriRunner
 
       def self.wrap(klass)
@@ -18,6 +20,18 @@ module R10K
         @klass = klass
       end
 
+      # Intercept any instatiations of klass
+      #
+      # Defining #new allows this object to proxy method calls on the wrapped
+      # runner and decorate various methods. Doing so allows this class to
+      # manage CLI specific behaviors and isolate the underlying code from
+      # having to deal with those particularities
+      #
+      # @param opts [Hash]
+      # @param argv [Array<String>]
+      # @param _cmd [Cri::Command] The command that was invoked. This value
+      #   is not used and is only present to adapt the Cri interface to r10k.
+      # @return [self]
       def new(opts, args, _cmd)
         # Translate from the Cri verbose logging option to the internal logging setting.
         loglevel = opts.delete(:verbose)
@@ -34,7 +48,16 @@ module R10K
           opts[:loglevel] = loglevel
         end
 
-        R10K::Action::Runner.new(opts, args, @klass)
+        @runner = R10K::Action::Runner.new(opts, args, @klass)
+
+        self
+      end
+
+      # Invoke the wrapped behavior, determine if it succeeded, and exit with
+      # the resulting exit code.
+      def call
+        rv = @runner.call
+        exit(rv ? 0 : 1)
       end
     end
   end
