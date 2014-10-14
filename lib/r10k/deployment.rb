@@ -31,6 +31,8 @@ module R10K
     def preload!
       sources.each(&:preload!)
     end
+
+    # @deprecated
     alias fetch_sources preload!
 
     # Lazily load all sources
