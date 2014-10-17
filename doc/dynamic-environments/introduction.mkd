@@ -50,6 +50,22 @@ Running `puppet agent -t --environment myenv` will cause $environment to be
 expanded to 'myenv', so the modulepath for that environment will be set to 
 '/etc/puppet/environments/myenv/modules'.
 
+Alternatively, starting in puppet 3.5, puppet supports "directory environmnets"
+which implement dynamic environments using the following configuration:
+
+```
+[main]
+    environmentpath = $confdir/environments
+    default_manifest = $confdir/manifests
+    basemodulepath = $confdir/modules:/opt/puppet/share/puppet/modules
+```
+
+This supports the same directory structure as the `$environment` method.
+Starting in puppet 4, "directory environments" will be the only configuration
+method. `modulepath` will be deprecated. See [Directory
+Environments](https://docs.puppetlabs.com/puppet/latest/reference/environments_configuring.html).
+
+
 This approach of allowing environments to be defined on the fly is a complete
 reversal of the original architecture of environments. This approach means that
 it can be very easy to create new environments, update existing environments,
