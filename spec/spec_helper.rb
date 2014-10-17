@@ -2,6 +2,7 @@ require 'r10k'
 
 require 'shared-examples/git-ref'
 require 'matchers/exit_with'
+require 'r10k-mocks'
 
 PROJECT_ROOT = File.expand_path('..', File.dirname(__FILE__))
 
