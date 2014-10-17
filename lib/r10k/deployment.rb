@@ -1,5 +1,6 @@
 require 'r10k/source'
 require 'r10k/util/basedir'
+require 'r10k/errors'
 require 'set'
 
 module R10K
@@ -61,7 +62,7 @@ module R10K
       @_environments
     end
 
-    # @return [Set<String>] The paths used by all contained sources
+    # @return [Array<String>] The paths used by all contained sources
     def paths
       paths_and_sources.keys
     end
@@ -77,6 +78,23 @@ module R10K
     def purge!
       paths_and_sources.each_pair do |path, sources_at_path|
         R10K::Util::Basedir.new(path, sources_at_path).purge!
+      end
+    end
+
+    def validate!
+      hash = {}
+      sources.each do |source|
+        source.environments.each do |environment|
+          if hash.key?(environment.path)
+            osource, oenvironment = hash[environment.path]
+            msg = ""
+            msg << "Environment collision at #{environment.path} between "
+            msg << "#{source.name}:#{environment.name} and #{osource.name}:#{oenvironment.name}"
+            raise R10K::R10KError, msg
+          else
+            hash[environment.path] = [source, environment]
+          end
+        end
       end
     end
 

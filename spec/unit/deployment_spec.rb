@@ -4,31 +4,23 @@ require 'tmpdir'
 
 describe R10K::Deployment do
 
+  let(:confdir) { Dir.mktmpdir }
+
   let(:config) do
-    Object.new.tap do |o|
-
-      # Scope hack. Ignore.
-      def o.confdir
-        @confdir ||= Dir.mktmpdir
-      end
-
-      def o.setting(key)
-        hash = {
-          :sources => {
-            :control => {
-              :basedir => File.join(confdir, 'environments'),
-              :remote  => 'git://some-git-server/puppet-control.git',
-            },
-            :hiera => {
-              :basedir => File.join(confdir, 'hiera'),
-              :remote  => 'git://some-git-server/hiera.git',
-            }
-          }
+    R10K::Deployment::MockConfig.new(
+      :sources => {
+        :control => {
+          :type => :mock,
+          :basedir => File.join(confdir, 'environments'),
+          :environments => %w[first second third],
+        },
+        :hiera => {
+          :type => :mock,
+          :basedir => File.join(confdir, 'hiera'),
+          :environments => %w[fourth fifth sixth],
         }
-
-        hash[key]
-      end
-    end
+      }
+    )
   end
 
   subject(:deployment) { described_class.new(config) }
@@ -39,21 +31,15 @@ describe R10K::Deployment do
   describe "loading" do
     describe "sources" do
       it "creates a source for each key in the ':sources' config entry" do
-
-        expect(control.basedir).to eq(File.join(config.confdir, 'environments'))
-        expect(hiera.basedir).to eq(File.join(config.confdir, 'hiera'))
+        expect(control.basedir).to eq(File.join(confdir, 'environments'))
+        expect(hiera.basedir).to eq(File.join(confdir, 'hiera'))
       end
     end
 
     describe "loading environments" do
-      before do
-        allow(control).to receive(:environments).and_return(%w[first second third])
-        allow(hiera).to receive(:environments).and_return(%w[fourth fifth sixth])
-      end
-
       it "loads environments from each source" do
         %w[first second third fourth fifth sixth].each do |env|
-          expect(deployment.environments).to include(env)
+          expect(deployment.environments.map(&:name)).to include(env)
         end
       end
     end
@@ -70,8 +56,8 @@ describe R10K::Deployment do
 
   describe "paths" do
     it "retrieves the path for each source" do
-      expect(deployment.paths).to include(File.join(config.confdir, 'environments'))
-      expect(deployment.paths).to include(File.join(config.confdir, 'hiera'))
+      expect(deployment.paths).to include(File.join(confdir, 'environments'))
+      expect(deployment.paths).to include(File.join(confdir, 'hiera'))
     end
   end
 
@@ -79,8 +65,8 @@ describe R10K::Deployment do
     it "retrieves the path for each source" do
       p_a_s = deployment.paths_and_sources
 
-      expect(p_a_s[File.join(config.confdir, 'environments')]).to eq([control])
-      expect(p_a_s[File.join(config.confdir, 'hiera')]).to eq([hiera])
+      expect(p_a_s[File.join(confdir, 'environments')]).to eq([control])
+      expect(p_a_s[File.join(confdir, 'hiera')]).to eq([hiera])
     end
   end
 
@@ -92,10 +78,40 @@ describe R10K::Deployment do
       expect(env_basedir).to receive(:purge!)
       expect(hiera_basedir).to receive(:purge!)
 
-      expect(R10K::Util::Basedir).to receive(:new).with(File.join(config.confdir, 'environments'), [control]).and_return(env_basedir)
-      expect(R10K::Util::Basedir).to receive(:new).with(File.join(config.confdir, 'hiera'), [hiera]).and_return(hiera_basedir)
+      expect(R10K::Util::Basedir).to receive(:new).with(File.join(confdir, 'environments'), [control]).and_return(env_basedir)
+      expect(R10K::Util::Basedir).to receive(:new).with(File.join(confdir, 'hiera'), [hiera]).and_return(hiera_basedir)
 
       deployment.purge!
     end
+  end
+end
+
+describe R10K::Deployment, "with environment collisions" do
+
+  let(:confdir) { Dir.mktmpdir }
+
+  let(:config) do
+    R10K::Deployment::MockConfig.new(
+      :sources => {
+        :s1 => {
+          :type => :mock,
+          :basedir => File.join(confdir, 'environments'),
+          :environments => %w[first second third],
+        },
+        :s2 => {
+          :type => :mock,
+          :basedir => File.join(confdir, 'environments'),
+          :environments => %w[third fourth fifth],
+        }
+      }
+    )
+  end
+
+  subject(:deployment) { described_class.new(config) }
+
+  it "raises an error when validating" do
+    expect {
+      deployment.validate!
+    }.to raise_error(R10K::R10KError, /Environment collision at .* between s\d:third and s\d:third/)
   end
 end
