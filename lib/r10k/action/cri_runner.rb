@@ -32,7 +32,7 @@ module R10K
       # @param _cmd [Cri::Command] The command that was invoked. This value
       #   is not used and is only present to adapt the Cri interface to r10k.
       # @return [self]
-      def new(opts, args, _cmd)
+      def new(opts, args, _cmd = nil)
         # Translate from the Cri verbose logging option to the internal logging setting.
         loglevel = opts.delete(:verbose)
         case loglevel
