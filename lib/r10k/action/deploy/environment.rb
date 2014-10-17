@@ -33,6 +33,9 @@ module R10K
             # and execution will be halted.
             deployment.preload!
 
+            # Make sure that all environments manage a unique path.
+            deployment.validate!
+
             if @purge
               deployment.purge!
             end
