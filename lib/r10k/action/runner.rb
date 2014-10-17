@@ -7,16 +7,25 @@ module R10K
         @klass = klass
       end
 
+      def instance
+        if @_instance.nil?
+          iopts = @opts.dup
+          iopts.delete(:loglevel)
+          @_instance = @klass.new(iopts, @argv)
+        end
+        @_instance
+      end
+
       def call
         setup_logging
         setup_settings
-        # check arguments
-        @klass.new(@opts, @argv).call
+        # @todo check arguments
+        instance.call
       end
 
       def setup_logging
         if @opts.key?(:loglevel)
-          R10K::Logging.level = @opts.delete(:loglevel)
+          R10K::Logging.level = @opts[:loglevel]
         end
       end
 
