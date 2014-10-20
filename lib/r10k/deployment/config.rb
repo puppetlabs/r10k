@@ -1,5 +1,6 @@
 require 'r10k/deployment'
 require 'r10k/deployment/config/loader'
+require 'yaml'
 
 module R10K
 class Deployment
@@ -42,7 +43,7 @@ class Config
       end
     end
     begin
-      @config = YAML.load_file(@configfile)
+      @config = ::YAML.load_file(@configfile)
       apply_config_settings
     rescue => e
       raise ConfigError, "Couldn't load config file: #{e.message}"
