@@ -2,6 +2,7 @@ require 'r10k/svn'
 require 'r10k/environment'
 require 'r10k/util/purgeable'
 require 'r10k/util/core_ext/hash_ext'
+require 'r10k/util/setopts'
 
 # This class implements a source for SVN environments.
 #
@@ -27,6 +28,18 @@ class R10K::Source::SVN < R10K::Source::Base
   #   @return [R10K::SVN::Remote]
   attr_reader :svn_remote
 
+  # @!attribute [r] username
+  #   @return [String, nil] The SVN username to be passed to the underlying SVN commands
+  #   @api private
+  attr_reader :username
+
+  # @!attribute [r] password
+  #   @return [String, nil] The SVN password to be passed to the underlying SVN commands
+  #   @api private
+  attr_reader :password
+
+  include R10K::Util::Setopts
+
   # Initialize the given source.
   #
   # @param name [String] The identifier for this source.
@@ -36,13 +49,14 @@ class R10K::Source::SVN < R10K::Source::Base
   # @option options [Boolean] :prefix Whether to prefix the source name to the
   #   environment directory names. Defaults to false.
   # @option options [String] :remote The URL to the base directory of the SVN repository
+  # @option options [String] :username The SVN username
+  # @option options [String] :password The SVN password
   def initialize(name, basedir, options = {})
     super
 
-    @remote = options[:remote]
+    setopts(options, {:remote => :self, :username => :self, :password => :self})
     @environments = []
-
-    @svn_remote = R10K::SVN::Remote.new(@remote)
+    @svn_remote = R10K::SVN::Remote.new(@remote, :username => @username, :password => @password)
   end
 
   # Enumerate the environments associated with this SVN source.
@@ -67,8 +81,12 @@ class R10K::Source::SVN < R10K::Source::Base
   def generate_environments
 
     branch_names.map do |branch|
-      R10K::Environment::SVN.new(branch.name, @basedir, branch.dirname,
-                                 { :remote => branch.remote })
+      options = {
+        :remote   => branch.remote,
+        :username => @username,
+        :password => @password
+      }
+      R10K::Environment::SVN.new(branch.name, @basedir, branch.dirname, options)
     end
   end
 

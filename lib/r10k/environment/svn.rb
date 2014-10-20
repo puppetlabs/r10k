@@ -1,5 +1,6 @@
 require 'r10k/puppetfile'
 require 'r10k/svn/working_dir'
+require 'r10k/util/setopts'
 
 # This class implements an environment based on an SVN branch.
 #
@@ -22,6 +23,18 @@ class R10K::Environment::SVN < R10K::Environment::Base
   #   @return [R10K::Puppetfile] The puppetfile instance associated with this environment
   attr_reader :puppetfile
 
+  # @!attribute [r] username
+  #   @return [String, nil] The SVN username to be passed to the underlying SVN commands
+  #   @api private
+  attr_reader :username
+
+  # @!attribute [r] password
+  #   @return [String, nil] The SVN password to be passed to the underlying SVN commands
+  #   @api private
+  attr_reader :password
+
+  include R10K::Util::Setopts
+
   # Initialize the given SVN environment.
   #
   # @param name [String] The unique name describing this environment.
@@ -29,13 +42,15 @@ class R10K::Environment::SVN < R10K::Environment::Base
   # @param dirname [String] The directory name for this environment.
   # @param options [Hash] An additional set of options for this environment.
   #
-  # @param options [String] :remote The URL to the remote SVN branch to check out
+  # @option options [String] :remote The URL to the remote SVN branch to check out
+  # @option options [String] :username The SVN username
+  # @option options [String] :password The SVN password
   def initialize(name, basedir, dirname, options = {})
     super
 
-    @remote = options[:remote]
+    setopts(options, {:remote => :self, :username => :self, :password => :self})
 
-    @working_dir = R10K::SVN::WorkingDir.new(Pathname.new(@full_path))
+    @working_dir = R10K::SVN::WorkingDir.new(Pathname.new(@full_path), :username => @username, :password => @password)
     @puppetfile  = R10K::Puppetfile.new(@full_path)
   end
 

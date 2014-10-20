@@ -1,9 +1,17 @@
 require 'r10k/util/subprocess'
+require 'r10k/util/setopts'
 
+# Inspect and interact with SVN remote repositories
+#
+# @api private
+# @since 1.3.0
 class R10K::SVN::Remote
 
-  def initialize(baseurl)
+  include R10K::Util::Setopts
+
+  def initialize(baseurl, opts = {})
     @baseurl = baseurl
+    setopts(opts, {:username => :self, :password => :self})
   end
 
   # @todo validate that the path to trunk exists in the remote
@@ -13,7 +21,9 @@ class R10K::SVN::Remote
 
   # @todo gracefully handle cases where no branches exist
   def branches
-    text = svn ['ls', "#{@baseurl}/branches"]
+    argv = ['ls', "#{@baseurl}/branches"]
+    argv.concat(auth)
+    text = svn(argv)
     text.lines.map do |line|
       line.chomp!
       line.gsub!(%r[/$], '')
@@ -22,6 +32,16 @@ class R10K::SVN::Remote
   end
 
   private
+
+  # Format authentication information for SVN command args, if applicable
+  def auth
+    auth = []
+    if @username
+      auth << "--username" << @username
+      auth << "--password" << @password
+    end
+    auth
+  end
 
   include R10K::Logging
 
@@ -34,7 +54,7 @@ class R10K::SVN::Remote
   #
   # @return [String] The stdout from the given command
   def svn(argv, opts = {})
-    argv.unshift('svn')
+    argv.unshift('svn', '--non-interactive')
 
     subproc = R10K::Util::Subprocess.new(argv)
     subproc.raise_on_fail = true

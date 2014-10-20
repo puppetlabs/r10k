@@ -1,6 +1,7 @@
 require 'r10k/module'
 require 'r10k/execution'
 require 'r10k/svn/working_dir'
+require 'r10k/util/setopts'
 
 class R10K::Module::SVN < R10K::Module::Base
 
@@ -15,14 +16,34 @@ class R10K::Module::SVN < R10K::Module::Base
   attr_reader :expected_revision
   alias expected_version expected_revision
 
-  # @!attribute [r] svn_path
-  #   @return [String] The path inside of the SVN repository to have checked out
-  attr_reader :svn_path
+  # @!attribute [r] full_path
+  #   @return [Pathname] The filesystem path to the SVN repo
+  attr_reader :full_path
 
-  def initialize(title, dirname, args)
+  # @!attribute [r] username
+  #   @return [String, nil] The SVN username to be passed to the underlying SVN commands
+  #   @api private
+  attr_reader :username
+
+  # @!attribute [r] password
+  #   @return [String, nil] The SVN password to be passed to the underlying SVN commands
+  #   @api private
+  attr_reader :password
+
+  include R10K::Util::Setopts
+
+  INITIALIZE_OPTS = {
+    :svn => :url,
+    :rev => :expected_revision,
+    :revision => :expected_revision,
+    :username => :self,
+    :password => :self
+  }
+
+  def initialize(name, dirname, opts)
     super
-    parse_options(args)
-    @working_dir = R10K::SVN::WorkingDir.new(title)
+    setopts(opts, INITIALIZE_OPTS)
+    @working_dir = R10K::SVN::WorkingDir.new(@path, :username => @username, :password => @password)
   end
 
   def status
@@ -73,18 +94,5 @@ class R10K::Module::SVN < R10K::Module::Base
 
   def update
     @working_dir.update(@expected_revision)
-  end
-
-  def parse_options(hash)
-    hash.each_pair do |key, value|
-      case key
-      when :svn
-        @url = value
-      when :rev, :revision
-        @expected_revision = value
-      when :svn_path
-        @svn_path = value
-      end
-    end
   end
 end

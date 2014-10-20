@@ -42,11 +42,6 @@ describe R10K::Module::SVN do
       svn = described_class.new('foo', '/moduledir', :revision => 'r10')
       expect(svn.expected_revision).to eq 'r10'
     end
-
-    it "can specify a path within the SVN repo" do
-      svn = described_class.new('foo', '/moduledir', :svn_path => 'branches/something/foo')
-      expect(svn.svn_path).to eq 'branches/something/foo'
-    end
   end
 
   describe "determining the status" do
