@@ -15,6 +15,10 @@ class R10K::Environment::Base
   #   @return [String] The directory name for the given environment
   attr_reader :dirname
 
+  # @!attribute [r] path
+  #   @return [Pathname] The full path to the given environment
+  attr_reader :path
+
   # Initialize the given environment.
   #
   # @param name [String] The unique name describing this environment.
@@ -29,6 +33,7 @@ class R10K::Environment::Base
     @options = options
 
     @full_path = File.join(@basedir, @dirname)
+    @path = Pathname.new(File.join(@basedir, @dirname))
   end
 
   # Synchronize the given environment.

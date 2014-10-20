@@ -5,6 +5,10 @@ require 'r10k/deployment/config'
 require 'r10k/task_runner'
 require 'r10k/task/deployment'
 
+require 'r10k/action/cri_runner'
+require 'r10k/action/deploy'
+
+
 require 'cri'
 
 module R10K::CLI
@@ -52,22 +56,7 @@ scheduled. On subsequent deployments, Puppetfile deployment will default to off.
 
           flag :p, :puppetfile, 'Deploy modules from a puppetfile'
 
-          run do |opts, args, cmd|
-            deploy = R10K::Deployment.load_config(opts[:config])
-
-            task = R10K::Task::Deployment::DeployEnvironments.new(deploy)
-            task.update_puppetfile = opts[:puppetfile]
-            task.environment_names = args
-
-            purge = R10K::Task::Deployment::PurgeEnvironments.new(deploy)
-
-            runner = R10K::TaskRunner.new(:trace => opts[:trace])
-            runner.append_task task
-            runner.append_task purge
-            runner.run
-
-            exit runner.exit_value
-          end
+          runner R10K::Action::CriRunner.wrap(R10K::Action::Deploy::Environment)
         end
       end
     end
@@ -88,19 +77,7 @@ try to deploy the given module names in all environments.
 
           required :e, :environment, 'Update the modules in the given environment'
 
-          run do |opts, args, cmd|
-            deploy = R10K::Deployment.load_config(opts[:config])
-
-            task = R10K::Task::Deployment::DeployModules.new(deploy)
-            task.module_names = args
-            task.environment_names = [opts[:environment]] if opts[:environment]
-
-            runner = R10K::TaskRunner.new(:trace => opts[:trace])
-            runner.append_task task
-            runner.run
-
-            exit runner.exit_value
-          end
+          runner R10K::Action::CriRunner.wrap(R10K::Action::Deploy::Module)
         end
       end
     end
