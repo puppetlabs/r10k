@@ -14,7 +14,7 @@ describe R10K::Git::Head do
 
   describe "determining if the head needs to be fetched" do
     it "is always true" do
-      expect(subject.fetch?).to be_true
+      expect(subject.fetch?).to be_truthy
     end
   end
 

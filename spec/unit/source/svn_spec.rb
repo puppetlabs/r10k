@@ -83,7 +83,7 @@ describe R10K::Source::SVN, 'when prefixing is enabled' do
     let(:environments) { subject.generate_environments }
 
     it "creates an environment for each branch and the trunk" do
-      expect(environments).to have(4).items
+      expect(environments.size).to eq(4)
     end
 
     it "prefixes the source name to environments" do

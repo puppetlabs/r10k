@@ -61,7 +61,7 @@ describe R10K::Git::Alternates do
 
       before do
         expect(subject.file).to receive(:open).with('w').and_yield(io)
-        subject.file.stub_chain(:parent, :directory?).and_return true
+        expect(subject.file).to receive_message_chain(:parent, :directory?).and_return true
       end
 
 

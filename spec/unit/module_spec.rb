@@ -5,19 +5,19 @@ describe R10K::Module do
   describe 'delegating to R10K::Module::Git' do
     it "accepts args {:git => 'git url}" do
       obj = R10K::Module.new('foo', '/modulepath', :git => 'git url')
-      obj.should be_a_kind_of R10K::Module::Git
+      expect(obj).to be_a_kind_of(R10K::Module::Git)
     end
   end
 
   describe 'delegating to R10K::Module::Git' do
     it "accepts name matching 'username/modulename' and no args" do
       obj = R10K::Module.new('bar/quux', '/modulepath', [])
-      obj.should be_a_kind_of R10K::Module::Forge
+      expect(obj).to be_a_kind_of(R10K::Module::Forge)
     end
 
     it "accepts name matching 'username/modulename' and a semver argument" do
       obj = R10K::Module.new('bar/quux', '/modulepath', '10.0.0')
-      obj.should be_a_kind_of R10K::Module::Forge
+      expect(obj).to be_a_kind_of(R10K::Module::Forge)
     end
   end
 
