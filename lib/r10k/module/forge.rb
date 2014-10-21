@@ -134,7 +134,7 @@ class R10K::Module::Forge < R10K::Module::Base
   #
   # @return [String] The stdout from the executed command
   def pmt(argv)
-    argv = ['puppet', 'module', '--modulepath', @dirname] + argv
+    argv = ['puppet', 'module', '--modulepath', @dirname, '--color', 'false'] + argv
 
     subproc = R10K::Util::Subprocess.new(argv)
     subproc.raise_on_fail = true
