@@ -57,7 +57,7 @@ describe R10K::Errors::Formatting do
       it "formats the exception with the message and original message" do
         expect(subject).to eq([
           "R10K::Error message",
-          "Original:",
+          "Original exception:",
           "ArgumentError message"
         ].join("\n"))
       end
@@ -73,7 +73,7 @@ describe R10K::Errors::Formatting do
           "R10K::Error message",
           "/another/backtrace/line:1",
           "/another/backtrace/line:2",
-          "Original:",
+          "Original exception:",
           "ArgumentError message",
           "/backtrace/line:1",
           "/backtrace/line:2",

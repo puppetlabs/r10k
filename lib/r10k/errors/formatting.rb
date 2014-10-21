@@ -18,7 +18,7 @@ module R10K
           lines.concat(exc.backtrace)
         end
         if exc.respond_to?(:original) && exc.original
-          lines << "Original:"
+          lines << "Original exception:"
           lines<< format_exception(exc.original, with_backtrace)
         end
         lines.join("\n")

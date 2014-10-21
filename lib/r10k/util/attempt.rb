@@ -1,4 +1,5 @@
 require 'r10k/logging'
+require 'r10k/errors/formatting'
 require 'r10k/util/setopts'
 require 'colored'
 
@@ -75,8 +76,7 @@ module R10K
         apply(tries.first.call(value), tries.drop(1))
       rescue => e
         @status = :failed
-        logger.error e.message
-        $stderr.puts e.backtrace.join("\n").red if @trace
+        logger.error R10K::Errors::Formatting.format_exception(e, @trace)
         e
       end
     end
