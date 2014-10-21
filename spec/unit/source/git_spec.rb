@@ -32,14 +32,14 @@ describe R10K::Source::Git do
     it "generates environments when the cache is present and environments have not been loaded" do
       allow(subject.cache).to receive(:cached?).and_return true
       allow(subject).to receive(:generate_environments).and_return %w[hi]
-      expect(subject.environments).to have(1).items
+      expect(subject.environments.size).to eq(1)
     end
 
     it "doesn't recreate environments if they have already been loaded" do
       allow(subject.cache).to receive(:cached?).and_return true
       allow(subject).to receive(:generate_environments).once.and_return %w[hi]
-      expect(subject.environments).to have(1).items
-      expect(subject.environments).to have(1).items
+      expect(subject.environments.size).to eq(1)
+      expect(subject.environments.size).to eq(1)
     end
   end
 
@@ -51,7 +51,7 @@ describe R10K::Source::Git do
     let(:master_env) { subject.generate_environments.first }
 
     it "creates an environment for each branch" do
-      expect(subject.generate_environments).to have(1).items
+      expect(subject.generate_environments.size).to eq(1)
     end
 
     it "copies the source remote to the environment" do
@@ -79,7 +79,7 @@ describe R10K::Source::Git, "handling invalid branch names" do
       end
 
       it "creates an environment for each branch" do
-        expect(subject.generate_environments).to have(2).items
+        expect(subject.generate_environments.size).to eq(2)
       end
 
       it "removes invalid characters from branch names" do
@@ -102,7 +102,7 @@ describe R10K::Source::Git, "handling invalid branch names" do
     end
 
     it "only creates an environment for valid branches" do
-      expect(subject.generate_environments).to have(1).items
+      expect(subject.generate_environments.size).to eq(1)
     end
   end
 end
@@ -130,7 +130,7 @@ describe R10K::Source::Git, 'when prefixing is enabled' do
     let(:environments) { subject.environments }
 
     it "creates an environment for each branch" do
-      expect(subject.environments).to have(2).items
+      expect(subject.environments.size).to eq(2)
     end
 
     it "prefixes the source name to environments when prefixing is enabled" do

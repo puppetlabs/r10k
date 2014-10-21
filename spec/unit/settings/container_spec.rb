@@ -12,7 +12,7 @@ describe R10K::Settings::Container do
 
     it 'can check if a key is valid' do
       subject.add_valid_key(:v)
-      expect(subject.valid_key?(:v)).to be_true
+      expect(subject.valid_key?(:v)).to be_truthy
     end
 
     it 'can list all valid keys' do

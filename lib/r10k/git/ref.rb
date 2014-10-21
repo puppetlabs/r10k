@@ -48,7 +48,7 @@ class R10K::Git::Ref
   end
 
   def ==(other)
-    other.sha1 == self.sha1
+    other.is_a?(R10K::Git::Ref) && other.sha1 == self.sha1
   rescue ArgumentError, R10K::Git::UnresolvableRefError
     false
   end

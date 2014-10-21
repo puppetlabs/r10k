@@ -7,7 +7,7 @@ describe R10K::Git::WorkingDir do
   describe "initializing" do
     it "generates a new cache for the remote" do
       wd = described_class.new('master', 'git://github.com/adrienthebo/r10k-fixture-repo', '/some/nonexistent/dir')
-      wd.cache.should be_kind_of R10K::Git::Cache
+      expect(wd.cache).to be_kind_of(R10K::Git::Cache)
     end
 
     it "uses the provided ref as the dirname when no dirname is given" do

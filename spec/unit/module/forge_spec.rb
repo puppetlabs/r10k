@@ -30,10 +30,21 @@ describe R10K::Module::Forge do
   describe "setting attributes" do
     subject { described_class.new('branan/eight_hundred', '/moduledir', '8.0.0') }
 
-    its(:name) { should eq 'eight_hundred' }
-    its(:author) { should eq 'branan' }
-    its(:dirname) { should eq '/moduledir' }
-    its(:title) { should eq 'branan/eight_hundred' }
+    it "sets the name" do
+      expect(subject.name).to eq 'eight_hundred'
+    end
+
+    it "sets the author" do
+      expect(subject.author).to eq 'branan'
+    end
+
+    it "sets the dirname" do
+      expect(subject.dirname).to eq '/moduledir'
+    end
+
+    it "sets the title" do
+      expect(subject.title).to eq 'branan/eight_hundred'
+    end
   end
 
   describe "when syncing" do
