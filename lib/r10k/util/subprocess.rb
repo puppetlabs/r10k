@@ -1,4 +1,3 @@
-require 'r10k/errors'
 require 'r10k/util/platform'
 
 module R10K
@@ -14,6 +13,7 @@ module R10K
       require 'r10k/util/subprocess/runner'
       require 'r10k/util/subprocess/io'
       require 'r10k/util/subprocess/result'
+      require 'r10k/util/subprocess/subprocess_error'
 
       require 'r10k/util/subprocess/posix'
       require 'r10k/util/subprocess/windows'
@@ -68,42 +68,18 @@ module R10K
         subprocess = self.class.runner.new(@argv)
         subprocess.cwd = @cwd if @cwd
 
-        logmsg = "Execute: #{@argv.join(' ')}"
+        logmsg = "Starting process: #{@argv.inspect}"
         logmsg << "(cwd: #{@cwd})" if @cwd
         logger.debug1 logmsg
 
-        subprocess.run
-
-        result = subprocess.result
-
-        logger.debug2 "[#{result.cmd}] STDOUT: #{result.stdout.chomp}" unless result.stdout.empty?
-        logger.debug2 "[#{result.cmd}] STDERR: #{result.stderr.chomp}" unless result.stderr.empty?
+        result = subprocess.run
+        logger.debug2("Finished process:\n#{result.format}")
 
         if @raise_on_fail and subprocess.crashed?
-          raise SubprocessError.new(:result => result)
+          raise SubprocessError.new("Command exited with non-zero exit code", :result => result)
         end
 
         result
-      end
-
-      class SubprocessError < R10KError
-
-        # !@attribute [r] result
-        #   @return [R10K::Util::Subprocess::Result]
-        attr_reader :result
-
-        def initialize(mesg = nil, options = {})
-          super
-          @result = @options[:result]
-        end
-
-        def to_s
-          if @mesg
-            @mesg
-          else
-            "Command #{@result.cmd} exited with #{@result.exit_code}: #{@result.stderr}"
-          end
-        end
       end
     end
   end

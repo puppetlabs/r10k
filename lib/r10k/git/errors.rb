@@ -3,8 +3,7 @@ require 'r10k/errors'
 module R10K
   module Git
 
-    class GitError < R10KError
-    end
+    class GitError < R10K::Error; end
 
     class UnresolvableRefError < GitError
 
