@@ -33,6 +33,11 @@ describe R10K::Action::CriRunner do
       expect(R10K::Action::Runner).to receive(:new).with({:value => :yep, :loglevel => 'DEBUG'}, argv, action_class)
       cri_runner.new({:value => :yep, :verbose => 'DEBUG'}, argv, :cri_cmd)
     end
+
+    it "sets the non-argument form of :verbose to :loglevel => 'INFO'" do
+      expect(R10K::Action::Runner).to receive(:new).with({:value => :yep, :loglevel => 'INFO'}, argv, action_class)
+      cri_runner.new({:value => :yep, :verbose => true}, argv, :cri_cmd)
+    end
   end
 
   describe "calling" do
