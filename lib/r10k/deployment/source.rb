@@ -3,6 +3,7 @@ require 'r10k/util/core_ext/hash_ext'
 
 module R10K
 class Deployment
+# :nocov:
 class Source
   # Create a new source from a hash representation
   #
@@ -34,4 +35,5 @@ class Source
   end
 end
 end
+# :nocov:
 end
