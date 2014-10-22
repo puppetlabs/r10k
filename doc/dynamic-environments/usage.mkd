@@ -29,6 +29,8 @@ is also the slowest by a very large degree because it does the maximum possible
 work. This should not be something you run interactively, or use on a regular
 basis.
 
+Note: Forge modules are not updated unless the Puppetfile specifies a specific
+version or 'latest'.
 - - -
 
 Update environments while avoiding unnecessary recursion
@@ -60,29 +62,32 @@ Update a single environment and force an update of modules:
 This will update the given environment and update all contained modules. This is
 useful if you want to make sure that a given environment is fully up to date.
 
-### Deploying modules
+### Deploying user modules
 
-Update a single module across all environments
+Update a single module across all environments.
 
     r10k deploy module apache
 
-This is useful for when you're working on a module specified in a Puppetfile and want to update it across all environments.
+This is useful for when you're working on a module specified in a Puppetfile
+and want to update it across all environments. See
+[Puppetfile documentation](doc/puppetfile.mkd) for details on how this affects
+forge vs. git/svn modules.
 
 - - -
 
-Update multiple modules across all environments
+Update multiple modules across all environments.
 
     r10k deploy module apache jenkins java
 
 - - -
 
-Update one or more modules in a single environment
+Update one or more modules in a single environment.
 
     r10k deploy module -e production apache jenkins java
 
 ### Viewing environments
 
-Display all environments being managed by r10k
+Display all environments being managed by r10k.
 
     r10k deploy display
 

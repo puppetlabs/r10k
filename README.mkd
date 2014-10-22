@@ -1,4 +1,4 @@
-r10k
+R10k
 ====
 
 Puppet environment and module deployment
@@ -11,21 +11,21 @@ Description
 [librarian-puppet]: https://github.com/rodjek/librarian-puppet
 [workflow]: http://puppetlabs.com/blog/git-workflow-and-puppet-environments/
 
-r10k provides a general purpose toolset for deploying Puppet environments and
+R10k provides a general purpose toolset for deploying Puppet environments and
 modules. It implements the [Puppetfile][librarian-puppet] format and provides a native
 implementation of Puppet [dynamic environments][workflow].
 
 Requirements
 ------------
 
-r10k supports the following Ruby versions:
+R10k supports the following Ruby versions:
 
   - 1.8.7 (POSIX minimum version)
   - 1.9.3 (Windows minimum version)
   - 2.0.0
   - 2.1.0
 
-r10k requires additional components, depending on how you plan on managing
+R10k requires additional components, depending on how you plan on managing
 environments and modules.
 
   - Installing modules from the Puppet Forge requires Puppet 3.0.0+ or later.
@@ -65,19 +65,21 @@ a git repository using Bundler for dependencies:
 Usage
 -----
 
-r10k has two primary roles: installing Puppet modules using a standalone
+R10k has two primary roles: installing Puppet modules using a standalone
 Puppetfile, and managing Git and SVN based dynamic environments. For more
 information see the topic specific documentation:
 
-  * Puppetfile documentation: [doc/puppetfile.mkd](doc/puppetfile.mkd)
-  * Environment deployment documentation: [doc/dynamic-environments.mkd](doc/dynamic-environments.mkd)
+  * [doc/puppetfile.mkd](Puppetfile documentation)
+  * [doc/dynamic-environments.mkd](Environment deployment documentation)
+  * [doc/quickstart.mkd](Quickstart)
+  * [doc/common-patterns.mkd](Common Patterns)
 
 For more general questions, see the [FAQ](doc/faq.mkd).
 
 Getting help
 ------------
 
-  * IRC: r10k has a dedicated channel, `#r10k`, on Freenode where r10k questions
+  * IRC: R10k has a dedicated channel, `#r10k`, on Freenode where r10k questions
   can be directed. Questions about r10k can frequently be asked in `#puppet` as well.
   * Mailing lists: [puppet-users](https://groups.google.com/forum/#!forum/puppet-users)
   * Q&A: [Puppet Ask](https://ask.puppetlabs.com/questions/)
