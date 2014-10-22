@@ -9,13 +9,15 @@ Table of contents
   * [Introduction](dynamic-environments/introduction.mkd): A brief description of
     what dynamic environments are and how they work.
   * [Quickstart](dynamic-environments/quickstart.mkd): Getting started with the
-    essentials of dynamic environments and r10k
+    essentials of dynamic environments and r10k.
   * [Configuration](dynamic-environments/configuration.mkd) A reference of dynamic
     environment configuration options and how they're used
   * [Git environments](dynamic-environments/git-environments.mkd) How r10k
     implements dynamic environments using git
   * [Master Configuration](dynamic-environments/master-configuration.mkd) How to
     configure your Puppet masters to use dynamic environments
+  * [Workflow Guide](dynamic-environments/workflow-guide.mkd) A general-purpose
+    workflow guide for using r10k.
   * [Usage](dynamic-environments/usage.mkd) A reference of r10k commands and how
     they're used.
 

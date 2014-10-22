@@ -109,7 +109,7 @@ find $(puppet master --configprint ssldir) -name "$(puppet master --configprint 
 puppet master --no-daemonize --verbose
 ```
 
-# Install and Configure r10k
+# Install and Configure R10k
 
 Install r10k via Ruby Gems.
 
@@ -228,4 +228,14 @@ This base will allow us to do all sorts of useful things. Most interesting (to m
 3. Push the new branch up to the repository
 4. Deploy it as a new environment using the `r10k deploy environment -p` command.
 
-Now, you can just modify the `/etc/puppet/puppet.conf` file on a node, change it to be part of this new environment, and voila - you're testing code without impacting your production environment.
+From any agent node (including the master), you may run the agent against the new environment by specifying it on the command line. For example, if you create the branch `test`, run puppet as:
+```
+puppet agent -t --environment test
+```
+You can also modify the `/etc/puppet/puppet.conf` file on a node and add the environment variable to the agent setting to make the change permanent:
+```
+...
+[agent]
+environment = test
+```
+Voila - you're testing code without impacting your production environment!

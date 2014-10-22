@@ -2,7 +2,7 @@ Puppetfile
 ==========
 
 Puppetfiles are a simple Ruby based DSL that specifies a list of modules to
-install, what version to install, and where to fetch them from. r10k can use a
+install, what version to install, and where to fetch them from. R10k can use a
 Puppetfile to install a set of Puppet modules for local development, or they can
 be used with r10k environment deployments to install additional modules into a
 given environment.
@@ -45,7 +45,7 @@ Puppetfile:
 Module types
 ------------
 
-r10k can install Puppet modules from a number of different sources. Right now
+R10k can install Puppet modules from a number of different sources. Right now
 modules can be installed via Git, SVN, and from the Puppet Forge.
 
 ### Git

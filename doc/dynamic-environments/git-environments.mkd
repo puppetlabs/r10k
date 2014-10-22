@@ -1,7 +1,7 @@
 Git Based Dynamic Environments
 ==============================
 
-r10k can use Git repositories to implement dynamic environments. You can create,
+R10k can use Git repositories to implement dynamic environments. You can create,
 update, and delete Puppet environments automatically as part of your normal Git
 workflow.
 
@@ -29,33 +29,20 @@ seamlessly reflected in Puppet environments. This means that creating a new Git
 branch creates a new Puppet environment, updating a Git branch will update that
 environment, and deleting a Git branch will remove that environment.
 
+R10k supports both [Directory and Config File Environments](https://docs.puppetlabs.com/puppet/latest/reference/environments.html).
+Ensure that the basedir for your sources and your puppet config align.
+
+R10k also works with subversion (SVN) in a similar fashion.
+
 How it works
 ------------
 
-r10k works by tracking the state of your git repositories and comparing them the
-the currently deployed environments. If there's a Git branch that doesn't have a
-corresponding Puppet environment then r10k will clone that branch into the
-appropriate directory. When Git branches are updated r10k will update the
-appropriate Puppet environment to the latest version. Finally if there are
-Puppet environments that don't have matching Git branches, r10k will assume that
-the branches for those environments were deleted and will remove those
-environments.
+R10k works by tracking the state of your git repositories and comparing them
+with each source's basedir's contents. If there's a git branch that does not
+exist in the basedir, then r10k will clone that branch into the appropriate
+directory. When git branches are updated, r10k will update the appropriate
+Puppet environment to the latest version. Finally, if there are Puppet
+environments that don't have matching git branches and the basedir is in the
+purgedir array, r10k will assume that the branches for those environments were
+deleted and will remove those environments.
 
-Configuration
--------------
-
-The following configuration options can be specified for Git based environment
-sources.
-
-### invalid_branches:
-
-This setting specifies how Git branch names that cannot be cleanly mapped to
-Puppet environments will be handled.
-
-Valid values:
-
-  * 'correct_and_warn': Non-word characters will be replaced with underscores
-    and a warning will be emitted. (Default)
-  * 'correct': Non-word characters will silently be replaced with underscores.
-  * 'error': Branches with non-word characters will be ignored and an error will
-    be emitted.
