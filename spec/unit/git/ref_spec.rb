@@ -16,7 +16,7 @@ describe R10K::Git::Ref do
 
     it "raises an error if the SHA1 could not be resolved" do
       subject.repository = repo
-      expect(repo).to receive(:rev_parse).with(ref).and_raise(R10K::Git::UnresolvableRefError)
+      expect(repo).to receive(:rev_parse).with(ref).and_raise(R10K::Git::UnresolvableRefError, "Couldn't resolve")
 
       expect {
         subject.sha1

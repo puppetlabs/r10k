@@ -19,8 +19,7 @@ describe R10K::Util::Subprocess do
 
     let(:runner) do
       double('R10K::Util::Subprocess::Runner').tap do |i|
-        allow(i).to receive(:run)
-        allow(i).to receive(:result).and_return(result)
+        allow(i).to receive(:run).and_return(result)
       end
     end
 
@@ -46,10 +45,6 @@ describe R10K::Util::Subprocess do
       end
 
       it "raises an exception if raise_on_fail is true" do
-        if RUBY_VERSION =~ /^2\./
-          pending "Ruby 2.x and RSpec 2.x fail when raising an exception with a custom #to_s method"
-        end
-
         subject.raise_on_fail = true
 
         allow(result).to receive(:exit_code).and_return(255)
@@ -57,7 +52,7 @@ describe R10K::Util::Subprocess do
 
         expect {
           subject.execute
-        }.to raise_error(R10K::Util::Subprocess::SubprocessError, /Command .* exited with 255: Command not found/)
+        }.to raise_error(R10K::Util::Subprocess::SubprocessError, /Command exited with non-zero exit code/)
       end
 
       it "doesn't raise an exception if raise_on_fail is false" do

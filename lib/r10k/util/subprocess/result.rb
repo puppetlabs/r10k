@@ -24,13 +24,26 @@ class R10K::Util::Subprocess::Result
   def initialize(argv, stdout, stderr, exit_code)
     @argv = argv
     @cmd = argv.join(' ')
-    @stdout = stdout
-    @stderr = stderr
+    @stdout = stdout.chomp
+    @stderr = stderr.chomp
     @exit_code = exit_code
   end
 
-  def [](field)
-    send(field)
+  def format(with_cmd = true)
+    msg = []
+    if with_cmd
+      msg << "Command: #{@cmd}"
+    end
+    if !@stdout.empty?
+      msg << "Stdout:"
+      msg << @stdout
+    end
+    if !@stderr.empty?
+      msg << "Stderr:"
+      msg << @stderr
+    end
+    msg << "Exit code: #{@exit_code}"
+    msg.join("\n")
   end
 
   def failed?

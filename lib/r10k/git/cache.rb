@@ -68,12 +68,7 @@ class R10K::Git::Cache < R10K::Git::Repository
       git ['clone', '--mirror', @remote, git_dir]
     end
   rescue R10K::Util::Subprocess::SubprocessError => e
-    msg = e.result.stderr.slice(/^fatal: .*$/)
-    if msg
-      raise R10K::Git::GitError, "Couldn't update git cache for #{@remote}: #{msg.inspect}"
-    else
-      raise e
-    end
+    raise R10K::Git::GitError.wrap(e, "Couldn't update git cache for #{@remote}")
   end
 
   # @return [Array<String>] A list the branches for the git repository
