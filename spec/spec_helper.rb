@@ -1,3 +1,16 @@
+if ENV['COVERAGE']
+  require 'simplecov'
+  SimpleCov.start do
+    add_filter do |src|
+      !src.filename.match(%r[lib/r10k])
+    end
+
+    %w[Deployment Source Environment Module Git SVN Action Util].each do |group|
+      add_group group, "lib/r10k/#{group.downcase}"
+    end
+  end
+end
+
 require 'r10k'
 
 require 'shared-examples/git-ref'

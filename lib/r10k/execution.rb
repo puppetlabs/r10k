@@ -3,6 +3,7 @@ require 'r10k/errors'
 require 'systemu'
 
 module R10K
+# :nocov:
 module Execution
   include R10K::Logging
 
@@ -42,4 +43,5 @@ module Execution
     stdout
   end
 end
+# :nocov:
 end
