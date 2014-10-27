@@ -1,0 +1,45 @@
+Common Patterns
+===============
+
+This guide provides common patterns seen in the r10k community. These patterns
+are, of course, simply a guide. Understand why you are or are not using a
+specific pattern before implementing it.
+
+Repository Setup
+----------------
+
+Use a [Control Repo](http://www.jeffmalnick.com/blog/2014/05/16/r10k-control-repos/)
+to store your **Puppetfile**.
+
+Hiera data should be in the Control repo OR as a separate source in
+**r10k.yaml**. Any **hiera.yaml** in the Control repo will be ignored on a per
+environment basis, locating it at **/etc/puppet/hiera.yaml** is prefered.
+
+Each puppet module should be contained in its own forge module or repository.
+Multiple modules in a single git repository with sub-modules are not supported
+at this time.
+
+Editing modules
+---------------
+
+All environment content is checked out into $environmentpath/modules on the
+node r10k is run on, either your puppet master or each masterless node. Edits
+made directly to these files will be lost on the next deploy. It is best
+practice not to edit code on the production system in the production paths.
+
+You may clone upstream repositories in a regular user's directory, on the master
+or on another machine. Create a new feature branch locally, make all required
+edits, and push the new branch upstream when ready for testing. R10k will
+deploy changes from the upstream repositories, eliminating the need for manual
+updates of the $environmentpath contents.
+
+Automated deploys
+-----------------
+
+To reduce manual intervention, use a post-receive hook on your control and
+module repos to initiate an r10k deploy. You can develop your own or use a
+publicly available hook. These include:
+
+* [Reaktor](https://github.com/pzim/reaktor)
+* [zack/r10k's Webhooks](https://forge.puppetlabs.com/zack/r10k#webhook-support)
+(Puppet Enterprise only)

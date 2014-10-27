@@ -1,7 +1,7 @@
 Dynamic Environment Configuration
 =================================
 
-r10k uses a configuration file to determine how dynamic environments should be
+R10k uses a configuration file to determine how dynamic environments should be
 deployed.
 
 Config file location
@@ -106,6 +106,19 @@ sources:
     basedir: '/etc/puppet/environments'
     prefix: true # All environments will be prefixed with "mysource_"
 ```
+
+### invalid_branches
+
+This setting specifies how Git branch names that cannot be cleanly mapped to
+Puppet environments will be handled. It has no effect when using Subversion.
+
+Valid values:
+
+  * 'correct_and_warn': Non-word characters will be replaced with underscores
+    and a warning will be emitted. (Default)
+  * 'correct': Non-word characters will silently be replaced with underscores.
+  * 'error': Branches with non-word characters will be ignored and an error will
+    be emitted.
 
 Examples
 --------

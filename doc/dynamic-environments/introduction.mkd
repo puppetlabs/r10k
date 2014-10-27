@@ -42,8 +42,7 @@ like modulepath, manifest, and so forth.
 
 ```ini
 [master]
-vardir = '/var/lib/puppet'
-modulepath = '/etc/puppet/environments/$environment/modules'
+environmentpath = $confdir/environments'
 ```
 
 Running `puppet agent -t --environment myenv` will cause $environment to be
