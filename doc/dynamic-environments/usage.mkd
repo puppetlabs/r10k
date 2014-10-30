@@ -31,7 +31,7 @@ basis.
 
 - - -
 
-Update environments while avoiding unnecessary recursion
+Update environments while avoiding unnecessary recursion:
 
     r10k deploy environment
 
@@ -62,32 +62,35 @@ useful if you want to make sure that a given environment is fully up to date.
 
 ### Deploying modules
 
-Update a single module across all environments
+Update a single module across all environments:
 
     r10k deploy module apache
 
-This is useful for when you're working on a module specified in a Puppetfile and want to update it across all environments.
+This is useful for when you're working on a module specified in a Puppetfile
+and want to update it across all environments. See
+[Puppetfile documentation](doc/puppetfile.mkd) for details on how this affects
+Forge vs. Git/SVN modules.
 
 - - -
 
-Update multiple modules across all environments
+Update multiple modules across all environments:
 
     r10k deploy module apache jenkins java
 
 - - -
 
-Update one or more modules in a single environment
+Update one or more modules in a single environment:
 
     r10k deploy module -e production apache jenkins java
 
 ### Viewing environments
 
-Display all environments being managed by r10k
+Display all environments being managed by r10k:
 
     r10k deploy display
 
 Display all environments being managed by r10k, and modules specified in the
-Puppetfile with the desired version.
+Puppetfile with the desired version:
 
     r10k deploy display -p
 
