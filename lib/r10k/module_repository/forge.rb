@@ -18,18 +18,7 @@ class R10K::ModuleRepository::Forge
 
   def initialize(forge = 'forge.puppetlabs.com')
     @forge = forge
-
-    @conn = Faraday.new(
-      :url => "https://#{@forge}",
-      :user_agent => "Ruby/r10k #{R10K::VERSION}"
-    ) do |builder|
-      builder.request :multi_json
-      builder.response :multi_json
-
-      # This needs to be _after_ request/response configuration for testing
-      # purposes. This comment is the result of much consternation.
-      builder.adapter Faraday.default_adapter
-    end
+    @conn  = make_conn
   end
 
   # Query for all published versions of a module
@@ -43,7 +32,6 @@ class R10K::ModuleRepository::Forge
   # @return [Array<String>] All published versions of the given module
   def versions(module_name)
     response = @conn.get("/api/v1/releases.json", {'module' => module_name})
-
     response.body[module_name].map do |version_info|
       version_info['version']
     end
@@ -60,5 +48,24 @@ class R10K::ModuleRepository::Forge
   # @return [String] The latest published version of the given module
   def latest_version(module_name)
     versions(module_name).last
+  end
+
+  private
+
+  def make_conn
+    # Force use of json_pure with multi_json on Ruby 1.8.7
+    multi_json_opts = (RUBY_VERSION == "1.8.7" ? {:adapter => :json_pure} : {})
+
+    Faraday.new(
+      :url => "https://#{@forge}",
+      :user_agent => "Ruby/r10k #{R10K::VERSION}"
+    ) do |builder|
+      builder.request(:multi_json, multi_json_opts)
+      builder.response(:multi_json, multi_json_opts)
+
+      # This needs to be _after_ request/response configuration for testing
+      # purposes. Without this ordering the tests get badly mangled.
+      builder.adapter(Faraday.default_adapter)
+    end
   end
 end
