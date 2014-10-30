@@ -1,7 +1,7 @@
 Git Based Dynamic Environments
 ==============================
 
-r10k can use Git repositories to implement dynamic environments. You can create,
+R10k can use Git repositories to implement dynamic environments. You can create,
 update, and delete Puppet environments automatically as part of your normal Git
 workflow.
 
@@ -29,17 +29,21 @@ seamlessly reflected in Puppet environments. This means that creating a new Git
 branch creates a new Puppet environment, updating a Git branch will update that
 environment, and deleting a Git branch will remove that environment.
 
+R10k supports both [directory and config file environments](https://docs.puppetlabs.com/puppet/latest/reference/environments.html).
+Ensure that the basedir for your sources and your puppet config align.
+
 How it works
 ------------
 
-r10k works by tracking the state of your git repositories and comparing them the
-the currently deployed environments. If there's a Git branch that doesn't have a
-corresponding Puppet environment then r10k will clone that branch into the
-appropriate directory. When Git branches are updated r10k will update the
-appropriate Puppet environment to the latest version. Finally if there are
-Puppet environments that don't have matching Git branches, r10k will assume that
-the branches for those environments were deleted and will remove those
-environments.
+R10k works by tracking the state of your Git repository or repositories. Each
+repository's branches will be cloned into a directory with a matching name,
+creating a Puppet environment for the branch. If a repository includes a
+Puppetfile, such as the control repo, the Forge modules and Git/SVN
+repositories described within will be cloned as well, into the same directories.
+Subsequent changes to the branches will be kept in sync on the filesystem by
+future r10k runs. Finally, if there are directories that do not match existing
+branches, r10k will assume that the branches for those environments were delete
+and will remove those environments.
 
 Configuration
 -------------
