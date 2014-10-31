@@ -1,6 +1,7 @@
 require 'pathname'
 require 'r10k/module'
 require 'r10k/util/purgeable'
+require 'r10k/errors'
 
 module R10K
 class Puppetfile
@@ -50,6 +51,8 @@ class Puppetfile
   def load!
     dsl = R10K::Puppetfile::DSL.new(self)
     dsl.instance_eval(puppetfile_contents, @puppetfile_path)
+  rescue SyntaxError, LoadError => e
+    raise R10K::Error.wrap(e, "Failed to evaluate #{@puppetfile_path}")
   end
 
   # @param [String] forge
