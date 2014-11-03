@@ -14,7 +14,7 @@ describe R10K::ModuleRepository::Forge do
     expect(forge.forge).to eq 'forge.example.local'
   end
 
-  describe "and the expected version is :latest", :vcr => true, :unless => (RUBY_VERSION == '1.8.7') do
+  describe "and the expected version is :latest", :vcr => true do
     subject(:forge) { described_class.new }
 
     before do
