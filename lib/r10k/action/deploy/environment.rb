@@ -1,6 +1,7 @@
 require 'r10k/util/attempt'
 require 'r10k/util/setopts'
 require 'r10k/deployment'
+require 'r10k/logging'
 
 module R10K
   module Action
@@ -8,6 +9,7 @@ module R10K
       class Environment
 
         include R10K::Util::Setopts
+        include R10K::Logging
 
         def initialize(opts, argv)
           @opts = opts
@@ -44,6 +46,7 @@ module R10K
           end
 
           attempt.try do |environment|
+            logger.info "Deploying environment #{environment.path}"
             environment.sync
             environment.puppetfile if @puppetfile
           end.try do |puppetfile|
@@ -51,6 +54,7 @@ module R10K
             puppetfile.purge!
             puppetfile.modules
           end.try do |mod|
+            logger.info "Deploying module #{mod.path}"
             mod.sync
           end
 
