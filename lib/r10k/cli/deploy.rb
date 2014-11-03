@@ -96,14 +96,20 @@ try to deploy the given module names in all environments.
           run do |opts, args, cmd|
             deploy = R10K::Deployment.load_config(opts[:config])
 
-            task = R10K::Task::Deployment::Display.new(deploy)
-            task.puppetfile = opts[:puppetfile]
+            deploy.sources.each do |source|
+              puts source.name + ":"
+              source.environments.each do |env|
+                puts "  - " + env.name
 
-            runner = R10K::TaskRunner.new(:trace => opts[:trace])
-            runner.prepend_task task
-            runner.run
-
-            exit runner.exit_value
+                if opts[:puppetfile]
+                  pf = env.puppetfile
+                  pf.load
+                  pf.modules.each do |mod|
+                    puts "    - " + mod.title
+                  end
+                end
+              end
+            end
           end
         end
       end

@@ -133,6 +133,7 @@ module Deployment
     end
   end
 
+  # @deprecated
   class Display < R10K::Task::Base
 
     attr_accessor :puppetfile
