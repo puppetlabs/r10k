@@ -22,11 +22,6 @@ class R10K::Environment::Git < R10K::Environment::Base
   #   @return [R10K::Git::WorkingDir] The git working directory backing this environment
   attr_reader :working_dir
 
-  # @!attribute [r] puppetfile
-  #   @api public
-  #   @return [R10K::Puppetfile] The puppetfile instance associated with this environment
-  attr_reader :puppetfile
-
   # Initialize the given SVN environment.
   #
   # @param name [String] The unique name describing this environment.
@@ -42,7 +37,6 @@ class R10K::Environment::Git < R10K::Environment::Base
     @ref    = options[:ref]
 
     @working_dir = R10K::Git::WorkingDir.new(@ref, @remote, @basedir, @dirname)
-    @puppetfile  = R10K::Puppetfile.new(@full_path)
   end
 
   # Clone or update the given Git environment.
@@ -68,12 +62,5 @@ class R10K::Environment::Git < R10K::Environment::Base
       logger.debug "Deploying module #{mod.name}"
       mod.sync
     end
-  end
-
-  # @return [Array<R10K::Module::Base>] All modules defined in the Puppetfile
-  #   associated with this environment.
-  def modules
-    @puppetfile.load
-    @puppetfile.modules
   end
 end
