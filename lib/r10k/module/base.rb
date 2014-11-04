@@ -76,6 +76,10 @@ class R10K::Module::Base
     raise NotImplementedError
   end
 
+  def accept(visitor)
+    visitor.visit(:module, self)
+  end
+
   private
 
   def parse_title(title)

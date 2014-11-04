@@ -59,4 +59,14 @@ describe R10K::Module::Base do
       expect(subject.basedir).to eq '/moduledir'
     end
   end
+
+  describe "accepting a visitor" do
+    subject { described_class.new('branan/eight_hundred', '/moduledir', []) }
+
+    it "passes itself to the visitor" do
+      visitor = spy('visitor')
+      expect(visitor).to receive(:visit).with(:module, subject)
+      subject.accept(visitor)
+    end
+  end
 end
