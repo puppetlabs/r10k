@@ -56,4 +56,29 @@ describe R10K::Puppetfile do
       end
     end
   end
+
+  describe "accepting a visitor" do
+    it "passes itself to the visitor" do
+      visitor = spy('visitor')
+      expect(visitor).to receive(:visit).with(:puppetfile, subject)
+      subject.accept(visitor)
+    end
+
+    it "passes the visitor to each module if the visitor yields" do
+      visitor = spy('visitor')
+      expect(visitor).to receive(:visit) do |type, other, &block|
+        expect(type).to eq :puppetfile
+        expect(other).to eq subject
+        block.call
+      end
+
+      mod1 = spy('module')
+      expect(mod1).to receive(:accept).with(visitor)
+      mod2 = spy('module')
+      expect(mod2).to receive(:accept).with(visitor)
+
+      expect(subject).to receive(:modules).and_return([mod1, mod2])
+      subject.accept(visitor)
+    end
+  end
 end

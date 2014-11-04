@@ -88,6 +88,14 @@ class Puppetfile
     @modules.map { |mod| mod.name }
   end
 
+  def accept(visitor)
+    visitor.visit(:puppetfile, self) do
+      modules.each do |mod|
+        mod.accept(visitor)
+      end
+    end
+  end
+
   private
 
   def puppetfile_contents
