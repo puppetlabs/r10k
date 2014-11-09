@@ -1,7 +1,7 @@
 Dynamic Environment Configuration
 =================================
 
-r10k uses a configuration file to determine how dynamic environments should be
+R10k uses a configuration file to determine how dynamic environments should be
 deployed.
 
 Config file location
