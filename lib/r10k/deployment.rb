@@ -98,6 +98,14 @@ module R10K
       end
     end
 
+    def accept(visitor)
+      visitor.visit(:deployment, self) do
+        sources.each do |env|
+          env.accept(visitor)
+        end
+      end
+    end
+
     private
 
     def load_sources
