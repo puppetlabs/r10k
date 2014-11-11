@@ -41,6 +41,21 @@ Deployment options
 
 The following options configure how r10k deploys dynamic environments.
 
+### postrun
+
+The `postrun` setting specifies an arbitrary command to run after deploying all
+environments. The command must be an array of strings that will be used as an
+argument vector. The exit code of the command is not currently used, but the
+command should exit with a return code of 0 as the exit code may have semantics
+in the future.
+
+```yaml
+---
+postrun: ['/usr/bin/curl', '-F', 'deploy=done', 'http://my-app.site/endpoint']
+```
+
+The postrun setting can only be set once.
+
 ### sources
 
 The `sources` setting specifies what repositories should be used for creating
