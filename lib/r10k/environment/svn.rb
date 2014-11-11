@@ -58,10 +58,26 @@ class R10K::Environment::SVN < R10K::Environment::Base
   def sync
     if @working_dir.is_svn?
       @working_dir.update
+      @synced = true
     else
       @working_dir.checkout(@remote)
+      @synced = true
       logger.debug "Environment #{@full_path} is a fresh clone; automatically updating modules."
       sync_modules
+    end
+  end
+
+  def status
+    if !@path.exist?
+      :absent
+    elsif !@working_dir.is_svn?
+      :mismatched
+    elsif !(@remote == @working_dir.url)
+      :mismatched
+    elsif !@synced
+      :outdated
+    else
+      :insync
     end
   end
 
