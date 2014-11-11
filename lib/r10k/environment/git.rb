@@ -47,14 +47,8 @@ class R10K::Environment::Git < R10K::Environment::Base
   # @api public
   # @return [void]
   def sync
-    recursive_needed = !(@working_dir.cloned?)
     @working_dir.sync
     @synced = true
-
-    if recursive_needed
-      logger.debug "Environment #{@full_path} is a fresh clone; automatically updating modules."
-      sync_modules
-    end
   end
 
   def status
@@ -71,6 +65,7 @@ class R10K::Environment::Git < R10K::Environment::Base
     end
   end
 
+  # @deprecated
   # @api private
   def sync_modules
     modules.each do |mod|

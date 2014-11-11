@@ -40,17 +40,8 @@ describe R10K::Environment::Git do
   end
 
   describe "synchronizing the environment" do
-    it "updates all modules when creating a new environment" do
-      allow(working_dir).to receive(:cloned?).and_return(false)
+    it "syncs the working directory" do
       expect(working_dir).to receive(:sync)
-      expect(subject).to receive(:sync_modules)
-      subject.sync
-    end
-
-    it "does not update all modules when updating an existing environment" do
-      allow(working_dir).to receive(:cloned?).and_return(true)
-      expect(working_dir).to receive(:sync)
-      expect(subject).to_not receive(:sync_modules)
       subject.sync
     end
   end
@@ -106,9 +97,6 @@ describe R10K::Environment::Git do
     end
 
     it "is is insync when the working directory has been synced" do
-      # @todo remove this stub when sync is no longer recursive
-      expect(working_dir).to receive(:cloned?).and_return true
-
       expect(working_dir).to receive(:exist?).and_return true
       expect(working_dir).to receive(:git?).and_return true
       expect(working_dir).to receive(:remote).and_return 'git://git-server.site/my-repo.git'

@@ -35,17 +35,15 @@ describe R10K::Environment::SVN do
   end
 
   describe "synchronizing the environment" do
-    it "updates all modules when creating a new environment" do
+    it "checks out the working directory when creating a new environment" do
       allow(working_dir).to receive(:is_svn?).and_return(false)
       expect(working_dir).to receive(:checkout)
-      expect(subject).to receive(:sync_modules)
       subject.sync
     end
 
-    it "does not update all modules when updating an existing environment" do
+    it "updates the working directory when updating an existing environment" do
       allow(working_dir).to receive(:is_svn?).and_return(true)
       expect(working_dir).to receive(:update)
-      expect(subject).to_not receive(:sync_modules)
       subject.sync
     end
   end
