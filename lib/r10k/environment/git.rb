@@ -49,10 +49,25 @@ class R10K::Environment::Git < R10K::Environment::Base
   def sync
     recursive_needed = !(@working_dir.cloned?)
     @working_dir.sync
+    @synced = true
 
     if recursive_needed
       logger.debug "Environment #{@full_path} is a fresh clone; automatically updating modules."
       sync_modules
+    end
+  end
+
+  def status
+    if !@working_dir.exist?
+      :absent
+    elsif !@working_dir.git?
+      :mismatched
+    elsif !(@remote == @working_dir.remote)
+      :mismatched
+    elsif !@synced
+      :outdated
+    else
+      :insync
     end
   end
 

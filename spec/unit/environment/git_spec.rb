@@ -78,4 +78,46 @@ describe R10K::Environment::Git do
       expect(subject.modules).to eq([:modules])
     end
   end
+
+  describe "determining the status" do
+    it "is absent when the working directory is absent" do
+      expect(working_dir).to receive(:exist?).and_return false
+      expect(subject.status).to eq :absent
+    end
+
+    it "is mismatched when the working directory is not git" do
+      expect(working_dir).to receive(:exist?).and_return true
+      expect(working_dir).to receive(:git?).and_return false
+      expect(subject.status).to eq :mismatched
+    end
+
+    it "is mismatched when the working directory remote doesn't match the desired remote" do
+      expect(working_dir).to receive(:exist?).and_return true
+      expect(working_dir).to receive(:git?).and_return true
+      expect(working_dir).to receive(:remote).and_return 'git://git-server.site/my-other-repo.git'
+      expect(subject.status).to eq :mismatched
+    end
+
+    it "is is outdated when the working directory has not been synced" do
+      expect(working_dir).to receive(:exist?).and_return true
+      expect(working_dir).to receive(:git?).and_return true
+      expect(working_dir).to receive(:remote).and_return 'git://git-server.site/my-repo.git'
+      expect(subject.status).to eq :outdated
+    end
+
+    it "is is insync when the working directory has been synced" do
+      # @todo remove this stub when sync is no longer recursive
+      expect(working_dir).to receive(:cloned?).and_return true
+
+      expect(working_dir).to receive(:exist?).and_return true
+      expect(working_dir).to receive(:git?).and_return true
+      expect(working_dir).to receive(:remote).and_return 'git://git-server.site/my-repo.git'
+
+      expect(working_dir).to receive(:sync)
+
+      subject.sync
+
+      expect(subject.status).to eq :insync
+    end
+  end
 end
