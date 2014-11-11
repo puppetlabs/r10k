@@ -84,6 +84,31 @@ describe R10K::Deployment do
       deployment.purge!
     end
   end
+
+  describe "accepting a visitor" do
+    it "passes itself to the visitor" do
+      visitor = spy('visitor')
+      expect(visitor).to receive(:visit).with(:deployment, subject)
+      subject.accept(visitor)
+    end
+
+    it "passes the visitor to each environment if the visitor yields" do
+      visitor = spy('visitor')
+      expect(visitor).to receive(:visit) do |type, other, &block|
+        expect(type).to eq :deployment
+        expect(other).to eq subject
+        block.call
+      end
+
+      source1 = spy('source')
+      expect(source1).to receive(:accept).with(visitor)
+      source2 = spy('source')
+      expect(source2).to receive(:accept).with(visitor)
+
+      expect(subject).to receive(:sources).and_return([source1, source2])
+      subject.accept(visitor)
+    end
+  end
 end
 
 describe R10K::Deployment, "with environment collisions" do

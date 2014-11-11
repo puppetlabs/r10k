@@ -73,4 +73,10 @@ class R10K::Environment::Base
     @puppetfile.load
     @puppetfile.modules
   end
+
+  def accept(visitor)
+    visitor.visit(:environment, self) do
+      puppetfile.accept(visitor)
+    end
+  end
 end

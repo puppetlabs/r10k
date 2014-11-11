@@ -57,4 +57,12 @@ class R10K::Source::Base
   def environments
     raise NotImplementedError, "#{self.class} has not implemented method #{__method__}"
   end
+
+  def accept(visitor)
+    visitor.visit(:source, self) do
+      environments.each do |env|
+        env.accept(visitor)
+      end
+    end
+  end
 end
