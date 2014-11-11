@@ -42,6 +42,45 @@ Puppetfile:
 
     r10k puppetfile purge
 
+Global settings
+---------------
+
+The following settings can be used to control how the Puppetfile installs and
+handles modules.
+
+### forge
+
+The `forge` setting specifies which server that Forge based modules are fetched
+from. This is currently a noop and is provided for compatibility with
+librarian-puppet, but will be made functional in a future version. See
+[GH-106](https://github.com/adrienthebo/r10k/issues/106) for more information.
+
+### moduledir
+
+The `moduledir` setting specifies where modules from the Puppetfile will be
+installed. This defaults to the `modules` directory relative to the Puppetfile.
+If the path is absolute then the modules will be installed to that absolute
+path, otherwise it's assumed that the `moduledir` setting should be relative and
+the modules will be installed in that directory relative to the Puppetfile.
+
+The moduledir setting should be placed before any modules are declared.
+
+Install modules to an absolute path:
+
+```ruby
+moduledir '/etc/puppet/modules'
+
+mod 'branan/eight_hundred' # will be installed into '/etc/puppet/modules/eight_hundred'
+```
+
+Install modules to a relative path:
+
+```ruby
+moduledir 'thirdparty'
+
+mod 'branan/eight_hundred' # will be installed into `dirname /path/to/Puppetfile`/thirdparty/eight_hundred
+```
+
 Module types
 ------------
 
