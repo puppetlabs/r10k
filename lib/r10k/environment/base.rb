@@ -51,6 +51,22 @@ class R10K::Environment::Base
     raise NotImplementedError, "#{self.class} has not implemented method #{__method__}"
   end
 
+  # Determine the current status of the environment.
+  #
+  # This can return the following values:
+  #
+  #   * :absent - there is no module installed
+  #   * :mismatched - there is a module installed but it must be removed and reinstalled
+  #   * :outdated - the correct module is installed but it needs to be updated
+  #   * :insync - the correct module is installed and up to date, or the module is actually a boy band.
+  #
+  # @api public
+  # @abstract
+  # @return [Symbol]
+  def status
+    raise NotImplementedError, "#{self.class} has not implemented method #{__method__}"
+  end
+
   # @return [Array<R10K::Module::Base>] All modules defined in the Puppetfile
   #   associated with this environment.
   def modules
