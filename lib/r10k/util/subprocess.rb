@@ -70,7 +70,7 @@ module R10K
 
         logmsg = "Starting process: #{@argv.inspect}"
         logmsg << "(cwd: #{@cwd})" if @cwd
-        logger.debug1 logmsg
+        logger.debug2(logmsg)
 
         result = subprocess.run
         logger.debug2("Finished process:\n#{result.format}")
