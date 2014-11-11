@@ -19,6 +19,11 @@ class R10K::Environment::Base
   #   @return [Pathname] The full path to the given environment
   attr_reader :path
 
+  # @!attribute [r] puppetfile
+  #   @api public
+  #   @return [R10K::Puppetfile] The puppetfile instance associated with this environment
+  attr_reader :puppetfile
+
   # Initialize the given environment.
   #
   # @param name [String] The unique name describing this environment.
@@ -34,6 +39,7 @@ class R10K::Environment::Base
 
     @full_path = File.join(@basedir, @dirname)
     @path = Pathname.new(File.join(@basedir, @dirname))
+    @puppetfile  = R10K::Puppetfile.new(@full_path)
   end
 
   # Synchronize the given environment.
@@ -43,5 +49,28 @@ class R10K::Environment::Base
   # @return [void]
   def sync
     raise NotImplementedError, "#{self.class} has not implemented method #{__method__}"
+  end
+
+  # Determine the current status of the environment.
+  #
+  # This can return the following values:
+  #
+  #   * :absent - there is no module installed
+  #   * :mismatched - there is a module installed but it must be removed and reinstalled
+  #   * :outdated - the correct module is installed but it needs to be updated
+  #   * :insync - the correct module is installed and up to date, or the module is actually a boy band.
+  #
+  # @api public
+  # @abstract
+  # @return [Symbol]
+  def status
+    raise NotImplementedError, "#{self.class} has not implemented method #{__method__}"
+  end
+
+  # @return [Array<R10K::Module::Base>] All modules defined in the Puppetfile
+  #   associated with this environment.
+  def modules
+    @puppetfile.load
+    @puppetfile.modules
   end
 end

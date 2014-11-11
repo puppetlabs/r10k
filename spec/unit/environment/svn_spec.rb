@@ -73,4 +73,43 @@ describe R10K::Environment::SVN do
       expect(subject.modules).to eq([:modules])
     end
   end
+
+  describe "determining the status" do
+    it "is absent if the working directory is absent" do
+      expect(subject.path).to receive(:exist?).and_return(false)
+      expect(subject.status).to eq :absent
+    end
+
+    it "is mismatched if the working directory is not an SVN repo" do
+      expect(subject.path).to receive(:exist?).and_return(true)
+      expect(working_dir).to receive(:is_svn?).and_return(false)
+      expect(subject.status).to eq :mismatched
+    end
+
+    it "is mismatched if the working directory remote doesn't match the expected remote" do
+      expect(subject.path).to receive(:exist?).and_return(true)
+      expect(working_dir).to receive(:is_svn?).and_return(true)
+      expect(working_dir).to receive(:url).and_return 'https://svn-server.site/another-svn-repo/trunk'
+      expect(subject.status).to eq :mismatched
+    end
+
+    it "is outdated when the the working directory has not synced" do
+      expect(subject.path).to receive(:exist?).and_return(true)
+      expect(working_dir).to receive(:is_svn?).and_return(true)
+      expect(working_dir).to receive(:url).and_return 'https://svn-server.site/svn-repo/trunk'
+      expect(subject.status).to eq :outdated
+    end
+
+    it "is insync when the working directory has been synced" do
+      expect(subject.path).to receive(:exist?).and_return(true)
+      expect(working_dir).to receive(:is_svn?).twice.and_return(true)
+      expect(working_dir).to receive(:url).and_return 'https://svn-server.site/svn-repo/trunk'
+
+      expect(working_dir).to receive(:update)
+
+      subject.sync
+
+      expect(subject.status).to eq :insync
+    end
+  end
 end

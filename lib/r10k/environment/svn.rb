@@ -18,11 +18,6 @@ class R10K::Environment::SVN < R10K::Environment::Base
   #   @return [R10K::SVN::WorkingDir] The SVN working directory backing this environment
   attr_reader :working_dir
 
-  # @!attribute [r] puppetfile
-  #   @api public
-  #   @return [R10K::Puppetfile] The puppetfile instance associated with this environment
-  attr_reader :puppetfile
-
   # @!attribute [r] username
   #   @return [String, nil] The SVN username to be passed to the underlying SVN commands
   #   @api private
@@ -51,7 +46,6 @@ class R10K::Environment::SVN < R10K::Environment::Base
     setopts(options, {:remote => :self, :username => :self, :password => :self})
 
     @working_dir = R10K::SVN::WorkingDir.new(Pathname.new(@full_path), :username => @username, :password => @password)
-    @puppetfile  = R10K::Puppetfile.new(@full_path)
   end
 
   # Perform an initial checkout of the SVN repository or update the repository.
@@ -64,18 +58,27 @@ class R10K::Environment::SVN < R10K::Environment::Base
   def sync
     if @working_dir.is_svn?
       @working_dir.update
+      @synced = true
     else
       @working_dir.checkout(@remote)
+      @synced = true
       logger.debug "Environment #{@full_path} is a fresh clone; automatically updating modules."
       sync_modules
     end
   end
 
-  # @return [Array<R10K::Module::Base>] All modules defined in the Puppetfile
-  #   associated with this environment.
-  def modules
-    @puppetfile.load
-    @puppetfile.modules
+  def status
+    if !@path.exist?
+      :absent
+    elsif !@working_dir.is_svn?
+      :mismatched
+    elsif !(@remote == @working_dir.url)
+      :mismatched
+    elsif !@synced
+      :outdated
+    else
+      :insync
+    end
   end
 
   # @api private
