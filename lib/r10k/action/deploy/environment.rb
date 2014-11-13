@@ -21,68 +21,62 @@ module R10K
             :trace      => :nil
           })
 
-          @purge = true
-          @deployment = R10K::Deployment.load_config(@config)
+          @purge  = true
         end
 
         def call
-          attempt = R10K::Util::Attempt.new(@deployment, :trace => @opts[:trace])
+          @ok = true
+          deployment = R10K::Deployment.load_config(@config)
+          deployment.accept(self)
+          @ok
+        end
 
-          attempt.try do |deployment|
-            # Ensure that everything can be preloaded. If we cannot preload all
-            # sources then we can't fully enumerate all environments which
-            # could be dangerous. If this fails then an exception will be raised
-            # and execution will be halted.
-            deployment.preload!
-
-            # Make sure that all environments manage a unique path.
-            deployment.validate!
-
-            if @purge
-              deployment.purge!
-            end
-
-            environments
-          end
-
-          attempt.try do |environment|
-            logger.info "Deploying environment #{environment.path}"
-            environment.sync
-            environment.puppetfile if @puppetfile
-          end.try do |puppetfile|
-            puppetfile.load!
-            puppetfile.purge!
-            puppetfile.modules
-          end.try do |mod|
-            logger.info "Deploying module #{mod.path}"
-            mod.sync
-          end
-
-          attempt.run
-
-          attempt.ok?
+        def visit(type, other, &block)
+          send("visit_#{type}", other, &block)
+        rescue => e
+          logger.error R10K::Errors::Formatting.format_exception(e, @trace)
+          @ok = false
         end
 
         private
 
-        def validate!
-          if @argv.empty? && @deployment.environments.empty?
-            raise R10K::R10KError, "No environments supplied in any sources, nothing to do"
-          end
+        def visit_deployment(deployment)
+          # Ensure that everything can be preloaded. If we cannot preload all
+          # sources then we can't fully enumerate all environments which
+          # could be dangerous. If this fails then an exception will be raised
+          # and execution will be halted.
+          deployment.preload!
+
+          yield
+
+          deployment.purge! if @purge
         end
 
-        def environments
-          @_environments ||= filter
+        def visit_source(source)
+          yield
         end
 
-        def filter
-          if @argv.empty?
-            @deployment.environments
-          else
-            @deployment.environments.select do |env|
-              @argv.any? { |name| env.dirname == name }
-            end
+        def visit_environment(environment)
+          if !(@argv.empty? || @argv.any? { |name| environment.dirname == name })
+            logger.debug1("Environment #{environment.dirname} does not match environment name filter, skipping")
+            return
           end
+
+          logger.info "Deploying environment #{environment.path}"
+          # @todo only recurse by default if environment is new
+          environment.sync
+          yield if @puppetfile
+        end
+
+        def visit_puppetfile(puppetfile)
+          puppetfile.load
+          yield
+          puppetfile.purge!
+        end
+
+        def visit_module(mod)
+          logger.info "Deploying module #{mod.path}"
+          mod.sync
         end
       end
     end
