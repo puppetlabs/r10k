@@ -46,6 +46,7 @@ module R10K
           # could be dangerous. If this fails then an exception will be raised
           # and execution will be halted.
           deployment.preload!
+          deployment.validate!
 
           yield
 
