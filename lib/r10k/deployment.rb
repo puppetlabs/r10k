@@ -25,6 +25,10 @@ module R10K
       new(config)
     end
 
+    # @!attribute [r] config
+    #   @return [R10K::Deployment::Config]
+    attr_reader :config
+
     def initialize(config)
       @config = config
     end

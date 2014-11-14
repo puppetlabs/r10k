@@ -51,6 +51,13 @@ module R10K
           yield
 
           deployment.purge! if @purge
+
+        ensure
+          if (postcmd = deployment.config.setting(:postrun))
+            subproc = R10K::Util::Subprocess.new(postcmd)
+            subproc.logger = logger
+            subproc.execute
+          end
         end
 
         def visit_source(source)
