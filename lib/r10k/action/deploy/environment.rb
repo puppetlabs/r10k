@@ -62,11 +62,16 @@ module R10K
             logger.debug1("Environment #{environment.dirname} does not match environment name filter, skipping")
             return
           end
-
+          status = environment.status
           logger.info "Deploying environment #{environment.path}"
-          # @todo only recurse by default if environment is new
           environment.sync
-          yield if @puppetfile
+
+          if status == :absent || @puppetfile
+            if status == :absent
+              logger.debug("Environment #{environment.dirname} is new, updating all modules")
+            end
+            yield
+          end
         end
 
         def visit_puppetfile(puppetfile)

@@ -58,13 +58,10 @@ class R10K::Environment::SVN < R10K::Environment::Base
   def sync
     if @working_dir.is_svn?
       @working_dir.update
-      @synced = true
     else
       @working_dir.checkout(@remote)
-      @synced = true
-      logger.debug "Environment #{@full_path} is a fresh clone; automatically updating modules."
-      sync_modules
     end
+    @synced = true
   end
 
   def status
@@ -81,6 +78,7 @@ class R10K::Environment::SVN < R10K::Environment::Base
     end
   end
 
+  # @deprecated
   # @api private
   def sync_modules
     modules.each do |mod|
