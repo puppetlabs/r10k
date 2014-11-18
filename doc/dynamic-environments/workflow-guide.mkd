@@ -5,7 +5,7 @@ skills, tools, and needs. This guide describes a generic workflow that can
 be customized easily.
 
 This guide assumes that each of your modules is in a separate repository 
-and that the **Puppetfile** is in its own repo called the
+and that the `Puppetfile` is in its own repo called the
 [Control Repo](http://www.jeffmalnick.com/blog/2014/05/16/r10k-control-repos/).
 All module repos have a primary branch of *master* and the Control's primary
 branch is *production*. All changes are made through r10k and no user makes
@@ -32,7 +32,7 @@ other modules or manifests, only the Control repo requires a new branch.
 Add new module and branches to control repo
 -------------------------------------------
 
-The new module is added to the control repository's **Puppetfile** like so:
+The new module is added to the control repository's `Puppetfile` like so:
 
 ```
 # Forge modules:
@@ -83,7 +83,7 @@ Finally, deploy the environments via r10k. This step must occur on the master:
 ```r10k deploy environment -p```
 
 Add the **-v** option for verbosity if you need to troubleshoot any errors. The
-new branch should be located at **$environmentpath/feature**.
+new branch should be located at `$environmentpath/feature`.
 
 
 Test the new module branches
@@ -140,7 +140,7 @@ git push origin :repo
 ```
 
 Deploy via r10k on the master and ensure there are no errors. The *feature*
-dynamic environment will no longer exist at **$environmentpath/feature** if you
+dynamic environment will no longer exist at `$environmentpath/feature` if you
 deleted the branch in your Control repo.
 
 ```r10k deploy environment -p```
@@ -163,7 +163,7 @@ Update control repo to reference new branch
 -------------------------------------------
 
 For all modules that you branched, add a reference to the new branch name to
-the **Puppetfile** in your Control repo. Don't forget the comma at the end of
+the `Puppetfile` in your Control repo. Don't forget the comma at the end of
 the *:git* value.
 
 ```
@@ -199,8 +199,8 @@ Finally, deploy the environments via r10k. This step must occur on the master:
 
 ```r10k deploy environment -p```
 
-Add the **-v** option for verbosity if you need to troubleshoot any errors. The
-new branch should be located at **$environmentpath/feature**.
+Add the *-v* option for verbosity if you need to troubleshoot any errors. The
+new branch should be located at `$environmentpath/feature`.
 
 Test the new module branches
 ----------------------------
@@ -249,7 +249,7 @@ git push origin :repo
 ```
 
 Redeploy with r10k on the master and ensure there are no errors. The *feature*
-dynamic environment should no longer exist at **$environmentpath/feature**.
+dynamic environment should no longer exist at `$environmentpath/feature`.
 
 ```r10k deploy environment -p```
 
