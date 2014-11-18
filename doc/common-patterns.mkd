@@ -9,11 +9,11 @@ Repository Setup
 ----------------
 
 Use a [Control Repo](http://www.jeffmalnick.com/blog/2014/05/16/r10k-control-repos/)
-to store your **Puppetfile**.
+to store your `Puppetfile`.
 
 Hiera data should be in the Control repo OR as a separate source in
-**r10k.yaml**. Any **hiera.yaml** in the Control repo will be ignored on a per
-environment basis, locating it at **/etc/puppet/hiera.yaml** is prefered.
+`r10k.yaml`. Any `hiera.yaml` in the Control repo will be ignored on a per
+environment basis, locating it at `/etc/puppet/hiera.yaml` is prefered.
 
 Each puppet module should be contained in its own independent forge module or
 repository.
@@ -21,7 +21,7 @@ repository.
 Editing modules
 ---------------
 
-All environment content is checked out into $environmentpath/modules on the
+All environment content is checked out into `$environmentpath/modules` on the
 node r10k is run on, either your puppet master or each masterless node. Edits
 made directly to these files will be lost on the next deploy. It is best
 practice not to edit code on the production system in the production paths.
@@ -30,7 +30,7 @@ You may clone upstream repositories in a regular user's directory, on the master
 or on another machine. Create a new feature branch locally, make all required
 edits, and push the new branch upstream when ready for testing. R10k will
 deploy changes from the upstream repositories, eliminating the need for manual
-updates of the $environmentpath contents.
+updates of the `$environmentpath` contents.
 
 Automated deploys
 -----------------
