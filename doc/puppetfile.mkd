@@ -81,6 +81,9 @@ moduledir 'thirdparty'
 mod 'branan/eight_hundred' # will be installed into `dirname /path/to/Puppetfile`/thirdparty/eight_hundred
 ```
 
+**Note**: support for a relative moduledir was added in r10k 1.4.0; the behavior
+of a relative moduledir path is undefined on earlier versions of r10k.
+
 Module types
 ------------
 
