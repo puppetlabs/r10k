@@ -12,13 +12,12 @@ branch is *production*. All changes are made through r10k and no user makes
 manual changes to the environments under **/etc/puppet**.
 
 Adding New Modules
-==================
+------------------
 
 This workflow is useful when adding a forge or internally-developed module
 to your puppet environment.
 
-Create new feature branch
--------------------------
+### Create new feature branch
 
 Create a new feature branch in your module repositories. Do this for each
 repository, including the control repository, that will reference the new
@@ -29,8 +28,7 @@ module. You do not need to do so for modules that are not being edited.
 If you are simply adding the module at this time and not referencing it in
 other modules or manifests, only the Control repo requires a new branch.
 
-Add new module and branches to control repo
--------------------------------------------
+### Add new module and branches to control repo
 
 The new module is added to the control repository's `Puppetfile` like so:
 
@@ -52,8 +50,7 @@ mod "other_module",
   :ref => "feature"
 ```
 
-Reference new module in manifests, modules, and hiera
------------------------------------------------------
+### Reference new module in manifests, modules, and hiera
 
 If you are simply adding the module at this time and not referencing it in
 other modules or manifests, you may skip this step.
@@ -61,8 +58,7 @@ other modules or manifests, you may skip this step.
 Edit your existing manifests, modules, and hiera as needed to make sure of
 the new module.
 
-Deploy environments
--------------------
+### Deploy environments
 
 Save all your changes in each module repo. Commit and push the changes upstream:
 
@@ -86,8 +82,7 @@ Add the **-v** option for verbosity if you need to troubleshoot any errors. The
 new branch should be located at `$environmentpath/feature`.
 
 
-Test the new module branches
-----------------------------
+### Test the new module branches
 
 If you are simply adding the module at this time and not referencing it in
 other modules or manifests, you may skip this step.
@@ -101,8 +96,7 @@ Verify that catalog compilation succeeds and that you are satisfied that the
 effective changes match your expected changes. Repeat the steps above until
 you are satisfied with the results.
 
-Merge changes
--------------
+### Merge changes
 
 In each of the changed modules and the control repo, checkout the main branch,
 merge, and push changes to the master/production branch.
@@ -126,8 +120,7 @@ git push origin production
 If you are simply adding the module at this time and not referencing it in
 other modules or manifests, you are now finished.
 
-Cleanup feature branches
-------------------------
+### Cleanup feature branches
 
 You may skip this step for long-lived branches, however most feature branches
 should be short-lived and can be pruned once testing and merging is complete.
@@ -146,12 +139,11 @@ deleted the branch in your Control repo.
 ```r10k deploy environment -p```
 
 Editing existing Modules
-========================
+------------------------
 
 When editing your own existing modules, this workflow should be followed.
 
-Create new feature branches
----------------------------
+### Create new feature branches
 
 Create a new feature branch in your module repositories. Do this in the edited
 module, the control repository, and in each module that will reference the
@@ -159,8 +151,7 @@ updated module. You do not need to do so for modules that are not being edited.
 
 ```git checkout -b feature```
 
-Update control repo to reference new branch
--------------------------------------------
+### Update control repo to reference new branch
 
 For all modules that you branched, add a reference to the new branch name to
 the `Puppetfile` in your Control repo. Don't forget the comma at the end of
@@ -172,14 +163,12 @@ mod "other_module",
   :ref => "feature"
 ```
 
-Modify existing module, references to module
---------------------------------------------
+### Modify existing module, references to module
 
 Make the required changes to your existing module. Edit your existing manifests,
 modules, and hiera as needed to make sure of the updated module.
 
-Deploy environments
--------------------
+### Deploy environments
 
 Save all your changes in each modified repo. Commit and push the changes upstream:
 
@@ -202,8 +191,7 @@ Finally, deploy the environments via r10k. This step must occur on the master:
 Add the *-v* option for verbosity if you need to troubleshoot any errors. The
 new branch should be located at `$environmentpath/feature`.
 
-Test the new module branches
-----------------------------
+### Test the new module branches
 
 Run the puppet agent against the new environment from at least two nodes, one
 that should not be impacted by change and one that should be impacted.
@@ -214,8 +202,7 @@ Verify that catalog compilation succeeds and that you are satisfied that the
 effective changes match your expected changes. Repeat the steps above until
 you are satisfied with the results.
 
-Merge changes
--------------
+### Merge changes
 
 In each of the changed module repos, checkout the main branch and merge.
 
@@ -235,8 +222,7 @@ were made (unlike a new module, where a new repo is referenced).
 git checkout master
 ```
 
-Cleanup feature branches
-------------------------
+### Cleanup feature branches
 
 You may skip this step for long-lived branches, however most feature branches
 should be short-lived and can be pruned once testing and merging is complete.
@@ -254,9 +240,8 @@ dynamic environment should no longer exist at `$environmentpath/feature`.
 ```r10k deploy environment -p```
 
 Customize Your Workflow
-=======================
+-----------------------
 
 This guide is very generic in nature. Use it as a template and expand and
 modify it to fit your team, your tools, and your company culture. Above all,
 be consistent in your methodology.
-
