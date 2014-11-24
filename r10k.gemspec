@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
     dynamic environments.
   DESCRIPTION
 
-  s.license  = 'Apache 2.0'
+  s.license  = 'Apache-2.0'
 
   s.add_dependency 'colored',   '>= 1.2'
   s.add_dependency 'cri',       '~> 2.5.0'
