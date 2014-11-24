@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.license  = 'Apache-2.0'
 
   s.add_dependency 'colored',   '>= 1.2'
-  s.add_dependency 'cri',       '~> 2.5.0'
+  s.add_dependency 'cri',       '~> 2.6.0'
 
   s.add_dependency 'systemu',   '~> 2.5.2'
 
