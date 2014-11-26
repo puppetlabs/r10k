@@ -24,19 +24,39 @@ describe R10K::Action::CriRunner do
   let(:opts) { {:value => :yep} }
   let(:argv) { %w[value yes] }
 
+  describe "handling options" do
+    it "adapts the :verbose flag to :loglevel" do
+      input = {:value => :yep, :verbose => 'DEBUG'}
+      output = {:value => :yep, :loglevel => 'DEBUG'}
+      expect(cri_runner.handle_opts(input)).to eq(output)
+    end
+
+    it "sets the non-argument form of :verbose to :loglevel => 'INFO'" do
+      input = {:value => :yep, :verbose => true}
+      output = {:value => :yep, :loglevel => 'INFO'}
+      expect(cri_runner.handle_opts(input)).to eq(output)
+    end
+  end
+
+  describe "handling arguments" do
+    it "sets the arguments as-is" do
+      expect(cri_runner.handle_argv(%w[one two])).to eq(%w[one two])
+    end
+  end
+
   describe "proxying invocations to .new" do
     it "returns itself" do
       expect(cri_runner.new(opts, argv, :cri_cmd)).to eql cri_runner
     end
 
-    it "adapts the :verbose flag to :loglevel" do
-      expect(R10K::Action::Runner).to receive(:new).with({:value => :yep, :loglevel => 'DEBUG'}, argv, action_class)
+    it "handles options" do
+      expect(cri_runner).to receive(:handle_opts)
       cri_runner.new({:value => :yep, :verbose => 'DEBUG'}, argv, :cri_cmd)
     end
 
-    it "sets the non-argument form of :verbose to :loglevel => 'INFO'" do
-      expect(R10K::Action::Runner).to receive(:new).with({:value => :yep, :loglevel => 'INFO'}, argv, action_class)
-      cri_runner.new({:value => :yep, :verbose => true}, argv, :cri_cmd)
+    it "handles arguments" do
+      expect(cri_runner).to receive(:handle_argv)
+      cri_runner.new({:value => :yep, :verbose => 'DEBUG'}, argv, :cri_cmd)
     end
   end
 

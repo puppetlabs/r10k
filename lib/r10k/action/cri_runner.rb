@@ -32,7 +32,15 @@ module R10K
       # @param _cmd [Cri::Command] The command that was invoked. This value
       #   is not used and is only present to adapt the Cri interface to r10k.
       # @return [self]
-      def new(opts, args, _cmd = nil)
+      def new(opts, argv, _cmd = nil)
+        handle_opts(opts)
+        handle_argv(argv)
+        @runner = R10K::Action::Runner.new(@opts, @argv, @klass)
+        self
+      end
+
+      # @return [Hash] The adapted options for the runner
+      def handle_opts(opts)
         # Translate from the Cri verbose logging option to the internal logging setting.
         loglevel = opts.delete(:verbose)
         case loglevel
@@ -48,9 +56,12 @@ module R10K
           opts[:loglevel] = loglevel
         end
 
-        @runner = R10K::Action::Runner.new(opts, args, @klass)
+        @opts = opts
+      end
 
-        self
+      # @return [Array] The adapted arguments for the runner
+      def handle_argv(argv)
+        @argv = argv
       end
 
       # Invoke the wrapped behavior, determine if it succeeded, and exit with
