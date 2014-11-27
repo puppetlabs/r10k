@@ -1,5 +1,6 @@
 require 'r10k/cli'
 require 'r10k/puppetfile'
+require 'r10k/action/puppetfile'
 
 require 'cri'
 
@@ -30,54 +31,25 @@ Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
           usage   'install'
           summary 'Install all modules from a Puppetfile'
 
-          run do |opts, args, cmd|
-            puppetfile_root = Dir.getwd
-            puppetfile_path = ENV['PUPPETFILE_DIR']
-            puppetfile      = ENV['PUPPETFILE']
-
-            puppetfile = R10K::Puppetfile.new(puppetfile_root, puppetfile_path, puppetfile)
-
-            runner = R10K::TaskRunner.new(:trace => opts[:trace])
-            task   = R10K::Task::Puppetfile::Sync.new(puppetfile)
-            runner.append_task task
-
-            runner.run
-
-            exit runner.exit_value
-          end
+          # @todo add --moduledir option
+          # @todo add --puppetfile option
+          # @todo add --no-purge option
+          runner R10K::Action::Puppetfile::CriRunner.wrap(R10K::Action::Puppetfile::Install)
         end
       end
     end
-    self.command.add_command(Install.command)
+
     module Check
       def self.command
         @cmd ||= Cri::Command.define do
           name  'check'
           usage 'check'
           summary 'Try and load the Puppetfile to verify the syntax is correct.'
-          run do |opts,args,cmd|
-            puppetfile_root = Dir.getwd
-            puppetfile_path = ENV['PUPPETFILE_DIR']
-            puppetfile      = ENV['PUPPETFILE']
-
-            puppetfile = R10K::Puppetfile.new(puppetfile_root, puppetfile_path, puppetfile)
-            begin
-              puppetfile.load
-            rescue SyntaxError, LoadError => e
-              $stderr.puts "ERROR: Could not parse Puppetfile"
-              $stderr.puts e.message
-              if opts[:trace]
-                $stderr.puts e.backtrace.join("\n")
-              end
-              exit 1
-            end
-            puts "Syntax OK"
-            exit 0
-          end
+          runner R10K::Action::Puppetfile::CriRunner.wrap(R10K::Action::Puppetfile::Check)
         end
       end
     end
-    self.command.add_command(Check.command)
+
     module Purge
       def self.command
         @cmd ||= Cri::Command.define do
@@ -85,25 +57,15 @@ Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
           usage 'purge'
           summary 'Purge unmanaged modules from a Puppetfile managed directory'
 
-          run do |opts, args, cmd|
-            puppetfile_root = Dir.getwd
-            puppetfile_path = ENV['PUPPETFILE_DIR']
-            puppetfile      = ENV['PUPPETFILE']
-
-            puppetfile = R10K::Puppetfile.new(puppetfile_root, puppetfile_path, puppetfile)
-
-            runner = R10K::TaskRunner.new(:trace => opts[:trace])
-            task   = R10K::Task::Puppetfile::Purge.new(puppetfile)
-            runner.append_task task
-
-            runner.run
-
-            exit runner.exit_value
-          end
+          runner R10K::Action::Puppetfile::CriRunner.wrap(R10K::Action::Puppetfile::Purge)
         end
       end
     end
-    self.command.add_command(Purge.command)
   end
-  self.command.add_command(Puppetfile.command)
 end
+
+R10K::CLI.command.add_command(R10K::CLI::Puppetfile.command)
+
+R10K::CLI::Puppetfile.command.add_command(R10K::CLI::Puppetfile::Install.command)
+R10K::CLI::Puppetfile.command.add_command(R10K::CLI::Puppetfile::Check.command)
+R10K::CLI::Puppetfile.command.add_command(R10K::CLI::Puppetfile::Purge.command)
