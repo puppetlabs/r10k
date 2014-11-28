@@ -1,5 +1,6 @@
 module R10K
 module Task
+  # @deprecated
   class Base
     include R10K::Logging
 

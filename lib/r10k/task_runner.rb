@@ -1,6 +1,7 @@
 require 'r10k/task'
 
 module R10K
+# @deprecated
 class TaskRunner
 
   include R10K::Logging
