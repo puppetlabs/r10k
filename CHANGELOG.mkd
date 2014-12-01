@@ -6,6 +6,168 @@ CHANGELOG
 
 UNRELEASED
 
+### User notes
+
+(GH-43) Using a relative `moduledir` in the Puppetfile is relative to the Puppetfile
+
+The `moduledir` setting in the Puppetfile could be used to set a custom
+directory for Puppetfile modules, but if a relative path was used it was
+relative to the current working directory. As of 1.4.0 a relative `moduledir`
+setting will be expanded to the Puppetfile, which should make it much easier to
+use a directory other than 'modules' for the Puppetfile installed modules.
+
+(GH-68) Add alias for `r10k deploy display`
+
+The `r10k deploy display` subcommand had unfriendly syntax, and now has an
+alias of `r10k deploy list`.
+
+(GH-92) Support ``mod 'owner/module'`` for Git and SVN modules
+
+The original implementation of Git and SVN based modules assumed that the module
+name was only the name component, and did not include the owner component of the
+module. Because of this the full module name was added to the path, which meant
+that a Git module or SVN module called `foo/bar` would be created as
+`$moduledir/foo/bar`, after which r10k would check for stale modules, see a
+module called `foo`, and delete it.
+
+This has now been corrected so that all modules may have an owner and name, and
+only the name will be used when constructing the module path.
+
+Issues also closed as part of GH-92:
+
+  * GH-78
+
+(GH-96) Provide output from Git command failures
+
+When r10k encounters an error while running a command, it will always log the
+failed command and the output of the command. This should make it dramatically
+easier to diagnose issues with the underlying commands used by r10k without
+having to re-run the failing r10k command with a myriad of command line flags.
+
+Issues also closed as part of GH-96:
+
+  * GH-46
+  * GH-94
+
+(GH-121) Support for calling an arbitrary script after deployment
+
+Users can now specify a `postrun` setting in `r10k.yaml` to run an arbitrary
+command after an environment deployment finishes. The current implementation is
+fairly simple and isn't passed additional information about the deployment and
+is mainly meant to notify other services that the deployment has completed.
+Future versions of r10k will provide more information to this command so that
+more complex actions can be taken on success and failure.
+
+(GH-155) Allow SVN credentials to be added for modules/environments, disallow interactive SVN
+
+When interacting with SVN modules, r10k could run SVN commands that could try to
+prompt the user for input but were not provided access to stdin. R10k is meant
+to be non-interactive so credentials need to be provided in some manner, but
+cannot be provided directly by the user.
+
+As of 1.4.0 SVN environments and modules can supply a username and password to
+be used when interacting with the SVN remote, and SVN commands are run with
+`--non-interactive` to prevent commands from trying to grab stdin.
+
+**Note**: SVN credentials are passed as command line options, so the SVN
+credentials may be visible in the process table when r10k is running. If you
+choose to supply SVN credentials make sure that the system running r10k is
+appropriately secured.
+
+(GH-169) Perform non-blocking reads on stderr in Subprocess
+
+When using SSH with a Control Master, the first time an SSH connection is
+launched it will persist and will hang onto stderr from the parent process.
+R10k was using blocking IO to read from child processes and assumed that the
+file descriptors would be closed when the launched process exited, and the
+persistent SSH process would cause r10k to hang.
+
+The subprocess code has been updated to perform nonblocking reads of stderr;
+when the child process exits it assumes that even if stderr is held open nothing
+else should be written to it, drains the buffered pipe content and returns with
+that.
+
+This is working around buggy behavior in SSH, but this problem doesn't look like
+it'll go away so the best course of action is to incorporate this fix into
+downstream.
+
+(GH-180) Don't leak FDs when executing subcommands
+
+R10k was not explicitly closing all file descriptors, and on Ruby 1.8.7 these
+would not be closed by the garbage collector, causing file descriptors to leak.
+This has been fixed and all file descriptors should be closed after each
+subprocess is invoked.
+
+Major thanks to Jeremy Asher for discovering and fixing this.
+
+(GH-193) Don't purge environments if environment sources can't be fetched
+
+The original behavior for deploying environments with r10k was to fetch sources,
+deploy environments from those sources, and then clean up any orphaned
+environments. If a source had been fetched before but could not be reached then
+r10k would use the previously fetched branch information to update environments.
+In normal cases this would provide a reasonably robust failure mode.
+
+However, this meant that if no sources had been be fetched or the source remote
+information was typoed, r10k would have no source information, could enumerate
+no environments, and then enter HULK SMASH mode where it would delete all
+unmanaged environments - AKA everything. This is an uncommon failure mode but
+could bite environments that were setting up r10k for the first time.
+
+To resolve this issue, r10k will try to fetch all sources and if any source
+fails to be fetched then r10k will abort the entire deployment. This means that
+r10k will fail very early before any changes have been made which is a safe time
+to fail. If the errors were transitory then r10k can be run again, and if the
+failures are permanent then it's hard to safely update anything and extremely
+dangerous to try to delete any environments.
+
+(GH-202) Different environments cannot manage the same path
+
+R10k allowed for multiple sources to create environments but did not have
+semantics for environments from different sources managing the same path. If
+this happened, the resulting behavior would be undefined and could do any number
+of strange things. The approach to this was by convention and prefixing was
+recommended to avoid this, but it's still not a great approach.
+
+This was resolved by looking for environment collisions before deploying; if
+collisions exist then r10k will abort the deployment.
+
+Note: The commit that fixed this referenced GH-123 instead of GH-202.
+
+(GH-214) Rescue SyntaxError and LoadError when evaluating Puppetfiles
+
+Since Puppetfiles are just a Ruby DSL it's possible to have multiple Puppetfiles
+that are aggregated by using `require` or `load`. However these methods raise
+exceptions that don't descend from `StandardError`, so the normal error handling
+would not catch them, so a malformed Puppetfile could catastrophically crash
+r10k.
+
+Because the Puppetfile is not an actual source file in the conventional sense we
+can recover from these errors and continue, so r10k will now recover from these
+errors. If a SyntaxError or LoadError is raised while evaluating a Puppetfile,
+r10k will rescue them and wrap them in an R10K::Error and then raise that, which
+can be caught and handled as a normal, non-critical exception.
+
+(GH-221) Only deploy modules once for each environment deploy
+
+If an environment was deployed for the first time and `--puppetfile` was
+specified, the initial creation would create the environment and then deploy
+modules, and then the modules would be deployed again because `--puppetfile` was
+separate code. The deploy logic has been refactored to consider `--puppetfile`
+being passed or the environment being created to be equivalent and will only
+deploy modules once.
+
+### Developer notes
+
+`R10K::Environment::Base#sync` is no longer recursive; callers are expected to
+handle recursive updates if needed.
+
+The `R10K::Action` namespace has been added to provide an API to r10k
+functionality. These should be used by any code that wants to interact with r10k
+and should provide an alternative to shelling out to r10k or using `R10K::CLI`
+directly. The individual action objects should be called through
+`R10K::Action::Runner` so that application setup and teardown is handled.
+
 ### Thanks
 
 Thanks to the following contributors for their work on this release:
