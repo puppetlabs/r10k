@@ -37,6 +37,10 @@ Thanks to the following contributors for their work on this release:
   * [Christoph Föhrdes](https://github.com/cfoehrdes) For fixing a copy/paste
     error in the Puppetfile documentation
 
+In addition to those who contributed to the code base, thanks to all those that
+reported and commented on issues; user input makes it much easier to make r10k a
+better project!
+
 1.3.5
 -----
 
