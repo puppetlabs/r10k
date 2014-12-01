@@ -3,6 +3,7 @@ require 'r10k/task'
 module R10K
 module Task
 module Module
+  # @deprecated
   class Sync < R10K::Task::Base
     def initialize(mod)
       @mod = mod

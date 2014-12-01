@@ -6,6 +6,7 @@ require 'r10k/task_runner'
 module R10K
 module Task
 module Puppetfile
+  # @deprecated
   class Sync < R10K::Task::Base
     def initialize(puppetfile)
       @puppetfile = puppetfile
@@ -25,6 +26,7 @@ module Puppetfile
     end
   end
 
+  # @deprecated
   class DeployModules < R10K::Task::Base
 
     attr_accessor :module_names
@@ -73,6 +75,7 @@ module Puppetfile
     end
   end
 
+  # @deprecated
   class Purge < R10K::Task::Base
     def initialize(puppetfile)
       @puppetfile = puppetfile
