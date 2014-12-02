@@ -26,6 +26,14 @@ class R10K::Module::Git < R10K::Module::Base
     @ref
   end
 
+  def properties
+    {
+      :expected => @ref,
+      :actual   => (@working_dir.current.sha1 rescue "(unresolvable)"),
+      :type     => :git,
+    }
+  end
+
   def sync
     case status
     when :absent

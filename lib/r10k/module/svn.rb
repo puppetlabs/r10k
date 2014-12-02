@@ -30,6 +30,11 @@ class R10K::Module::SVN < R10K::Module::Base
   #   @api private
   attr_reader :password
 
+  # @!attribute [r] working_dir
+  #   @return [R10K::SVN::WorkingDir]
+  #   @api private
+  attr_reader :working_dir
+
   include R10K::Util::Setopts
 
   INITIALIZE_OPTS = {
@@ -73,6 +78,14 @@ class R10K::Module::SVN < R10K::Module::Base
 
   def exist?
     path.exist?
+  end
+
+  def properties
+    {
+      :expected => expected_revision,
+      :actual   => (@working_dir.revision rescue "(unresolvable)"),
+      :type     => :svn,
+    }
   end
 
   private

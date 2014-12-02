@@ -44,6 +44,28 @@ describe R10K::Module::SVN do
     end
   end
 
+  describe "properties" do
+    subject { described_class.new('foo', '/moduledir', :svn => 'https://github.com/adrienthebo/r10k-fixture-repo', :rev => 123) }
+
+    it "sets the module type to :svn" do
+      expect(subject.properties).to include(:type => :svn)
+    end
+
+    it "sets the expected version" do
+      expect(subject.properties).to include(:expected => 123)
+    end
+
+    it "sets the actual version to the revision when the revision is available" do
+      expect(subject.working_dir).to receive(:revision).and_return(12)
+      expect(subject.properties).to include(:actual => 12)
+    end
+
+    it "sets the actual version (unresolvable) when the revision is unavailable" do
+      expect(subject.working_dir).to receive(:revision).and_raise(ArgumentError)
+      expect(subject.properties).to include(:actual => "(unresolvable)")
+    end
+  end
+
   describe "determining the status" do
     subject { described_class.new('foo', '/moduledir', :svn => 'https://github.com/adrienthebo/r10k-fixture-repo', :rev => 123) }
 

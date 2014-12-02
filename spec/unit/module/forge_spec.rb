@@ -58,6 +58,23 @@ describe R10K::Module::Forge do
     end
   end
 
+  describe "properties" do
+    subject { described_class.new('branan/eight_hundred', '/moduledir', '8.0.0') }
+
+    it "sets the module type to :forge" do
+      expect(subject.properties).to include(:type => :forge)
+    end
+
+    it "sets the expected version" do
+      expect(subject.properties).to include(:expected => R10K::SemVer.new('8.0.0'))
+    end
+
+    it "sets the actual version" do
+      expect(subject).to receive(:current_version).and_return(R10K::SemVer.new('0.8.0'))
+      expect(subject.properties).to include(:actual => R10K::SemVer.new('0.8.0'))
+    end
+  end
+
   describe "when syncing" do
     let(:metadata) do
       double('metadata',

@@ -45,6 +45,14 @@ class R10K::Module::Forge < R10K::Module::Base
     end
   end
 
+  def properties
+    {
+      :expected => expected_version,
+      :actual   => current_version,
+      :type     => :forge,
+    }
+  end
+
   # @return [R10K::SemVer] The expected version that the module
   def expected_version
     if @expected_version == :latest
