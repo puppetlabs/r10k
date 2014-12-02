@@ -53,6 +53,34 @@ describe R10K::Module::Git do
     end
   end
 
+  describe "properties" do
+    subject do
+      described_class.new('boolean', '/moduledir', {:git => 'git://github.com/adrienthebo/puppet-boolean'})
+    end
+
+    it "sets the module type to :git" do
+      expect(subject.properties).to include(:type => :git)
+    end
+
+    it "sets the expected version" do
+      expect(subject.properties).to include(:expected => instance_of(R10K::Git::Ref))
+    end
+
+    it "sets the actual version to the revision when the revision is available" do
+      head = double('head')
+      expect(subject.working_dir).to receive(:current).and_return(head)
+      expect(head).to receive(:sha1).and_return('35d3517e67ceeb4b485b56d4a14d38fb95516c92')
+      expect(subject.properties).to include(:actual => '35d3517e67ceeb4b485b56d4a14d38fb95516c92')
+    end
+
+    it "sets the actual version (unresolvable) when the revision is unavailable" do
+      head = double('head')
+      expect(subject.working_dir).to receive(:current).and_return(head)
+      expect(head).to receive(:sha1).and_raise(ArgumentError)
+      expect(subject.properties).to include(:actual => '(unresolvable)')
+    end
+  end
+
   describe "determining the status" do
     subject do
       described_class.new(

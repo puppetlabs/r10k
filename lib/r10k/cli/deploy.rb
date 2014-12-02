@@ -90,6 +90,7 @@ try to deploy the given module names in all environments.
           summary 'Display environments and modules in the deployment'
 
           flag :p, :puppetfile, 'Display Puppetfile modules'
+          flag nil, :detail, 'Display detailed information'
 
           runner R10K::Action::CriRunner.wrap(R10K::Action::Deploy::Display)
         end

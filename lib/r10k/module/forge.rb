@@ -16,6 +16,11 @@ class R10K::Module::Forge < R10K::Module::Base
     !!(name.match %r[\w+/\w+])
   end
 
+  # @!attribute [r] metadata
+  #   @api private
+  #   @return [R10K::Module::Metadata]
+  attr_reader :metadata
+
   include R10K::Logging
 
   def initialize(title, dirname, args)
@@ -40,6 +45,14 @@ class R10K::Module::Forge < R10K::Module::Base
     end
   end
 
+  def properties
+    {
+      :expected => expected_version,
+      :actual   => current_version,
+      :type     => :forge,
+    }
+  end
+
   # @return [R10K::SemVer] The expected version that the module
   def expected_version
     if @expected_version == :latest
@@ -51,6 +64,7 @@ class R10K::Module::Forge < R10K::Module::Base
 
   # @return [R10K::SemVer] The version of the currently installed module
   def current_version
+    @metadata.read
     @metadata.version
   end
 

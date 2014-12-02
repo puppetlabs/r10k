@@ -16,6 +16,7 @@ module R10K
           setopts(opts, {
             :config     => :self,
             :puppetfile => :self,
+            :detail     => :self,
             :trace      => :self
           })
 
@@ -47,7 +48,12 @@ module R10K
         def visit_environment(environment)
           indent do
             display_text("- " + environment.dirname)
-            yield if @puppetfile
+            if @puppetfile
+              indent do
+                display_text("modules:")
+                yield
+              end
+            end
           end
         end
 
@@ -59,6 +65,15 @@ module R10K
         def visit_module(mod)
           indent do
             display_text("- " + mod.title)
+            if @detail
+              indent do
+                properties = mod.properties
+                str = properties.keys.sort.map do |key|
+                  "#{key}: #{properties[key]}"
+                end.join("\n")
+                display_text(str)
+              end
+            end
           end
         end
 
