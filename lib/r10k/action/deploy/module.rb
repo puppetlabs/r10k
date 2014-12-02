@@ -1,6 +1,7 @@
-require 'r10k/util/attempt'
 require 'r10k/util/setopts'
 require 'r10k/deployment'
+require 'r10k/action/visitor'
+require 'r10k/logging'
 
 module R10K
   module Action
@@ -20,43 +21,50 @@ module R10K
           })
 
           @purge = true
-          @deployment = R10K::Deployment.load_config(@config)
         end
 
         def call
-          # @todo validation
-
-          attempt = R10K::Util::Attempt.new(environments, :trace => @trace)
-
-          attempt.try do |environment|
-            logger.debug "Updating modules #{@argv.inspect} in environment #{environment.name}"
-            environment.modules.select { |mod| @argv.any? { |name| mod.name == name } }
-          end
-
-          attempt.try do |mod|
-            mod.sync
-          end
-
-          attempt.run
-
-          attempt.ok?
+          @visit_ok = true
+          deployment = R10K::Deployment.load_config(@config)
+          deployment.accept(self)
+          @visit_ok
         end
+
+        include R10K::Action::Visitor
 
         private
 
-        def environments
-          @_environments ||= filter
+        def visit_deployment(deployment)
+          yield
         end
 
-        def filter
-          if @opts[:environment]
-            @deployment.environments.select { |env| env.dirname = @opts[:environment] }
+        def visit_source(source)
+          yield
+        end
+
+        def visit_environment(environment)
+          if @opts[:environment] && (@opts[:environment] != environment.dirname)
+            logger.debug1("Only updating modules in environment #{@opts[:environment]}, skipping environment #{environment.path}")
           else
-            @deployment.environments
+            logger.debug1("Updating modules #{@argv.inspect} in environment #{environment.path}")
+            yield
+          end
+        end
+
+        def visit_puppetfile(puppetfile)
+          puppetfile.load
+          yield
+        end
+
+        def visit_module(mod)
+          if @argv.include?(mod.name)
+            logger.info "Deploying module #{mod.path}"
+            mod.sync
+          else
+            logger.debug1("Only updating modules #{@argv.inspect}, skipping module #{mod.name}")
           end
         end
       end
     end
   end
 end
-
