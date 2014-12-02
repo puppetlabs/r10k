@@ -47,6 +47,17 @@ describe R10K::Module::Forge do
     end
   end
 
+  describe "fetching the current version" do
+    subject { described_class.new('branan/eight_hundred', '/moduledir', '8.0.0') }
+
+    it "reads the metadata before returning the version from the metadata" do
+      metadata = subject.metadata
+      expect(metadata).to receive(:read)
+      expect(metadata).to receive(:version).and_return(R10K::SemVer.new('1.2.3'))
+      expect(subject.current_version).to eq(R10K::SemVer.new('1.2.3'))
+    end
+  end
+
   describe "when syncing" do
     let(:metadata) do
       double('metadata',
