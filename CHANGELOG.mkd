@@ -8,6 +8,14 @@ UNRELEASED
 
 ### User notes
 
+(GH-40) Display expected and actual module versions
+
+When displaying the state of a deployment, modules would report a version but
+would not indicate if that was the expected version or desired version. This has
+been changed so that both the expected and actual module version information is
+displayed. Because determining the actual version for modules can be slow the
+`--detail` flag must be passed to display this information.
+
 (GH-43) Using a relative `moduledir` in the Puppetfile is relative to the Puppetfile
 
 The `moduledir` setting in the Puppetfile could be used to set a custom
