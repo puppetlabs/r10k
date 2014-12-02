@@ -21,7 +21,7 @@ use a directory other than 'modules' for the Puppetfile installed modules.
 The `r10k deploy display` subcommand had unfriendly syntax, and now has an
 alias of `r10k deploy list`.
 
-(GH-92) Support ``mod 'owner/module'`` for Git and SVN modules
+(GH-92) Support `mod 'owner/module'` for Git and SVN modules
 
 The original implementation of Git and SVN based modules assumed that the module
 name was only the name component, and did not include the owner component of the
