@@ -171,6 +171,19 @@ SVN revision will be kept checked out.
       :svn      => 'https://github.com/puppetlabs/puppetlabs-apache/trunk',
       :revision => '154'
 
+If the SVN repository requires credentials, you can supply the `:username` and
+`:password` options.
+
+    mod 'apache',
+      :svn      => 'https://github.com/puppetlabs/puppetlabs-apache/trunk',
+      :username => 'azurediamond',
+      :password => 'hunter2'
+
+**Note**: SVN credentials are passed as command line options, so the SVN
+credentials may be visible in the process table when r10k is running. If you
+choose to supply SVN credentials make sure that the system running r10k is
+appropriately secured.
+
 ## Environment variables
 
 It is possible to set an alternate name/location for your `Puppetfile` and

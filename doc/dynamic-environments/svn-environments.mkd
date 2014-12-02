@@ -1,0 +1,45 @@
+SVN Based Dynamic Environments
+==============================
+
+R10k can use SVN repositories to implement dynamic environments. You can create,
+update, and delete Puppet environments automatically as part of your normal SVN
+workflow.
+
+How it works
+------------
+
+R10k implements a branching workflow similar to Git by using the SVN concept of
+branches. SVN repositories must conform to the conventional SVN repository
+structure with the directories trunk/, branches/, and optionally tags/ in the
+root of the repository. R10k maps the trunk/ directory to the production
+environment, and production environment, and branches (directories in branches/)
+are created as environments with the name of the given branch.
+
+Configuration
+-------------
+
+In addition to the settings that all sources support, SVN sources can specify
+the following additional options:
+
+### username/password
+
+If the SVN repository requires credentials, you can supply the `username` and
+`password` options.
+
+Both `username` and `password` must be specified in order to SVN authentication.
+
+**Note**: SVN credentials are passed as command line options, so the SVN
+credentials may be visible in the process table when r10k is running. If you
+choose to supply SVN credentials make sure that the system running r10k is
+appropriately secured.
+
+```yaml
+---
+sources:
+  myenvs:
+    type: svn
+    remote: 'svn://my-svn.server/my-svn-repo'
+    basedir: '/etc/puppet/environments'
+    username: 'azurediamond'
+    password: 'hunter2'
+```
