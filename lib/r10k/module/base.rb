@@ -80,6 +80,14 @@ class R10K::Module::Base
     visitor.visit(:module, self)
   end
 
+  # Return the properties of the module
+  #
+  # @return [Hash]
+  # @abstract
+  def properties
+    raise NotImplementedError
+  end
+
   private
 
   def parse_title(title)
