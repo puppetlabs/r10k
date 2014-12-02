@@ -18,7 +18,7 @@ module R10K
             :config     => :self,
             :puppetfile => :self,
             :purge      => :self,
-            :trace      => :nil
+            :trace      => :self
           })
 
           @purge  = true
