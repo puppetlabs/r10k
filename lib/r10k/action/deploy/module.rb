@@ -16,7 +16,7 @@ module R10K
           setopts(opts, {
             :config      => :self,
             :environment => nil,
-            :trace       => nil
+            :trace       => :self
           })
 
           @purge = true
@@ -26,7 +26,7 @@ module R10K
         def call
           # @todo validation
 
-          attempt = R10K::Util::Attempt.new(environments, :trace => @opts[:trace])
+          attempt = R10K::Util::Attempt.new(environments, :trace => @trace)
 
           attempt.try do |environment|
             logger.debug "Updating modules #{@argv.inspect} in environment #{environment.name}"
