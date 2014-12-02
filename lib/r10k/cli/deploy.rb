@@ -60,7 +60,6 @@ scheduled. On subsequent deployments, Puppetfile deployment will default to off.
         end
       end
     end
-    self.command.add_command(Environment.command)
 
     module Module
       def self.command
@@ -81,7 +80,6 @@ try to deploy the given module names in all environments.
         end
       end
     end
-    self.command.add_command(Module.command)
 
     module Display
       def self.command
@@ -93,28 +91,14 @@ try to deploy the given module names in all environments.
 
           flag :p, :puppetfile, 'Display Puppetfile modules'
 
-          run do |opts, args, cmd|
-            deploy = R10K::Deployment.load_config(opts[:config])
-
-            deploy.sources.each do |source|
-              puts source.name + ":"
-              source.environments.each do |env|
-                puts "  - " + env.name
-
-                if opts[:puppetfile]
-                  pf = env.puppetfile
-                  pf.load
-                  pf.modules.each do |mod|
-                    puts "    - " + mod.title
-                  end
-                end
-              end
-            end
-          end
+          runner R10K::Action::CriRunner.wrap(R10K::Action::Deploy::Display)
         end
       end
     end
-    self.command.add_command(Display.command)
   end
-  self.command.add_command(Deploy.command)
 end
+
+R10K::CLI.command.add_command(R10K::CLI::Deploy.command)
+R10K::CLI::Deploy.command.add_command(R10K::CLI::Deploy::Environment.command)
+R10K::CLI::Deploy.command.add_command(R10K::CLI::Deploy::Module.command)
+R10K::CLI::Deploy.command.add_command(R10K::CLI::Deploy::Display.command)

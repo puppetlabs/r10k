@@ -1,26 +1,26 @@
 require 'r10k/util/setopts'
 require 'r10k/deployment'
-require 'r10k/action/visitor'
 require 'r10k/logging'
 
 module R10K
   module Action
     module Deploy
-      class Module
+      class Display
 
-        include R10K::Logging
         include R10K::Util::Setopts
+        include R10K::Logging
 
         def initialize(opts, argv)
           @opts = opts
           @argv = argv
           setopts(opts, {
-            :config      => :self,
-            :environment => nil,
-            :trace       => :self
+            :config     => :self,
+            :puppetfile => :self,
+            :trace      => :self
           })
 
-          @purge = true
+          @level  = 4
+          @indent = 0
         end
 
         def call
@@ -39,15 +39,15 @@ module R10K
         end
 
         def visit_source(source)
+          source.generate_environments
+          display_text("#{source.name} (#{source.basedir})")
           yield
         end
 
         def visit_environment(environment)
-          if @opts[:environment] && (@opts[:environment] != environment.dirname)
-            logger.debug1("Only updating modules in environment #{@opts[:environment]}, skipping environment #{environment.path}")
-          else
-            logger.debug1("Updating modules #{@argv.inspect} in environment #{environment.path}")
-            yield
+          indent do
+            display_text("- " + environment.dirname)
+            yield if @puppetfile
           end
         end
 
@@ -57,12 +57,27 @@ module R10K
         end
 
         def visit_module(mod)
-          if @argv.include?(mod.name)
-            logger.info "Deploying module #{mod.path}"
-            mod.sync
-          else
-            logger.debug1("Only updating modules #{@argv.inspect}, skipping module #{mod.name}")
+          indent do
+            display_text("- " + mod.title)
           end
+        end
+
+        def indent(&block)
+          @indent += @level
+          block.call
+        ensure
+          @indent -= @level
+        end
+
+        def indent_text(str)
+          space = " " * @indent
+          str.lines.map do |line|
+            space + line
+          end.join
+        end
+
+        def display_text(str)
+          puts indent_text(str)
         end
       end
     end
