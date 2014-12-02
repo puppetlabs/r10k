@@ -1,7 +1,7 @@
-require 'r10k/util/attempt'
 require 'r10k/util/setopts'
 require 'r10k/deployment'
 require 'r10k/logging'
+require 'r10k/action/visitor'
 
 module R10K
   module Action
@@ -21,22 +21,17 @@ module R10K
             :trace      => :self
           })
 
-          @purge  = true
+          @purge = true
         end
 
         def call
-          @ok = true
+          @visit_ok = true
           deployment = R10K::Deployment.load_config(@config)
           deployment.accept(self)
-          @ok
+          @visit_ok
         end
 
-        def visit(type, other, &block)
-          send("visit_#{type}", other, &block)
-        rescue => e
-          logger.error R10K::Errors::Formatting.format_exception(e, @trace)
-          @ok = false
-        end
+        include R10K::Action::Visitor
 
         private
 
