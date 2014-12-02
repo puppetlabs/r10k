@@ -90,9 +90,14 @@ Display all environments being managed by r10k:
     r10k deploy display
 
 Display all environments being managed by r10k, and modules specified in the
-Puppetfile with the desired version:
+Puppetfile:
 
     r10k deploy display -p
+
+Display all environments being managed by r10k, and modules specified in the
+Puppetfile along with their expected and actual versions:
+
+    r10k deploy display -p --detail
 
 User accounts
 -------------
