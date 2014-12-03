@@ -11,12 +11,8 @@ module R10K
     class Subprocess
 
       require 'r10k/util/subprocess/runner'
-      require 'r10k/util/subprocess/io'
       require 'r10k/util/subprocess/result'
       require 'r10k/util/subprocess/subprocess_error'
-
-      require 'r10k/util/subprocess/posix'
-      require 'r10k/util/subprocess/windows'
 
       # @return [Class < R10K::Util::Subprocess::Runner]
       def self.runner
