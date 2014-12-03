@@ -17,13 +17,14 @@ class R10K::Util::Subprocess::POSIX::Runner < R10K::Util::Subprocess::Runner
 
   def initialize(argv)
     @argv = argv
-    @io = R10K::Util::Subprocess::POSIX::IO.new
-
-    attach_pipes
+    mkpipes
   end
 
   def start
-    exec_r, exec_w = status_pipe()
+    # Create a pipe so that the parent can verify that the child process
+    # successfully executed. The pipe will be closed on a successful exec(),
+    # and will contain an error message on failure.
+    exec_r, exec_w = pipe
 
 
     @pid = fork do
@@ -79,8 +80,8 @@ class R10K::Util::Subprocess::POSIX::Runner < R10K::Util::Subprocess::Runner
     Process.setsid
 
     # Reopen file descriptors
-    STDOUT.reopen(io.stdout)
-    STDERR.reopen(io.stderr)
+    STDOUT.reopen(@stdout_w)
+    STDERR.reopen(@stderr_w)
 
     executable = @argv.shift
     exec([executable, executable], *@argv)
@@ -99,30 +100,9 @@ class R10K::Util::Subprocess::POSIX::Runner < R10K::Util::Subprocess::Runner
     exec_r.close
   end
 
-  # Create a pipe so that the parent can verify that the child process
-  # successfully executed. The pipe will be closed on a successful exec(),
-  # and will contain an error message on failure.
-  #
-  # @return [IO, IO] The reader and writer for this pipe
-  def status_pipe
-    r_pipe, w_pipe = ::IO.pipe
-
-    w_pipe.fcntl(Fcntl::F_SETFD, Fcntl::FD_CLOEXEC)
-
-    [r_pipe, w_pipe]
-  end
-
-  def attach_pipes
-    @stdout_r, @stdout_w = ::IO.pipe
-    @stderr_r, @stderr_w = ::IO.pipe
-
-    @stdout_r.fcntl(Fcntl::F_SETFD, Fcntl::FD_CLOEXEC)
-    @stdout_w.fcntl(Fcntl::F_SETFD, Fcntl::FD_CLOEXEC)
-    @stderr_r.fcntl(Fcntl::F_SETFD, Fcntl::FD_CLOEXEC)
-    @stderr_w.fcntl(Fcntl::F_SETFD, Fcntl::FD_CLOEXEC)
-
-    @io.stdout = @stdout_w
-    @io.stderr = @stderr_w
+  def mkpipes
+    @stdout_r, @stdout_w = pipe
+    @stderr_r, @stderr_w = pipe
   end
 
   # Perform non-blocking reads on a pipe that could still be open
@@ -138,5 +118,11 @@ class R10K::Util::Subprocess::POSIX::Runner < R10K::Util::Subprocess::Runner
     rescue EOFError, Errno::EAGAIN, Errno::EWOULDBLOCK
     end
     data
+  end
+
+  def pipe
+    ::IO.pipe.tap do |pair|
+      pair.each { |p| p.fcntl(Fcntl::F_SETFD, Fcntl::FD_CLOEXEC) }
+    end
   end
 end
