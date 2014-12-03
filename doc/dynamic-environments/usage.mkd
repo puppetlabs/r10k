@@ -99,6 +99,11 @@ Puppetfile along with their expected and actual versions:
 
     r10k deploy display -p --detail
 
+Display an explicit list of environments being managed by r10k and modules
+specified in the Puppetfile along with their expected and actual versions:
+
+    r10k deploy display -p --detail production vmwr webrefactor
+
 User accounts
 -------------
 

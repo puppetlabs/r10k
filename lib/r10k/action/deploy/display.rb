@@ -46,6 +46,10 @@ module R10K
         end
 
         def visit_environment(environment)
+          if !(@argv.empty? || @argv.include?(environment.dirname))
+            return
+          end
+
           indent do
             display_text("- " + environment.dirname)
             if @puppetfile
