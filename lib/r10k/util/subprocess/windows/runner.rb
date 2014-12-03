@@ -1,5 +1,7 @@
 require 'open3'
 
+module R10K::Util::Subprocess::Windows; end
+
 # Run processes on Windows.
 #
 # This implementation relies on Open3.capture3 to run commands and capture
@@ -10,7 +12,6 @@ class R10K::Util::Subprocess::Windows::Runner < R10K::Util::Subprocess::Runner
 
   def initialize(argv)
     @argv = argv
-    @io = R10K::Util::Subprocess::Windows::IO.new
   end
 
   def run

@@ -1,5 +1,7 @@
 require 'fcntl'
 
+module R10K::Util::Subprocess::POSIX; end
+
 # Implement a POSIX command runner by using fork/exec.
 #
 # This implementation is optimized to run commands in the background, and has
