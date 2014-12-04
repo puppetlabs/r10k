@@ -85,15 +85,18 @@ class R10K::Util::Subprocess::Runner::POSIX < R10K::Util::Subprocess::Runner
     executable = @argv.shift
     exec([executable, executable], *@argv)
   rescue SystemCallError => e
-    exec_w.write(e.message)
+    exec_w.write("#{e.class}: #{e.message}")
+    exit(254)
   end
 
   def execute_parent(exec_r)
     @stdout_w.close
     @stderr_w.close
 
-    if not exec_r.eof?
+    if !exec_r.eof?
       msg = exec_r.read || "exec() failed"
+      _, @status = Process.waitpid2(@pid)
+      @result = R10K::Util::Subprocess::Result.new(@argv, '', msg, @status.exitstatus)
       raise "Could not execute #{@argv.join(' ')}: #{msg}"
     end
     exec_r.close
