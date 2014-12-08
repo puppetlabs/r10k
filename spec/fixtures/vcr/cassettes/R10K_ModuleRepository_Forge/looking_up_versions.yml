@@ -8,7 +8,7 @@ http_interactions:
       string: ''
     headers:
       User-Agent:
-      - Faraday v0.8.8
+      - Faraday v0.9.0
   response:
     status:
       code: 200
