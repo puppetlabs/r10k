@@ -53,8 +53,9 @@ class R10K::Source::Git < R10K::Source::Base
 
     @environments = []
 
-    @remote           = options[:remote]
-    @invalid_branches = (options[:invalid_branches] || 'correct_and_warn')
+    @remote                  = options[:remote]
+    @strip_branchname_prefix = options[:strip_branchname_prefix]
+    @invalid_branches        = (options[:invalid_branches] || 'correct_and_warn')
 
     @cache  = R10K::Git::Cache.generate(@remote)
   end
@@ -85,6 +86,10 @@ class R10K::Source::Git < R10K::Source::Base
   def generate_environments
     envs = []
     branch_names.each do |bn|
+      if bn.branchname_prefix_stripped?
+       logger.debug "Environment #{bn.name.inspect} starts with #{bn.strip_branchname_prefix}, removing this prefix from branch name"
+      end
+
       if bn.valid?
         envs << R10K::Environment::Git.new(bn.name, @basedir, bn.dirname,
                                        {:remote => remote, :ref => bn.name})
@@ -128,9 +133,10 @@ class R10K::Source::Git < R10K::Source::Base
   def branch_names
     @cache.branches.map do |branch|
       BranchName.new(branch, {
-        :prefix     => @prefix,
-        :sourcename => @name,
-        :invalid    => @invalid_branches,
+        :prefix                  => @prefix,
+        :sourcename              => @name,
+        :invalid                 => @invalid_branches,
+        :strip_branchname_prefix => @strip_branchname_prefix,
       })
     end
   end
@@ -149,6 +155,7 @@ class R10K::Source::Git < R10K::Source::Base
       @prefix = opts[:prefix]
       @sourcename = opts[:sourcename]
       @invalid = opts[:invalid]
+      @strip_branchname_prefix = opts[:strip_branchname_prefix] || ''
 
       case @invalid
       when 'correct_and_warn'
@@ -166,6 +173,12 @@ class R10K::Source::Git < R10K::Source::Base
       end
     end
 
+    def branchname_prefix_stripped?
+      @name.start_with? @strip_branchname_prefix
+    end
+
+    def strip_branchname_prefix; @strip_branchname_prefix end
+
     def correct?; @correct end
     def validate?; @validate end
 
@@ -179,6 +192,10 @@ class R10K::Source::Git < R10K::Source::Base
 
     def dirname
       dir = @name.dup
+
+      if dir.start_with? @strip_branchname_prefix
+        dir.slice!(@strip_branchname_prefix)
+      end
 
       if @prefix
         dir = "#{@sourcename}_#{dir}"

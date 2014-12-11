@@ -271,4 +271,49 @@ describe R10K::Source::Git::BranchName do
       end
     end
   end
+
+  describe "stripping prefixes from branch names" do
+    branch = 'personal/user/branch'
+
+    describe "and strip_branchname_prefix matches the branch name" do
+      describe "and prefix is true" do
+        it "strips the specified prefix from #{branch}" do
+          bn = described_class.new(branch.dup, {
+            :prefix => true,
+            :correct => true,
+            :sourcename => 'foo',
+            :strip_branchname_prefix => 'personal/',
+          })
+          expect(bn.dirname).to eq 'foo_user_branch'
+        end
+      end
+
+      describe "and prefix is false" do
+        it "strips the specified prefix from #{branch}" do
+          bn = described_class.new(branch.dup, {
+            :prefix => false,
+            :correct => true,
+            :sourcename => 'foo',
+            :strip_branchname_prefix => 'personal/',
+          })
+          expect(bn.dirname).to eq 'user_branch'
+        end
+      end
+    end
+
+    describe "and strip_branchname_prefix does not match the branch name" do
+      it "doesn't modify #{branch}" do
+        bn = described_class.new(branch.dup, {:strip_branchname_prefix => 'foo/'})
+        expect(bn.dirname).to eq branch
+      end
+
+    end
+
+    describe "and strip_branchname_prefix is not set" do
+      it "doesn't modify #{branch}" do
+        bn = described_class.new(branch.dup, {:strip_branchname_prefix => nil})
+        expect(bn.dirname).to eq branch
+      end
+    end
+  end
 end

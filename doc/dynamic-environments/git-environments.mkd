@@ -63,3 +63,25 @@ Valid values:
   * 'correct': Non-word characters will silently be replaced with underscores.
   * 'error': Branches with non-word characters will be ignored and an error will
     be emitted.
+
+### strip_branchname_prefix:
+
+This setting tells r10k to strip a fixed string from the start of a Git branch
+name before using it. If the branch name does not start with the specified
+prefix, nothing happens and processing continues as normal. Please note that
+the string gets stripped before any of the other settings that might influence
+the name of the Puppet environment (e.g. 'invalid_branches' or 'prefix') take
+effect.
+
+For example, a Git branch called 'personal/username/branchname' will cause r10k
+to create a Puppet environment named 'personal_username_branchname' by default
+(assuming that 'invalid_branches' is set to 'correct' or 'correct_and_warn',
+and 'prefix' is not enabled). However, if you were to set:
+
+    strip_branchname_prefix: personal/
+
+on the source in r10k.yaml, this prefix would be stripped and you would end up
+with a Puppet environment called 'username_branchname'. This is useful if you
+are using personal branches with Gitolite, as the 'personal/' prefix is only
+really there to allow Gitolite to match up permissions, and just adds noise to
+the Puppet environment name.
