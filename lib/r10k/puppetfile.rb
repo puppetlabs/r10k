@@ -40,19 +40,19 @@ class Puppetfile
     @forge   = 'forge.puppetlabs.com'
   end
 
-  def load
-    if File.readable? @puppetfile_path
-      self.load!
+  def load(path = @puppetfile_path)
+    if File.readable? path
+      self.load!(path)
     else
-      logger.debug "Puppetfile #{@puppetfile_path.inspect} missing or unreadable"
+      logger.debug "Puppetfile #{path.inspect} missing or unreadable"
     end
   end
 
-  def load!
+  def load!(path = @puppetfile_path)
     dsl = R10K::Puppetfile::DSL.new(self)
-    dsl.instance_eval(puppetfile_contents, @puppetfile_path)
+    dsl.instance_eval(puppetfile_contents(path), path)
   rescue SyntaxError, LoadError => e
-    raise R10K::Error.wrap(e, "Failed to evaluate #{@puppetfile_path}")
+    raise R10K::Error.wrap(e, "Failed to evaluate #{path}")
   end
 
   # @param [String] forge
@@ -98,8 +98,8 @@ class Puppetfile
 
   private
 
-  def puppetfile_contents
-    File.read(@puppetfile_path)
+  def puppetfile_contents(path = @puppetfile_path)
+    File.read(path)
   end
 
   class DSL
