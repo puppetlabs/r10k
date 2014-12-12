@@ -1,11 +1,8 @@
-require 'spec_helper'
-require 'r10k/util/subprocess/runner'
+shared_examples_for "a subprocess runner" do |fixture_root|
 
-describe R10K::Util::Subprocess::Runner::POSIX, :if => R10K::Util::Platform.posix? do
+  describe "running '/bin/echo test'" do
+    subject { described_class.new(%w[/bin/echo test]) }
 
-  fixture_root = File.expand_path('spec/fixtures/unit/util/subprocess/posix/runner', PROJECT_ROOT)
-
-<<<<<<< HEAD
     it "sets the exit code to 0" do
       result = subject.run
       expect(result.exit_code).to eq 0
@@ -71,7 +68,4 @@ describe R10K::Util::Subprocess::Runner::POSIX, :if => R10K::Util::Platform.posi
       expect(result).to be_failed
     end
   end
-=======
-  it_behaves_like 'a subprocess runner', fixture_root
->>>>>>> 5ce8d23... [spec] extract subprocess runner shared examples
 end
