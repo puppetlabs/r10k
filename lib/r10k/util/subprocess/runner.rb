@@ -29,16 +29,6 @@ class R10K::Util::Subprocess::Runner
     raise NotImplementedError
   end
 
-  # Start the process asynchronously and return. Not all runners will implement this.
-  def start
-    raise NotImplementedError
-  end
-
-  # Wait for the process to exit. Not all runners will implement this.
-  def wait
-    raise NotImplementedError
-  end
-
   # Did the given process exit with a non-zero exit code?
   def crashed?
     raise NotImplementedError
