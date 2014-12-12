@@ -19,42 +19,20 @@ class R10K::Util::Subprocess::Runner::POSIX < R10K::Util::Subprocess::Runner
     mkpipes
   end
 
-  def start
+  def run
     # Create a pipe so that the parent can verify that the child process
     # successfully executed. The pipe will be closed on a successful exec(),
     # and will contain an error message on failure.
     exec_r, exec_w = pipe
 
-
-    @pid = fork do
+    pid = fork do
       exec_r.close
       execute_child(exec_w)
     end
 
     exec_w.close
-    execute_parent(exec_r)
-  end
+    execute_parent(exec_r, pid)
 
-  def wait
-    if @pid
-      _, @status = Process.waitpid2(@pid)
-    end
-
-    stdout = @stdout_r.read
-    # Use non-blocking read for stderr_r to work around an issue with OpenSSH
-    # ControlPersist: https://bugzilla.mindrot.org/show_bug.cgi?id=1988
-    # Blocking should not occur in any other case since the process that was
-    # attached to the pipe has already terminated.
-    stderr = read_nonblock(@stderr_r)
-
-    @stdout_r.close
-    @stderr_r.close
-    @result = R10K::Util::Subprocess::Result.new(@argv, stdout, stderr, @status.exitstatus)
-  end
-
-  def run
-    start
-    wait
     @result
   end
 
@@ -81,17 +59,32 @@ class R10K::Util::Subprocess::Runner::POSIX < R10K::Util::Subprocess::Runner
     exit(254)
   end
 
-  def execute_parent(exec_r)
+  def execute_parent(exec_r, pid)
     @stdout_w.close
     @stderr_w.close
 
+    stdout = ''
+    stderr = ''
+
     if !exec_r.eof?
-      msg = exec_r.read || "exec() failed"
-      _, @status = Process.waitpid2(@pid)
-      @result = R10K::Util::Subprocess::Result.new(@argv, '', msg, @status.exitstatus)
-      raise "Could not execute #{@argv.join(' ')}: #{msg}"
+      stderr = exec_r.read || "exec() failed"
+      _, @status = Process.waitpid2(pid)
+    else
+      _, @status = Process.waitpid2(pid)
+      stdout = @stdout_r.read
+
+      # Use non-blocking read for stderr_r to work around an issue with OpenSSH
+      # ControlPersist: https://bugzilla.mindrot.org/show_bug.cgi?id=1988
+      # Blocking should not occur in any other case since the process that was
+      # attached to the pipe has already terminated.
+      stderr = read_nonblock(@stderr_r)
     end
     exec_r.close
+
+    @stdout_r.close
+    @stderr_r.close
+
+    @result = R10K::Util::Subprocess::Result.new(@argv, stdout, stderr, @status.exitstatus)
   end
 
   def mkpipes
