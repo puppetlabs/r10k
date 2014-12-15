@@ -28,7 +28,7 @@ module R10K
           pf.purge!
           true
         rescue => e
-          logger.error R10K::Errors::Formatting.format_exception(e, opts[:trace])
+          logger.error R10K::Errors::Formatting.format_exception(e, @trace)
           false
         end
       end
