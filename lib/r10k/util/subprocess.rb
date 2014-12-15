@@ -17,9 +17,9 @@ module R10K
       # @return [Class < R10K::Util::Subprocess::Runner]
       def self.runner
         if R10K::Util::Platform.windows?
-          R10K::Util::Subprocess::Windows::Runner
+          R10K::Util::Subprocess::Runner::Windows
         else
-          R10K::Util::Subprocess::POSIX::Runner
+          R10K::Util::Subprocess::Runner::POSIX
         end
       end
 

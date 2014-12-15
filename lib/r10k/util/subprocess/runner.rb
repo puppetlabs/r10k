@@ -3,8 +3,8 @@
 # @api private
 class R10K::Util::Subprocess::Runner
 
-  require 'r10k/util/subprocess/windows/runner'
-  require 'r10k/util/subprocess/posix/runner'
+  require 'r10k/util/subprocess/runner/windows'
+  require 'r10k/util/subprocess/runner/posix'
 
   # @!attribute [rw] cwd
   #   @return [String] The directory to be used as the cwd when executing
