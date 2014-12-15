@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'systemu',   '~> 2.5.2'
 
   s.add_dependency 'log4r',     '1.1.10'
-  s.add_dependency 'multi_json', '~> 1.8.2'
+  s.add_dependency 'multi_json', '~> 1.10'
   s.add_dependency 'json_pure',  '~> 1.8'
 
   s.add_dependency 'faraday',                       '~> 0.8.8'
