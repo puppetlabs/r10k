@@ -58,14 +58,6 @@ class R10K::Util::Subprocess::Runner::POSIX < R10K::Util::Subprocess::Runner
     @result
   end
 
-  def crashed?
-    exit_code != 0
-  end
-
-  def exit_code
-    @status.exitstatus
-  end
-
   private
 
   def execute_child(exec_w)

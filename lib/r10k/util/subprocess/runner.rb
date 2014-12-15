@@ -22,14 +22,4 @@ class R10K::Util::Subprocess::Runner
   def run
     raise NotImplementedError
   end
-
-  # Did the given process exit with a non-zero exit code?
-  def crashed?
-    raise NotImplementedError
-  end
-
-  # @return [Integer] The exit status of the given process.
-  def exit_code
-    raise NotImplementedError
-  end
 end
