@@ -13,7 +13,7 @@ module R10K
 
         def initialize(opts, argv)
           @opts = opts
-          @argv = argv
+          @argv = argv.map { |arg| arg.gsub(/\W/,'_') }
           setopts(opts, {
             :config     => :self,
             :puppetfile => :self,
