@@ -18,15 +18,6 @@ class R10K::Util::Subprocess::Runner::Windows < R10K::Util::Subprocess::Runner
 
     stdout, stderr, status = Open3.capture3(cmd)
 
-    @status = status
     @result = R10K::Util::Subprocess::Result.new(@argv, stdout, stderr, status.exitstatus)
-  end
-
-  def exit_code
-    @status.exitstatus
-  end
-
-  def crashed?
-    exit_code != 0
   end
 end
