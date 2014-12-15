@@ -1,5 +1,4 @@
 require 'r10k/module'
-require 'r10k/execution'
 require 'r10k/svn/working_dir'
 require 'r10k/util/setopts'
 
