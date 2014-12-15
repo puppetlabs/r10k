@@ -75,7 +75,7 @@ guide.
     * To create a new topic branch; `git checkout -b fix/master/my_contribution master`
     * Please avoid working directly on the 'master' branch.
   * Make commits of logical units.
-    * Your commit should include a high level description of your work in HISTORY.textile 
+    * Your commit message should include a high level description of your work.
   * Check for unnecessary whitespace with `git diff --check` before committing.
 
 ```
