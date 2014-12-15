@@ -11,12 +11,6 @@ class R10K::Util::Subprocess::Runner
   #     the command.
   attr_accessor :cwd
 
-  attr_reader :pid
-
-  # @!attribute [r] status
-  #   @return [Process::Status]
-  attr_reader :status
-
   # @!attribute [r] result
   #   @return [R10K::Util::Subprocess::Result]
   attr_reader :result
