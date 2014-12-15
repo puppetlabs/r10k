@@ -1,6 +1,5 @@
+require 'r10k/util/subprocess/runner'
 require 'fcntl'
-
-module R10K::Util::Subprocess::POSIX; end
 
 # Implement a POSIX command runner by using fork/exec.
 #
@@ -13,7 +12,7 @@ module R10K::Util::Subprocess::POSIX; end
 # access to stdin.
 #
 # @api private
-class R10K::Util::Subprocess::POSIX::Runner < R10K::Util::Subprocess::Runner
+class R10K::Util::Subprocess::Runner::POSIX < R10K::Util::Subprocess::Runner
 
   def initialize(argv)
     @argv = argv

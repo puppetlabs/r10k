@@ -6,11 +6,12 @@ describe R10K::Util::Subprocess do
   describe "selecting the runner implementation" do
     it "uses the windows implementation on Windows platforms" do
       expect(R10K::Util::Platform).to receive(:windows?).and_return true
-      expect(described_class.runner).to eq R10K::Util::Subprocess::Windows::Runner
+      expect(described_class.runner).to eq R10K::Util::Subprocess::Runner::Windows
     end
+
     it "uses the posix implementation when not on windows" do
       expect(R10K::Util::Platform).to receive(:windows?).and_return true
-      expect(described_class.runner).to eq R10K::Util::Subprocess::Windows::Runner
+      expect(described_class.runner).to eq R10K::Util::Subprocess::Runner::Windows
     end
   end
 
