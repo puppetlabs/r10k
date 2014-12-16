@@ -31,11 +31,6 @@ VCR.configure do |vcr|
 end
 
 RSpec.configure do |config|
-  # Filter out integration tests by default
-  #
-  # To run integration tests, run `rspec --tag integration`
-  config.filter_run_excluding :integration => true
-
   config.before(:all) do
     Log4r::Logger.global.level = 10
   end
