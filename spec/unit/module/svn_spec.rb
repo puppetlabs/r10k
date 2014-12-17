@@ -119,10 +119,6 @@ describe R10K::Module::SVN do
     end
   end
 
-  describe "and the expected version is :latest" do
-    it "sets the expected version based on the latest SVN revision"
-  end
-
   describe "synchronizing" do
 
     subject { described_class.new('foo', '/moduledir', :svn => 'https://github.com/adrienthebo/r10k-fixture-repo', :rev => 123) }

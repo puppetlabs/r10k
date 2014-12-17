@@ -7,11 +7,6 @@ describe R10K::Git::Head do
   let(:repo) { double('git repository') }
   subject { described_class.new(ref) }
 
-
-  describe "determining if the head can be resolved" do
-    it "is always false"
-  end
-
   describe "determining if the head needs to be fetched" do
     it "is always true" do
       expect(subject.fetch?).to be_truthy
@@ -24,4 +19,3 @@ describe R10K::Git::Head do
 
   it_behaves_like "a git ref"
 end
-
