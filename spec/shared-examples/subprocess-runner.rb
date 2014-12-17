@@ -20,6 +20,18 @@ shared_examples_for "a subprocess runner" do |fixture_root|
     end
   end
 
+  describe "running a command with a large amount of output" do
+    subject do
+      described_class.new(['ruby', '-e', 'blob = "buffalo!" * (2 << 16); puts blob'])
+    end
+
+    it "does not hang" do
+      Timeout.timeout(5) do
+        subject.run
+      end
+    end
+  end
+
   describe "running '/bin/ls' with a different working directory" do
     subject do
       described_class.new(%w[/bin/ls]).tap do |o|
