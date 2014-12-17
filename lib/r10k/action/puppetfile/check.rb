@@ -26,10 +26,10 @@ module R10K
           pf = R10K::Puppetfile.new(@root, @moduledir, @path)
 
           begin
-            pf.load
+            pf.load!
             $stderr.puts "Syntax OK"
             true
-          rescue R10K::Error => e
+          rescue => e
             $stderr.puts R10K::Errors::Formatting.format_exception(e, @trace)
             false
           end

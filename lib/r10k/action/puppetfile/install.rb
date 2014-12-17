@@ -38,7 +38,7 @@ module R10K
         end
 
         def visit_puppetfile(pf)
-          pf.load
+          pf.load!
           yield
           pf.purge!
         end
