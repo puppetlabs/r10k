@@ -2,11 +2,6 @@ require 'r10k'
 
 module R10K
 
-  # @deprecated
-  class ExecutionFailure < StandardError
-    attr_accessor :exit_code, :stdout, :stderr
-  end
-
   # An error class that accepts an optional hash and wrapped error message
   #
   class Error < StandardError
