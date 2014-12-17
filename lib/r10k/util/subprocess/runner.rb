@@ -3,12 +3,13 @@
 # @api private
 class R10K::Util::Subprocess::Runner
 
+  require 'r10k/util/subprocess/windows/runner'
+  require 'r10k/util/subprocess/posix/runner'
+
   # @!attribute [rw] cwd
   #   @return [String] The directory to be used as the cwd when executing
   #     the command.
   attr_accessor :cwd
-
-  attr_reader :io
 
   attr_reader :pid
 
@@ -25,16 +26,6 @@ class R10K::Util::Subprocess::Runner
   end
 
   def run
-    raise NotImplementedError
-  end
-
-  # Start the process asynchronously and return. Not all runners will implement this.
-  def start
-    raise NotImplementedError
-  end
-
-  # Wait for the process to exit. Not all runners will implement this.
-  def wait
     raise NotImplementedError
   end
 
