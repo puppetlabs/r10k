@@ -25,6 +25,11 @@ class R10K::Util::Subprocess::Runner::POSIX < R10K::Util::Subprocess::Runner
     # and will contain an error message on failure.
     exec_r, exec_w = pipe
 
+    @stdout_pump = R10K::Util::Subprocess::Runner::Pump.new(@stdout_r)
+    @stderr_pump = R10K::Util::Subprocess::Runner::Pump.new(@stderr_r)
+    @stdout_pump.start
+    @stderr_pump.start
+
     pid = fork do
       exec_r.close
       execute_child(exec_w)
@@ -71,13 +76,10 @@ class R10K::Util::Subprocess::Runner::POSIX < R10K::Util::Subprocess::Runner
       _, @status = Process.waitpid2(pid)
     else
       _, @status = Process.waitpid2(pid)
-      stdout = @stdout_r.read
-
-      # Use non-blocking read for stderr_r to work around an issue with OpenSSH
-      # ControlPersist: https://bugzilla.mindrot.org/show_bug.cgi?id=1988
-      # Blocking should not occur in any other case since the process that was
-      # attached to the pipe has already terminated.
-      stderr = read_nonblock(@stderr_r)
+      @stdout_pump.halt!
+      @stderr_pump.halt!
+      stdout = @stdout_pump.string
+      stderr = @stderr_pump.string
     end
     exec_r.close
 
