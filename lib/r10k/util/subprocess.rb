@@ -11,19 +11,15 @@ module R10K
     class Subprocess
 
       require 'r10k/util/subprocess/runner'
-      require 'r10k/util/subprocess/io'
       require 'r10k/util/subprocess/result'
       require 'r10k/util/subprocess/subprocess_error'
-
-      require 'r10k/util/subprocess/posix'
-      require 'r10k/util/subprocess/windows'
 
       # @return [Class < R10K::Util::Subprocess::Runner]
       def self.runner
         if R10K::Util::Platform.windows?
-          R10K::Util::Subprocess::Windows::Runner
+          R10K::Util::Subprocess::Runner::Windows
         else
-          R10K::Util::Subprocess::POSIX::Runner
+          R10K::Util::Subprocess::Runner::POSIX
         end
       end
 
@@ -75,7 +71,7 @@ module R10K
         result = subprocess.run
         logger.debug2("Finished process:\n#{result.format}")
 
-        if @raise_on_fail and subprocess.crashed?
+        if @raise_on_fail && result.failed?
           raise SubprocessError.new("Command exited with non-zero exit code", :result => result)
         end
 
