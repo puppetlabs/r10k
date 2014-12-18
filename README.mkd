@@ -3,7 +3,7 @@ r10k
 
 Puppet environment and module deployment
 
-[![Build Status](https://travis-ci.org/adrienthebo/r10k.png?branch=master)](https://travis-ci.org/adrienthebo/r10k)
+[![Build Status](https://travis-ci.org/puppetlabs/r10k.png?branch=master)](https://travis-ci.org/puppetlabs/r10k)
 
 Description
 -----------
@@ -57,7 +57,7 @@ installation:
 If you have more specific needs or plan on modifying r10k you can run it out of
 a git repository using Bundler for dependencies:
 
-    git clone git://github.com/adrienthebo/r10k
+    git clone git://github.com/puppetlabs/r10k
     cd r10k
     bundle install
     bundle exec r10k help

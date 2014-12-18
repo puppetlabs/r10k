@@ -8,7 +8,7 @@ tracker][github-issue-tracker]. When filing a bug report or feature request,
 please spend a moment to look for existing issue reports and update those with
 additional information if possible.
 
-[github-issue-tracker]: https://github.com/adrienthebo/r10k/issues
+[github-issue-tracker]: https://github.com/puppetlabs/r10k/issues
 
 ### Bug reports
 
