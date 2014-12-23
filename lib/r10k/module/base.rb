@@ -91,12 +91,12 @@ class R10K::Module::Base
   private
 
   def parse_title(title)
-    if (match = title.match(/\A(\w+)\Z/))
-      [nil, match[1]]
-    elsif (match = title.match(/\A(\w+)[-\/](\w+)\Z/))
+    if (match = title.match(/\A(\w+)[-\/]([[:alnum:]_-]+)\Z/))
       [match[1], match[2]]
+    elsif (match = title.match(/\A([[:alnum:]_-]+)\Z/))
+      [nil, match[1]]
     else
-      raise ArgumentError, "Module names must match either 'modulename' or 'owner/modulename'"
+      raise ArgumentError, "Module name (#{title}) must match either 'modulename' or 'owner/modulename'"
     end
   end
 end
