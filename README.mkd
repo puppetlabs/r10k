@@ -73,7 +73,7 @@ information see the topic specific documentation:
   * [Environment Deployment Documentation](doc/dynamic-environments.mkd)
   * [Quickstart](doc/dynamic-environments/quickstart.mkd)
   * [Common Patterns](doc/common-patterns.mkd)
-  * [Workflow Guide](doc/workflow-guide.mkd)
+  * [Workflow Guide](doc/dynamic-environments/workflow-guide.mkd)
 
 For more general questions, see the [FAQ](doc/faq.mkd).
 
