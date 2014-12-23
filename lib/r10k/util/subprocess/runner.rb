@@ -3,12 +3,13 @@
 # @api private
 class R10K::Util::Subprocess::Runner
 
+  require 'r10k/util/subprocess/runner/windows'
+  require 'r10k/util/subprocess/runner/posix'
+
   # @!attribute [rw] cwd
   #   @return [String] The directory to be used as the cwd when executing
   #     the command.
   attr_accessor :cwd
-
-  attr_reader :io
 
   attr_reader :pid
 

@@ -1,4 +1,5 @@
 require 'open3'
+require 'r10k/util/subprocess/runner'
 
 # Run processes on Windows.
 #
@@ -6,11 +7,10 @@ require 'open3'
 # results. In contrast to the POSIX runner this cannot be used in an
 # asynchronous manner as-is; implementing that will probably mean launching a
 # thread and invoking #capture3 in that thread.
-class R10K::Util::Subprocess::Windows::Runner < R10K::Util::Subprocess::Runner
+class R10K::Util::Subprocess::Runner::Windows < R10K::Util::Subprocess::Runner
 
   def initialize(argv)
     @argv = argv
-    @io = R10K::Util::Subprocess::Windows::IO.new
   end
 
   def run
