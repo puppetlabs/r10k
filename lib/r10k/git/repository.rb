@@ -38,7 +38,7 @@ class R10K::Git::Repository
     if commit
       commit.chomp
     else
-      raise R10K::Git::UnresolvableRefError.new(:ref => pattern, :git_dir => git_dir)
+      raise R10K::Git::UnresolvableRefError.new("Could not resolve Git ref '#{ref}'", :ref => pattern, :git_dir => git_dir)
     end
   end
   alias rev_parse resolve_ref
