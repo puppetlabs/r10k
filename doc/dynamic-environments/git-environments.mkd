@@ -45,6 +45,16 @@ future r10k runs. Finally, if there are directories that do not match existing
 branches, r10k will assume that the branches for those environments were delete
 and will remove those environments.
 
+r10k will need to be be able to authenticate with each repository. Most Git
+systems support authentication with SSH keys. GitHub calls them [deploy
+keys][github-deploy-keys]. Bitbucket calls them [deployment
+keys][bitbucket-deployment-keys]. Stash calls them [SSH access
+keys][stash-access-keys].
+
+[github-deploy-keys]: https://developer.github.com/guides/managing-deploy-keys/#deploy-keys
+[bitbucket-deployment-keys]: https://confluence.atlassian.com/display/BITBUCKET/Use+deployment+keys
+[stash-access-keys]: https://confluence.atlassian.com/display/STASH/SSH+access+keys+for+system+use
+
 Configuration
 -------------
 
