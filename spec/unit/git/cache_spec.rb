@@ -5,10 +5,6 @@ describe R10K::Git::Cache do
 
   subject(:cache) { described_class.new('git://some/git/remote') }
 
-  before do
-    expect(cache).to receive(:execute).never
-  end
-
   describe "updating the cache" do
     it "only updates the cache once" do
       expect(cache).to receive(:sync!).exactly(1).times
@@ -17,22 +13,31 @@ describe R10K::Git::Cache do
     end
   end
 
-
-  describe "enumerating branches" do
-    let(:refs) do
-      %w[
-        refs/heads/master
-        refs/heads/next
-        refs/heads/next-fetch-errors
-        refs/heads/next-update-forge-modules
-      ].map { |line| line + "\n" }.join
+  describe "methods on the repository" do
+    def expect_delegation(method)
+      expect(subject.repo).to receive(method)
+      subject.send(method)
     end
 
-    it "lists local branches using git for-each-ref" do
-      expect(cache).to receive(:git).with(%w[for-each-ref refs/heads --format %(refname)], anything).and_return(double(:stdout => refs))
+    it "delegates #git_dir" do
+      expect_delegation(:git_dir)
+    end
 
-      expect(cache.branches).to eq %w[master next next-fetch-errors next-update-forge-modules]
+    it "delegates #branches" do
+      expect_delegation(:branches)
+    end
+
+    it "delegates #tags" do
+      expect_delegation(:tags)
+    end
+
+    it "delegates #exist?" do
+      expect_delegation(:exist?)
+    end
+
+    it "aliases #cached? to #exist?" do
+      expect(subject.repo).to receive(:exist?)
+      subject.cached?
     end
   end
-
 end

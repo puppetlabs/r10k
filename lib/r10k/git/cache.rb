@@ -1,13 +1,15 @@
 require 'r10k/git'
 require 'r10k/git/repository'
+require 'r10k/git/bare_repository'
 
 require 'r10k/settings'
-require 'r10k/registry'
+require 'r10k/instance_cache'
+require 'forwardable'
 
-# Mirror a git repository for use shared git object repositories
+# Cache Git repository mirrors for object database reuse.
 #
 # @see man git-clone(1)
-class R10K::Git::Cache < R10K::Git::Repository
+class R10K::Git::Cache
 
   include R10K::Settings::Mixin
 
@@ -31,24 +33,32 @@ class R10K::Git::Cache < R10K::Git::Repository
 
   include R10K::Logging
 
+  extend Forwardable
+
+  def_delegators :@repo, :git_dir, :branches, :tags, :exist?
+
   # @!attribute [r] path
   #   @deprecated
   #   @return [String] The path to the git cache repository
   def path
     logger.warn "#{self.class}#path is deprecated; use #git_dir"
-    @git_dir
+    git_dir
   end
+
+  # @!attribute [r] repo
+  #   @api private
+  attr_reader :repo
 
   # @param [String] remote
   # @param [String] cache_root
   def initialize(remote)
     @remote = remote
 
-    @git_dir = File.join(settings[:cache_root], sanitized_dirname)
+    @repo = R10K::Git::BareRepository.new(remote, settings[:cache_root], sanitized_dirname)
   end
 
   def sync
-    if not @synced
+    if !@synced
       sync!
       @synced = true
     end
@@ -56,31 +66,20 @@ class R10K::Git::Cache < R10K::Git::Repository
 
   def sync!
     if cached?
-      fetch
+      @repo.fetch
     else
       logger.debug "Creating new git cache for #{@remote.inspect}"
 
       # TODO extract this to an initialization step
-      unless File.exist? settings[:cache_root]
+      if !File.exist?(settings[:cache_root])
         FileUtils.mkdir_p settings[:cache_root]
       end
 
-      git ['clone', '--mirror', @remote, git_dir]
+      @repo.clone
     end
-  rescue R10K::Util::Subprocess::SubprocessError => e
-    raise R10K::Git::GitError.wrap(e, "Couldn't update git cache for #{@remote}")
   end
 
-  # @return [Array<String>] A list the branches for the git repository
-  def branches
-    output = git %w[for-each-ref refs/heads --format %(refname)], :git_dir => git_dir
-    output.stdout.scan(%r[refs/heads/(.*)$]).flatten
-  end
-
-  # @return [true, false] If the repository has been locally cached
-  def cached?
-    File.exist? git_dir
-  end
+  alias cached? exist?
 
   private
 
