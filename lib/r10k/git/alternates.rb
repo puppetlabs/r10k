@@ -9,9 +9,9 @@ class R10K::Git::Alternates
   #   @return [Pathname] The alternates file
   attr_reader :file
 
-  # @param git_dir [String] The path to the git repository
+  # @param git_dir [Pathname] The path to the git repository
   def initialize(git_dir)
-    @file = Pathname.new(File.join(git_dir, 'objects', 'info', 'alternates'))
+    @file = git_dir + File.join('objects', 'info', 'alternates')
   end
 
   def to_a

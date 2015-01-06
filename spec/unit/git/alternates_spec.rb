@@ -3,7 +3,7 @@ require 'stringio'
 require 'r10k/git'
 
 describe R10K::Git::Alternates do
-  subject { described_class.new("/some/nonexistent/path/.git") }
+  subject { described_class.new(Pathname.new("/some/nonexistent/path/.git")) }
 
   it "interacts with the alternates file in the given git repository" do
     expect(subject.file.to_s).to eq("/some/nonexistent/path/.git/objects/info/alternates")
