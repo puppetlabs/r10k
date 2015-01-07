@@ -13,12 +13,17 @@ class R10K::Util::Subprocess::Runner::Pump
   #   @return [Float] The minimum time to wait while polling the IO device
   attr_accessor :min_delay
 
+  # @!attribute [r] max_delay
+  #   @return [Float] The maximum time to wait while polling the IO device
+  attr_accessor :max_delay
+
   def initialize(io)
     @io     = io
     @thread = nil
     @string = ''
     @run    = true
     @min_delay = 0.001
+    @max_delay = 1.0
   end
 
   def start
@@ -44,7 +49,7 @@ class R10K::Util::Subprocess::Runner::Pump
         @string << @io.read_nonblock(4096)
         backoff /= 2 if backoff > @min_delay
       rescue Errno::EWOULDBLOCK, Errno::EAGAIN
-        backoff *= 2
+        backoff *= 2 if backoff < @max_delay
         IO.select([@io], [], [], backoff)
       rescue EOFError
         @run = false

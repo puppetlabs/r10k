@@ -45,6 +45,19 @@ describe R10K::Util::Subprocess::Runner::Pump do
     end
   end
 
+  describe "backing off" do
+    it "does not back off more than the max delay time" do
+      subject.max_delay = 0.005
+      subject.start
+      sleep 0.1
+
+      Timeout.timeout(0.01) do
+        subject.halt!
+      end
+
+    end
+  end
+
   # Linux 2.6.11+ has a maximum pipe capacity of 64 KiB, and writing to the
   # pipe when the pipe is at capacity will block. To make sure the pump is
   # actively removing contents from the pipe we need to attempt to fill up
