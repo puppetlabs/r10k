@@ -52,6 +52,19 @@ class R10K::Git::BareRepository
     end
   end
 
+  # @return [Symbol] The type of the given ref, one of :branch, :tag, :commit, or :unknown
+  def ref_type(pattern)
+    if branches.include? pattern
+      :branch
+    elsif tags.include? pattern
+      :tag
+    elsif resolve(pattern)
+      :commit
+    else
+      :unknown
+    end
+  end
+
   include R10K::Logging
 
   private
