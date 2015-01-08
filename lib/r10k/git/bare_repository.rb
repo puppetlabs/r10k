@@ -41,6 +41,17 @@ class R10K::Git::BareRepository
     output.stdout.scan(%r[refs/tags/(.*)$]).flatten
   end
 
+  # Resolve the given Git ref to a commit
+  #
+  # @param pattern [String] The git ref to resolve
+  # @return [String, nil] The commit SHA if the ref could be resolved, nil otherwise.
+  def resolve(pattern)
+    result = git ['rev-parse', "#{pattern}^{commit}"], :git_dir => git_dir, :raise_on_fail => false
+    if result.success?
+      result.stdout
+    end
+  end
+
   include R10K::Logging
 
   private
