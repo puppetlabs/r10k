@@ -24,6 +24,12 @@ class R10K::Git::BaseRepository
   # @todo remove alias
   alias rev_parse resolve
 
+  # @return [Array<String>] All local branches in this repository
+  def branches
+    output = git %w[for-each-ref refs/heads --format %(refname)], :git_dir => git_dir.to_s
+    output.stdout.scan(%r[refs/heads/(.*)$]).flatten
+  end
+
   # @return [Array<String>] All tags in this repository
   def tags
     output = git %w[for-each-ref refs/tags --format %(refname)], :git_dir => git_dir.to_s

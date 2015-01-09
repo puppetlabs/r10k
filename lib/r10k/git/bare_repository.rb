@@ -28,12 +28,6 @@ class R10K::Git::BareRepository < R10K::Git::BaseRepository
     @path.exist?
   end
 
-  # @return [Array<String>] All local branches in this repository
-  def branches
-    output = git %w[for-each-ref refs/heads --format %(refname)], :git_dir => git_dir.to_s
-    output.stdout.scan(%r[refs/heads/(.*)$]).flatten
-  end
-
   # @return [Symbol] The type of the given ref, one of :branch, :tag, :commit, or :unknown
   def ref_type(pattern)
     if branches.include? pattern
