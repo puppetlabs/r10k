@@ -17,6 +17,8 @@ describe R10K::Git::BareRepository do
 
   subject { described_class.new(basedir, dirname) }
 
+  it_behaves_like 'a git repository'
+
   describe "checking for the presence of the repo" do
     it "exists if the repo is present" do
       subject.clone(remote)
@@ -63,16 +65,6 @@ describe R10K::Git::BareRepository do
 
     it "lists all branches in alphabetical order" do
       expect(subject.branches).to eq(%w[0.9.x master])
-    end
-  end
-
-  describe "listing tags" do
-    before do
-      subject.clone(remote)
-    end
-
-    it "lists all tags in alphabetical order" do
-      expect(subject.tags).to eq(%w[0.9.0 0.9.0-rc1 1.0.0 1.0.1])
     end
   end
 

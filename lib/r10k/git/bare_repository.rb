@@ -34,12 +34,6 @@ class R10K::Git::BareRepository < R10K::Git::BaseRepository
     output.stdout.scan(%r[refs/heads/(.*)$]).flatten
   end
 
-  # @return [Array<String>] All tags in this repository
-  def tags
-    output = git %w[for-each-ref refs/tags --format %(refname)], :git_dir => git_dir.to_s
-    output.stdout.scan(%r[refs/tags/(.*)$]).flatten
-  end
-
   # Resolve the given Git ref to a commit
   #
   # @param pattern [String] The git ref to resolve

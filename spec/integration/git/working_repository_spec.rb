@@ -14,6 +14,8 @@ describe R10K::Git::WorkingRepository do
 
   subject { described_class.new(basedir, dirname) }
 
+  it_behaves_like 'a git repository'
+
   describe "cloning" do
     it "creates a working copy of the repo" do
       subject.clone(remote)
