@@ -53,8 +53,7 @@ class R10K::Git::Cache
   # @param [String] cache_root
   def initialize(remote)
     @remote = remote
-
-    @repo = R10K::Git::BareRepository.new(remote, settings[:cache_root], sanitized_dirname)
+    @repo = R10K::Git::BareRepository.new(settings[:cache_root], sanitized_dirname)
   end
 
   def sync
@@ -75,7 +74,7 @@ class R10K::Git::Cache
         FileUtils.mkdir_p settings[:cache_root]
       end
 
-      @repo.clone
+      @repo.clone(@remote)
     end
   end
 

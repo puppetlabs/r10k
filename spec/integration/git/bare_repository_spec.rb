@@ -15,11 +15,11 @@ describe R10K::Git::BareRepository do
     FileUtils.remove_entry_secure(basedir)
   end
 
-  subject { described_class.new(remote, basedir, dirname) }
+  subject { described_class.new(basedir, dirname) }
 
   describe "checking for the presence of the repo" do
     it "exists if the repo is present" do
-      subject.clone
+      subject.clone(remote)
       expect(subject.exist?).to be_truthy
     end
 
@@ -30,7 +30,7 @@ describe R10K::Git::BareRepository do
 
   describe "cloning the repo" do
     it "creates the repo at the expected location" do
-      subject.clone
+      subject.clone(remote)
       config = File.read(File.join(basedir, dirname, 'config'))
       expect(config).to match(remote)
     end
@@ -42,7 +42,7 @@ describe R10K::Git::BareRepository do
     let(:objectdir) { objectdir = File.join(basedir, dirname, 'objects') }
 
     before do
-      subject.clone
+      subject.clone(remote)
       # Remove objects to pretend the upstream made changes
       Dir.glob(File.join(objectdir, '*')).each do |path|
         FileUtils.rm_rf(path)
@@ -58,7 +58,7 @@ describe R10K::Git::BareRepository do
 
   describe "listing branches" do
     before do
-      subject.clone
+      subject.clone(remote)
     end
 
     it "lists all branches in alphabetical order" do
@@ -68,7 +68,7 @@ describe R10K::Git::BareRepository do
 
   describe "listing tags" do
     before do
-      subject.clone
+      subject.clone(remote)
     end
 
     it "lists all tags in alphabetical order" do
@@ -78,7 +78,7 @@ describe R10K::Git::BareRepository do
 
   describe "resolving refs" do
     before do
-      subject.clone
+      subject.clone(remote)
     end
 
     it "can resolve branches" do
@@ -100,7 +100,7 @@ describe R10K::Git::BareRepository do
 
   describe "determining ref type" do
     before do
-      subject.clone
+      subject.clone(remote)
     end
 
     it "can infer the type of a branch ref" do
