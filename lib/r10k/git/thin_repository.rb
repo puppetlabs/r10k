@@ -28,7 +28,7 @@ class R10K::Git::ThinRepository < R10K::Git::WorkingRepository
     set_cache(remote)
     @cache_repo.sync
 
-    super(remote, opts.merge(:reference => @cache_repo.git_dir))
+    super(remote, opts.merge(:reference => @cache_repo.git_dir.to_s))
     setup_cache_remote
   end
 
@@ -49,7 +49,7 @@ class R10K::Git::ThinRepository < R10K::Git::WorkingRepository
   end
 
   def setup_cache_remote
-    git ["remote", "add", "cache", @cache_repo.git_dir], :path => @path.to_s
+    git ["remote", "add", "cache", @cache_repo.git_dir.to_s], :path => @path.to_s
     fetch
   end
 end

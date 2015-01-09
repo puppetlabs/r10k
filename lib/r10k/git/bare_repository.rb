@@ -6,7 +6,7 @@ class R10K::Git::BareRepository
 
   # @return [Pathname] The path to this Git repository
   def git_dir
-    @path.to_s
+    @path
   end
 
   # @param basedir [String] The base directory of the Git repository
@@ -16,11 +16,11 @@ class R10K::Git::BareRepository
   end
 
   def clone(remote)
-    git ['clone', '--mirror', remote, git_dir]
+    git ['clone', '--mirror', remote, git_dir.to_s]
   end
 
   def fetch
-    git ['fetch', '--prune'], :git_dir => git_dir
+    git ['fetch', '--prune'], :git_dir => git_dir.to_s
   end
 
   def exist?
@@ -29,13 +29,13 @@ class R10K::Git::BareRepository
 
   # @return [Array<String>] All local branches in this repository
   def branches
-    output = git %w[for-each-ref refs/heads --format %(refname)], :git_dir => git_dir
+    output = git %w[for-each-ref refs/heads --format %(refname)], :git_dir => git_dir.to_s
     output.stdout.scan(%r[refs/heads/(.*)$]).flatten
   end
 
   # @return [Array<String>] All tags in this repository
   def tags
-    output = git %w[for-each-ref refs/tags --format %(refname)], :git_dir => git_dir
+    output = git %w[for-each-ref refs/tags --format %(refname)], :git_dir => git_dir.to_s
     output.stdout.scan(%r[refs/tags/(.*)$]).flatten
   end
 
@@ -44,7 +44,7 @@ class R10K::Git::BareRepository
   # @param pattern [String] The git ref to resolve
   # @return [String, nil] The commit SHA if the ref could be resolved, nil otherwise.
   def resolve(pattern)
-    result = git ['rev-parse', "#{pattern}^{commit}"], :git_dir => git_dir, :raise_on_fail => false
+    result = git ['rev-parse', "#{pattern}^{commit}"], :git_dir => git_dir.to_s, :raise_on_fail => false
     if result.success?
       result.stdout
     end

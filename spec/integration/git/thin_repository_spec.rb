@@ -41,7 +41,7 @@ describe R10K::Git::ThinRepository do
 
     it "sets the remote cache url to the path to the cache repo" do
       subject.clone(remote)
-      expect(subject.cache).to eq cacherepo.git_dir
+      expect(subject.cache).to eq cacherepo.git_dir.to_s
     end
 
     it "adds the cache repo to the alternates file" do
