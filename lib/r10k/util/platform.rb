@@ -14,6 +14,10 @@ module R10K
       def self.windows?
         RbConfig::CONFIG['host_os'] =~ /mswin|win32|dos|mingw|cygwin/i
       end
+
+      def self.posix?
+        !windows?
+      end
     end
   end
 end
