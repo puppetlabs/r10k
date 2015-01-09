@@ -3,6 +3,12 @@ require 'r10k/logging'
 
 class R10K::Git::BaseRepository
 
+  # @abstract
+  # @return [Pathname] The path to the Git directory
+  def git_dir
+    raise NotImplementedError
+  end
+
   # Resolve the given Git ref to a commit
   #
   # @param pattern [String] The git ref to resolve
