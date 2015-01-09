@@ -22,7 +22,7 @@ is completed it is merged into a "master" or "production" branch. This is very
 powerful because it allows any number of people to rapidly develop features in
 isolation and merge features in a single operation.
 
-The dynamic environment model extends extends this git branching strategy to
+The dynamic environment model extends this git branching strategy to
 your live Puppet masters. It creates a mapping between Git branches and Puppet
 environments so that you can use the Git branching model and have that be
 seamlessly reflected in Puppet environments. This means that creating a new Git
