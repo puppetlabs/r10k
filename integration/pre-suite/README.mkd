@@ -1,0 +1,5 @@
+Pre-suite
+===========================
+
+This folder contains the [Beaker](https://github.com/puppetlabs/beaker) pre-suite tasks that configures test
+test infrastructure for testing.

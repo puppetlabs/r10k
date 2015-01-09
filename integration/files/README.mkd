@@ -1,0 +1,4 @@
+Files
+===========================
+
+This folder contains files used for testing the r10k project. The files are organized by test suite.
