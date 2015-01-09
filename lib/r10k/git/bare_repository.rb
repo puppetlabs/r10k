@@ -34,17 +34,6 @@ class R10K::Git::BareRepository < R10K::Git::BaseRepository
     output.stdout.scan(%r[refs/heads/(.*)$]).flatten
   end
 
-  # Resolve the given Git ref to a commit
-  #
-  # @param pattern [String] The git ref to resolve
-  # @return [String, nil] The commit SHA if the ref could be resolved, nil otherwise.
-  def resolve(pattern)
-    result = git ['rev-parse', "#{pattern}^{commit}"], :git_dir => git_dir.to_s, :raise_on_fail => false
-    if result.success?
-      result.stdout
-    end
-  end
-
   # @return [Symbol] The type of the given ref, one of :branch, :tag, :commit, or :unknown
   def ref_type(pattern)
     if branches.include? pattern
