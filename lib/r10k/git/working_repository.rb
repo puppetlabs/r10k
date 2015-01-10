@@ -64,6 +64,9 @@ class R10K::Git::WorkingRepository < R10K::Git::BaseRepository
 
   # @return [String] The origin remote URL
   def origin
-    git(['config', '--get', 'remote.origin.url'], :path => @path.to_s).stdout
+    result = git(['config', '--get', 'remote.origin.url'], :path => @path.to_s, :raise_on_fail => false)
+    if result.success?
+      result.stdout
+    end
   end
 end

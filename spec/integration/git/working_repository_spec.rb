@@ -22,11 +22,6 @@ describe R10K::Git::WorkingRepository do
       expect(subject.exist?).to be_truthy
     end
 
-    it "sets the remote origin url to the provided url" do
-      subject.clone(remote)
-      expect(subject.origin).to eq remote
-    end
-
     describe "using the default branch" do
       describe "and the remote HEAD is 'master'" do
         it "checks out the default branch" do
@@ -76,6 +71,17 @@ describe R10K::Git::WorkingRepository do
 
     it "lists the local branches" do
       expect(subject.branches).to eq(%w[master])
+    end
+  end
+
+  describe "listing the origin" do
+    it "is nil if the remote is not set" do
+      expect(subject.origin).to be_nil
+    end
+
+    it "is the remote URL when set" do
+      subject.clone(remote)
+      expect(subject.origin).to eq remote
     end
   end
 end
