@@ -4,7 +4,7 @@ CHANGELOG
 1.4.1
 -----
 
-UNRELEASED
+2015/01/09
 
 ### User notes
 
