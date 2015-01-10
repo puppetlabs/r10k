@@ -1,6 +1,59 @@
 CHANGELOG
 =========
 
+1.4.1
+-----
+
+2015/01/09
+
+### User notes
+
+(GH-254) Puppetfile subcommands use non-zero exit codes on errors.
+
+The Puppetfile `install` and `purge` commands would always exit with an exit
+code of 0, regardless of if any errors occurred or if there was no Puppetfile
+available. This has been now corrected so that runtime errors cause r10k to exit
+with a non-zero exit code.
+
+(GH-260) Normalize deployed environment names on the command line.
+
+Version 1.4.0 removed the environment name normalization needed to deploy
+environments that had their directory names normalized; this has been remedied
+so that environment names on the command line are also normalized to match the
+corrections that r10k will make to the environment names.
+
+(GH-269) Improved error messages when trying to use non-existent Git refs.
+
+If a Git module tried to use a Git ref that did not exist, it would output a
+particularly unhelpful error message that didn't indicate what actually failed.
+This has been fixed so that if an invalid ref is used, r10k will actually report
+that the ref could not be used. What a brave new world we inhabit!
+
+(GH-271)/(GH-275) Report the name of invalid module names.
+
+The fix for GH-92 released in 1.4.0 added better handling and parsing of module
+names, but also added stricter parsing of module names and disallowed invalid
+characters that Puppet itself could not use. However when r10k encountered such
+an invalid module name, it would not report the module with the invalid name,
+making debugging harder than needed. In 1.4.1 r10k when r10k encounters an
+invalid module name it reports the invalid module name in the error message.
+
+### Thanks
+
+Thanks to the following contributors for their work on this release:
+
+  * [Lex Rivera](https://github.com/rlex) for discovering and reporting the r10k
+    puppetfile exit code bug (GH-254).
+  * [Eli Young](https://github.com/elyscape) for discovering and fixing the
+    environment normalization bug (GH-260).
+  * [Clayton O'Neill](https://github.com/dvorak) For adding better error
+    reporting of invalid module names (GH-275).
+
+Additional thanks to all those in #puppet and #r10k for endlessly helping new
+users of r10k, your assistance is invaluable!
+
+###
+
 1.4.0
 -----
 
