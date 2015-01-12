@@ -3,7 +3,6 @@ require 'master_manipulator'
 test_name 'Install and Configure r10k for Puppet Enterprise'
 
 #Init
-git_package_name = 'git-core'
 git_repo_path = '/git_repos'
 git_control_remote = File.join(git_repo_path, 'environments.git')
 git_environments_path = '/root/environments'
@@ -16,14 +15,6 @@ puppet_confdir = on(master, puppet('config', 'print', 'confdir')).stdout.rstrip
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 prod_env_path = File.join(env_path, 'production')
 
-#Pre-setup
-step 'Get Platform Type'
-platform = fact_on(master, 'osfamily')
-
-if platform == 'RedHat'
-  git_package_name = 'git'
-end
-
 step 'Get PE Version'
 pe_major = on(master, 'facter -p pe_major_version').stdout.rstrip
 pe_minor = on(master, 'facter -p pe_minor_version').stdout.rstrip
@@ -35,8 +26,14 @@ end
 
 #In-line files
 git_manifest = <<-MANIFEST
-package { '#{git_package_name}':
-  ensure => present
+class { 'git': }
+->
+git::config { 'user.name':
+  value => 'Tester',
+}
+->
+git::config { 'user.email':
+  value => 'tester@puppetlabs.com',
 }
 ->
 file { '#{git_repo_path}':
@@ -66,14 +63,13 @@ CONF
 step 'Install "vcsrepo" Module'
 on(master, puppet('module install puppetlabs-vcsrepo --modulepath /opt/puppet/share/puppet/modules'))
 
+step 'Install "git" Module'
+on(master, puppet('module install puppetlabs-git --modulepath /opt/puppet/share/puppet/modules'))
+
 step 'Create Git Repo and Clone'
 on(master, puppet('apply'), :stdin => git_manifest, :acceptable_exit_codes => [0,2]) do |result|
   assert_no_match(/Error:/, result.stderr, 'Unexpected error was detected!')
 end
-
-step 'Configure Git Global Settings'
-git_on(master, "config --global user.name \"Tester\"", git_environments_path)
-git_on(master, "config --global user.email \"tester@puppetlabs.com\"", git_environments_path)
 
 step 'Create "production" Environment on Git'
 #Copy current contents of production environment to the git version
@@ -103,7 +99,7 @@ on(master, 'r10k deploy environment -v')
 step 'Disable Environment Caching on Master'
 on(master, puppet('config set environment_timeout 0 --section main'))
 
-step 'Restart the Puppet Server Service and Wait 60 Seconds'
+step 'Restart the Puppet Server Service'
 restart_puppet_server(master)
 
 step 'Run Puppet Agent on All Nodes'
