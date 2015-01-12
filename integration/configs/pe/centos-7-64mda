@@ -5,14 +5,14 @@ HOSTS:
       - dashboard
       - database
       - agent
-    platform: el-6-x86_64
+    platform: el-7-x86_64
     template: Delivery/Quality Assurance/Templates/vCloud/centos-7-x86_64
     hypervisor: vcloud
   centos-6-x86_64-agent:
     roles:
       - agent
       - frictionless
-    platform: el-6-x86_64
+    platform: el-7-x86_64
     template: Delivery/Quality Assurance/Templates/vCloud/centos-7-x86_64
     hypervisor: vcloud
 CONFIG:

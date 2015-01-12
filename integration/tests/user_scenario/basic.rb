@@ -14,8 +14,6 @@ site_pp_path = File.join(git_environments_path, 'manifests', 'site.pp')
 site_pp = create_site_pp(master_certname, '  include helloworld')
 
 #Verification
-test_folder = '/tmp/manifest'
-test_file = '/tmp/manifest/random_fifth'
 notify_message_regex = /I am in the production environment/
 
 #Teardown
