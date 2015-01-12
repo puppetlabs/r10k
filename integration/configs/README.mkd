@@ -1,0 +1,7 @@
+Config
+===========================
+
+This folder contains [Beaker](https://github.com/puppetlabs/beaker) configuration files. All of these
+configurations utilize the ["vmpooler"](https://github.com/puppetlabs/vmpooler) service for templates.
+These configurations are specific to the Puppet Labs environment and will not work in other environments without
+alteration!

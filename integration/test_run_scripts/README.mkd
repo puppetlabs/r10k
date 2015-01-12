@@ -1,0 +1,5 @@
+Test Run Scripts
+===========================
+
+This folder contains shell scripts for running automated tests locally on your personal machine. The scripts are
+organized by test suite.
