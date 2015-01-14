@@ -17,8 +17,9 @@ class R10K::Util::Subprocess::Runner::Childprocess < R10K::Util::Subprocess::Run
     exit_code = 254
 
     stdout_r, stdout_w = IO.pipe
-    stdout_pump = R10K::Util::Subprocess::Runner::Pump.new(stdout_r)
     stderr_r, stderr_w = IO.pipe
+
+    stdout_pump = R10K::Util::Subprocess::Runner::Pump.new(stdout_r)
     stderr_pump = R10K::Util::Subprocess::Runner::Pump.new(stderr_r)
 
     process.io.stdout = stdout_w
@@ -41,5 +42,7 @@ class R10K::Util::Subprocess::Runner::Childprocess < R10K::Util::Subprocess::Run
     end
 
     @result = R10K::Util::Subprocess::Result.new(@argv, stdout, stderr, exit_code)
+  ensure
+    [stdout_r, stdout_w, stderr_r, stderr_w].each { |io| io.close }
   end
 end
