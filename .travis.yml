@@ -5,6 +5,7 @@ script: "bundle exec rspec --color --format documentation spec/unit"
 notifications:
   email: false
 rvm:
+  - "jruby-19mode"
   - "2.1.0"
   - "2.0.0"
   - "1.9.3"
