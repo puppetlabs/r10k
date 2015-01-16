@@ -1,4 +1,5 @@
 require 'r10k/util/subprocess/runner'
+require 'r10k/util/subprocess/runner/pump'
 require 'fcntl'
 
 # Implement a POSIX command runner by using fork/exec.
