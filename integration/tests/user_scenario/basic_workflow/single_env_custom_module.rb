@@ -18,7 +18,7 @@ notify_message_regex = /I am in the production environment/
 
 #Teardown
 teardown do
-  step "Reset Git Repo to Known Good State"
+  step 'Reset Git Repo to Known Good State'
   git_revert_environment(master, last_commit, git_environments_path)
 end
 

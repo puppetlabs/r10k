@@ -1,6 +1,6 @@
 require 'git_utils'
 require 'master_manipulator'
-test_name 'CODEMGMT - C59121 - Single Environment with Custom Module and Forge Module'
+test_name 'CODEMGMT-22 - C59121 - Single Environment with Custom Module and Forge Module'
 
 #Init
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
@@ -36,7 +36,7 @@ site_pp = create_site_pp(master_certname, manifest)
 
 #Teardown
 teardown do
-  step "Reset Git Repo to Known Good State"
+  step 'Reset Git Repo to Known Good State'
   git_revert_environment(master, last_commit, git_environments_path)
 end
 
