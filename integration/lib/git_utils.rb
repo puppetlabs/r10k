@@ -38,6 +38,25 @@ def git_add_everything(host, git_repo_path)
   git_on(host, "add #{git_repo_path}/*", git_repo_path)
 end
 
+# Push branch to origin remote.
+#
+# ==== Attributes
+#
+# * +host+ - One or more hosts to act upon, or a role (String or Symbol) that identifies one or more hosts.
+# * +branch+ - The branch to push.
+# * +git_repo_path+ - The path to the git repository on the target host.
+#
+# ==== Returns
+#
+# +nil+
+#
+# ==== Examples
+#
+# git_push(master, 'production', '~/git_repo')
+def git_push(host, branch, git_repo_path)
+  git_on(host, "push origin #{branch}", git_repo_path)
+end
+
 # Commit changes and push branch to origin remote.
 #
 # ==== Attributes
@@ -56,7 +75,7 @@ end
 # git_commit_push(master, 'production', 'Awesome stuff!', '~/git_repo')
 def git_commit_push(host, branch, message, git_repo_path)
   git_on(host, "commit -m \"#{message}\"", git_repo_path)
-  git_on(host, "push origin #{branch}", git_repo_path)
+  git_push(host, branch, git_repo_path)
 end
 
 # Add all uncommitted files located in a repository, commit changes and push branch to origin remote.

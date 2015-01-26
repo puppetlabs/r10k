@@ -99,6 +99,10 @@ on(master, 'r10k deploy environment -v')
 step 'Disable Environment Caching on Master'
 on(master, puppet('config set environment_timeout 0 --section main'))
 
+#This should be temporary until we get a better solution.
+step 'Disable Node Classifier'
+on(master, puppet('config', 'set node_terminus plain', '--section master'))
+
 step 'Restart the Puppet Server Service'
 restart_puppet_server(master)
 
