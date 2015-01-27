@@ -32,6 +32,17 @@ shared_examples_for "a subprocess runner" do |fixture_root|
     end
   end
 
+  describe "running a command with a sleep in it" do
+    subject do
+      described_class.new(['ruby', '-e', 'print("foo"); sleep(1); print("bar")'])
+    end
+
+    it "does not truncate output" do
+      result = subject.run
+      expect(result.stdout).to eq 'foobar'
+    end
+  end
+
   describe "running 'ls' with a different working directory" do
     subject do
       described_class.new(%w[ls]).tap do |o|
