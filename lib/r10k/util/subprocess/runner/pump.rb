@@ -21,22 +21,27 @@ class R10K::Util::Subprocess::Runner::Pump
     @io     = io
     @thread = nil
     @string = ''
-    @run    = true
     @min_delay = 0.001
     @max_delay = 1.0
+    @mutex = Mutex.new
+    @halting = false
+    @waiting = false
   end
 
   def start
     @thread = Thread.new { pump }
   end
 
+  # Exit immediately after the current pump cycle
   def halt!
-    @run = false
+    @halting = true
     @thread.join
   end
 
-  # Block until the pumping thread reaches EOF on the IO object.
+  # Block until the pumping thread reaches EOF or until select times out
+  # checking for updates on the IO object
   def wait
+    @mutex.synchronize { @waiting = true }
     @thread.join
   end
 
@@ -44,15 +49,18 @@ class R10K::Util::Subprocess::Runner::Pump
 
   def pump
     backoff = @min_delay
-    while @run
+    until @halting
       begin
         @string << @io.read_nonblock(4096)
         backoff /= 2 if backoff > @min_delay
       rescue Errno::EWOULDBLOCK, Errno::EAGAIN
         backoff *= 2 if backoff < @max_delay
-        IO.select([@io], [], [], backoff)
+        @mutex.synchronize do
+          ready_fds = IO.select([@io], [], [], backoff)
+          @halting = true if @waiting && !ready_fds
+        end
       rescue EOFError
-        @run = false
+        @halting = true
       end
     end
   end
