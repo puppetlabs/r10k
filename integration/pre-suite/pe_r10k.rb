@@ -79,6 +79,9 @@ on(master, "cp -r #{prod_env_path}/* #{git_environments_path}")
 on(master, "mkdir -p #{git_environments_path}/modules #{git_environments_path}/site")
 on(master, "touch #{git_environments_path}/modules/.keep;touch #{git_environments_path}/site/.keep")
 
+#Create MD5 sum file for the "site.pp" file.
+on(master, "md5sum #{git_environments_path}/manifests/site.pp > #{git_environments_path}/manifests/.site_pp.md5")
+
 #Add environment config that specifies module lookup path for production.
 create_remote_file(master, "#{git_environments_path}/environment.conf", prod_env_config)
 git_on(master, "add #{git_environments_path}/*", git_environments_path)

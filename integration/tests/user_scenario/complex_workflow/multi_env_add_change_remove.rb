@@ -1,4 +1,5 @@
 require 'git_utils'
+require 'r10k_utils'
 require 'master_manipulator'
 test_name 'CODEMGMT-48 - C59262 - Multiple Environments with Additions, Changes and Removal of Branches'
 
@@ -44,7 +45,7 @@ stage_env_custom_mod_manifest = <<-MANIFEST
 MANIFEST
 
 site_pp_path = File.join(git_environments_path, 'manifests', 'site.pp')
-site_pp = create_site_pp(master_certname, '  include helloworld')
+original_site_pp = create_site_pp(master_certname, '  include helloworld')
 prod_env_motd_site_pp = create_site_pp(master_certname, prod_env_motd_manifest)
 
 #File
@@ -58,6 +59,15 @@ puppet_file_path = File.join(git_environments_path, 'Puppetfile')
 teardown do
   step 'Reset Git Repo to Known Good State'
   git_revert_environment(master, last_commit, git_environments_path)
+
+  step 'Restore Original "production" Environment'
+  on(master, 'r10k deploy environment -v')
+
+  step 'Verify "production" Environment is at Original State'
+  verify_production_environment(master)
+
+  step 'Remove "/etc/motd" File'
+  on(agents, "rm -rf #{motd_path}")
 end
 
 #Setup
@@ -70,7 +80,7 @@ initial_env_names.each do |env|
     scp_to(master, helloworld_module_path, File.join(git_environments_path, "site", 'helloworld'))
 
     step "Inject New \"site.pp\" to the \"#{env}\" Environment"
-    inject_site_pp(master, site_pp_path, site_pp)
+    inject_site_pp(master, site_pp_path, original_site_pp)
 
     step "Push Changes to \"#{env}\" Environment"
     git_add_commit_push(master, env, 'Update site.pp and add module.', git_environments_path)
@@ -107,7 +117,7 @@ git_push(master, 'temp', git_environments_path)
 
 step 'Add "puppetlabs-motd" Module to the "production" Environment'
 git_on(master, 'checkout production', git_environments_path)
-inject_site_pp(master, site_pp_path, site_pp)
+inject_site_pp(master, site_pp_path, prod_env_motd_site_pp)
 create_remote_file(master, puppet_file_path, puppet_file)
 git_add_commit_push(master, 'production', 'Add motd module.', git_environments_path)
 
