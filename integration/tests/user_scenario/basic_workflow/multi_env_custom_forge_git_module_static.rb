@@ -1,7 +1,7 @@
 require 'git_utils'
 require 'r10k_utils'
 require 'master_manipulator'
-test_name 'CODEMGMT-40 - C59223 - Single Environment with Custom, Forge and Git Modules'
+test_name 'CODEMGMT-40 - C59223 - Multiple Environments with Custom, Forge and Git Modules Deployed to Static Path'
 
 #Init
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
