@@ -77,8 +77,8 @@ class R10K::Util::Subprocess::Runner::POSIX < R10K::Util::Subprocess::Runner
       _, @status = Process.waitpid2(pid)
     else
       _, @status = Process.waitpid2(pid)
-      @stdout_pump.halt!
-      @stderr_pump.halt!
+      @stdout_pump.wait
+      @stderr_pump.wait
       stdout = @stdout_pump.string
       stderr = @stderr_pump.string
     end
