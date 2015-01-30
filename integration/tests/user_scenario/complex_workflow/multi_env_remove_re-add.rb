@@ -22,14 +22,7 @@ site_pp = create_site_pp(master_certname, '  include helloworld')
 
 #Teardown
 teardown do
-  step 'Reset Git Repo to Known Good State'
-  git_revert_environment(master, last_commit, git_environments_path)
-
-  step 'Restore Original "production" Environment'
-  on(master, 'r10k deploy environment -v')
-
-  step 'Verify "production" Environment is at Original State'
-  verify_production_environment(master)
+  clean_up_r10k(master, last_commit, git_environments_path)
 end
 
 #Setup

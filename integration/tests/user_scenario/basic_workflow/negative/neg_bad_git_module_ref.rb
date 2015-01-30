@@ -1,4 +1,5 @@
 require 'git_utils'
+require 'r10k_utils'
 require 'master_manipulator'
 test_name 'CODEMGMT-42 - C59230 - Attempt to Deploy Environment with Invalid Git Module Reference'
 
@@ -21,8 +22,7 @@ error_message_regex = /Cannot check out Git ref 'does_not_exist'/
 
 #Teardown
 teardown do
-  step 'Reset Git Repo to Known Good State'
-  git_revert_environment(master, last_commit, git_environments_path)
+  clean_up_r10k(master, last_commit, git_environments_path)
 end
 
 #Setup
