@@ -1,0 +1,21 @@
+---
+packaging_url: 'git://github.com/puppetlabs/packaging.git --branch=master'
+packaging_repo: 'packaging'
+default_cow: 'base-squeeze-i386.cow'
+cows: 'base-lucid-i386.cow base-precise-i386.cow base-squeeze-i386.cow base-trusty-i386.cow base-wheezy-i386.cow base-lucid-amd64.cow base-precise-amd64.cow base-squeeze-amd64.cow base-trusty-amd64.cow base-wheezy-amd64.cow'
+pbuild_conf: '/etc/pbuilderrc'
+packager: 'puppet'
+gpg_name: 'info@puppetlabs.com'
+gpg_key: '4BD6EC30'
+sign_tar: FALSE
+# a space separated list of mock configs
+final_mocks: 'pupent-3.4-el5-i386 pupent-3.4-el5-x86_64 pupent-3.4-el6-i386 pupent-3.4-el6-x86_64 pupent-3.4-el7-x86_64 pupent-3.4-sles11-i386 pupent-3.4-sles11-x86_64 pupent-3.4-sles12-x86_64'
+yum_host: 'neptune.delivery.puppetlabs.net'
+yum_repo_path: '/opt/pe_dev'
+build_gem: FALSE
+build_dmg: FALSE
+build_pe: TRUE
+apt_host: 'neptune.delivery.puppetlabs.net'
+apt_repo_url: 'http://freight.puppetlabs.lan'
+apt_repo_path: '/opt/pe_dev'
+pre_tar_task: 'package:vendor_gems'
