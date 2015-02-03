@@ -48,9 +48,7 @@ on(master, 'r10k deploy environment -v')
 #Since Puppet has problems with Unicode, this test will verify the file
 #directly in the r10k environment.
 
-agents.each do |agent|
-  step 'Verify Unicode File'
-  on(agent, "cat #{prod_env_unicode_module_file_path}") do |result|
-    assert_match(unicode_file_contents_regex, result.stdout, 'File content is invalid!')
-  end
+step 'Verify Unicode File'
+on(master, "cat #{prod_env_unicode_module_file_path}") do |result|
+  assert_match(unicode_file_contents_regex, result.stdout, 'File content is invalid!')
 end
