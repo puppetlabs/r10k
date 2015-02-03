@@ -15,5 +15,5 @@ beaker \
   --debug \
   --tests tests/user_scenario/complex_workflow \
   --keyfile ~/.ssh/id_rsa-acceptance \
-  --pre-suite pre-suite/pe_install.rb,pre-suite/pe_r10k.rb \
+  --pre-suite pre-suite \
   --load-path lib
