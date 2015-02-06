@@ -1,4 +1,4 @@
-test_name 'Install Utilities for r10k Integration Testing'
+test_name 'CODEMGMT-62 - C63199 - Install Utilities for r10k Integration Testing'
 
 #Init
 filebucket_path = '/opt/filebucket'
