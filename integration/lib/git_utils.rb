@@ -170,3 +170,69 @@ def git_revert_environment(host, commit_sha, git_repo_path)
   git_on(host, 'push origin --mirror --force', git_repo_path)
   git_on(host, 'push origin --mirror --force', git_repo_path)
 end
+
+# Create a bare Git repository.
+#
+# ==== Attributes
+#
+# * +host+ - The Puppet host on which to create a bare git repo.
+# * +git_repo_parent_path+ - The parent path that contains the desired Git repository.
+# * +git_repo_name+ - The name of the repository.
+#
+# ==== Returns
+#
+# +string+ - The path to the newly created Git repository.
+#
+# ==== Examples
+#
+# git_init_bare_repo(master, '/git/repos', 'environments')
+def git_init_bare_repo(host, git_repo_parent_path, git_repo_name)
+  #Init
+  git_repo_path = File.join(git_repo_parent_path, "#{git_repo_name}.git")
+
+  #Initialize bare Git repository
+  on(host, "mkdir -p #{git_repo_path}")
+  on(host, "git init --bare #{git_repo_path}")
+
+  return git_repo_path
+end
+
+# Clone a Git repository.
+#
+# ==== Attributes
+#
+# * +host+ - The Puppet host on which to create a bare git repo.
+# * +git_clone_path+ - The destination path for the git clone.
+# * +git_source+ - The origin from which to clone.
+#
+# ==== Returns
+#
+# +nil+
+#
+# ==== Examples
+#
+# git_clone_repo(master, '~/repos/r10k', '/git/repos/environments.git')
+def git_clone_repo(host, git_clone_path, git_source)
+  on(host, "git clone #{git_source} #{git_clone_path}")
+end
+
+# Create a bare Git repository and then clone the repository.
+#
+# ==== Attributes
+#
+# * +host+ - The Puppet host on which to create a bare git repo.
+# * +git_repo_parent_path+ - The parent path that contains the desired Git repository.
+# * +git_repo_name+ - The name of the repository.
+# * +git_clone_path+ - The destination path for the git clone.
+#
+# ==== Returns
+#
+# +string+ - The path to the newly created Git repository.
+#
+# ==== Examples
+#
+# git_init_bare_repo_and_clone(master, '/git/repos', 'environments', '~/repos/r10k')
+def git_init_bare_repo_and_clone(host, git_repo_parent_path, git_repo_name, git_clone_path)
+  origin_git_repo_path = git_init_bare_repo(host, git_repo_parent_path, git_repo_name)
+  git_clone_repo(host, git_clone_path, origin_git_repo_path)
+end
