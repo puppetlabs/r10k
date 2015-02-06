@@ -50,3 +50,9 @@ on your remote repositories:
 [bitbucket-default-branch]: https://answers.atlassian.com/questions/280944/how-to-change-main-branch-in-bitbucket "How to change MAIN branch in BitBucket?"
 [gitolite-v2-default-branch]: http://stackoverflow.com/questions/7091599/git-default-remote-branch-with-gitolite "git default remote branch with gitolite"
 [gitolite-v3-default-branch]: http://stackoverflow.com/questions/13949093/git-change-default-branch-gitolite "git change default branch (gitolite)"
+
+#### I just installed r10k and I'm getting the error "undefined method `keys' for nil:NilClass"
+
+This is a known bug when `:sources:` is missing from `/etc/r10k.yaml`. See [RK-4](https://tickets.puppetlabs.
+
+
