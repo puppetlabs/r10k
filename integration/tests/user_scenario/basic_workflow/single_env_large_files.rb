@@ -15,7 +15,10 @@ helloworld_module_path = File.join(local_files_root_path, 'modules', 'helloworld
 
 test_files = 'test_files'
 test_files_path = File.join(git_environments_path, 'test_files')
-pattern_file_path = '/opt/filebucket/psuedo_random_128k.pat'
+
+file_bucket_path = '/opt/filebucket'
+file_bucket_command_path = File.join(file_bucket_path, 'filebucketapp.py')
+pattern_file_path = File.join(file_bucket_path, 'psuedo_random_128k.pat')
 
 #Manifest
 site_pp_path = File.join(git_environments_path, 'manifests', 'site.pp')
@@ -46,7 +49,7 @@ inject_site_pp(master, site_pp_path, site_pp)
 step 'Create Large Binary Files'
 create_remote_file(master, File.join(git_environments_path, '.gitattributes'), '*.file binary')
 on(master, "mkdir -p #{test_files_path}")
-on(master, "filebucketapp.py -c 10 -s 25 -p #{test_files_path}/test -u .file -d #{pattern_file_path}")
+on(master, "#{file_bucket_command_path} -c 10 -s 25 -p #{test_files_path}/test -u .file -d #{pattern_file_path}")
 
 step 'Create MD5 Checksum of Files'
 on(master, "cd #{test_files_path};md5sum *.file > #{checksum_file_name}")
