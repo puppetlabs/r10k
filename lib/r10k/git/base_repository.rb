@@ -26,19 +26,24 @@ class R10K::Git::BaseRepository
 
   # @return [Array<String>] All local branches in this repository
   def branches
-    output = git %w[for-each-ref refs/heads --format %(refname)], :git_dir => git_dir.to_s
-    output.stdout.scan(%r[refs/heads/(.*)$]).flatten
+    for_each_ref('refs/heads')
   end
 
   # @return [Array<String>] All tags in this repository
   def tags
-    output = git %w[for-each-ref refs/tags --format %(refname)], :git_dir => git_dir.to_s
-    output.stdout.scan(%r[refs/tags/(.*)$]).flatten
+    for_each_ref('refs/tags')
   end
 
   include R10K::Logging
 
   private
+
+  # @param pattern [String]
+  def for_each_ref(pattern)
+    matcher = %r[#{pattern}/(.*)$]
+    output = git ['for-each-ref', pattern, '--format', '%(refname)'], :git_dir => git_dir.to_s
+    output.stdout.scan(matcher).flatten
+  end
 
   # Wrap git commands
   #
