@@ -16,7 +16,7 @@ PUPPETFILE
 puppet_file_path = File.join(git_environments_path, 'Puppetfile')
 
 #Verification
-error_message_regex = /fatal: HTTP request failed/
+error_message_regex = /ERROR\] Couldn't update git cache/
 
 #Teardown
 teardown do
