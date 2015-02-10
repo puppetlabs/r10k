@@ -1,0 +1,19 @@
+#!/bin/bash
+SCRIPT_PATH=$(pwd)
+BASENAME_CMD="basename ${SCRIPT_PATH}"
+SCRIPT_BASE_PATH=`eval ${BASENAME_CMD}`
+
+if [ $SCRIPT_BASE_PATH = "test_run_scripts" ]; then
+  cd ../
+fi
+
+export pe_dist_dir=http://pe-releases.puppetlabs.lan/3.7.1/
+
+beaker \
+  --preserve-hosts onfail \
+  --config configs/pe/ubuntu-1204-64mda \
+  --debug \
+  --tests tests \
+  --keyfile ~/.ssh/id_rsa-acceptance \
+  --pre-suite pre-suite \
+  --load-path lib
