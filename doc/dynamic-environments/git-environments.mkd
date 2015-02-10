@@ -12,7 +12,7 @@ The core idea of dynamic environments is that you should be able to manage your
 Puppet modules in the same manner that you would manage any other code base. It
 builds on top of Git topic branch model.
 
-[git-topic-branching]: http://git-scm.com/book/en/Git-Branching-Branching-Workflows#Topic-Branches "Git Topic Branches"
+[git-topic-branching]: http://git-scm.com/book/en/Git-Branching-Branching-Workflows#Topic-Branches
 
 One of the most prevalent ways of using Git relies on using [topic branches][git-topic-branching].
 Whenever changes need to be made that need to be reviewed or tested before going
