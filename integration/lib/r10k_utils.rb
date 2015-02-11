@@ -44,6 +44,7 @@ end
 def clean_up_r10k(master, commit_sha, git_repo_path)
   environment_path = on(master, puppet('config', 'print', 'environmentpath')).stdout.rstrip
   prod_env_modules_path = File.join(environment_path, 'production', 'modules')
+  prod_env_site_path = File.join(environment_path, 'production', 'site')
 
   step 'Reset Git Repo to Known Good State'
   git_revert_environment(master, commit_sha, git_repo_path)
@@ -56,6 +57,7 @@ def clean_up_r10k(master, commit_sha, git_repo_path)
 
   step 'Remove Any Modules from the "production" Environment'
   on(agents, "rm -rf #{prod_env_modules_path}/*")
+  on(agents, "rm -rf #{prod_env_site_path}/*")
 end
 
 # Create a new r10k Git source that is copied from the current "production" environment.
