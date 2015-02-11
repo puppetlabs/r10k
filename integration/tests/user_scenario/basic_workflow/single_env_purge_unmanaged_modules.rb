@@ -1,7 +1,7 @@
 require 'git_utils'
 require 'r10k_utils'
 require 'master_manipulator'
-test_name 'CODEMGMT-73 - C63184 - Single Enviornment Purge Unmanaged Modules'
+test_name 'CODEMGMT-73 - C63184 - Single Environment Purge Unmanaged Modules'
 
 skip_test('Skipping test because of CODEMGMT-78')
 
