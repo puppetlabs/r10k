@@ -43,10 +43,10 @@ on your remote repositories:
   * [Gitolite v2][gitolite-v2-default-branch]
   * [Gitolite v3][gitolite-v3-default-branch]
 
-[git-clone]: https://www.kernel.org/pub/software/scm/git/docs/git-clone.html "git-clone(1)"
-[git-symbolic-ref]: https://www.kernel.org/pub/software/scm/git/docs/git-symbolic-ref.html "git-symbolic-ref(1)"
+[git-clone]: https://www.kernel.org/pub/software/scm/git/docs/git-clone.html "Man page for git-clone"
+[git-symbolic-ref]: https://www.kernel.org/pub/software/scm/git/docs/git-symbolic-ref.html "Man page for git-symbolic-ref"
 
-[github-default-branch]: https://help.github.com/articles/setting-the-default-branch "Setting the default branch"
-[bitbucket-default-branch]: https://answers.atlassian.com/questions/280944/how-to-change-main-branch-in-bitbucket "How to change MAIN branch in BitBucket?"
-[gitolite-v2-default-branch]: http://stackoverflow.com/questions/7091599/git-default-remote-branch-with-gitolite "git default remote branch with gitolite"
-[gitolite-v3-default-branch]: http://stackoverflow.com/questions/13949093/git-change-default-branch-gitolite "git change default branch (gitolite)"
+[github-default-branch]: https://help.github.com/articles/setting-the-default-branch "Changing the default branch on GitHub"
+[bitbucket-default-branch]: https://answers.atlassian.com/questions/280944/how-to-change-main-branch-in-bitbucket "Changing the default branch on Bitbucket"
+[gitolite-v2-default-branch]: http://stackoverflow.com/questions/7091599/git-default-remote-branch-with-gitolite "Changing the default branch on Gitolite v2"
+[gitolite-v3-default-branch]: http://stackoverflow.com/questions/13949093/git-change-default-branch-gitolite "Changing the default branch on Gitolite v3"
