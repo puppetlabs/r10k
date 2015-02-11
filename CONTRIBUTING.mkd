@@ -57,7 +57,7 @@ Contributing fixes and improvements to the core documentation is a great way to
 help improve R10K. Improvements to the FAQ, example code, and so forth can go a
 long way towards making R10K more approachable for new users and existing users
 alike. For more information about the submission process please see the section
-on [code contributions][#code-contributions].
+on [code contributions](#code-contributions).
 
 ## Code contributions
 
