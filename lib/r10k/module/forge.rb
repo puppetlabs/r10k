@@ -1,6 +1,7 @@
 require 'r10k/module'
 require 'r10k/errors'
-require 'r10k/module/metadata'
+require 'shared/puppet/module_tool/metadata'
+require 'r10k/module/metadata_file'
 require 'r10k/util/subprocess'
 require 'r10k/module_repository/forge'
 
@@ -18,14 +19,15 @@ class R10K::Module::Forge < R10K::Module::Base
 
   # @!attribute [r] metadata
   #   @api private
-  #   @return [R10K::Module::Metadata]
+  #   @return [Puppet::ModuleTool::Metadata]
   attr_reader :metadata
 
   include R10K::Logging
 
   def initialize(title, dirname, args)
     super
-    @metadata = R10K::Module::Metadata.new(path + 'metadata.json')
+    @metadata_file = R10K::Module::MetadataFile.new(path + 'metadata.json')
+    @metadata = @metadata_file.read
 
     if args.is_a? String
       @expected_version = R10K::SemVer.new(args)
@@ -61,10 +63,8 @@ class R10K::Module::Forge < R10K::Module::Base
     @expected_version
   end
 
-
   # @return [R10K::SemVer] The version of the currently installed module
   def current_version
-    @metadata.read
     @metadata.version
   end
 
@@ -89,7 +89,7 @@ class R10K::Module::Forge < R10K::Module::Base
     if not self.exist?
       # The module is not installed
       return :absent
-    elsif not @metadata.exist?
+    elsif not File.exist?(@path + 'metadata.json')
       # The directory exists but doesn't have a metadata file; it probably
       # isn't a forge module.
       return :mismatched
@@ -97,9 +97,10 @@ class R10K::Module::Forge < R10K::Module::Base
 
     # The module is present and has a metadata file, read the metadata to
     # determine the state of the module.
-    @metadata.read
+    @metadata_file.read(@path + 'metadata.json')
 
-    if not @owner == @metadata.author
+    if not @title.tr('/','-') == @metadata.full_module_name.tr('/','-')
+
       # This is a forge module but the installed module is a different author
       # than the expected author.
       return :mismatched

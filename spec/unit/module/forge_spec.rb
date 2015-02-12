@@ -47,19 +47,8 @@ describe R10K::Module::Forge do
     end
   end
 
-  describe "fetching the current version" do
-    subject { described_class.new('branan/eight_hundred', '/moduledir', '8.0.0') }
-
-    it "reads the metadata before returning the version from the metadata" do
-      metadata = subject.metadata
-      expect(metadata).to receive(:read)
-      expect(metadata).to receive(:version).and_return(R10K::SemVer.new('1.2.3'))
-      expect(subject.current_version).to eq(R10K::SemVer.new('1.2.3'))
-    end
-  end
-
   describe "properties" do
-    subject { described_class.new('branan/eight_hundred', '/moduledir', '8.0.0') }
+    subject { described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0') }
 
     it "sets the module type to :forge" do
       expect(subject.properties).to include(:type => :forge)
@@ -84,8 +73,6 @@ describe R10K::Module::Forge do
     end
 
     subject { described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0') }
-
-    before { allow(R10K::Module::Metadata).to receive(:new).and_return metadata }
 
     describe "and the module is in sync" do
       before do
@@ -184,13 +171,7 @@ describe R10K::Module::Forge do
 
   describe "determining the status" do
 
-    let(:metadata) { double 'metadata', :version => R10K::SemVer.new('8.0.0'), :author => 'branan', :exist? => true, :read => nil }
-
-    subject { described_class.new('branan/eight_hundred', '/moduledir', '8.0.0') }
-
-    before do
-      allow(R10K::Module::Metadata).to receive(:new).and_return metadata
-    end
+    subject { described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0') }
 
     it "is :absent if the module directory is absent" do
       allow(subject).to receive(:exist?).and_return false
@@ -199,7 +180,7 @@ describe R10K::Module::Forge do
 
     it "is :mismatched if there is no module metadata" do
       allow(subject).to receive(:exist?).and_return true
-      allow(metadata).to receive(:exist?).and_return false
+      allow(File).to receive(:exist?).and_return false
 
       expect(subject.status).to eq :mismatched
     end
@@ -207,7 +188,7 @@ describe R10K::Module::Forge do
     it "is :mismatched if the metadata author doesn't match the expected author" do
       allow(subject).to receive(:exist?).and_return true
 
-      allow(metadata).to receive(:author).and_return 'blargh'
+      allow(subject.metadata).to receive(:full_module_name).and_return 'blargh-blargh'
 
       expect(subject.status).to eq :mismatched
     end
@@ -215,8 +196,7 @@ describe R10K::Module::Forge do
     it "is :outdated if the metadata version doesn't match the expected version" do
       allow(subject).to receive(:exist?).and_return true
 
-      allow(metadata).to receive(:version).and_return R10K::SemVer.new('7.0.0')
-
+      allow(subject.metadata).to receive(:version).and_return '7.0.0'
       expect(subject.status).to eq :outdated
     end
 
@@ -228,22 +208,11 @@ describe R10K::Module::Forge do
   end
 
   describe "and the expected version is :latest", :vcr => true, :unless => (RUBY_VERSION == '1.8.7') do
-    subject { described_class.new('branan/eight_hundred', '/moduledir', :latest) }
-
-    let(:_metadata) do
-      double('metadata',
-             :version => R10K::SemVer.new('7.0.0'),
-             :author => 'branan',
-             :exist? => true,
-             :read   => nil)
-    end
-
-    before do
-      allow(R10K::Module::Metadata).to receive(:new).and_return _metadata
-    end
+    subject { described_class.new('branan/eight_hundred', fixture_modulepath, :latest) }
 
     it "sets the expected version based on the latest forge version" do
       allow(subject).to receive(:exist?).and_return true
+      allow(subject.metadata).to receive(:version).and_return '7.0.0'
       expect(subject.status).to eq :outdated
       expect(subject.expected_version).to eq R10K::SemVer.new('8.0.0')
     end
