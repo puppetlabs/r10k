@@ -50,8 +50,18 @@ describe R10K::Git::WorkingRepository do
     end
 
     describe "using an explicit ref" do
-      it "checks out the given ref" do
+      it "can check out tags" do
         subject.clone(remote, {:ref => '1.0.0'})
+        expect(subject.head).to eq "14cbb45ae3a5f764320b7e63f1a54a25a1ef6c9c"
+      end
+
+      it "can check out remote branches" do
+        subject.clone(remote, {:ref => 'origin/0.9.x'})
+        expect(subject.head).to eq "3084373e8d181cf2fea5b4ade2690ba22872bd67"
+      end
+
+      it "can check out commits" do
+        subject.clone(remote, {:ref => '14cbb45ae3a5f764320b7e63f1a54a25a1ef6c9c'})
         expect(subject.head).to eq "14cbb45ae3a5f764320b7e63f1a54a25a1ef6c9c"
       end
     end
