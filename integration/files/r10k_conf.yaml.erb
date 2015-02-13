@@ -1,0 +1,6 @@
+sources:
+  <% for source in sources %>
+    <%= source.repo_name %>:
+      basedir: "<%= env_path %>"
+      remote: "<%= source.control_remote %>"
+  <% end %>
