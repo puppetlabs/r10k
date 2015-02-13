@@ -1,6 +1,6 @@
 require 'r10k/logging'
 require 'r10k/puppetfile'
-require 'r10k/git/working_dir'
+require 'r10k/git/stateful_repository'
 
 # This class implements an environment based on a Git branch.
 #
@@ -17,10 +17,10 @@ class R10K::Environment::Git < R10K::Environment::Base
   #   @return [String] The git reference to use for this environment
   attr_reader :ref
 
-  # @!attribute [r] working_dir
+  # @!attribute [r] repo
   #   @api private
-  #   @return [R10K::Git::WorkingDir] The git working directory backing this environment
-  attr_reader :working_dir
+  #   @return [R10K::Git::StatefulRepository] The git repo backing this environment
+  attr_reader :repo
 
   # Initialize the given SVN environment.
   #
@@ -36,7 +36,7 @@ class R10K::Environment::Git < R10K::Environment::Base
     @remote = options[:remote]
     @ref    = options[:ref]
 
-    @working_dir = R10K::Git::WorkingDir.new(@ref, @remote, @basedir, @dirname)
+    @repo = R10K::Git::StatefulRepository.new(@ref, @remote, @basedir, @dirname)
   end
 
   # Clone or update the given Git environment.
@@ -47,22 +47,12 @@ class R10K::Environment::Git < R10K::Environment::Base
   # @api public
   # @return [void]
   def sync
-    @working_dir.sync
+    @repo.sync
     @synced = true
   end
 
   def status
-    if !@working_dir.exist?
-      :absent
-    elsif !@working_dir.git?
-      :mismatched
-    elsif !(@remote == @working_dir.remote)
-      :mismatched
-    elsif !@synced
-      :outdated
-    else
-      :insync
-    end
+    @repo.status
   end
 
   # @deprecated

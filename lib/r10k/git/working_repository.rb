@@ -56,7 +56,7 @@ class R10K::Git::WorkingRepository < R10K::Git::BaseRepository
 
   # @return [String] The currently checked out ref
   def head
-    git(['rev-parse', 'HEAD'], :path => @path.to_s).stdout
+    resolve('HEAD')
   end
 
   def alternates

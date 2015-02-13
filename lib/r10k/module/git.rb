@@ -1,5 +1,6 @@
 require 'r10k/module'
 require 'r10k/git'
+require 'r10k/git/stateful_repository'
 
 class R10K::Module::Git < R10K::Module::Base
 
@@ -11,15 +12,15 @@ class R10K::Module::Git < R10K::Module::Base
     false
   end
 
-  # @!attribute [r] working_dir
+  # @!attribute [r] repo
   #   @api private
-  #   @return [R10K::Git::WorkingDir]
-  attr_reader :working_dir
+  #   @return [R10K::Git::StatefulRepository]
+  attr_reader :repo
 
   def initialize(title, dirname, args)
     super
     parse_options(@args)
-    @working_dir = R10K::Git::WorkingDir.new(@ref, @remote, @dirname, @name)
+    @repo = R10K::Git::StatefulRepository.new(@ref, @remote, @dirname, @name)
   end
 
   def version
@@ -29,48 +30,20 @@ class R10K::Module::Git < R10K::Module::Base
   def properties
     {
       :expected => @ref,
-      :actual   => (@working_dir.current.sha1 rescue "(unresolvable)"),
+      :actual   => (@repo.head || "(unresolvable)"),
       :type     => :git,
     }
   end
 
   def sync
-    case status
-    when :absent
-      install
-    when :mismatched
-      uninstall
-      install
-    when :outdated
-      @working_dir.sync
-    end
+    @repo.sync
   end
 
   def status
-    if not @working_dir.exist?
-      return :absent
-    elsif not @working_dir.git?
-      return :mismatched
-    elsif not @remote == @working_dir.remote
-      return :mismatched
-    end
-
-    if @working_dir.outdated?
-      return :outdated
-    end
-
-    return :insync
+    @repo.status
   end
 
   private
-
-  def install
-    @working_dir.sync
-  end
-
-  def uninstall
-    @path.rmtree
-  end
 
   def parse_options(options)
     @remote = options.delete(:git)

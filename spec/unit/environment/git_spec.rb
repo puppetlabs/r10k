@@ -15,8 +15,6 @@ describe R10K::Environment::Git do
     )
   end
 
-  let(:working_dir) { subject.working_dir }
-
   describe "storing attributes" do
     it "can return the environment name" do
       expect(subject.name).to eq 'myenv'
@@ -40,8 +38,8 @@ describe R10K::Environment::Git do
   end
 
   describe "synchronizing the environment" do
-    it "syncs the working directory" do
-      expect(working_dir).to receive(:sync)
+    it "syncs the git repository" do
+      expect(subject.repo).to receive(:sync)
       subject.sync
     end
   end
@@ -71,41 +69,9 @@ describe R10K::Environment::Git do
   end
 
   describe "determining the status" do
-    it "is absent when the working directory is absent" do
-      expect(working_dir).to receive(:exist?).and_return false
-      expect(subject.status).to eq :absent
-    end
-
-    it "is mismatched when the working directory is not git" do
-      expect(working_dir).to receive(:exist?).and_return true
-      expect(working_dir).to receive(:git?).and_return false
-      expect(subject.status).to eq :mismatched
-    end
-
-    it "is mismatched when the working directory remote doesn't match the desired remote" do
-      expect(working_dir).to receive(:exist?).and_return true
-      expect(working_dir).to receive(:git?).and_return true
-      expect(working_dir).to receive(:remote).and_return 'git://git-server.site/my-other-repo.git'
-      expect(subject.status).to eq :mismatched
-    end
-
-    it "is is outdated when the working directory has not been synced" do
-      expect(working_dir).to receive(:exist?).and_return true
-      expect(working_dir).to receive(:git?).and_return true
-      expect(working_dir).to receive(:remote).and_return 'git://git-server.site/my-repo.git'
-      expect(subject.status).to eq :outdated
-    end
-
-    it "is is insync when the working directory has been synced" do
-      expect(working_dir).to receive(:exist?).and_return true
-      expect(working_dir).to receive(:git?).and_return true
-      expect(working_dir).to receive(:remote).and_return 'git://git-server.site/my-repo.git'
-
-      expect(working_dir).to receive(:sync)
-
-      subject.sync
-
-      expect(subject.status).to eq :insync
+    it "delegates to the repo" do
+      expect(subject.repo).to receive(:status).and_return :some_status
+      expect(subject.status).to eq :some_status
     end
   end
 end
