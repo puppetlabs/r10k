@@ -51,6 +51,8 @@ class R10K::Git::StatefulRepository
       :mismatched
     elsif !(@repo.head == @cache.resolve(@ref))
       :outdated
+    elsif @cache.ref_type(@ref) == :branch && !@cache.synced?
+      :outdated
     else
       :insync
     end
