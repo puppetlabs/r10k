@@ -63,7 +63,7 @@ describe R10K::Module::Git do
     end
 
     it "sets the expected version" do
-      expect(subject.properties).to include(:expected => instance_of(R10K::Git::Ref))
+      expect(subject.properties).to include(:expected => 'master')
     end
 
     it "sets the actual version to the revision when the revision is available" do

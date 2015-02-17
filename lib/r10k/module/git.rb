@@ -49,22 +49,22 @@ class R10K::Module::Git < R10K::Module::Base
     @remote = options.delete(:git)
 
     if options[:branch]
-      @ref = R10K::Git::Head.new(options.delete(:branch))
+      @ref = options.delete(:branch)
     end
 
     if options[:tag]
-      @ref = R10K::Git::Tag.new(options.delete(:tag))
+      @ref = options.delete(:tag)
     end
 
     if options[:commit]
-      @ref = R10K::Git::Commit.new(options.delete(:commit))
+      @ref = options.delete(:commit)
     end
 
     if options[:ref]
-      @ref = R10K::Git::Ref.new(options.delete(:ref))
+      @ref = options.delete(:ref)
     end
 
-    @ref ||= R10K::Git::Ref.new('master')
+    @ref ||= 'master'
 
     unless options.empty?
       raise ArgumentError, "Unhandled options #{options.keys.inspect} specified for #{self.class}"
