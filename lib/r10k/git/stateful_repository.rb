@@ -1,4 +1,5 @@
 require 'r10k/git/thin_repository'
+require 'forwardable'
 
 # Manage how Git repositories are created and set to specific refs
 class R10K::Git::StatefulRepository
@@ -6,6 +7,9 @@ class R10K::Git::StatefulRepository
   # @!attribute [r] repo
   #   @api private
   attr_reader :repo
+
+  extend Forwardable
+  def_delegators :@repo, :head
 
   # Create a new shallow git working directory
   #
