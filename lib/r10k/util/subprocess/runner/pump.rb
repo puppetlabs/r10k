@@ -22,7 +22,7 @@ class R10K::Util::Subprocess::Runner::Pump
     @thread = nil
     @string = ''
     @run    = true
-    @min_delay = 0.001
+    @min_delay = 0.1
     @max_delay = 1.0
   end
 
