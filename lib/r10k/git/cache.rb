@@ -63,6 +63,10 @@ class R10K::Git::Cache
     end
   end
 
+  def synced?
+    @synced
+  end
+
   def sync!
     if cached?
       @repo.fetch
@@ -76,6 +80,11 @@ class R10K::Git::Cache
 
       @repo.clone(@remote)
     end
+  end
+
+  # @api private
+  def reset!
+    @synced = false
   end
 
   alias cached? exist?
