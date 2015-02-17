@@ -71,21 +71,38 @@ describe R10K::Git::StatefulRepository do
   end
 
   describe "syncing" do
-    it "creates the repo when absent" do
-      subject.sync
-      expect(subject.status).to eq :insync
+
+    describe "when the ref is unresolvable" do
+      subject { described_class.new('1.1.x', remote, basedir, dirname) }
+
+      it "raises an error" do
+        expect {
+          subject.sync
+        }.to raise_error(R10K::Git::UnresolvableRefError)
+      end
     end
 
-    it "removes and recreates the repo when mismatched" do
-      thinrepo.path.mkdir
-      subject.sync
-      expect(subject.status).to eq :insync
+    describe "when the repo is absent" do
+      it "creates the repo" do
+        subject.sync
+        expect(subject.status).to eq :insync
+      end
     end
 
-    it "updates the repository when out of date" do
-      thinrepo.clone(remote, {:ref => '1.0.0'})
-      subject.sync
-      expect(subject.status).to eq :insync
+    describe "when the repo is mismatched" do
+      it "removes and recreates the repo" do
+        thinrepo.path.mkdir
+        subject.sync
+        expect(subject.status).to eq :insync
+      end
+    end
+
+    describe "when the repo is out of date" do
+      it "updates the repository" do
+        thinrepo.clone(remote, {:ref => '1.0.0'})
+        subject.sync
+        expect(subject.status).to eq :insync
+      end
     end
   end
 end

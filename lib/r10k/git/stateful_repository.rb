@@ -1,4 +1,5 @@
 require 'r10k/git/thin_repository'
+require 'r10k/git/errors'
 require 'forwardable'
 
 # Manage how Git repositories are created and set to specific refs
@@ -29,6 +30,10 @@ class R10K::Git::StatefulRepository
     @cache.sync
 
     sha = @cache.resolve(@ref)
+
+    if sha.nil?
+      raise R10K::Git::UnresolvableRefError.new("Unable to sync repo to unresolvable ref '#{@ref}'", :git_dir => @repo.git_dir)
+    end
 
     case status
     when :absent
