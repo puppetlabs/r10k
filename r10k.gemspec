@@ -40,6 +40,4 @@ Gem::Specification.new do |s|
   s.require_path = 'lib'
   s.bindir       = 'bin'
   s.executables  = 'r10k'
-
-  s.test_files   = Dir.glob("spec/**/*_spec.rb")
 end
