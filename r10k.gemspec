@@ -36,7 +36,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'yard', '~> 0.8.7.3'
 
-  s.files        = %x[git ls-files].split($/)
+  s.files        = %x[git ls-files].split($/).select { |path| !path.match(/^("?integration|spec)/) }
   s.require_path = 'lib'
   s.bindir       = 'bin'
   s.executables  = 'r10k'
