@@ -4,10 +4,6 @@ require 'master_manipulator'
 test_name 'CODEMGMT-84 - C59270 - Attempt to Deploy with Missing r10k Configuration File'
 
 #Init
-env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
-git_repo_path = '/git_repos'
-git_control_remote = File.join(git_repo_path, 'environments.git')
-
 r10k_config_path = '/etc/r10k.yaml'
 r10k_config_bak_path = "#{r10k_config_path}.bak"
 
@@ -17,7 +13,7 @@ error_message_regex = /Error while running.*R10K\:\:Deployment.*No configuration
 #Teardown
 teardown do
   step 'Restore Original "r10k" Config'
-  on(master, "cp #{r10k_config_bak_path} #{r10k_config_path}")
+  on(master, "mv #{r10k_config_bak_path} #{r10k_config_path}")
 end
 
 #Setup
