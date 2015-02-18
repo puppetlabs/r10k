@@ -8,7 +8,7 @@ r10k_config_path = '/etc/r10k.yaml'
 r10k_config_bak_path = "#{r10k_config_path}.bak"
 
 #Verification
-error_message_regex = /Error while running.*R10K\:\:Deployment.*No configuration file/
+error_message_regex = /Error while running.*R10K\:\:Deployment.*No configuration file given/
 
 #Teardown
 teardown do

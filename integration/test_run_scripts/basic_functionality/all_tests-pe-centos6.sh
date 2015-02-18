@@ -13,7 +13,7 @@ beaker \
   --preserve-hosts onfail \
   --config configs/pe/centos-6-64mda \
   --debug \
-  --tests tests/basic_functionality \ 
+  --tests tests/basic_functionality \
   --keyfile ~/.ssh/id_rsa-acceptance \
   --pre-suite pre-suite \
   --load-path lib
