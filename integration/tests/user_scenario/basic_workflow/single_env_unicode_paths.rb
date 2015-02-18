@@ -13,7 +13,8 @@ last_commit = git_last_commit(master, git_environments_path)
 local_files_root_path = ENV['FILES'] || 'files'
 
 unicode_module_path = File.join(local_files_root_path, 'modules', 'unicode')
-prod_env_unicode_module_file_path = File.join(prod_env_modules_path, 'unicode', 'files', "\uAD62\uCC63\uC0C3\uBEE7\uBE23\uB7E9\uC715\uCEFE\uBF90\uAE69")
+unicode_remote_original_file_path = File.join(git_environments_path, 'modules', 'unicode', 'files', 'pretend_unicode')
+unicode_remote_rename_file_path = File.join(git_environments_path, 'modules', 'unicode', 'files', "\uAD62\uCC63\uC0C3\uBEE7\uBE23\uB7E9\uC715\uCEFE\uBF90\uAE69")
 
 #Verification
 unicode_file_contents_regex = /\AHa ha ha! I am in Korean!\n\z/
@@ -34,6 +35,10 @@ git_on(master, 'checkout production', git_environments_path)
 step 'Copy "unicode" Module to "production" Environment Git Repo'
 scp_to(master, unicode_module_path, File.join(git_environments_path, 'modules'))
 
+#Required because of CODEMGMT-87
+step 'Rename File to Actual Unicode'
+on(master, "mv #{unicode_remote_original_file_path} #{unicode_remote_rename_file_path}".force_encoding('BINARY'))
+
 step 'Inject New "site.pp" to the "production" Environment'
 inject_site_pp(master, site_pp_path, site_pp)
 
@@ -49,6 +54,6 @@ on(master, 'r10k deploy environment -v')
 #directly in the r10k environment.
 
 step 'Verify Unicode File'
-on(master, "cat #{prod_env_unicode_module_file_path}") do |result|
+on(master, "cat #{unicode_remote_rename_file_path}") do |result|
   assert_match(unicode_file_contents_regex, result.stdout, 'File content is invalid!')
 end
