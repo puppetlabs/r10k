@@ -13,4 +13,38 @@ describe R10K::Feature do
       expect(feature.available?).to be_falsey
     end
   end
+
+  describe "confining a feature to a block" do
+    it "is available if the block is true" do
+      feature = described_class.new(:blockfeature) { true }
+      expect(feature.available?).to be_truthy
+    end
+
+    it "is unavailable if the block is false" do
+      feature = described_class.new(:blockfeature) { false }
+      expect(feature.available?).to be_falsey
+    end
+  end
+
+  describe  "confining a feature to both a block and libraries" do
+    it "is unavailable if the block returns false and libraries are absent" do
+      feature = described_class.new(:nope, :libraries => 'nope/nope') { false }
+      expect(feature.available?).to be_falsey
+    end
+
+    it "is unavailable if the block returns true and libraries are absent" do
+      feature = described_class.new(:nope, :libraries => 'nope/nope') { true }
+      expect(feature.available?).to be_falsey
+    end
+
+    it "is unavailable if the block returns false and libraries are present" do
+      feature = described_class.new(:nope, :libraries => 'r10k') { false }
+      expect(feature.available?).to be_falsey
+    end
+
+    it "is available if the block returns true and libraries are present" do
+      feature = described_class.new(:yep, :libraries => 'r10k') { true }
+      expect(feature.available?).to be_truthy
+    end
+  end
 end

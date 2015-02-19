@@ -8,9 +8,10 @@ class R10K::Feature::Collection
 
   # @param name [Symbol] The feature to add
   # @param opts [Hash] Additional options for the feature, see {R10K::Feature}
+  # @param block [Proc] An optional block to detect if this feature is present
   # @return [void]
-  def add(name, opts)
-    @features[name] = R10K::Feature.new(name, opts)
+  def add(name, opts = {}, &block)
+    @features[name] = R10K::Feature.new(name, opts, &block)
   end
 
   # @return [true, false] Does a feature by this name exist and is it available?
