@@ -46,7 +46,7 @@ describe R10K::Git::ThinRepository do
 
     it "adds the cache repo to the alternates file" do
       subject.clone(remote)
-      expect(subject.alternates.to_a).to eq [File.join(cacherepo.git_dir, 'objects')]
+      expect(subject.alternates.to_a).to eq [File.realpath(File.join(cacherepo.git_dir, 'objects'))]
     end
   end
 end
