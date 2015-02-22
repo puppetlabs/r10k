@@ -184,6 +184,12 @@ credentials may be visible in the process table when r10k is running. If you
 choose to supply SVN credentials make sure that the system running r10k is
 appropriately secured.
 
+### Local
+
+You can define manually managed modules using the `:local` type.
+
+    mod 'my-module', :local
+
 ## Environment variables
 
 It is possible to set an alternate name/location for your `Puppetfile` and
