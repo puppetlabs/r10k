@@ -15,7 +15,8 @@ require 'r10k'
 
 require 'shared-examples/git-ref'
 require 'shared-examples/subprocess-runner'
-
+require 'shared-examples/git-repository'
+require 'shared-contexts/git-fixtures'
 require 'matchers/exit_with'
 require 'r10k-mocks'
 

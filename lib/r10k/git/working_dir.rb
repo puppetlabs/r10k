@@ -40,7 +40,7 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     @full_path = File.join(@basedir, @dirname)
     @git_dir   = File.join(@full_path, '.git')
 
-    @alternates = R10K::Git::Alternates.new(@git_dir)
+    @alternates = R10K::Git::Alternates.new(Pathname.new(@git_dir))
     @cache      = R10K::Git::Cache.generate(@remote)
 
     if ref.is_a? String
