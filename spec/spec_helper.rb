@@ -1,3 +1,5 @@
+PROJECT_ROOT = File.expand_path('..', File.dirname(__FILE__))
+
 if ENV['COVERAGE']
   require 'simplecov'
   SimpleCov.start do
@@ -13,14 +15,12 @@ end
 
 require 'r10k'
 
-require 'shared-examples/git-ref'
-require 'shared-examples/subprocess-runner'
-require 'shared-examples/git-repository'
+Dir.glob(File.expand_path('spec/shared-examples/**/*.rb', PROJECT_ROOT)).each { |file| require file }
+
 require 'shared-contexts/git-fixtures'
 require 'matchers/exit_with'
 require 'r10k-mocks'
 
-PROJECT_ROOT = File.expand_path('..', File.dirname(__FILE__))
 
 require 'vcr'
 VCR.configure do |vcr|
