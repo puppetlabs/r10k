@@ -1,6 +1,7 @@
 require 'r10k/module'
 require 'r10k/git'
 require 'r10k/git/stateful_repository'
+require 'forwardable'
 
 class R10K::Module::Git < R10K::Module::Base
 
@@ -35,13 +36,9 @@ class R10K::Module::Git < R10K::Module::Base
     }
   end
 
-  def sync
-    @repo.sync
-  end
+  extend Forwardable
 
-  def status
-    @repo.status
-  end
+  def_delegators :@repo, :sync, :status
 
   private
 

@@ -1,6 +1,7 @@
 require 'r10k/logging'
 require 'r10k/puppetfile'
 require 'r10k/git/stateful_repository'
+require 'forwardable'
 
 # This class implements an environment based on a Git branch.
 #
@@ -51,9 +52,9 @@ class R10K::Environment::Git < R10K::Environment::Base
     @synced = true
   end
 
-  def status
-    @repo.status
-  end
+  extend Forwardable
+
+  def_delegators :@repo, :status
 
   # @deprecated
   # @api private
