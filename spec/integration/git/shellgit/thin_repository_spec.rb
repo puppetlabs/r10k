@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'r10k/git/thin_repository'
+require 'r10k/git/shellgit/thin_repository'
 
-describe R10K::Git::ThinRepository do
+describe R10K::Git::ShellGit::ThinRepository do
   include_context 'Git integration'
 
   let(:dirname) { 'working-repo' }

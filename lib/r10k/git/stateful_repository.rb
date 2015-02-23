@@ -1,4 +1,4 @@
-require 'r10k/git/thin_repository'
+require 'r10k/git/shellgit/thin_repository'
 require 'r10k/git/errors'
 require 'forwardable'
 
@@ -22,7 +22,7 @@ class R10K::Git::StatefulRepository
     @ref = ref
     @remote = remote
 
-    @repo = R10K::Git::ThinRepository.new(basedir, dirname)
+    @repo = R10K::Git::ShellGit::ThinRepository.new(basedir, dirname)
     @cache = R10K::Git::Cache.generate(remote)
   end
 

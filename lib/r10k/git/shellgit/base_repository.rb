@@ -1,7 +1,7 @@
-require 'r10k/git'
+require 'r10k/git/shellgit'
 require 'r10k/logging'
 
-class R10K::Git::BaseRepository
+class R10K::Git::ShellGit::BaseRepository
 
   # @abstract
   # @return [Pathname] The path to the Git directory

@@ -1,9 +1,9 @@
 require 'r10k/git'
-require 'r10k/git/base_repository'
 require 'r10k/git/alternates'
+require 'r10k/git/shellgit/base_repository'
 
 # Manage a non-bare Git repository
-class R10K::Git::WorkingRepository < R10K::Git::BaseRepository
+class R10K::Git::ShellGit::WorkingRepository < R10K::Git::ShellGit::BaseRepository
 
   # @attribute [r] path
   #   @return [Pathname]

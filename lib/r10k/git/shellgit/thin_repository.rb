@@ -1,11 +1,11 @@
-require 'r10k/git'
-require 'r10k/git/working_repository'
+require 'r10k/git/shellgit'
+require 'r10k/git/shellgit/working_repository'
 
 # Manage a Git working repository backed with cached bare repositories. Instead
 # of duplicating all objects for new clones and updates, this uses Git
 # alternate object databases to reuse objects from an existing repository,
 # making new clones very lightweight.
-class R10K::Git::ThinRepository < R10K::Git::WorkingRepository
+class R10K::Git::ShellGit::ThinRepository < R10K::Git::ShellGit::WorkingRepository
 
   def initialize(basedir, dirname)
     super
