@@ -2,13 +2,9 @@ require 'spec_helper'
 require 'r10k/git/thin_repository'
 require 'r10k/git/stateful_repository'
 
-require 'tmpdir'
-
 describe R10K::Git::StatefulRepository do
   include_context 'Git integration'
 
-  let(:remote) { File.join(remote_path, 'puppet-boolean.git') }
-  let(:basedir) { Dir.mktmpdir }
   let(:dirname) { 'working-repo' }
 
   let(:thinrepo) { R10K::Git::ThinRepository.new(basedir, dirname) }
