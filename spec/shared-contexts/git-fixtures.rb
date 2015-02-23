@@ -3,6 +3,20 @@ require 'tmpdir'
 
 shared_context "Git integration" do
 
+  # Use tmpdir for cached git repositories
+
+  before(:all) do
+    @old_cache_root = R10K::Git::Cache.settings[:cache_root]
+    R10K::Git::Cache.settings[:cache_root] = Dir.mktmpdir
+  end
+
+  after(:all) do
+    FileUtils.remove_entry_secure(R10K::Git::Cache.settings[:cache_root])
+    R10K::Git::Cache.settings[:cache_root] = @old_cache_root
+  end
+
+  # Create a mutable path for remote repositories
+
   def fixture_path
     File.join(PROJECT_ROOT, 'spec', 'fixtures', 'integration', 'git')
   end
@@ -27,5 +41,15 @@ shared_context "Git integration" do
   after(:all) do
     clear_remote_path
     @remote_path = nil
+  end
+
+  let(:remote) { File.realpath(File.join(remote_path, 'puppet-boolean.git')) }
+
+  # Create a temp path for the git basedir and clean it up when finished
+
+  let(:basedir) { Dir.mktmpdir }
+
+  after do
+    FileUtils.remove_entry_secure(basedir)
   end
 end
