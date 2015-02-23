@@ -3,6 +3,17 @@ require 'tmpdir'
 
 shared_context "Git integration" do
 
+  before(:all) do
+    @old_cache_root = R10K::Git::Cache.settings[:cache_root]
+    R10K::Git::Cache.settings[:cache_root] = Dir.mktmpdir
+  end
+
+  after(:all) do
+    FileUtils.remove_entry_secure(R10K::Git::Cache.settings[:cache_root])
+    R10K::Git::Cache.settings[:cache_root] = @old_cache_root
+  end
+
+
   def fixture_path
     File.join(PROJECT_ROOT, 'spec', 'fixtures', 'integration', 'git')
   end

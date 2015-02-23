@@ -6,16 +6,6 @@ require 'tmpdir'
 describe R10K::Git::ThinRepository do
   include_context 'Git integration'
 
-  before(:all) do
-    @old_cache_root = R10K::Git::Cache.settings[:cache_root]
-    R10K::Git::Cache.settings[:cache_root] = Dir.mktmpdir
-  end
-
-  after(:all) do
-    FileUtils.remove_entry_secure(R10K::Git::Cache.settings[:cache_root])
-    R10K::Git::Cache.settings[:cache_root] = @old_cache_root
-  end
-
   let(:remote) { File.join(remote_path, 'puppet-boolean.git') }
   let(:basedir) { Dir.mktmpdir }
   let(:dirname) { 'working-repo' }
