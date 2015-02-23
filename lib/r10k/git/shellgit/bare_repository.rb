@@ -1,9 +1,8 @@
-require 'r10k/git'
-require 'r10k/git/base_repository'
-require 'r10k/logging'
+require 'r10k/git/shellgit'
+require 'r10k/git/shellgit/base_repository'
 
 # Create and manage Git bare repositories.
-class R10K::Git::BareRepository < R10K::Git::BaseRepository
+class R10K::Git::ShellGit::BareRepository < R10K::Git::ShellGit::BaseRepository
 
   # @return [Pathname] The path to this Git repository
   def git_dir

@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'r10k/git/working_repository'
+require 'r10k/git/shellgit/working_repository'
 
-describe R10K::Git::WorkingRepository do
+describe R10K::Git::ShellGit::WorkingRepository do
   include_context 'Git integration'
 
   let(:dirname) { 'working-repo' }

@@ -1,6 +1,5 @@
 require 'r10k/git'
-require 'r10k/git/repository'
-require 'r10k/git/bare_repository'
+require 'r10k/git/shellgit/bare_repository'
 
 require 'r10k/settings'
 require 'r10k/instance_cache'
@@ -53,7 +52,7 @@ class R10K::Git::Cache
   # @param [String] cache_root
   def initialize(remote)
     @remote = remote
-    @repo = R10K::Git::BareRepository.new(settings[:cache_root], sanitized_dirname)
+    @repo = R10K::Git::ShellGit::BareRepository.new(settings[:cache_root], sanitized_dirname)
   end
 
   def sync

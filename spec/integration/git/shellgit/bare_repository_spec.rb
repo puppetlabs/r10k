@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'r10k/git/bare_repository'
+require 'r10k/git/shellgit/bare_repository'
 
-describe R10K::Git::BareRepository do
+describe R10K::Git::ShellGit::BareRepository do
   include_context 'Git integration'
 
   let(:dirname) { 'bare-repo.git' }

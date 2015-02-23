@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'r10k/git/thin_repository'
+require 'r10k/git/shellgit/thin_repository'
 require 'r10k/git/stateful_repository'
 
 describe R10K::Git::StatefulRepository do
@@ -7,7 +7,7 @@ describe R10K::Git::StatefulRepository do
 
   let(:dirname) { 'working-repo' }
 
-  let(:thinrepo) { R10K::Git::ThinRepository.new(basedir, dirname) }
+  let(:thinrepo) { R10K::Git::ShellGit::ThinRepository.new(basedir, dirname) }
   let(:cacherepo) { R10K::Git::Cache.generate(remote) }
 
   subject { described_class.new('0.9.x', remote, basedir, dirname) }
