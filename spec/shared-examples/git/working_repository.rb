@@ -57,6 +57,22 @@ RSpec.shared_examples "a git working repository" do
     end
   end
 
+  describe "updating the repo" do
+    let(:tag_090) { subject.git_dir + 'refs' + 'tags' + '0.9.0' }
+    let(:packed_refs) { subject.git_dir + 'packed-refs' }
+
+    before do
+      subject.clone(remote)
+      tag_090.delete if tag_090.exist?
+      packed_refs.delete if packed_refs.exist?
+    end
+
+    it "fetches objects from the remote" do
+      subject.fetch
+      expect(subject.tags).to include('0.9.0')
+    end
+  end
+
   describe "listing branches" do
     before do
       subject.clone(remote)
