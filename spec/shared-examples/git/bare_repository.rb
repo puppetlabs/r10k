@@ -20,20 +20,19 @@ RSpec.shared_examples "a git bare repository" do
   end
 
   describe "updating the repo" do
-    let(:objectdir) { objectdir = File.join(basedir, dirname, 'objects') }
+    let(:tag_090) { subject.git_dir + 'refs' + 'tags' + '0.9.0' }
+    let(:packed_refs) { subject.git_dir + 'packed-refs' }
 
     before do
       subject.clone(remote)
-      # Remove objects to pretend the upstream made changes
-      Dir.glob(File.join(objectdir, '*')).each do |path|
-        FileUtils.rm_rf(path)
-      end
+      tag_090.delete if tag_090.exist?
+      packed_refs.delete if packed_refs.exist?
     end
 
     it "fetches objects from the remote" do
+      expect(subject.tags).to_not include('0.9.0')
       subject.fetch
-      objectfiles = Dir.glob(File.join(objectdir, '*'))
-      expect(objectfiles).to_not be_empty
+      expect(subject.tags).to include('0.9.0')
     end
   end
 
