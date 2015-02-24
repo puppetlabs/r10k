@@ -4,6 +4,7 @@ module R10K
       require 'r10k/git/rugged/bare_repository'
       require 'r10k/git/rugged/working_repository'
       require 'r10k/git/rugged/cache'
+      require 'r10k/git/rugged/thin_repository'
     end
   end
 end
