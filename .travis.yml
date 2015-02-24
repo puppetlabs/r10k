@@ -1,5 +1,6 @@
 ---
 language: ruby
+sudo: false
 bundler_args: "--without system"
 script: "bundle exec rspec --color --format documentation spec/unit"
 notifications:
