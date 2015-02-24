@@ -3,13 +3,21 @@ require 'r10k/git/cache'
 
 describe R10K::Git::Cache do
 
-  subject(:cache) { described_class.new('git://some/git/remote') }
+  let(:subclass) do
+    Class.new(described_class) do
+      def self.bare_repository
+        Class.new { def initialize(*args) end }
+      end
+    end
+  end
+
+  subject { subclass.new('git://some/git/remote') }
 
   describe "updating the cache" do
     it "only updates the cache once" do
-      expect(cache).to receive(:sync!).exactly(1).times
-      cache.sync
-      cache.sync
+      expect(subject).to receive(:sync!).exactly(1).times
+      subject.sync
+      subject.sync
     end
   end
 

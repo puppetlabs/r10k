@@ -1,5 +1,4 @@
 require 'r10k/git'
-require 'r10k/git/shellgit/bare_repository'
 
 require 'r10k/settings'
 require 'r10k/instance_cache'
@@ -7,6 +6,11 @@ require 'forwardable'
 
 # Cache Git repository mirrors for object database reuse.
 #
+# This implements most of the behavior needed for Git repo caching, but needs
+# to have a specific Git bare repository provided. Subclasses should implement
+# the {bare_repository} method.
+#
+# @abstract
 # @see man git-clone(1)
 class R10K::Git::Cache
 
@@ -31,8 +35,11 @@ class R10K::Git::Cache
     instance_cache.generate(remote)
   end
 
+  # @abstract
+  # @return [Object] The concrete bare repository implementation to use for
+  #   interacting with the cached Git repository.
   def self.bare_repository
-    R10K::Git::ShellGit::BareRepository
+    raise NotImplementedError
   end
 
   include R10K::Logging
@@ -53,8 +60,7 @@ class R10K::Git::Cache
   #   @api private
   attr_reader :repo
 
-  # @param [String] remote
-  # @param [String] cache_root
+  # @param remote [String] The URL of the Git remote URL to cache.
   def initialize(remote)
     @remote = remote
     @repo = self.class.bare_repository.new(settings[:cache_root], sanitized_dirname)

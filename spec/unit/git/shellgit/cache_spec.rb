@@ -2,10 +2,11 @@ require 'spec_helper'
 require 'r10k/git/shellgit/cache'
 
 describe R10K::Git::ShellGit::Cache do
-  subject(:cache) { described_class.new('git://some/git/remote') }
+
+  subject { described_class.new('git://some/git/remote') }
 
   it "wraps a ShellGit::BareRepository instance" do
-    expect(cache.repo).to be_a_kind_of R10K::Git::ShellGit::BareRepository
+    expect(subject.repo).to be_a_kind_of R10K::Git::ShellGit::BareRepository
   end
 
   describe "settings" do

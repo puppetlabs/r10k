@@ -1,4 +1,5 @@
 require 'r10k/git/shellgit'
+require 'r10k/git/shellgit/cache'
 require 'r10k/git/shellgit/working_repository'
 
 # Manage a Git working repository backed with cached bare repositories. Instead
@@ -45,7 +46,7 @@ class R10K::Git::ShellGit::ThinRepository < R10K::Git::ShellGit::WorkingReposito
   private
 
   def set_cache(remote)
-    @cache_repo = R10K::Git::Cache.generate(remote)
+    @cache_repo = R10K::Git::ShellGit::Cache.generate(remote)
   end
 
   def setup_cache_remote
