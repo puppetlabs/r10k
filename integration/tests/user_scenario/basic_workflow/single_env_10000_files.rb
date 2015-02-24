@@ -14,7 +14,7 @@ local_files_root_path = ENV['FILES'] || 'files'
 helloworld_module_path = File.join(local_files_root_path, 'modules', 'helloworld')
 
 test_files = 'test_files'
-test_files_path = File.join(git_environments_path, 'test_files')
+test_files_path = File.join(git_environments_path, test_files)
 
 file_bucket_path = '/opt/filebucket'
 file_bucket_command_path = File.join(file_bucket_path, 'filebucketapp.py')
