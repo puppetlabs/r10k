@@ -74,6 +74,12 @@ class R10K::Settings::Container
     end
   end
 
+  # Clear all existing settings in this container. Valid settings are left alone.
+  # @return [void]
+  def reset!
+    @settings = {}
+  end
+
   private
 
   def validate_key!(key)

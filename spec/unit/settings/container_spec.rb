@@ -65,4 +65,21 @@ describe R10K::Settings::Container do
       end
     end
   end
+
+  describe "resetting" do
+    before do
+      subject.add_valid_key :v
+    end
+
+    it "unsets all settings" do
+      subject[:v] = "hi"
+      subject.reset!
+      expect(subject[:v]).to be_nil
+    end
+
+    it "doesn't remove valid values" do
+      subject.reset!
+      expect(subject.valid_key?(:v)).to be_truthy
+    end
+  end
 end
