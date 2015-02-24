@@ -31,6 +31,10 @@ class R10K::Git::Cache
     instance_cache.generate(remote)
   end
 
+  def self.bare_repository
+    R10K::Git::ShellGit::BareRepository
+  end
+
   include R10K::Logging
 
   extend Forwardable
@@ -53,7 +57,7 @@ class R10K::Git::Cache
   # @param [String] cache_root
   def initialize(remote)
     @remote = remote
-    @repo = R10K::Git::ShellGit::BareRepository.new(settings[:cache_root], sanitized_dirname)
+    @repo = self.class.bare_repository.new(settings[:cache_root], sanitized_dirname)
   end
 
   def sync
