@@ -41,5 +41,14 @@ module R10K::Settings::Mixin
     def settings
       @settings ||= R10K::Settings::Container.new(defaults)
     end
+
+    # Allow subclasses to use the settings of the parent class as default values
+    #
+    # @return [void]
+    def inherited(subclass)
+      subclass.instance_eval do
+        @settings = R10K::Settings::Container.new(superclass.settings)
+      end
+    end
   end
 end
