@@ -14,10 +14,11 @@ class R10K::Git::Cache
 
   def_setting_attr :cache_root, File.expand_path(ENV['HOME'] ? '~/.r10k/git': '/root/.r10k/git')
 
-  # Lazily construct an instance cache for R10K::Git::Cache objects
+  @instance_cache = R10K::InstanceCache.new(self)
+
   # @api private
   def self.instance_cache
-    @instance_cache ||= R10K::InstanceCache.new(self)
+    @instance_cache
   end
 
   # Generate a new instance with the given remote or return an existing object
