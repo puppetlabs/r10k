@@ -3,16 +3,13 @@ require 'r10k_utils'
 require 'master_manipulator'
 test_name 'CODEMGMT-63 - C62511 - Attempt to Deploy Environment Containing Invalid Character in Name'
 
-#Note: this is not much of a negative test because it actually works.
-#Waiting on CODEMGMT-65 so that this actually fails.
-
 #Init
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
 invalid_env_name = 'should-not-contain-dashes'
 
 #Verification
-error_message_regex = /WARN\] Environment "#{invalid_env_name}" contained non-word characters/
+error_message_regex = /ERROR\]/
 
 #Teardown
 teardown do
@@ -30,5 +27,7 @@ git_push(master, invalid_env_name, git_environments_path)
 #Tests
 step 'Attempt to Deploy via r10k'
 on(master, 'r10k deploy environment -v') do |result|
-  assert_match(error_message_regex, result.stderr, 'Expected message not found!')
+  expect_failure('Expected to fail due to CODEMGMT-65') do
+    assert_match(error_message_regex, result.stderr, 'Expected message not found!')
+  end
 end
