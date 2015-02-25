@@ -1,4 +1,3 @@
-require 'pry'
 require 'git_utils'
 require 'r10k_utils'
 require 'master_manipulator'
@@ -46,9 +45,6 @@ teardown do
 end
 
 #Setup
-#step 'Checkout "production" Branch'
-#git_on(master, 'checkout production', git_environments_path)
-
 step 'Copy "helloworld" Module to "production" Environment Git Repo'
 scp_to(master, helloworld_module_path, File.join(git_environments_path, "site", 'helloworld'))
 
