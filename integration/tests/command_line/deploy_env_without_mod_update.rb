@@ -1,4 +1,3 @@
-require 'pry'
 require 'git_utils'
 require 'r10k_utils'
 require 'master_manipulator'
@@ -46,9 +45,6 @@ teardown do
 end
 
 #Setup
-#step 'Checkout "production" Branch'
-#git_on(master, 'checkout production', git_environments_path)
-
 step 'Copy "helloworld" Module to "production" Environment Git Repo'
 scp_to(master, helloworld_module_path, File.join(git_environments_path, "site", 'helloworld'))
 
@@ -78,6 +74,5 @@ agents.each do |agent|
   step "Run Puppet Agent"
   on(agent, puppet('agent', '--test'), :acceptable_exit_codes => [0, 1, 2]) do |result|
     assert_no_match(notify_message_regex, result.stderr, 'Unexpected error was detected!')
-#    assert_match(result.stdout, 'Expected message not found!')
   end
 end
