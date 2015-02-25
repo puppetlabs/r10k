@@ -20,7 +20,7 @@ class R10K::Module::MetadataFile
       metadata_file_path.open do |f|
         begin
           metadata = Puppet::ModuleTool::Metadata.new
-          metadata.update(JSON.load(f))
+          metadata.update(JSON.load(f), false)
         rescue JSON::ParserError => e
           exception = R10K::Error.wrap(e, "Could not read metadata.json")
           raise exception

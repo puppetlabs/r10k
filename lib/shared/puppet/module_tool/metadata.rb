@@ -46,11 +46,11 @@ module ModuleTool
     # Merges the current set of metadata with another metadata hash.  This
     # method also handles the validation of module names and versions, in an
     # effort to be proactive about module publishing constraints.
-    def update(data)
+    def update(data, with_dependencies = true)
       process_name(data) if data['name']
       process_version(data) if data['version']
       process_source(data) if data['source']
-      merge_dependencies(data) if data['dependencies']
+      merge_dependencies(data) if with_dependencies && data['dependencies']
 
       @data.merge!(data)
       return self
