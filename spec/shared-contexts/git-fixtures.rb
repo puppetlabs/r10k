@@ -43,7 +43,7 @@ shared_context "Git integration" do
     @remote_path = nil
   end
 
-  let(:remote) { File.realpath(File.join(remote_path, 'puppet-boolean.git')) }
+  let(:remote) { Pathname.new(File.join(remote_path, 'puppet-boolean.git')).realpath.to_s }
 
   # Create a temp path for the git basedir and clean it up when finished
 
