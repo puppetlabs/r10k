@@ -3,8 +3,9 @@ PROJECT_ROOT = File.expand_path('..', File.dirname(__FILE__))
 if ENV['COVERAGE']
   require 'simplecov'
   SimpleCov.start do
+    libdir = File.join(PROJECT_ROOT, 'lib')
     add_filter do |src|
-      !src.filename.match(%r[lib/r10k])
+      !src.filename.match(%r[\A#{libdir}])
     end
 
     %w[Deployment Source Environment Module Git SVN Action Util].each do |group|
