@@ -19,7 +19,7 @@ end
 #Tests
 step 'Attempt to Deploy via r10k'
 on(master, 'r10k deploy environment NONEXISTENTENV -v', :acceptable_exit_codes => [0, 1, 2]) do |result|
-expect_failure('expected to fail due to RK-21') do
-  assert_match(/error/, result.stderr.downcase, 'Expected message not found!')
+  expect_failure('expected to fail due to RK-21') do
+    assert_match(/error/, result.stderr.downcase, 'Expected message not found!')
   end
 end
