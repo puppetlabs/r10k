@@ -1,0 +1,8 @@
+---
+:backends:
+  - yaml
+:hierarchy:
+  - "%{environment}"
+
+:yaml:
+  :datadir: "/etc/puppetlabs/puppet/environments/%{environment}/hiera"
