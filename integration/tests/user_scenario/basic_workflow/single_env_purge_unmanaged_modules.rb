@@ -65,7 +65,7 @@ on(agents, puppet("plugin download --server #{master}"))
 
 agents.each do |agent|
   step 'Run Puppet Agent Against "production" Environment'
-  on(agent, puppet('agent', '--test'), :acceptable_exit_codes => 2) do |result|
+  on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => 2) do |result|
     assert_no_match(/Error:/, result.stderr, 'Unexpected error was detected!')
   end
 
