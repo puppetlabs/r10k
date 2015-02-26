@@ -17,7 +17,7 @@ error_message_regex = /Blah/
 
 #File
 puppet_file = <<-PUPPETFILE
-mod "puppetlabs/apache"
+mod "puppetlabs/xinetd"
 PUPPETFILE
 
 puppet_file_path = File.join(git_environments_path, 'Puppetfile')
@@ -41,6 +41,9 @@ teardown do
 end
 
 #Setup
+step 'Stub Forge on Master'
+stub_forge_on(master)
+
 step 'Checkout "production" Branch'
 git_on(master, 'checkout production', git_environments_path)
 
