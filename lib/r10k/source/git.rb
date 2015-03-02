@@ -56,7 +56,7 @@ class R10K::Source::Git < R10K::Source::Base
     @remote           = options[:remote]
     @invalid_branches = (options[:invalid_branches] || 'correct_and_warn')
 
-    @cache  = R10K::Git::Cache.generate(@remote)
+    @cache  = R10K::Git::ShellGit::Cache.generate(@remote)
   end
 
   # Update the git cache for this git source to get the latest list of environments.

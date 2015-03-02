@@ -8,7 +8,7 @@ describe R10K::Git::ShellGit::ThinRepository do
 
   subject { described_class.new(basedir, dirname) }
 
-  let(:cacherepo) { R10K::Git::Cache.generate(remote) }
+  let(:cacherepo) { R10K::Git::ShellGit::Cache.generate(remote) }
 
   it_behaves_like "a git thin repository"
 end
