@@ -1,11 +1,15 @@
 require 'r10k/module_repository'
 require 'r10k/version'
+require 'r10k/logging'
+require 'r10k/errors'
 
 require 'faraday'
 require 'faraday_middleware/multi_json'
 require 'faraday_middleware'
 
 class R10K::ModuleRepository::Forge
+
+  include R10K::Logging
 
   # @!attribute [r] forge
   #   @return [String] The forge hostname to use for requests
@@ -16,7 +20,11 @@ class R10K::ModuleRepository::Forge
   #   @return [Faraday]
   attr_reader :conn
 
-  def initialize(forge = 'forge.puppetlabs.com')
+  def initialize(forge = 'forgeapi.puppetlabs.com')
+    if forge =~ /forge\.puppetlabs\.com/
+      logger.warn("#{forge} does not support the latest puppet forge API. Please update to \"forge 'https://forgeapi.puppetlabs.com'\"")
+      forge = 'forgeapi.puppetlabs.com'
+    end
     @forge = forge
     @conn  = make_conn
   end
@@ -31,10 +39,16 @@ class R10K::ModuleRepository::Forge
   # @param module_name [String] The fully qualified module name
   # @return [Array<String>] All published versions of the given module
   def versions(module_name)
-    response = @conn.get("/api/v1/releases.json", {'module' => module_name})
-    response.body[module_name].map do |version_info|
-      version_info['version']
+    path = "/v3/modules/#{module_name.tr('/','-')}"
+    response = @conn.get(path)
+
+    if response.status != 200
+      raise R10K::Error.new("Request to Puppet Forge '#{path}' failed. Status: #{response.status}")
     end
+
+    response.body['releases'].map do |version_info|
+      version_info['version']
+    end.reverse
   end
 
   # Query for the newest published version of a module
