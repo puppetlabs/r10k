@@ -10,7 +10,7 @@ env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 local_files_root_path = ENV['FILES'] || 'files'
 helloworld_module_path = File.join(local_files_root_path, 'modules', 'helloworld')
 
-r10k_config_path = '/etc/r10k.yaml'
+r10k_config_path = get_r10k_config_file_path(master)
 r10k_config_bak_path = "#{r10k_config_path}.bak"
 
 #Verification

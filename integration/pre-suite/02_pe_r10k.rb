@@ -1,17 +1,18 @@
 require 'git_utils'
 require 'r10k_utils'
 require 'master_manipulator'
-test_name 'CODEMGMT-21 - C59119 - Install and Configure r10k for Puppet Enterprise'
+test_name 'CODEMGMT-21 - C59119 - Configure r10k for Puppet Enterprise'
 
 #Init
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 prod_env_path = File.join(env_path, 'production')
 
+r10k_config_path = get_r10k_config_file_path(master)
+
 git_repo_path = '/git_repos'
 git_repo_name = 'environments'
 git_control_remote = File.join(git_repo_path, "#{git_repo_name}.git")
 
-step 'Get PE Version'
 pe_major = on(master, 'facter -p pe_major_version').stdout.rstrip
 pe_minor = on(master, 'facter -p pe_minor_version').stdout.rstrip
 pe_version = "#{pe_major}.#{pe_minor}".to_f
@@ -32,9 +33,11 @@ CONF
 step 'Remove Current Puppet "production" Environment'
 on(master, "rm -rf #{prod_env_path}")
 
-step 'Install and Configure r10k'
-on(master, 'gem install r10k')
-create_remote_file(master, '/etc/r10k.yaml', r10k_conf)
+step 'Configure r10k'
+create_remote_file(master, r10k_config_path, r10k_conf)
+on(master, "chmod 644 #{r10k_config_path}")
+#Work-a-round until CODEMGMT-110 is resolved
+on(master, "ln -s #{r10k_config_path} /etc/r10k.yaml")
 
 step 'Deploy "production" Environment via r10k'
 on(master, 'r10k deploy environment -v')
@@ -50,4 +53,4 @@ step 'Restart the Puppet Server Service'
 restart_puppet_server(master)
 
 step 'Run Puppet Agent on All Nodes'
-on(agents, puppet('agent -t'))
+on(agents, puppet('agent', '--test', '--environment production'))
