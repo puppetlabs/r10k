@@ -27,7 +27,7 @@ class R10K::Git::StatefulRepository
   end
 
   def sync
-    @cache.sync
+    @cache.sync if sync?
 
     sha = @cache.resolve(@ref)
 
@@ -61,5 +61,14 @@ class R10K::Git::StatefulRepository
     else
       :insync
     end
+  end
+
+  private
+
+  def sync?
+    return true if !@cache.exist?
+    return true if !(sha = @cache.resolve(@ref))
+    return true if !([:commit, :tag].include? @cache.ref_type(sha))
+    return false
   end
 end
