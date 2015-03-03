@@ -42,7 +42,6 @@ class R10K::Git::StatefulRepository
       @repo.path.rmtree
       @repo.clone(@remote, {:ref => sha})
     when :outdated
-      @repo.fetch
       @repo.checkout(sha)
     end
   end
