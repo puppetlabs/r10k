@@ -3,7 +3,7 @@ require 'r10k/git/rugged'
 class R10K::Git::Rugged::BaseRepository
 
   def resolve(pattern)
-    object = @rugged_repo.rev_parse(pattern)
+    object = with_repo { |repo| repo.rev_parse(pattern) }
     case object
     when NilClass
       nil
@@ -17,11 +17,11 @@ class R10K::Git::Rugged::BaseRepository
   end
 
   def branches
-    @rugged_repo.branches.each_name(:local).to_a
+    with_repo { |repo| repo.branches.each_name(:local).to_a }
   end
 
   def tags
-    @rugged_repo.tags.each_name.to_a
+    with_repo { |repo| repo.tags.each_name.to_a }
   end
 
   # @return [Symbol] The type of the given ref, one of :branch, :tag, :commit, or :unknown
@@ -35,5 +35,13 @@ class R10K::Git::Rugged::BaseRepository
     else
       :unknown
     end
+  end
+
+  private
+
+  def with_repo
+    yield @rugged_repo if @rugged_repo
+  ensure
+    @rugged_repo.close if @rugged_repo
   end
 end

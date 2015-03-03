@@ -27,11 +27,13 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
   # @return [void]
   def clone(remote)
     @rugged_repo = ::Rugged::Repository.init_at(@path.to_s, true)
-    config = @rugged_repo.config
-    config['remote.origin.url']    = remote
-    config['remote.origin.fetch']  = '+refs/*:refs/*'
-    config['remote.origin.mirror'] = 'true'
-    fetch
+    with_repo do |repo|
+      config = repo.config
+      config['remote.origin.url']    = remote
+      config['remote.origin.fetch']  = '+refs/*:refs/*'
+      config['remote.origin.mirror'] = 'true'
+      fetch
+    end
   end
 
   # Fetch refs and objects from the origin remote
@@ -39,7 +41,7 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
   # @return [void]
   def fetch
     refspecs = ['+refs/*:refs/*']
-    @rugged_repo.fetch('origin', refspecs)
+    with_repo { |repo| repo.fetch('origin', refspecs) }
   end
 
   def exist?

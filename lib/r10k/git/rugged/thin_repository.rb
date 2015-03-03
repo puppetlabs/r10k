@@ -29,11 +29,13 @@ class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
     @rugged_repo = ::Rugged::Repository.new(@path.to_s, :alternates => [objectpath])
     alternates << objectpath
 
-    config = @rugged_repo.config
-    config['remote.origin.url']    = remote
-    config['remote.origin.fetch']  = '+refs/heads/*:refs/remotes/origin/*'
-    config['remote.cache.url']     = @cache_repo.git_dir.to_s
-    config['remote.cache.fetch']   = '+refs/heads/*:refs/remotes/cache/*'
+    with_repo do |repo|
+      config = repo.config
+      config['remote.origin.url']    = remote
+      config['remote.origin.fetch']  = '+refs/heads/*:refs/remotes/origin/*'
+      config['remote.cache.url']     = @cache_repo.git_dir.to_s
+      config['remote.cache.fetch']   = '+refs/heads/*:refs/remotes/cache/*'
+    end
 
     if opts[:ref]
       checkout(opts[:ref])
@@ -54,9 +56,7 @@ class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
 
   # @return [String] The cache remote URL
   def cache
-    if @rugged_repo.config
-      @rugged_repo.config['remote.cache.url']
-    end
+    with_repo { |repo| repo.config['remote.cache.url'] }
   end
 
   private

@@ -31,13 +31,17 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   #
   # @return [void]
   def clone(remote, opts = {})
-    @rugged_repo = ::Rugged::Repository.clone_at(remote, @path.to_s, :alternates => opts[:reference])
+    options = {}
+    options.merge!(:alternates => [File.join(opts[:reference], 'objects')]) if opts[:reference]
+    @rugged_repo = ::Rugged::Repository.clone_at(remote, @path.to_s, options)
 
     if opts[:reference]
       alternates << File.join(opts[:reference], 'objects')
     end
 
     if opts[:ref]
+      # todo:  always check out something; since we're fetching a repository we
+      # won't populate the working directory.
       checkout(opts[:ref])
     end
   end
@@ -48,13 +52,16 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   # @return [void]
   def checkout(ref)
     sha = resolve(ref)
-    @rugged_repo.checkout(sha)
-    @rugged_repo.reset(sha, :hard)
+
+    with_repo do |repo|
+      repo.checkout(sha)
+      repo.reset(sha, :hard)
+    end
   end
 
   def fetch(remote = 'origin')
     refspecs = ["+refs/heads/*:refs/remotes/#{remote}/*"]
-    @rugged_repo.fetch(remote, refspecs)
+    with_repo { |repo| repo.fetch(remote, refspecs) }
   end
 
   def exist?
@@ -70,8 +77,6 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   end
 
   def origin
-    if @rugged_repo
-      @rugged_repo.config['remote.origin.url']
-    end
+    with_repo { |repo| repo.config['remote.origin.url'] }
   end
 end
