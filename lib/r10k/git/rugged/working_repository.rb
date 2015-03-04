@@ -31,6 +31,14 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   #
   # @return [void]
   def clone(remote, opts = {})
+
+    # libgit2/rugged doesn't support cloning a repository and providing an
+    # alternate object database, making the handling of :alternates a noop.
+    # Unfortunately this means that this method can't really use alternates
+    # and running the clone will duplicate all objects in the specified
+    # repository. However alternate databases can be handled when an existing
+    # repository is loaded, so loading a cloned repo will correctly use
+    # alternate object database.
     options = {}
     options.merge!(:alternates => [File.join(opts[:reference], 'objects')]) if opts[:reference]
     @_rugged_repo = ::Rugged::Repository.clone_at(remote, @path.to_s, options)
