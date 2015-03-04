@@ -40,8 +40,8 @@ class R10K::Git::Rugged::BaseRepository
   private
 
   def with_repo
-    yield @rugged_repo if @rugged_repo
+    yield @_rugged_repo if @_rugged_repo
   ensure
-    @rugged_repo.close if @rugged_repo
+    @_rugged_repo.close if @_rugged_repo
   end
 end

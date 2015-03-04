@@ -17,7 +17,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   def initialize(basedir, dirname)
     @path = Pathname.new(File.join(basedir, dirname))
     if exist? && git_dir.exist?
-      @rugged_repo = ::Rugged::Repository.new(@path.to_s, :alternates => alternates.to_a)
+      @_rugged_repo = ::Rugged::Repository.new(@path.to_s, :alternates => alternates.to_a)
     end
   end
 
@@ -33,7 +33,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   def clone(remote, opts = {})
     options = {}
     options.merge!(:alternates => [File.join(opts[:reference], 'objects')]) if opts[:reference]
-    @rugged_repo = ::Rugged::Repository.clone_at(remote, @path.to_s, options)
+    @_rugged_repo = ::Rugged::Repository.clone_at(remote, @path.to_s, options)
 
     if opts[:reference]
       alternates << File.join(opts[:reference], 'objects')

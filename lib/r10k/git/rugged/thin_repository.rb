@@ -26,7 +26,7 @@ class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
     objectpath = (@cache_repo.git_dir + 'objects').to_s
 
     ::Rugged::Repository.init_at(@path.to_s, false)
-    @rugged_repo = ::Rugged::Repository.new(@path.to_s, :alternates => [objectpath])
+    @_rugged_repo = ::Rugged::Repository.new(@path.to_s, :alternates => [objectpath])
     alternates << objectpath
 
     with_repo do |repo|

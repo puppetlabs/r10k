@@ -10,7 +10,7 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
     @path = Pathname.new(File.join(basedir, dirname))
 
     if exist?
-      @rugged_repo = ::Rugged::Repository.bare(@path.to_s)
+      @_rugged_repo = ::Rugged::Repository.bare(@path.to_s)
     end
   end
 
@@ -26,7 +26,7 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
   # @param remote [String] The URL of the Git remote to clone.
   # @return [void]
   def clone(remote)
-    @rugged_repo = ::Rugged::Repository.init_at(@path.to_s, true)
+    @_rugged_repo = ::Rugged::Repository.init_at(@path.to_s, true)
     with_repo do |repo|
       config = repo.config
       config['remote.origin.url']    = remote
