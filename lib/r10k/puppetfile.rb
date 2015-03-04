@@ -37,7 +37,7 @@ class Puppetfile
     @puppetfile_path = puppetfile || File.join(basedir, 'Puppetfile')
 
     @modules = []
-    @forge   = 'forge.puppetlabs.com'
+    @forge   = 'forgeapi.puppetlabs.com'
   end
 
   def load

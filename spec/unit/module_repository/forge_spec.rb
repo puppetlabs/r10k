@@ -6,7 +6,12 @@ describe R10K::ModuleRepository::Forge do
 
   it "uses the official forge by default" do
     forge = described_class.new
-    expect(forge.forge).to eq 'forge.puppetlabs.com'
+    expect(forge.forge).to eq 'forgeapi.puppetlabs.com'
+  end
+
+  it "replaces old forge with forgeapi" do
+    forge = described_class.new(forge='forge.puppetlabs.com')
+    expect(forge.forge).to eq 'forgeapi.puppetlabs.com'
   end
 
   it "can use a private forge" do
@@ -27,6 +32,18 @@ describe R10K::ModuleRepository::Forge do
 
     it "can fetch the latest version of a given module" do
       expect(forge.latest_version('adrien/boolean')).to eq "1.0.1"
+    end
+  end
+
+  describe "it handles errors from forgeapi.puppetlabs.com", :vcr => true do
+    subject(:forge) { described_class.new }
+
+    before do
+      forge.conn.builder.insert_before(Faraday::Adapter::NetHttp, VCR::Middleware::Faraday)
+    end
+
+    it "raises an error for a non-existant module" do
+      expect { forge.versions('dne/dne') }.to raise_error(R10K::Error)
     end
   end
 end
