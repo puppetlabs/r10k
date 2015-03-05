@@ -1,5 +1,6 @@
 require 'r10k/feature/collection'
 require 'forwardable'
+require 'r10k/util/commands'
 
 module R10K
   module Features
@@ -11,3 +12,5 @@ module R10K
     end
   end
 end
+
+R10K::Features.add(:shellgit) { R10K::Util::Commands.which('git') }
