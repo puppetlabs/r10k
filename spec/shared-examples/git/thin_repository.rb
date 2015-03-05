@@ -18,7 +18,9 @@ RSpec.shared_examples "a git thin repository" do
     it "adds the cache repo to the alternates file" do
       subject.clone(remote)
       objectpath = cacherepo.git_dir + 'objects'
-      expect(subject.alternates.to_a).to eq [objectpath.realpath.to_s]
+      alternates = subject.alternates.to_a
+      expect(alternates.size).to eq 1
+      expect(alternates[0]).to match_realpath objectpath
     end
   end
 end

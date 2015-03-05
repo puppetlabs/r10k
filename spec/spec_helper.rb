@@ -20,6 +20,7 @@ Dir.glob(File.expand_path('spec/shared-examples/**/*.rb', PROJECT_ROOT)).each { 
 
 require 'shared-contexts/git-fixtures'
 require 'matchers/exit_with'
+require 'matchers/match_realpath'
 require 'r10k-mocks'
 
 

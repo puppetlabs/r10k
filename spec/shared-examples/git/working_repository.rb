@@ -52,7 +52,9 @@ RSpec.shared_examples "a git working repository" do
     describe "with a reference repository" do
       it "adds the reference repository to the alternates directory" do
         subject.clone(remote, {:reference => remote})
-        expect(subject.alternates.to_a).to eq [File.join(remote, 'objects')]
+        alternates = subject.alternates.to_a
+        expect(alternates.size).to eq 1
+        expect(alternates[0]).to match_realpath File.join(remote, 'objects')
       end
     end
   end
