@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'r10k/git/rugged/working_repository'
 
-describe R10K::Git::Rugged::WorkingRepository do
+describe R10K::Git::Rugged::WorkingRepository, :if => R10K::Features.available?(:rugged) do
   include_context 'Git integration'
 
   let(:dirname) { 'working-repo' }

@@ -14,3 +14,5 @@ module R10K
 end
 
 R10K::Features.add(:shellgit) { R10K::Util::Commands.which('git') }
+
+R10K::Features.add(:rugged, :libraries => 'rugged')

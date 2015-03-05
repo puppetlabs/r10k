@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'r10k/git/rugged/bare_repository'
 
-describe R10K::Git::Rugged::BareRepository do
+describe R10K::Git::Rugged::BareRepository, :if => R10K::Features.available?(:rugged) do
   include_context 'Git integration'
 
   let(:dirname) { 'bare-repo.git' }
