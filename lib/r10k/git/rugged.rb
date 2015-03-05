@@ -1,3 +1,10 @@
+require 'r10k/git'
+
+begin
+  require 'rugged'
+rescue LoadError
+end
+
 module R10K
   module Git
     module Rugged

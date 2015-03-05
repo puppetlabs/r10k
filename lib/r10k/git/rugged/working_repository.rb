@@ -1,6 +1,5 @@
 require 'r10k/git/rugged'
 require 'r10k/git/rugged/base_repository'
-require 'rugged'
 
 class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
 
