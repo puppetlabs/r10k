@@ -15,8 +15,12 @@ module R10K
         RbConfig::CONFIG['host_os'] =~ /mswin|win32|dos|mingw|cygwin/i
       end
 
+      def self.java?
+        RbConfig::CONFIG['sitearch'] == 'java'
+      end
+
       def self.posix?
-        !windows?
+        !(windows? || java?)
       end
     end
   end

@@ -6,6 +6,7 @@ notifications:
   email: false
 sudo: false
 rvm:
+  - "jruby-19mode"
   - "2.1.0"
   - "2.0.0"
   - "1.9.3"

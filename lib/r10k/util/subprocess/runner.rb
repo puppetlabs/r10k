@@ -5,6 +5,7 @@ class R10K::Util::Subprocess::Runner
 
   require 'r10k/util/subprocess/runner/windows'
   require 'r10k/util/subprocess/runner/posix'
+  require 'r10k/util/subprocess/runner/childprocess'
 
   # @!attribute [rw] cwd
   #   @return [String] The directory to be used as the cwd when executing
