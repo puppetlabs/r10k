@@ -52,7 +52,9 @@ RSpec.shared_examples "a git working repository" do
     describe "with a reference repository" do
       it "adds the reference repository to the alternates directory" do
         subject.clone(remote, {:reference => remote})
-        expect(subject.alternates.to_a).to eq [File.join(remote, 'objects')]
+        alternates = subject.alternates.to_a
+        expect(alternates.size).to eq 1
+        expect(alternates[0]).to match_realpath File.join(remote, 'objects')
       end
     end
   end
@@ -68,6 +70,23 @@ RSpec.shared_examples "a git working repository" do
     end
 
     it "fetches objects from the remote" do
+      subject.fetch
+      expect(subject.tags).to include('0.9.0')
+    end
+  end
+
+  describe "updating the repo" do
+    let(:tag_090) { subject.git_dir + 'refs' + 'tags' + '0.9.0' }
+    let(:packed_refs) { subject.git_dir + 'packed-refs' }
+
+    before do
+      subject.clone(remote)
+      tag_090.delete if tag_090.exist?
+      packed_refs.delete if packed_refs.exist?
+    end
+
+    it "fetches objects from the remote" do
+      expect(subject.tags).to_not include('0.9.0')
       subject.fetch
       expect(subject.tags).to include('0.9.0')
     end

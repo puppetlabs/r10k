@@ -60,7 +60,7 @@ describe R10K::Git::StatefulRepository do
 
     describe "if the right ref is checked out" do
       it "is insync" do
-        thinrepo.clone(remote, {:ref => 'origin/0.9.x'})
+        thinrepo.clone(remote, {:ref => '0.9.x'})
         expect(subject.status).to eq :insync
       end
     end
