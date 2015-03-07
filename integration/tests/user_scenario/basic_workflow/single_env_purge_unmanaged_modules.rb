@@ -81,7 +81,7 @@ on(master, 'r10k puppetfile purge -v', :acceptable_exit_codes => 1)
 #Agent will fail because r10k will purge the "motd" module
 agents.each do |agent|
   step 'Attempt to Run Puppet Agent'
-  on(agent, puppet('agent', '--test'), :acceptable_exit_codes => 0) do |result|
+  on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => 0) do |result|
     expect_failure('Expected to fail due to CODEMGMT-78') do
       assert_match(error_message_regex, result.stderr, 'Expected error was not detected!')
     end
