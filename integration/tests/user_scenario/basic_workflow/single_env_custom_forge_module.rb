@@ -65,7 +65,7 @@ on(master, 'r10k deploy environment -v -p')
 
 agents.each do |agent|
   step "Run Puppet Agent"
-  on(agent, puppet('agent', '--test'), :acceptable_exit_codes => 2) do |result|
+  on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => 2) do |result|
     assert_no_match(/Error:/, result.stderr, 'Unexpected error was detected!')
     assert_match(notify_message_regex, result.stdout, 'Expected message not found!')
   end

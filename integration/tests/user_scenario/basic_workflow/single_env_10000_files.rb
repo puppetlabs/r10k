@@ -66,7 +66,7 @@ on(master, "cd #{prod_env_test_files_path};md5sum -c #{prod_env_checksum_file_pa
 
 agents.each do |agent|
   step "Run Puppet Agent"
-  on(agent, puppet('agent', '--test'), :acceptable_exit_codes => 2) do |result|
+  on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => 2) do |result|
     assert_no_match(/Error:/, result.stderr, 'Unexpected error was detected!')
     assert_match(notify_message_regex, result.stdout, 'Expected message not found!')
   end
