@@ -7,6 +7,10 @@ module R10K
         @hash = hash
       end
 
+      def configfile
+        "/some/nonexistent/config_file"
+      end
+
       # Perform a scan for key and check for both string and symbol keys
       def setting(key)
         keys = [key]
