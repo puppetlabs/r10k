@@ -36,4 +36,16 @@ describe R10K::Util::SymbolizeKeys do
     described_class.symbolize_keys!(hash)
     expect(hash[key]).to eq 'bar'
   end
+
+  it "can recursively symbolize keys in nested hash values" do
+    hash = {'foo' => {'bar' => 'baz'}}
+    described_class.symbolize_keys!(hash, true)
+    expect(hash).to eq({:foo => {:bar => 'baz'}})
+  end
+
+  it "recurses into hash values that had symbol keys" do
+    hash = {:foo => {'bar' => {'baz' => 'quux'}}}
+    described_class.symbolize_keys!(hash, true)
+    expect(hash).to eq({:foo => {:bar => {:baz => 'quux'}}})
+  end
 end
