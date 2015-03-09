@@ -17,15 +17,19 @@ module R10K
     require 'r10k/git/working_dir'
 
     require 'r10k/git/shellgit'
+    require 'r10k/git/rugged'
 
-    @providers = {:shellgit => R10K::Git::ShellGit}
+    @providers = [
+      [:shellgit, R10K::Git::ShellGit],
+      [:rugged,   R10K::Git::Rugged],
+    ]
 
     def self.default
-      if R10K::Features.available?(:shellgit)
-        @providers[:shellgit]
-      else
-        raise R10K::Error, "No Git providers are functional"
+      _, lib = @providers.find { |(feature, lib)| R10K::Features.available?(feature) }
+      if lib.nil?
+        raise R10K::Error, "No Git providers are functional."
       end
+      lib
     end
 
     def self.provider
