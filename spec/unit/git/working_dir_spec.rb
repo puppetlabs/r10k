@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'r10k/git'
+require 'r10k/git/working_dir'
 
 describe R10K::Git::WorkingDir do
   include_context "fail on execution"
