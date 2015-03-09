@@ -11,6 +11,11 @@ module R10K
       [:rugged,   R10K::Git::Rugged],
     ]
 
+    # Return the first available Git provider.
+    #
+    # @raise [R10K::Error] if no Git providers are functional.
+    # @return [Module] The namespace of the first available Git implementation.
+    #   Implementation classes should be looked up against this returned Module.
     def self.default
       _, lib = @providers.find { |(feature, lib)| R10K::Features.available?(feature) }
       if lib.nil?
@@ -19,8 +24,27 @@ module R10K
       lib
     end
 
+    # Manually set the Git provider by name.
+    #
+    # @param name [Symbol] The name of the Git provider to use.
+    # @raise [R10K::Error] if the requested Git provider doesn't exist.
+    # @raise [R10K::Error] if the requested Git provider isn't functional.
+    # @return [void]
+    def self.provider=(name)
+      _, lib = @providers.find { |(feature, lib)| feature == name }
+      if lib.nil?
+        raise R10K::Error, "No Git provider named '#{name}'."
+      end
+      if !R10K::Features.available?(name)
+        raise R10K::Error, "Git provider '#{name}' is not functional."
+      end
+      @provider = lib
+    end
+
+    # @return [Module] The namespace of the first available Git implementation.
+    #   Implementation classes should be looked up against this returned Module.
     def self.provider
-      @provider = default
+      @provider ||= default
     end
 
     def self.cache
@@ -33,6 +57,13 @@ module R10K
 
     def self.thin_repository
       provider::ThinRepository
+    end
+
+    # Clear the currently set provider.
+    #
+    # @api private
+    def self.reset!
+      @provider = nil
     end
   end
 end
