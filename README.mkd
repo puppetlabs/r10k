@@ -19,7 +19,7 @@ Requirements
 
 R10k supports the following Ruby versions:
 
-  - 1.8.7 (POSIX minimum version)
+  - 1.8.7 (POSIX minimum version, deprecated)
   - 1.9.3 (Windows minimum version)
   - 2.0.0
   - 2.1.0
@@ -31,6 +31,14 @@ environments and modules.
   Puppet 2.7 may work, but is generally not recommended as Puppet 2.7 is EOL.
   - Git is required for creating environments and modules from Git
   - SVN is required for creating environments and modules from SVN
+
+### Ruby 1.8.7 is deprecated
+
+As of r10k 1.5.0, support for Ruby 1.8.7 is deprecated. Because if the
+increasing cost of supporting, issues affecting 1.8.7 will be fixed but will
+have a lower priority.
+
+Support for 1.8.7 will be dropped entirely in r10k 2.0.0.
 
 Installation
 ------------
