@@ -34,9 +34,9 @@ environments and modules.
 
 ### Ruby 1.8.7 is deprecated
 
-As of r10k 1.5.0, support for Ruby 1.8.7 is deprecated. Because if the
-increasing cost of supporting, issues affecting 1.8.7 will be fixed but will
-have a lower priority.
+As of r10k 1.5.0, support for Ruby 1.8.7 is deprecated. Because of the
+increasing cost of supporting Ruby 1.8.7, issues only affecting 1.8.7 will be
+fixed but will have a lower priority.
 
 Support for 1.8.7 will be dropped entirely in r10k 2.0.0.
 
