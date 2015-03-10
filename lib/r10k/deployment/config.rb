@@ -53,15 +53,18 @@ class Config
 
   private
 
+  def with_setting(key, &block)
+    value = setting(key)
+    block.call(value) unless value.nil?
+  end
+
   # Apply global configuration settings.
   def apply_config_settings
-    cachedir = setting(:cachedir)
-    if cachedir
+    with_setting(:cachedir) do |cachedir|
       R10K::Git::Cache.settings[:cache_root] = cachedir
     end
 
-    git_settings = setting(:git)
-    if git_settings
+    with_setting(:git) do |git_settings|
       R10K::Util::SymbolizeKeys.symbolize_keys!(git_settings)
       provider = git_settings[:provider]
       if provider
