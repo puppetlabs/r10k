@@ -10,6 +10,7 @@ prod_env_path = File.join(env_path, 'production')
 git_repo_path = '/git_repos'
 git_repo_name = 'environments'
 git_control_remote = File.join(git_repo_path, "#{git_repo_name}.git")
+git_control_remote_head_path = File.join(git_control_remote, 'HEAD')
 git_environments_path = File.join('/root', git_repo_name)
 
 step 'Get PE Version'
@@ -49,3 +50,7 @@ end
 
 step 'Create "production" Environment on Git'
 init_r10k_source_from_prod(master, git_repo_path, git_repo_name, git_environments_path, 'production')
+
+step 'Change Default Branch to "production" on Git Control Remote'
+create_remote_file(master, git_control_remote_head_path, "ref: refs/heads/production\n")
+on(master, "chmod 644 #{git_control_remote_head_path}")

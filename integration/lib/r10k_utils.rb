@@ -56,8 +56,8 @@ def clean_up_r10k(master, commit_sha, git_repo_path)
   verify_production_environment(master)
 
   step 'Remove Any Modules from the "production" Environment'
-  on(agents, "rm -rf #{prod_env_modules_path}/*")
-  on(agents, "rm -rf #{prod_env_site_path}/*")
+  on(master, "rm -rf #{prod_env_modules_path}/*")
+  on(master, "rm -rf #{prod_env_site_path}/*")
 end
 
 # Create a new r10k Git source that is copied from the current "production" environment.
