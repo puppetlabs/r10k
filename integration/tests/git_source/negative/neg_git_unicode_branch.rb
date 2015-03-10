@@ -28,7 +28,6 @@ git_push(master, unicode_env, git_environments_path)
 #Tests
 step 'Attempt to Deploy via r10k'
 on(master, 'r10k deploy environment -v -t', :acceptable_exit_codes => 0) do |result|
-  binding.pry
   expect_failure('Expected to fail due to RK-29') do
     assert_match(error_message_regex, result.stderr, 'Expected message not found!')
   end
