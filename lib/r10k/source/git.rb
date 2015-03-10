@@ -1,6 +1,5 @@
 require 'r10k/git'
 require 'r10k/environment'
-require 'r10k/util/purgeable'
 
 # This class implements a source for Git environments.
 #
@@ -99,24 +98,8 @@ class R10K::Source::Git < R10K::Source::Base
     envs
   end
 
-  include R10K::Util::Purgeable
-
-  def managed_directory
-    @basedir
-  end
-
-  def current_contents
-    dir = self.managed_directory
-    glob_part = @prefix ? @name.to_s() + '_*' : '*'
-    glob_exp = File.join(dir, glob_part)
-
-    Dir.glob(glob_exp).map do |fname|
-      File.basename fname
-    end
-  end
-
   # List all environments that should exist in the basedir for this source
-  # @note This implements a required method for the Purgeable mixin
+  # @note This is required by {R10K::Util::Basedir}
   # @return [Array<String>]
   def desired_contents
     environments.map {|env| env.dirname }
