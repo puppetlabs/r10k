@@ -28,10 +28,10 @@ module R10K
       end
 
       # @param path [String] The path to the directory to manage
-      # @param sources [Array<R10K::Util::Purgeable>] A list of purgeable objects
+      # @param sources [Array<#desired_contents>] A list of objects that may create filesystem entries
       def initialize(path, sources)
         if sources.is_a? R10K::Deployment
-          raise ArgumentError, "Expected Array<Purgeable>, got R10K::Deployment"
+          raise ArgumentError, "Expected Array<#desired_contents>, got R10K::Deployment"
         end
         @path    = path
         @sources = sources
