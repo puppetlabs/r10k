@@ -16,4 +16,22 @@ describe R10K::Deployment::Config do
       end
     end
   end
+
+  describe "applying global settings" do
+    describe "for the cachedir" do
+      it "sets the git cache root when given" do
+        expect(YAML).to receive(:load_file).with('foo/bar').and_return('cachedir' => 'some/cache')
+        expect(R10K::Git::Cache.settings).to receive(:[]=).with(:cache_root, 'some/cache')
+        described_class.new('foo/bar')
+      end
+    end
+
+    describe "for git" do
+      it "sets the git provider when given" do
+        expect(YAML).to receive(:load_file).with('foo/bar').and_return('git' => {'provider' => 'rugged'})
+        expect(R10K::Git).to receive(:provider=).with(:rugged)
+        described_class.new('foo/bar')
+      end
+    end
+  end
 end

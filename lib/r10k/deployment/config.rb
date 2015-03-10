@@ -1,5 +1,6 @@
 require 'r10k/deployment'
 require 'r10k/deployment/config/loader'
+require 'r10k/util/symbolize_keys'
 require 'yaml'
 
 module R10K
@@ -52,13 +53,20 @@ class Config
 
   private
 
-  # Apply config settings to the relevant classes after a config has been loaded.
-  #
-  # @note this is hack. And gross. And terribad. I am sorry.
+  # Apply global configuration settings.
   def apply_config_settings
     cachedir = setting(:cachedir)
     if cachedir
       R10K::Git::Cache.settings[:cache_root] = cachedir
+    end
+
+    git_settings = setting(:git)
+    if git_settings
+      R10K::Util::SymbolizeKeys.symbolize_keys!(git_settings)
+      provider = git_settings[:provider]
+      if provider
+        R10K::Git.provider = provider.to_sym
+      end
     end
   end
 
