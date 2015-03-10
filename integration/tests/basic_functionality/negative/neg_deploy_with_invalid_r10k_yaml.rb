@@ -8,7 +8,7 @@ env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 git_repo_path = '/git_repos'
 git_control_remote = File.join(git_repo_path, 'environments.git')
 
-r10k_config_path = '/etc/r10k.yaml'
+r10k_config_path = get_r10k_config_file_path(master)
 r10k_config_bak_path = "#{r10k_config_path}.bak"
 
 #In-line files

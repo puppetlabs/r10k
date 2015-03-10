@@ -4,7 +4,7 @@ require 'master_manipulator'
 test_name 'CODEMGMT-84 - C59270 - Attempt to Deploy with Missing r10k Configuration File'
 
 #Init
-r10k_config_path = '/etc/r10k.yaml'
+r10k_config_path = get_r10k_config_file_path(master)
 r10k_config_bak_path = "#{r10k_config_path}.bak"
 
 #Verification

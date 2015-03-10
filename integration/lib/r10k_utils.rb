@@ -1,5 +1,24 @@
 require 'git_utils'
 
+# Retrieve the file path for the "r10k.yaml" configuration file.
+#
+# ==== Attributes
+#
+# * +master+ - The Puppet master on which r10k is installed.
+#
+# ==== Returns
+#
+# +string+ - Absolute file path to "r10k.yaml" config file.
+#
+# ==== Examples
+#
+# get_r10k_config_file_path(master)
+def get_r10k_config_file_path(master)
+  confdir = on(master, puppet('config print confdir')).stdout.rstrip
+
+  return File.join(File.dirname(confdir), 'r10k', 'r10k.yaml')
+end
+
 # Verify that a pristine "production" environment exists on the master.
 # (And only the "production" environment!)
 #

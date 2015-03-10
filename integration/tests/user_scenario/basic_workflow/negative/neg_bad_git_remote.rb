@@ -6,7 +6,7 @@ test_name 'CODEMGMT-42 - C59224 - Attempt to Deploy from Non-existent Git Remote
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 git_control_remote = '/does/not/exist'
 
-r10k_config_path = '/etc/r10k.yaml'
+r10k_config_path = get_r10k_config_file_path(master)
 r10k_config_bak_path = "#{r10k_config_path}.bak"
 
 #In-line files
