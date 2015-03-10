@@ -1,7 +1,6 @@
 require 'r10k/git'
 require 'r10k/environment'
 require 'r10k/util/purgeable'
-require 'r10k/util/core_ext/hash_ext'
 
 # This class implements a source for Git environments.
 #
