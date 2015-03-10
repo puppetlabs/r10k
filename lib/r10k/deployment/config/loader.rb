@@ -1,10 +1,16 @@
+require 'r10k/logging'
 
 module R10K
   class Deployment
     class Config
       class Loader
 
+        include R10K::Logging
+
         attr_reader :loadpath
+
+        DEFAULT_LOCATION = '/etc/puppetlabs/r10k/r10k.yaml'
+        OLD_DEFAULT_LOCATION = '/etc/r10k.yaml'
 
         # Search for a deployment configuration file (r10k.yaml) in
         # /etc/puppetlabs/r10k/r10k.yaml
@@ -17,6 +23,13 @@ module R10K
 
         # @return [String] The path to the first valid configfile
         def search
+
+          # If both default files are present, issue a warning.
+          if (File.file? DEFAULT_LOCATION) && (File.file? OLD_DEFAULT_LOCATION)
+            logger.warn "Both #{DEFAULT_LOCATION} and #{OLD_DEFAULT_LOCATION} configuration files exist."
+            logger.warn "#{DEFAULT_LOCATION} will be used."
+          end
+
           first = @loadpath.find {|filename| File.file? filename}
         end
 
@@ -36,10 +49,10 @@ module R10K
           end
 
           # Add the AIO location for of r10k.yaml
-          @loadpath << '/etc/puppetlabs/r10k/r10k.yaml'
+          @loadpath << DEFAULT_LOCATION
 
-          # Add the old default location.
-          @loadpath << '/etc/r10k.yaml'
+          # Add the old default location last.
+          @loadpath << OLD_DEFAULT_LOCATION
 
           @loadpath
         end
