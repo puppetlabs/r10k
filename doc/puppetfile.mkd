@@ -188,7 +188,7 @@ appropriately secured.
 
 You can define manually managed modules using the `:local` type.
 
-    mod 'my_module', :local
+    mod 'mymodule', :local
 
 ## Environment variables
 
