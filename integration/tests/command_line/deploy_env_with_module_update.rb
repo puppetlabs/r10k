@@ -68,8 +68,8 @@ on(master, 'r10k deploy environment -p -v')
 agents.each do |agent|
   step "Run Puppet Agent"
   on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => 1) do |result|
-  expect_failure('expected to fail due to -p not burning branch/env and reinstalling module')do
-    assert_no_match(notify_message_regex, result.stderr, 'Unexpected error was detected!')
+    expect_failure('expected to fail due to -p not burning branch/env and reinstalling module')do
+      assert_no_match(notify_message_regex, result.stderr, 'Unexpected error was detected!')
     end
   end
 end
