@@ -1,4 +1,3 @@
-require 'pry'
 require 'git_utils'
 require 'r10k_utils'
 require 'master_manipulator'
@@ -70,7 +69,6 @@ agents.each do |agent|
   step "Run Puppet Agent"
   on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => 1) do |result|
   expect_failure('expected to fail due to -p not burning branch/env and reinstalling module')do
-binding.pry
     assert_no_match(notify_message_regex, result.stderr, 'Unexpected error was detected!')
     end
   end

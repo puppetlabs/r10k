@@ -1,4 +1,3 @@
-require 'pry'
 require 'git_utils'
 require 'r10k_utils'
 require 'master_manipulator'
@@ -67,7 +66,6 @@ on(master, 'r10k deploy environment -v')
 agents.each do |agent|
   step "Run Puppet Agent"
   on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => 1) do |result|
-binding.pry
     assert_match(notify_message_regex, result.stderr)
   end
 end
