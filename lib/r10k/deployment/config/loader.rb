@@ -9,13 +9,11 @@ module R10K
 
         attr_reader :loadpath
 
-        DEFAULT_LOCATION = '/etc/puppetlabs/r10k/r10k.yaml'
-        OLD_DEFAULT_LOCATION = '/etc/r10k.yaml'
+        CONFIG_FILE = 'r10k.yaml'
+        DEFAULT_LOCATION = File.join('/etc/puppetlabs/r10k', CONFIG_FILE)
+        OLD_DEFAULT_LOCATION = File.join('/etc', CONFIG_FILE)
 
-        # Search for a deployment configuration file (r10k.yaml) in
-        # /etc/puppetlabs/r10k/r10k.yaml
-        # /etc/r10k.yaml
-        # and current directory
+        # Search for a deployment configuration file (r10k.yaml) in several locations
         def initialize
           @loadpath = []
           populate_loadpath
@@ -37,16 +35,8 @@ module R10K
 
         def populate_loadpath
 
-          # Scan all parent directories for r10k
-          dir_components = Dir.getwd.split(File::SEPARATOR)
-
-          dir_components.each_with_index do |dirname, index|
-            full_path = [''] # Shim case for root directory
-            full_path << dir_components[0...index]
-            full_path << dirname << 'r10k.yaml'
-
-            @loadpath << File.join(full_path)
-          end
+          # Add the current directory for r10k.yaml
+          @loadpath << File.join(Dir.getwd, CONFIG_FILE)
 
           # Add the AIO location for of r10k.yaml
           @loadpath << DEFAULT_LOCATION
