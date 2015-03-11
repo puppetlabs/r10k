@@ -7,6 +7,7 @@ test_name 'CODEMGMT-90 - C62419 - Deploy Environment without Module Update'
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 environment_path = on(master, puppet('config', 'print', 'environmentpath')).stdout.rstrip
 prod_env_path = File.join(environment_path, 'production')
+
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
 motd_module_init_pp_path = File.join(prod_env_path, 'modules/motd/manifests/init.pp')
