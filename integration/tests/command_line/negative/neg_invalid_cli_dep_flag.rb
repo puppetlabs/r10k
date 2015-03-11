@@ -12,7 +12,7 @@ error_message_regex = /deploy: illegal option/
 
 #Teardown
 teardown do
-	  clean_up_r10k(master, last_commit, git_environments_path)
+  clean_up_r10k(master, last_commit, git_environments_path)
 end
 
 #Tests
