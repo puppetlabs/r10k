@@ -1,3 +1,4 @@
+require 'pry'
 require 'git_utils'
 require 'r10k_utils'
 require 'master_manipulator'
@@ -15,6 +16,8 @@ motd_module_init_pp_path = File.join(prod_env_path, 'modules/motd/manifests/init
 motd_path = '/etc/motd'
 motd_contents = 'Hello!'
 motd_contents_regex = /\A#{motd_contents}\z/
+
+notify_message_regex = /.*Error:.*Syntax error at end of file.*init.pp/
 
 #File
 puppet_file = <<-PUPPETFILE
@@ -63,12 +66,8 @@ on(master, 'r10k deploy environment -v')
 
 agents.each do |agent|
   step "Run Puppet Agent"
-  on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => 2) do |result|
-    assert_no_match(/Error:/, result.stderr, 'Unexpected error was detected!')
-  end
-
-  step "Verify MOTD Contents"
-  on(agent, "cat #{motd_path}") do |result|
-    assert_match(motd_contents_regex, result.stdout, 'File content is invalid!')
+  on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => 1) do |result|
+binding.pry
+    assert_match(notify_message_regex, result.stderr)
   end
 end

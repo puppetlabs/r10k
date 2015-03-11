@@ -1,3 +1,4 @@
+require 'pry'
 require 'git_utils'
 require 'r10k_utils'
 require 'master_manipulator'
@@ -18,7 +19,7 @@ motd_path = '/etc/motd'
 motd_contents = 'Hello!'
 motd_contents_regex = /\A#{motd_contents}\z/
 
-notify_message_regex = /Syntax error at end of file at \/etc\/puppetlabs\/puppet\/environments\/production\/modules\/motd\/manifests\/init.pp/
+notify_message_regex = /.*Error:.*Syntax error at end of file at.*init.pp/
 
 #File
 puppet_file = <<-PUPPETFILE
@@ -67,13 +68,10 @@ on(master, 'r10k deploy environment -p -v')
 
 agents.each do |agent|
   step "Run Puppet Agent"
-  on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => 2) do |result|
-  expect_failure('expected to fail due to -p not burning branch/env and reinstalling module')
-    assert_no_match(/notify_message_regex/, /Error:/, 'Unexpected error was detected!')
-  end
-
-  step "Verify MOTD Contents"
-  on(agent, "cat #{motd_path}") do |result|
-    assert_match(motd_contents_regex, result.stdout, 'File content is invalid!')
+  on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => 1) do |result|
+  expect_failure('expected to fail due to -p not burning branch/env and reinstalling module')do
+binding.pry
+    assert_no_match(notify_message_regex, result.stderr, 'Unexpected error was detected!')
+    end
   end
 end
