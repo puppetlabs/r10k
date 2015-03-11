@@ -4,7 +4,6 @@ require 'master_manipulator'
 test_name 'CODEMGMT-90 - C63462 - Specify Invalid Command-line Environment Flag'
 
 #Init
-master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
 
