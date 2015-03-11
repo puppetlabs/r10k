@@ -140,3 +140,23 @@ describe R10K::Deployment, "with environment collisions" do
     }.to raise_error(R10K::R10KError, /Environment collision at .* between s\d:third and s\d:third/)
   end
 end
+
+describe R10K::Deployment, "checking the 'sources' key" do
+
+  {
+    "when missing" => {},
+    "when empty" => {:sources => []},
+  }.each_pair do |desc, config_hash|
+    describe desc do
+
+      let(:config) { R10K::Deployment::MockConfig.new(config_hash) }
+      subject(:deployment) { described_class.new(config) }
+
+      it "raises an error when enumerating sources" do
+        expect {
+          deployment.sources
+        }.to raise_error(R10K::Error, "'sources' key in /some/nonexistent/config_file missing or empty.")
+      end
+    end
+  end
+end
