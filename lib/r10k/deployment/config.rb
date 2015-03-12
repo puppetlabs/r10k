@@ -71,6 +71,14 @@ class Config
       if provider
         R10K::Git.provider = provider.to_sym
       end
+
+      if git_settings[:private_key]
+        R10K::Git.settings[:private_key] = git_settings[:private_key]
+      end
+
+      if git_settings[:username]
+        R10K::Git.settings[:username] = git_settings[:username]
+      end
     end
   end
 

@@ -32,6 +32,18 @@ describe R10K::Deployment::Config do
         expect(R10K::Git).to receive(:provider=).with(:rugged)
         described_class.new('foo/bar')
       end
+
+      it "sets the git ssh username when given" do
+        expect(YAML).to receive(:load_file).with('foo/bar').and_return('git' => {'username' => 'grit'})
+        expect(R10K::Git.settings).to receive(:[]=).with(:username, 'grit')
+        described_class.new('foo/bar')
+      end
+
+      it "sets the git private key when given" do
+        expect(YAML).to receive(:load_file).with('foo/bar').and_return('git' => {'private_key' => '/home/user/.ssh/id_rsa'})
+        expect(R10K::Git.settings).to receive(:[]=).with(:private_key, '/home/user/.ssh/id_rsa')
+        described_class.new('foo/bar')
+      end
     end
   end
 end
