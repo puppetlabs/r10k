@@ -1,6 +1,43 @@
 CHANGELOG
 =========
 
+1.4.2
+-----
+
+2015/03/13
+
+### Announcements
+
+The r10k ticket tracker is moving to the Puppet Labs issue tracker; new issues
+should be filed on the [R10K project](https://tickets.puppetlabs.com/browse/RK).
+The GitHub issue tracker will remain online for the near future but is
+deprecated in favor of JIRA. Issues from the GitHub tracker will be prefixed
+with "GH-"; issues from JIRA will be prefixed with "RK-".
+
+### User notes
+
+(RK-4) Raise meaningful errors on missing sources
+
+If the 'sources' key in r10k.yaml was left unset, was misspelled, or was empty,
+r10k try to blindly iterate through it as a hash and would subsequently raise an
+error. This has been remedied so that if the value is missing or empty an error
+will be raised.
+
+Note that this doesn't handle the case where r10k.yaml is empty or malformed;
+that issue is being tracked as RK-34.
+
+(GH-310, RK-36) `r10k deploy display -p --detail` fails on Ruby 1.8.7
+
+Ruby 1.8.7 does not implement the comparison operator on Symbols, which was
+being used by the display command to ensure that hashes were printed in a
+consistent order. This has been fixed by backporting the Ruby 1.9 Symbol sorting
+to 1.8.7.
+
+### Thanks
+
+Thanks to [Eli Young](https://github.com/elyscape) for reviewing PR 337 and
+providing helpful feedback.
+
 1.4.1
 -----
 
