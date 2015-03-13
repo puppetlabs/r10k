@@ -15,7 +15,7 @@ local_files_root_path = ENV['FILES'] || 'files'
 helloworld_module_path = File.join(local_files_root_path, 'modules', 'helloworld')
 
 #Because of CODEMGMT-64 we can only support 100 branches currently.
-env_names = (0 ... 100).to_a.map!{ |x| x > 0 ? SecureRandom.uuid.gsub(/-/,"") * 4 : 'production'}
+env_names = (0 ... 100).to_a.map!{ |x| x > 0 ? SecureRandom.uuid.gsub(/-/,"") * 3 : 'production'}
 
 #Manifest
 site_pp_path = File.join(git_environments_path, 'manifests', 'site.pp')
