@@ -138,39 +138,6 @@ def git_reset_hard(host, commit_sha, git_repo_path)
   git_on(host, "reset --hard #{commit_sha}", git_repo_path)
 end
 
-# Revert the Puppet environments back to a pristine 'production' branch while deleting all other branches.
-#
-# ==== Attributes
-#
-# * +host+ - One or more hosts to act upon, or a role (String or Symbol) that identifies one or more hosts.
-# * +commit_sha+ - The reset 'production' branch HEAD to this commit SHA.
-# * +git_repo_path+ - The path to the git repository on the target host.
-#
-# ==== Returns
-#
-# +nil+
-#
-# ==== Examples
-#
-# git_revert_environment(master, 'ff81c01c5', '~/git_repo')
-def git_revert_environment(host, commit_sha, git_repo_path)
-  #Reset 'production' branch to know clean state.
-  git_on(host, 'checkout production', git_repo_path)
-  git_reset_hard(host, commit_sha, git_repo_path)
-
-  #Get all branches except for 'production'.
-  local_branches = git_on(host, 'branch | grep -v "production" | xargs', git_repo_path).stdout()
-
-  #Delete all other branches except for 'production' locally and remotely.
-  if local_branches != "\n"
-    git_on(host, "branch -D #{local_branches}", git_repo_path)
-  end
-
-  #Force push changes to remote.
-  git_on(host, 'push origin --mirror --force', git_repo_path)
-  git_on(host, 'push origin --mirror --force', git_repo_path)
-end
-
 # Create a bare Git repository.
 #
 # ==== Attributes
