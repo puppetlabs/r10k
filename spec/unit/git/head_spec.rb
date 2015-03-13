@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'r10k/git'
+require 'r10k/git/head'
 
 describe R10K::Git::Head do
 

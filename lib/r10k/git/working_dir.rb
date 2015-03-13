@@ -2,6 +2,13 @@ require 'forwardable'
 require 'r10k/git'
 require 'r10k/git/cache'
 
+require 'r10k/git/working_dir'
+require 'r10k/git/ref'
+require 'r10k/git/tag'
+require 'r10k/git/head'
+require 'r10k/git/remote_head'
+require 'r10k/git/commit'
+
 # Implements sparse git repositories with shared objects
 #
 # Working directory instances use the git alternatives object store, so that

@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'r10k/git'
+require 'r10k/git/tag'
 
 describe R10K::Git::Tag do
 

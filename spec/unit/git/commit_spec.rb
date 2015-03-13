@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'r10k/git'
+require 'r10k/git/commit'
 
 describe R10K::Git::Commit do
 
