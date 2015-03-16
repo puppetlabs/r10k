@@ -52,6 +52,22 @@ The cachedir setting defaults to `~/.r10k`. If the HOME environment variable is
 unset r10k will assume that r10k is being run with the Puppet [`prerun_command`][prerun_command]
 setting and will set the cachedir default to `/root/.r10k`.
 
+### git
+
+The 'git' setting is a hash that contains Git specific settings.
+
+#### provider
+
+The provider option determines which Git provider should be used.
+
+```yaml
+git:
+  provider: rugged # one of shellgit, rugged
+```
+
+See the [git provider documentation](../git/providers.mkd) for more information
+regarding Git providers.
+
 Deployment options
 ------------------
 
