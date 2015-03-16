@@ -24,10 +24,20 @@ describe R10K::Git do
         described_class.default
       }.to raise_error(R10K::Error, 'No Git providers are functional.')
     end
+
+    it "goes into an error state if an invalid provider was set" do
+      begin
+        described_class.provider = :nope
+      rescue R10K::Error
+      end
+
+      expect {
+        described_class.provider
+      }.to raise_error(R10K::Error, "No Git provider set.")
+    end
   end
 
   describe 'explicitly setting the provider' do
-
     it "raises an error if the provider doesn't exist" do
       expect {
         described_class.provider = :nope
