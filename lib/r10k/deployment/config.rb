@@ -1,6 +1,7 @@
 require 'r10k/deployment'
 require 'r10k/deployment/config/loader'
 require 'r10k/util/symbolize_keys'
+require 'r10k/errors'
 require 'yaml'
 
 module R10K
@@ -73,7 +74,7 @@ class Config
     end
   end
 
-  class ConfigError < StandardError
+  class ConfigError < R10K::Error
   end
 end
 end
