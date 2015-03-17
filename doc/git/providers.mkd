@@ -1,0 +1,53 @@
+Git Providers
+=============
+
+As of 1.5.0, r10k can interact with Git repositories using multiple Git
+providers.
+
+Shellgit
+--------
+
+The shellgit provider is the original Git provider that is based on shelling out
+to the `git` binary. It relies on the standard set of Git userland executables
+in order to work.
+
+The shellgit provider is the default Git provider in order to maintain
+compatibility with existing r10k installations.
+
+### Requirements
+
+The shellgit provider requires that `git` can be found on the `PATH` environment
+variable. This can be done by installing the git package via the system package
+manager.
+
+### SSH Configuration
+
+Because the shellgit provider relies on the `git` command which in turn uses the
+`ssh` binary as the SSH transport layer, configuring access to Git repositories
+over SSH is done by configuring the underlying `ssh` command.
+
+Rugged
+------
+
+The rugged provider is based on the [libgit2](https://github.com/libgit2/libgit2)
+library and the Ruby [rugged gem](https://github.com/libgit2/rugged).
+
+### Requirements
+
+The rugged provider relies on the rugged Ruby gem. The rugged gem requires Ruby
+1.9 or greater, which in turn means that r10k must be run with Ruby 1.9 or
+greater to use this provider.
+
+### SSH Configuration
+
+Using the rugged provider with SSH is not yet implemented; see
+[RK-33](https://tickets.puppetlabs.com/browse/RK-33) for more information.
+
+Configuration
+-------------
+
+R10K will attempt to use the shellgit provider, then fall back to the rugged
+provider, and then hard fail if no Git provider is available.
+
+Manually specifying a Git provider is not yet implemented; see
+[RK-32](https://tickets.puppetlabs.com/browse/RK-32) for more information.
