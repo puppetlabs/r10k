@@ -57,7 +57,7 @@ class R10K::Module::Forge < R10K::Module::Base
 
   # @return [R10K::SemVer] The expected version that the module
   def expected_version
-    if @expected_version == :latest
+    if @expected_version.is_a?(Symbol) && @expected_version == :latest
       set_version_from_forge
     end
     @expected_version
