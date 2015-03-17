@@ -1,6 +1,6 @@
 require 'r10k'
 require 'r10k/keyed_factory'
-require 'r10k/util/core_ext/hash_ext'
+require 'r10k/util/symbolize_keys'
 
 module R10K
   module Source
@@ -21,8 +21,7 @@ module R10K
     end
 
     def self.from_hash(name, hash)
-      hash.extend R10K::Util::CoreExt::HashExt::SymbolizeKeys
-      hash.symbolize_keys!
+      R10K::Util::SymbolizeKeys.symbolize_keys!(hash)
 
       basedir = hash.delete(:basedir)
 

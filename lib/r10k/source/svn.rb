@@ -1,7 +1,6 @@
 require 'r10k/svn'
 require 'r10k/environment'
 require 'r10k/util/purgeable'
-require 'r10k/util/core_ext/hash_ext'
 require 'r10k/util/setopts'
 
 # This class implements a source for SVN environments.

@@ -1,5 +1,5 @@
 require 'r10k/source'
-require 'r10k/util/core_ext/hash_ext'
+require 'r10k/util/symbolize_keys'
 
 module R10K
 class Deployment
@@ -18,9 +18,7 @@ class Source
   # @deprecated
   # @return [R10K::Source::Base]
   def self.vivify(name, attrs)
-
-    attrs.extend R10K::Util::CoreExt::HashExt::SymbolizeKeys
-    attrs.symbolize_keys!
+    R10K::Util::SymbolizeKeys.symbolize_keys!(attrs)
 
     remote  = attrs.delete(:remote)
     basedir = attrs.delete(:basedir)
