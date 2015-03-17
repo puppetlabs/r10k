@@ -7,11 +7,27 @@ deployed.
 Config file location
 --------------------
 
-By default r10k will try to read `/etc/r10k.yaml` for configuration settings.
-You can specify an alternate configuration file by specifying the `--config`
-option, like so:
+### Manual configuration
 
-    r10k deploy -c /srv/puppet/r10k.yaml
+An explicit configuration file location be specified by providing the `--config`
+option to `r10k deploy`, like so:
+
+    r10k deploy --config /srv/puppet/r10k.yaml [...]
+
+### Automatic configuration
+
+If an explicit configuration file is not given, r10k will search the following
+locations for a configuration file.
+
+  * `{current working directory}/r10k.yaml`
+  * `/etc/puppetlabs/r10k/r10k.yaml` (1.5.0 and later)
+  * `/etc/r10k.yaml` (deprecated in 1.5.0)
+
+In 1.5.0 r10k added `/etc/puppetlabs/r10k/r10k.yaml` to the configuration search
+path. The old location, `/etc/r10k.yaml` has been deprecated in favor of the new
+location. If both `/etc/puppetlabs/r10k/r10k.yaml` and `/etc/r10k.yaml` exist
+and explicit configuration file has not been given, r10k will log a warning and
+use `/etc/puppetlabs/r10k/r10.yaml`.
 
 General options
 ---------------
