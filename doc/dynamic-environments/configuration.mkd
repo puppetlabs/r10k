@@ -104,9 +104,11 @@ sources:
     basedir: '/etc/puppet/environments'
 ```
 
-R10k will not check to make sure that different sources collide in a single base
-directory; if you are using multiple sources you are responsible for making sure
-that they do not overwrite each other. See also the prefix setting.
+If two different sources have the same basedir, it's possible for them to create
+two separate environments with the same name and file path. If this occurs r10k
+will treat this as a fatal error and will abort. To avoid this, use prefixing on one
+or both of the sources to make sure that all environment names are unique. See
+also the [prefix](#prefix) setting.
 
 ### prefix
 
