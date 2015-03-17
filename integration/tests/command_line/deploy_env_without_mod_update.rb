@@ -17,7 +17,7 @@ motd_path = '/etc/motd'
 motd_contents = 'Hello!'
 motd_contents_regex = /\A#{motd_contents}\z/
 
-notify_message_regex = /.*Error:.*Syntax error at end of file.*init.pp/
+error_message_regex = /Error:.*Evaluation Error/
 
 #File
 puppet_file = <<-PUPPETFILE
@@ -70,6 +70,6 @@ on(master, 'r10k deploy environment -v')
 agents.each do |agent|
   step "Run Puppet Agent"
   on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => 1) do |result|
-    assert_match(notify_message_regex, result.stderr)
+    assert_match(error_message_regex, result.stderr)
   end
 end

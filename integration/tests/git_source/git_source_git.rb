@@ -3,9 +3,9 @@ require 'r10k_utils'
 require 'master_manipulator'
 test_name 'CODEMGMT-92 - C59235 - Single Git Source Using "GIT" Transport Protocol'
 
-confine(:except, :platform => 'sles')
+confine(:to, :platform => 'el')
 
-if (fact_on(agent, "osfamily") == 'RedHat' and fact_on(agent, "operatingsystemmajrelease").to_i < 6)
+if fact_on(master, "operatingsystemmajrelease").to_i < 6
   skip_test('This version of EL is not supported by this test case!')
 end
 
@@ -20,7 +20,7 @@ last_commit = git_last_commit(master, git_environments_path)
 local_files_root_path = ENV['FILES'] || 'files'
 helloworld_module_path = File.join(local_files_root_path, 'modules', 'helloworld')
 
-r10k_config_path = '/etc/r10k.yaml'
+r10k_config_path = get_r10k_config_file_path(master)
 r10k_config_bak_path = "#{r10k_config_path}.bak"
 
 #Manifest
@@ -69,8 +69,8 @@ teardown do
   on(master, "mv #{r10k_config_bak_path} #{r10k_config_path}")
 
   step 'Stop "xinetd" Service'
-  on(agent, puppet('apply'), :stdin => git_daemon_xinetd_disable_manifest)
-  on(agent, puppet('resource', 'service', 'xinetd', 'ensure=stopped'))
+  on(master, puppet('apply'), :stdin => git_daemon_xinetd_disable_manifest)
+  on(master, puppet('resource', 'service', 'xinetd', 'ensure=stopped'))
 
   clean_up_r10k(master, last_commit, git_environments_path)
 
@@ -92,7 +92,7 @@ step 'Install "puppetlabs-xinetd" Module'
 on(master, puppet('module install puppetlabs-xinetd'))
 
 step 'Install and Configure "git-daemon" service'
-on(agent, puppet('apply'), :stdin => git_daemon_xinetd_enable_manifest)
+on(master, puppet('apply'), :stdin => git_daemon_xinetd_enable_manifest)
 
 step 'Checkout "production" Branch'
 git_on(master, 'checkout production', git_environments_path)

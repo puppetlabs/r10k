@@ -12,7 +12,7 @@ unauthorized_rsa_key = OpenSSL::PKey::RSA.new(2048)
 ssh_private_key_path = '/root/.ssh/unauthorized_key'
 ssh_config_path = '/root/.ssh/config'
 
-r10k_config_path = '/etc/r10k.yaml'
+r10k_config_path = get_r10k_config_file_path(master)
 r10k_config_bak_path = "#{r10k_config_path}.bak"
 
 #In-line files

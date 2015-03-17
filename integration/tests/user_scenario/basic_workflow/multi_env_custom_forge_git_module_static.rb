@@ -20,7 +20,7 @@ motd_path = '/etc/motd'
 motd_contents = 'Hello!'
 motd_contents_regex = /\A#{motd_contents}\z/
 
-stdlib_notify_message_regex = /The test message is: {"one"=>"1", "two"=>"bats", "three"=>"3"}/
+stdlib_notify_message_regex = /The test message is: .*one.*=>.*1,.*two.*=>.*bats,.*three.*=>.*3.*/
 
 #File
 puppet_file = <<-PUPPETFILE
