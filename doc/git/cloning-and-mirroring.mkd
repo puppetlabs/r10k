@@ -1,0 +1,60 @@
+Git Cloning and Mirroring
+=========================
+
+Most Git operations on a repository require having a full clone of that
+repository locally available. Because this clone is a full copy, the initial
+clone is heavyweight and generally time consuming. For a situation like r10k
+where the same repositories are reused often, constantly cloning and deleting
+repositories is very inefficient.
+
+In order to speed up Git operations r10k takes a number of steps to avoid
+cloning and fetching repositories, as well as deduplicating content across
+multiple clones of the same repositories.
+
+Because r10k tends to reuse the same Git repositories in multiple places, r10k
+avoids repeated, full repository clones by mirroring repositories. When r10k
+starts using a new repository, it first clones that repository into a central
+location for later use. This initial clone is the only time that r10k will
+perform a full clone of that repository.
+
+When r10k creates an actual checkout of a Git repository, it uses the
+corresponding mirrored repository as a [reference](#git-alternates). This allows
+the working checkout to borrow objects from the mirrored repository instead of
+cloning all of the Git objects again. This saves a great deal of time and space
+as the number of copies of a repository increases.
+
+Mirrored git repositories are cloned into the directory specified by the
+r10k.yaml 'cachedir' setting.
+
+The name 'cachedir' is a bit of a misnomer; Git repositories are mirrored to
+speed up access to the remote resource like a cache, but unlike a traditional
+cache the mirrored repositories are persistent and should not be deleted.
+
+Because the mirrored repository contains all of the objects for all of the
+referencing repositories, deleting the mirrored repository is akin to deleting
+the `.git/objects` directory. Doing so effectively cripples the repository, so
+removing mirrored repositories should be done with care to avoid deleting
+repositories that are still in use.
+
+Git alternates
+--------------
+
+A standard git repository stores all content in the `.git/objects` directory,
+either as a zlib compressed file in `.git/objects/[0-9a-f]{2}/[0-9a-f]{38}` or
+as part of a packfile in `.git/objects/pack`. Since content can be both stored
+in and retrieved from this location it's treated like a simple database, and is
+generally referred to as the Git object database.
+
+Git allows a single repository to look in more than just `.git/objects` for
+objects; additional object databases are referred to as **alternates**. If a
+repository has alternate object databases set up, it will check `.git/objects`
+and then each alternate object database when looking for an object. Git stores a
+list of alternate object databases in `.git/objects/info/alternates`. Invoking
+`git clone` with the `--reference <repo>` flag will use that repository as an
+alternate object database.
+
+Links
+-----
+
+  * [man git-clone(1) --reference](https://www.kernel.org/pub/software/scm/git/docs/git-clone.html)
+  * [man gitrepository-layout(5) objects/info/alternates](https://www.kernel.org/pub/software/scm/git/docs/gitrepository-layout.html)
