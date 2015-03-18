@@ -77,10 +77,9 @@ class R10K::Source::SVN < R10K::Source::Base
   # @return [Array<R10K::Environment::SVN>] An array of environments created
   #   from this source.
   def generate_environments
-
-    branch_names.map do |branch|
+    names_and_paths.map do |(branch, path)|
       options = {
-        :remote   => branch.remote,
+        :remote   => path,
         :username => @username,
         :password => @password
       }
@@ -99,17 +98,15 @@ class R10K::Source::SVN < R10K::Source::Base
 
   private
 
-  def branch_names
+  # @return [Array<Array<BranchName, String>>] A list of branch names and their respective SVN paths
+  def names_and_paths
     branches = []
 
-    branch_opts = {
-      :prefix     => @prefix,
-      :sourcename => @name,
-    }
+    branch_opts = {:prefix => @prefix, :sourcename => @name}
 
-    branches << BranchName.new('production', "#{@remote}/trunk", branch_opts)
+    branches << [BranchName.new('production', branch_opts), "#{@remote}/trunk"]
     @svn_remote.branches.each do |branch|
-      branches << BranchName.new(branch, "#{@remote}/branches/#{branch}", branch_opts)
+      branches << [BranchName.new(branch, branch_opts), "#{@remote}/branches/#{branch}"]
     end
 
     branches
@@ -120,11 +117,9 @@ class R10K::Source::SVN < R10K::Source::Base
   class BranchName
 
     attr_reader :name
-    attr_reader :remote
 
-    def initialize(name, remote, opts)
+    def initialize(name, opts)
       @name   = name
-      @remote = remote
       @opts   = opts
 
       @prefix = opts[:prefix]
