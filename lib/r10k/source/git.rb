@@ -1,5 +1,6 @@
 require 'r10k/git'
 require 'r10k/environment'
+require 'r10k/environment/name'
 
 # This class implements a source for Git environments.
 #
@@ -108,70 +109,9 @@ class R10K::Source::Git < R10K::Source::Base
   private
 
   def branch_names
+    opts = {:prefix => @prefix, :invalid => @invalid_branches, :source => @name}
     @cache.branches.map do |branch|
-      BranchName.new(branch, {
-        :prefix     => @prefix,
-        :sourcename => @name,
-        :invalid    => @invalid_branches,
-      })
+      R10K::Environment::Name.new(branch, opts)
     end
-  end
-
-  # @api private
-  class BranchName
-
-    attr_reader :name
-
-    INVALID_CHARACTERS = %r[\W]
-
-    def initialize(name, opts)
-      @name = name
-      @opts = opts
-
-      @prefix = opts[:prefix]
-      @sourcename = opts[:sourcename]
-      @invalid = opts[:invalid]
-
-      case @invalid
-      when 'correct_and_warn'
-        @validate = true
-        @correct  = true
-      when 'correct'
-        @validate = false
-        @correct  = true
-      when 'error'
-        @validate = true
-        @correct  = false
-      when NilClass
-        @validate = opts[:validate]
-        @correct = opts[:correct]
-      end
-    end
-
-    def correct?; @correct end
-    def validate?; @validate end
-
-    def valid?
-      if @validate
-        ! @name.match(INVALID_CHARACTERS)
-      else
-        true
-      end
-    end
-
-    def dirname
-      dir = @name.dup
-
-      if @prefix
-        dir = "#{@sourcename}_#{dir}"
-      end
-
-      if @correct
-        dir.gsub!(INVALID_CHARACTERS, '_')
-      end
-
-      dir
-    end
-
   end
 end

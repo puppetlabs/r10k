@@ -1,5 +1,6 @@
 require 'r10k/svn'
 require 'r10k/environment'
+require 'r10k/environment/name'
 require 'r10k/util/setopts'
 
 # This class implements a source for SVN environments.
@@ -98,42 +99,16 @@ class R10K::Source::SVN < R10K::Source::Base
 
   private
 
-  # @return [Array<Array<BranchName, String>>] A list of branch names and their respective SVN paths
   def names_and_paths
     branches = []
 
-    branch_opts = {:prefix => @prefix, :sourcename => @name}
+    opts = {:prefix => @prefix, :correct => false, :validate => false, :source => @name}
 
-    branches << [BranchName.new('production', branch_opts), "#{@remote}/trunk"]
+    branches << [R10K::Environment::Name.new('production', opts), "#{@remote}/trunk"]
     @svn_remote.branches.each do |branch|
-      branches << [BranchName.new(branch, branch_opts), "#{@remote}/branches/#{branch}"]
+      branches << [R10K::Environment::Name.new(branch, opts), "#{@remote}/branches/#{branch}"]
     end
 
     branches
-  end
-
-  # @api private
-  # @todo respect environment name corrections
-  class BranchName
-
-    attr_reader :name
-
-    def initialize(name, opts)
-      @name   = name
-      @opts   = opts
-
-      @prefix = opts[:prefix]
-      @sourcename = opts[:sourcename]
-    end
-
-    def dirname
-      dir = @name.dup
-
-      if @prefix
-        dir = "#{@sourcename}_#{dir}"
-      end
-
-      dir
-    end
   end
 end
