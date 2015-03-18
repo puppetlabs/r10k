@@ -1,6 +1,5 @@
 require 'r10k/svn'
 require 'r10k/environment'
-require 'r10k/util/purgeable'
 require 'r10k/util/setopts'
 
 # This class implements a source for SVN environments.
@@ -89,20 +88,8 @@ class R10K::Source::SVN < R10K::Source::Base
     end
   end
 
-  include R10K::Util::Purgeable
-
-  def managed_directory
-    @basedir
-  end
-
-  def current_contents
-    Dir.glob(File.join(@basedir, '*')).map do |fname|
-      File.basename fname
-    end
-  end
-
   # List all environments that should exist in the basedir for this source
-  # @note This implements a required method for the Purgeable mixin
+  # @note This is required by {R10K::Util::Basedir}
   # @return [Array<String>]
   def desired_contents
     @environments.map {|env| env.dirname }
