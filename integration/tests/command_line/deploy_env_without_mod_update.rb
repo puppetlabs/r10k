@@ -17,7 +17,7 @@ motd_path = '/etc/motd'
 motd_contents = 'Hello!'
 motd_contents_regex = /\A#{motd_contents}\z/
 
-error_message_regex = /Error:.*Evaluation Error/
+error_message_regex = /Error:/
 
 #File
 puppet_file = <<-PUPPETFILE

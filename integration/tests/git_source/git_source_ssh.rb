@@ -48,12 +48,12 @@ teardown do
 end
 
 #Setup
+step 'Backup Current "r10k" Config'
+on(master, "mv #{r10k_config_path} #{r10k_config_bak_path}")
+
 if File.file?(jenkins_key_path) == false
   skip_test('Skipping test because necessary SSH key is not present!')
 end
-
-step 'Backup Current "r10k" Config'
-on(master, "mv #{r10k_config_path} #{r10k_config_bak_path}")
 
 step 'Update the "r10k" Config'
 create_remote_file(master, r10k_config_path, r10k_conf)
