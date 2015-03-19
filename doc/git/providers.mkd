@@ -49,5 +49,13 @@ Configuration
 R10K will attempt to use the shellgit provider, then fall back to the rugged
 provider, and then hard fail if no Git provider is available.
 
-Manually specifying a Git provider is not yet implemented; see
-[RK-32](https://tickets.puppetlabs.com/browse/RK-32) for more information.
+The Git provider in use can be manually specified by specifying the desired
+provider in r10k.yaml.
+
+```yaml
+git:
+  provider: 'rugged'
+```
+
+Valid values are 'rugged' and 'shellgit'. If an invalid value is used r10k will
+raise an error.
