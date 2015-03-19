@@ -18,7 +18,7 @@ motd_path = '/etc/motd'
 motd_contents = 'Hello!'
 motd_contents_regex = /\A#{motd_contents}\z/
 
-notify_message_regex = /.*Error:.*Syntax error at end of file at.*init.pp/
+notify_message_regex = /Error:/
 
 #File
 puppet_file = <<-PUPPETFILE
@@ -46,6 +46,9 @@ teardown do
 end
 
 #Setup
+step 'Stub Forge on Master'
+stub_forge_on(master)
+
 step 'Inject New "site.pp" to the "production" Environment'
 inject_site_pp(master, site_pp_path, site_pp)
 
@@ -68,7 +71,7 @@ on(master, 'r10k deploy environment -p -v')
 agents.each do |agent|
   step "Run Puppet Agent"
   on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => 1) do |result|
-    expect_failure('expected to fail due to -p not burning branch/env and reinstalling module')do
+    expect_failure('Expected to fail because of RK-58') do
       assert_no_match(notify_message_regex, result.stderr, 'Unexpected error was detected!')
     end
   end

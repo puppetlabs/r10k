@@ -40,6 +40,9 @@ file { '#{git_repo_path}':
 MANIFEST
 
 #Setup
+step 'Stub Forge on Master'
+stub_forge_on(master)
+
 step 'Install "git" Module'
 on(master, puppet('module install puppetlabs-git --modulepath /opt/puppet/share/puppet/modules'))
 

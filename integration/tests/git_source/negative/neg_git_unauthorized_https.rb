@@ -7,7 +7,7 @@ test_name 'CODEMGMT-101 - C59236 - Attempt to Deploy Environment with Unauthoriz
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 git_control_remote = 'https://bad:user@github.com/puppetlabs/codemgmt-92.git'
 
-r10k_config_path = '/etc/r10k.yaml'
+r10k_config_path = get_r10k_config_file_path(master)
 r10k_config_bak_path = "#{r10k_config_path}.bak"
 
 #In-line files
@@ -19,7 +19,7 @@ sources:
 CONF
 
 #Verification
-error_message_regex = /ERROR\].*403 Forbidden/m
+error_message_regex = /ERROR\]/m
 
 #Teardown
 teardown do

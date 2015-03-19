@@ -20,7 +20,7 @@ motd_path = '/etc/motd'
 motd_contents = 'Hello!'
 motd_contents_regex = /\A#{motd_contents}\z/
 
-stdlib_notify_message_regex = /The test message is: {"one"=>"1", "two"=>"bats", "three"=>"3"}/
+stdlib_notify_message_regex = /The test message is:.*one.*=>.*1.*two.*=>.*bats.*three.*=>.*3.*/
 
 #File
 puppet_file = <<-PUPPETFILE
@@ -61,6 +61,9 @@ teardown do
 end
 
 #Setup
+step 'Stub Forge on Master'
+stub_forge_on(master)
+
 env_names.each do |env|
   if env == 'production'
     step "Checkout \"#{env}\" Branch"
