@@ -64,6 +64,9 @@ teardown do
 end
 
 #Setup
+step 'Stub Forge on Master'
+stub_forge_on(master)
+
 initial_env_names.each do |env|
   if env == 'production'
     step "Checkout \"#{env}\" Branch"

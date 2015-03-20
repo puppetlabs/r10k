@@ -18,7 +18,7 @@ motd_path = '/etc/motd'
 motd_contents = 'Hello!'
 motd_contents_regex = /\A#{motd_contents}\z/
 
-stdlib_notify_message_regex = /The test message is: {"one"=>"1", "two"=>"bats", "three"=>"3"}/
+stdlib_notify_message_regex = /The test message is:.*one.*=>.*1.*two.*=>.*bats.*three.*=>.*3.*/
 
 #Manifest
 prod_env_manifest = <<-MANIFEST
@@ -96,6 +96,9 @@ teardown do
 end
 
 #Setup
+step 'Stub Forge on Master'
+stub_forge_on(master)
+
 step 'Backup Current "r10k" Config'
 on(master, "mv #{r10k_config_path} #{r10k_config_bak_path}")
 

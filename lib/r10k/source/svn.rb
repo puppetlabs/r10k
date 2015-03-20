@@ -1,5 +1,6 @@
 require 'r10k/svn'
 require 'r10k/environment'
+require 'r10k/environment/name'
 require 'r10k/util/setopts'
 
 # This class implements a source for SVN environments.
@@ -77,10 +78,9 @@ class R10K::Source::SVN < R10K::Source::Base
   # @return [Array<R10K::Environment::SVN>] An array of environments created
   #   from this source.
   def generate_environments
-
-    branch_names.map do |branch|
+    names_and_paths.map do |(branch, path)|
       options = {
-        :remote   => branch.remote,
+        :remote   => path,
         :username => @username,
         :password => @password
       }
@@ -99,46 +99,16 @@ class R10K::Source::SVN < R10K::Source::Base
 
   private
 
-  def branch_names
+  def names_and_paths
     branches = []
 
-    branch_opts = {
-      :prefix     => @prefix,
-      :sourcename => @name,
-    }
+    opts = {:prefix => @prefix, :correct => false, :validate => false, :source => @name}
 
-    branches << BranchName.new('production', "#{@remote}/trunk", branch_opts)
+    branches << [R10K::Environment::Name.new('production', opts), "#{@remote}/trunk"]
     @svn_remote.branches.each do |branch|
-      branches << BranchName.new(branch, "#{@remote}/branches/#{branch}", branch_opts)
+      branches << [R10K::Environment::Name.new(branch, opts), "#{@remote}/branches/#{branch}"]
     end
 
     branches
-  end
-
-  # @api private
-  # @todo respect environment name corrections
-  class BranchName
-
-    attr_reader :name
-    attr_reader :remote
-
-    def initialize(name, remote, opts)
-      @name   = name
-      @remote = remote
-      @opts   = opts
-
-      @prefix = opts[:prefix]
-      @sourcename = opts[:sourcename]
-    end
-
-    def dirname
-      dir = @name.dup
-
-      if @prefix
-        dir = "#{@sourcename}_#{dir}"
-      end
-
-      dir
-    end
   end
 end

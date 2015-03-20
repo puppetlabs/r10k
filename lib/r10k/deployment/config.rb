@@ -1,5 +1,7 @@
 require 'r10k/deployment'
 require 'r10k/deployment/config/loader'
+require 'r10k/util/symbolize_keys'
+require 'r10k/errors'
 require 'yaml'
 
 module R10K
@@ -52,17 +54,27 @@ class Config
 
   private
 
-  # Apply config settings to the relevant classes after a config has been loaded.
-  #
-  # @note this is hack. And gross. And terribad. I am sorry.
+  def with_setting(key, &block)
+    value = setting(key)
+    block.call(value) unless value.nil?
+  end
+
+  # Apply global configuration settings.
   def apply_config_settings
-    cachedir = setting(:cachedir)
-    if cachedir
+    with_setting(:cachedir) do |cachedir|
       R10K::Git::Cache.settings[:cache_root] = cachedir
+    end
+
+    with_setting(:git) do |git_settings|
+      R10K::Util::SymbolizeKeys.symbolize_keys!(git_settings)
+      provider = git_settings[:provider]
+      if provider
+        R10K::Git.provider = provider.to_sym
+      end
     end
   end
 
-  class ConfigError < StandardError
+  class ConfigError < R10K::Error
   end
 end
 end

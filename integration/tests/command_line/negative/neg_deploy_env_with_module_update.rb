@@ -18,7 +18,7 @@ motd_path = '/etc/motd'
 motd_contents = 'Hello!'
 motd_contents_regex = /\A#{motd_contents}\z/
 
-notify_message_regex = /.*Error:*init.pp/
+notify_message_regex = /Error:/
 
 #File
 puppet_file = <<-PUPPETFILE
@@ -46,6 +46,9 @@ teardown do
 end
 
 #Setup
+step 'Stub Forge on Master'
+stub_forge_on(master)
+
 step 'Inject New "site.pp" to the "production" Environment'
 inject_site_pp(master, site_pp_path, site_pp)
 

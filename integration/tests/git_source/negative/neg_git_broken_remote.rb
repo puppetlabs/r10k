@@ -30,7 +30,7 @@ on(master, "chmod 644 #{prod_branch_head_ref_path}")
 
 #Tests
 step 'Attempt to Deploy via r10k'
-on(master, 'r10k deploy environment -v -t', :acceptable_exit_codes => 1) do |result|
+on(master, 'r10k deploy environment -v -t', :acceptable_exit_codes => [0,1]) do |result|
   expect_failure('Expected to fail due to RK-28') do
     assert_match(error_message_regex, result.stderr, 'Expected message not found!')
   end
