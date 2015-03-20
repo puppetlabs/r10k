@@ -1,5 +1,6 @@
 require 'r10k/git'
 
+# :nocov:
 # @api private
 class R10K::Git::RemoteHead < R10K::Git::Head
 
@@ -11,3 +12,4 @@ class R10K::Git::RemoteHead < R10K::Git::Head
     end
   end
 end
+# :nocov:

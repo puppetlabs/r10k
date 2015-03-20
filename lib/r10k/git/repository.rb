@@ -2,6 +2,7 @@ require 'r10k/git'
 require 'r10k/util/subprocess'
 
 # Define an abstract base class for git repositories.
+# :nocov:
 class R10K::Git::Repository
 
   # @!attribute [r] remote
@@ -150,3 +151,4 @@ class R10K::Git::Repository
     result
   end
 end
+# :nocov:

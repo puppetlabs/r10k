@@ -14,6 +14,8 @@ require 'r10k/git/commit'
 # Working directory instances use the git alternatives object store, so that
 # working directories only contain checked out files and all object files are
 # shared.
+#
+# :nocov:
 class R10K::Git::WorkingDir < R10K::Git::Repository
 
   include R10K::Logging
@@ -178,3 +180,4 @@ class R10K::Git::WorkingDir < R10K::Git::Repository
     end
   end
 end
+# :nocov:
