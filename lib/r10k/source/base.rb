@@ -12,8 +12,8 @@ class R10K::Source::Base
   attr_reader :name
 
   # @!attribute [r] prefix
-  #   @return [true, false] Whether the source name should be prefixed to each
-  #     environment basedir. Defaults to false
+  #   @return [String, nil] The prefix for the environments basedir.
+  #     Defaults to nil.
   attr_reader :prefix
 
   # Initialize the given source.
@@ -23,9 +23,9 @@ class R10K::Source::Base
   # @param options [Hash] An additional set of options for this source. The
   #   semantics of this hash may depend on the source implementation.
   #
-  # @option options [Boolean] :prefix Whether to prefix the source name to the
-  #   environment directory names. All sources should respect this option.
-  #   Defaults to false.
+  # @option options [Boolean, String] :prefix If a String this becomes the prefix.
+  #   If true, will use the source name as the prefix. All sources should respect this option.
+  #   Defaults to false for no environment prefix.
   def initialize(name, basedir, options = {})
     @name    = name
     @basedir = basedir

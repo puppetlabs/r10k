@@ -116,7 +116,7 @@ from. It may be any valid URL that the source may check out or clone. The remote
 must be able to be fetched without any interactive input, eg usernames or
 passwords cannot be prompted for in order to fetch the remote.
 
-```
+```yaml
 ---
 sources:
   mysource:
@@ -155,6 +155,10 @@ sources:
     basedir: '/etc/puppet/environments'
     prefix: true # All environments will be prefixed with "mysource_"
 ```
+#### prefix behaviour
+* if `true` environment folder will be prefixed with the name of the source.
+* if `false` (default) environment folder will not be prefixed
+* if `String` environment folder will be prefixed with the `prefix` value.
 
 Examples
 --------
@@ -224,3 +228,34 @@ This will create the following directory structure:
 `-- dev_loadtest     # dev repository, loadtest branch
 ```
 
+#### Multiple tenancy with external hieradata
+
+If hiera data is in a separate repository from your control repository, you
+must override the `prefix` so environment folders line up in both directories:
+
+```yaml
+---
+  sources:
+    main:
+      app1_data:
+        remote: 'git://git-server.site/my-org/app1-hieradata'
+        basedir: '/etc/puppet/hieradata'
+        prefix: "app1"
+      app1_modules:
+        remote: 'git://git-server.site/my-org/app1-puppet-modules'
+        basedir: '/etc/puppet/environments'
+        prefix: "app1"
+```
+
+
+This will create the following directory structure:
+
+```
+/etc/puppet/environments
+|-- app1_production  # app1 modules repository, production branch
+|-- app1_develop     # app1 modules repository, develop branch
+
+/etc/puppet/hieradata
+|-- app1_production  # app1 data repository, production branch
+|-- app1_develop     # app1 data repository, develop branch
+```

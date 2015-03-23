@@ -42,8 +42,9 @@ class R10K::Source::Git < R10K::Source::Base
   # @param basedir [String] The base directory where the generated environments will be created.
   # @param options [Hash] An additional set of options for this source.
   #
-  # @option options [Boolean] :prefix Whether to prefix the source name to the
-  #   environment directory names. Defaults to false.
+  # @option options [Boolean, String] :prefix If a String this becomes the prefix.
+  #   If true, will use the source name as the prefix.
+  #   Defaults to false for no environment prefix.
   # @option options [String] :remote The URL to the base directory of the SVN repository
   # @option options [Hash] :remote Additional settings that configure how the
   #   source should behave.
