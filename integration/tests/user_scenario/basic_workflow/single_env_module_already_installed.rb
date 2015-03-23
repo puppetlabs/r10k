@@ -75,9 +75,9 @@ agents.each do |agent|
   on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => [0,2]) do |result|
     assert_no_match(/Error:/, result.stderr, 'Unexpected error was detected!')
   end
-end
 
-step 'Verify Contents of MOTD Module'
-  on(agents, "cat #{motd_path}") do |result|
-    assert_match(motd_contents, result.stdout, 'File content is invalid')
+  step 'Verify Contents of MOTD Module'
+  on(agent, "cat #{motd_path}") do |result|
+    assert_match(motd_contents_regex, result.stdout, 'File content is invalid')
   end
+end

@@ -79,16 +79,16 @@ agents.each do |agent|
   step 'Verify MOTD Contents for Forge Version of Module'
   on(agent, "cat #{motd_path}") do |result|
     assert_match(motd_contents_regex, result.stdout, 'File content is invalid!')
-    end
   end
 
   step 'Verify Version 1.1.1 of the MOTD Module'
   on(master, "grep version #{motd_version_file_path}") do |result|
     assert_match(motd_old_version, result.stdout, 'File content is invalid!')
   end
+end
 
-  step 'Backup Old MOTD "Puppetfile" to allow for creation of New MOTD "Puppetfile"'
-  on(master, "mv #{puppet_file_path} #{puppet_file_path_bak}")
+step 'Backup Old MOTD "Puppetfile" to allow for creation of New MOTD "Puppetfile"'
+on(master, "mv #{puppet_file_path} #{puppet_file_path_bak}")
 
 step 'Update "Puppetfile" to use New Module Version 1.2.0' 
 create_remote_file(master, puppet_file_path, puppet_file_new_motd)
@@ -104,27 +104,26 @@ on(master, 'r10k deploy environment -v -p')
 
 step 'Update MOTD Template'
 create_remote_file(master, motd_template_path, motd_template_contents)
-on(master, "chmod 644 #{motd_template_path}")
 
 agents.each do |agent|
   step 'Run Puppet Agent'
   on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => [0,2]) do |result|
     assert_no_match(/Error:/, result.stderr, 'Unexpected error was detected!')
-    end
   end
-  
+
   step 'Verify MOTD Contents for New Version of Module'
   on(agent, "cat #{motd_path}") do |result|
     assert_match(motd_contents_regex, result.stdout, 'File content is invalid!')
   end
-
+  
   step 'Verify Version 1.2.0 of the MOTD Module'
   on(master, "grep version #{motd_version_file_path}") do |result|
-    assert_match(motd_new_version, result.stdout, 'File content is invalid!')
+  assert_match(motd_new_version, result.stdout, 'File content is invalid!')
   end
+end
 
-  step 'Restore Old MOTD "Puppetfile"'
-    on(master, "mv #{puppet_file_path_bak} #{puppet_file_path}")
+step 'Restore Old MOTD "Puppetfile"'
+  on(master, "mv #{puppet_file_path_bak} #{puppet_file_path}")
 
 step 'Update "site.pp" in the "production" Environment'
 inject_site_pp(master, site_pp_path, site_pp)
@@ -137,13 +136,11 @@ on(master, 'r10k deploy environment -v -p')
 
 step 'Update MOTD Template'
 create_remote_file(master, motd_template_path, motd_template_contents)
-on(master, "chmod 644 #{motd_template_path}")
 
 agents.each do |agent|
   step 'Run Puppet Agent'
   on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => [0,2]) do |result|
     assert_no_match(/Error:/, result.stderr, 'Unexpected error was detected!')
-    end
   end
 
   step 'Verify MOTD Contents for Old Version of Module'
@@ -154,4 +151,5 @@ agents.each do |agent|
   step 'Verify Version 1.1.1 of the MOTD Module'
   on(master, "grep version #{motd_version_file_path}") do |result|
     assert_match(motd_old_version, result.stdout, 'File content is invalid!')
+  end
 end
