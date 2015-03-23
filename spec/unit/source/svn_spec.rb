@@ -95,6 +95,72 @@ describe R10K::Source::SVN, 'when prefixing is enabled' do
   end
 end
 
+describe R10K::Source::SVN, 'when prefixing is disabled' do
+  subject do
+    described_class.new(
+    'mysource',
+    '/some/nonexistent/dir',
+    {
+      :remote => 'https://svn-server.site/repo',
+      :prefix => false
+    }
+    )
+  end
+
+  describe "generating environments" do
+    before do
+      allow(subject.svn_remote).to receive(:branches).and_return %w[apache dns robobutler]
+    end
+
+    let(:environments) { subject.generate_environments }
+
+    it "creates an environment for each branch and the trunk" do
+      expect(environments.size).to eq(4)
+    end
+
+    it "does not prefix environments" do
+      expect(environments[0].dirname).to eq 'production'
+      expect(environments[1].dirname).to eq 'apache'
+      expect(environments[2].dirname).to eq 'dns'
+      expect(environments[3].dirname).to eq 'robobutler'
+    end
+  end
+end
+
+
+describe R10K::Source::SVN, 'when prefixing is overridden' do
+  subject do
+    described_class.new(
+    'mysource',
+    '/some/nonexistent/dir',
+    {
+      :remote => 'https://svn-server.site/repo',
+      :prefix => "tenant1"
+    }
+    )
+  end
+
+  describe "generating prefixed environments" do
+    before do
+      allow(subject.svn_remote).to receive(:branches).and_return %w[apache dns robobutler]
+    end
+
+    let(:environments) { subject.generate_environments }
+
+    it "creates an environment for each branch and the trunk" do
+      expect(environments.size).to eq(4)
+    end
+
+    it "prefixes the prefix name to environments" do
+      expect(environments[0].dirname).to eq 'tenant1_production'
+      expect(environments[1].dirname).to eq 'tenant1_apache'
+      expect(environments[2].dirname).to eq 'tenant1_dns'
+      expect(environments[3].dirname).to eq 'tenant1_robobutler'
+    end
+  end
+end
+
+
 describe R10K::Source::SVN, 'registering as a source' do
   it "registers with the :svn key" do
     expect(R10K::Source.retrieve(:svn)).to eq described_class

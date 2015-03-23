@@ -12,6 +12,16 @@ describe R10K::Environment::Name do
       bn = described_class.new('mybranch', :source => 'source', :prefix => true)
       expect(bn.dirname).to eq 'source_mybranch'
     end
+
+    it "prepends the prefix name when prefixing is overridden" do
+      bn = described_class.new('mybranch', {:prefix => "bar", :sourcename => 'foo'})
+      expect(bn.dirname).to eq 'bar_mybranch'
+    end
+
+    it "uses the branch name as the dirname when prefixing is nil" do
+      bn = described_class.new('mybranch', {:prefix => nil, :sourcename => 'foo'})
+      expect(bn.dirname).to eq 'mybranch'
+    end
   end
 
   describe "determining the validate behavior with :invalid" do

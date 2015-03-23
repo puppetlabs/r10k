@@ -59,15 +59,27 @@ module R10K
       def dirname
         dir = @name.dup
 
-        if @prefix
-          dir = "#{@source}_#{dir}"
-        end
+        prefix = derive_prefix(@source,@prefix)
 
         if @correct
           dir.gsub!(INVALID_CHARACTERS, '_')
         end
 
-        dir
+        "#{prefix}#{dir}"
+      end
+
+
+      private
+
+      def derive_prefix(source,prefix)
+
+        if prefix == true
+          "#{source}_"
+        elsif prefix.is_a? String
+          "#{prefix}_"
+        else
+          nil
+        end
       end
     end
   end
