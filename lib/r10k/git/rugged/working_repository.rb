@@ -38,7 +38,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
     # repository. However alternate databases can be handled when an existing
     # repository is loaded, so loading a cloned repo will correctly use
     # alternate object database.
-    options = {}
+    options = {:credentials => credentials}
     options.merge!(:alternates => [File.join(opts[:reference], 'objects')]) if opts[:reference]
     @_rugged_repo = ::Rugged::Repository.clone_at(remote, @path.to_s, options)
 
@@ -67,8 +67,9 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   end
 
   def fetch(remote = 'origin')
+    options = {:credentials => credentials}
     refspecs = ["+refs/heads/*:refs/remotes/#{remote}/*"]
-    with_repo { |repo| repo.fetch(remote, refspecs) }
+    with_repo { |repo| repo.fetch(remote, refspecs, options) }
   end
 
   def exist?
