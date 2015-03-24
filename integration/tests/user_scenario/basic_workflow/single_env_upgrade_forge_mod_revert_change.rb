@@ -15,7 +15,9 @@ last_commit = git_last_commit(master, git_environments_path)
 motd_path = '/etc/motd'
 motd_template_path = File.join(prod_env_modules_path, 'motd', 'templates', 'motd.erb')
 motd_template_contents = 'Hello!'
-motd_contents_regex = /\A#{motd_template_contents}\n\z/
+motd_new_contents = 'Yolo!'
+motd_contents_old_regex = /\A#{motd_template_contents}\n\z/
+motd_contents_new_regex = /\A#{motd_new_contents}\z/
 
 motd_old_version = /"*1.1.1*"/
 motd_new_version = /"*1.2.0*"/
@@ -34,12 +36,19 @@ puppet_file_path = File.join(git_environments_path, 'Puppetfile')
 puppet_file_path_bak = "#{puppet_file_path}.bak"
 
 #Manifest
-manifest = <<-MANIFEST
+manifest_old = <<-MANIFEST
   include motd
 MANIFEST
 
+manifest_new = <<-MANIFEST
+  class { 'motd':
+    content => '#{motd_new_contents}',
+  }
+MANIFEST
+
 site_pp_path = File.join(git_environments_path, 'manifests', 'site.pp')
-site_pp = create_site_pp(master_certname, manifest)
+site_pp_old = create_site_pp(master_certname, manifest_old)
+site_pp_new = create_site_pp(master_certname, manifest_new)
 
 #Teardown
 teardown do
@@ -57,7 +66,7 @@ step 'Checkout "production" Branch'
 git_on(master, 'checkout production', git_environments_path)
 
 step 'Inject New "site.pp" to the "production" Environment'
-inject_site_pp(master, site_pp_path, site_pp)
+inject_site_pp(master, site_pp_path, site_pp_old)
 
 step 'Create "Puppetfile" for the "production" Environment'
 create_remote_file(master, puppet_file_path, puppet_file_old_motd)
@@ -81,7 +90,7 @@ agents.each do |agent|
 
   step 'Verify MOTD Contents for Forge Version of Module'
   on(agent, "cat #{motd_path}") do |result|
-    assert_match(motd_contents_regex, result.stdout, 'File content is invalid!')
+    assert_match(motd_contents_old_regex, result.stdout, 'File content is invalid!')
   end
 
   step 'Verify Version 1.1.1 of the MOTD Module'
@@ -96,18 +105,14 @@ on(master, "mv #{puppet_file_path} #{puppet_file_path_bak}")
 step 'Update "Puppetfile" to use New Module Version 1.2.0'
 create_remote_file(master, puppet_file_path, puppet_file_new_motd)
 
-step 'Update "site.pp" in the "production" Environment'
-inject_site_pp(master, site_pp_path, site_pp)
+step 'Update "site.pp" in the "production" Environment to New Style Manifest'
+inject_site_pp(master, site_pp_path, site_pp_new)
 
 step 'Push Changes'
 git_add_commit_push(master, 'production', 'Update site.pp and Puppetfile.', git_environments_path)
 
 step 'Deploy "production" Environment Again via r10k'
 on(master, 'r10k deploy environment -v -p')
-
-#step 'Update MOTD Template'
-#create_remote_file(master, motd_template_path, motd_template_contents)
-#on(master, "chmod 644 #{motd_template_path}")
 
 agents.each do |agent|
   step 'Run Puppet Agent'
@@ -117,7 +122,7 @@ agents.each do |agent|
 
   step 'Verify MOTD Contents for New Version of Module'
   on(agent, "cat #{motd_path}") do |result|
-    assert_match(motd_contents_regex, result.stdout, 'File content is invalid!')
+    assert_match(motd_contents_new_regex, result.stdout, 'File content is invalid!')
   end
 
   step 'Verify Version 1.2.0 of the MOTD Module'
@@ -129,8 +134,8 @@ end
 step 'Restore Old MOTD "Puppetfile"'
 on(master, "mv #{puppet_file_path_bak} #{puppet_file_path}")
 
-step 'Update "site.pp" in the "production" Environment'
-inject_site_pp(master, site_pp_path, site_pp)
+step 'Revert "site.pp" in the "production" Environment to Old Style Manifest'
+inject_site_pp(master, site_pp_path, site_pp_old)
 
 step 'Push Changes'
 git_add_commit_push(master, 'production', 'Update site.pp and add modules.', git_environments_path)
@@ -140,6 +145,7 @@ on(master, 'r10k deploy environment -v -p')
 
 step 'Update MOTD Template'
 create_remote_file(master, motd_template_path, motd_template_contents)
+on(master, "chmod 644 #{motd_template_path}")
 
 agents.each do |agent|
   step 'Run Puppet Agent'
@@ -149,7 +155,7 @@ agents.each do |agent|
 
   step 'Verify MOTD Contents for Old Version of Module'
   on(agent, "cat #{motd_path}") do |result|
-    assert_match(motd_contents_regex, result.stdout, 'File content is invalid!')
+    assert_match(motd_contents_old_regex, result.stdout, 'File content is invalid!')
   end
 
   step 'Verify Version 1.1.1 of the MOTD Module'
