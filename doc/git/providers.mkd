@@ -40,8 +40,15 @@ greater to use this provider.
 
 ### SSH Configuration
 
-Using the rugged provider with SSH is not yet implemented; see
-[RK-33](https://tickets.puppetlabs.com/browse/RK-33) for more information.
+In order to use rugged with SSH based Git repositories, the 'private_key' option
+must be provided. An optional 'username' field can be provided when the Git
+remote URL does not provide a username.
+
+```yaml
+git:
+  private_key: '/root/.ssh/id_rsa'
+  username: 'git'
+```
 
 Configuration
 -------------
