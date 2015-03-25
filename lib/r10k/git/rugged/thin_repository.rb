@@ -43,9 +43,7 @@ class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
       config['remote.cache.fetch']   = '+refs/heads/*:refs/remotes/cache/*'
     end
 
-    if opts[:ref]
-      checkout(opts[:ref])
-    end
+    checkout(opts.fetch(:ref, 'HEAD'))
   end
 
   def checkout(ref)
