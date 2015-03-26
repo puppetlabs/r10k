@@ -16,6 +16,7 @@ tmpfs_path = '/mnt/tmpfs'
 
 #In-line files
 r10k_conf = <<-CONF
+cachedir: '/var/cache/r10k'
 sources:
   broken:
     basedir: "#{tmpfs_path}"
