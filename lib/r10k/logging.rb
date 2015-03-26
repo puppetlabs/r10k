@@ -64,7 +64,7 @@ module R10K::Logging
     end
 
     def formatter
-      @formatter ||= Log4r::PatternFormatter.new(:pattern => '[%C - %l] %m')
+      @formatter ||= Log4r::PatternFormatter.new(:pattern => '%l\t -> %m')
     end
 
     def outputter
