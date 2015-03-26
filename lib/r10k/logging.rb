@@ -44,14 +44,6 @@ module R10K::Logging
       end
     end
 
-    def included(klass)
-      unless @log4r_loaded
-        Configurator.custom_levels(*LOG_LEVELS)
-        Logger.global.level = Log4r::ALL
-        @log4r_loaded = true
-      end
-    end
-
     def level
       @level || Log4r::WARN # Default level is WARN
     end
@@ -63,15 +55,28 @@ module R10K::Logging
       @level = level
     end
 
-    def formatter
-      @formatter ||= Log4r::PatternFormatter.new(:pattern => '%l\t -> %m')
+    # @!attribute [r] formatter
+    #   @api private
+    #   @return [Log4r::Formatter]
+    attr_reader :formatter
+
+    # @!attribute [r] outputter
+    #   @api private
+    #   @return [Log4r::Outputter]
+    attr_reader :outputter
+
+    def default_formatter
+      Log4r::PatternFormatter.new(:pattern => '%l\t -> %m')
     end
 
-    def outputter
-      @outputter ||= Log4r::StderrOutputter.new('console',
-        :level => self.level,
-        :formatter => formatter
-       )
+    def default_outputter
+      Log4r::StderrOutputter.new('console', :level => self.level, :formatter => formatter)
     end
   end
+
+  Configurator.custom_levels(*LOG_LEVELS)
+  Logger.global.level = Log4r::ALL
+
+  @formatter = default_formatter
+  @outputter = default_outputter
 end
