@@ -29,6 +29,7 @@ site_pp = create_site_pp(master_certname, '  include helloworld')
 
 #In-line files
 r10k_conf = <<-CONF
+cachedir: '/var/cache/r10k'
 sources:
   broken:
     basedir: "#{env_path}"

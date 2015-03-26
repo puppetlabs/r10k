@@ -23,6 +23,7 @@ end
 
 #In-line files
 r10k_conf = <<-CONF
+cachedir: '/var/cache/r10k'
 sources:
   control:
     basedir: "#{env_path}"

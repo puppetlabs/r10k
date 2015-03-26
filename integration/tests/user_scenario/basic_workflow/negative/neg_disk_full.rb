@@ -22,6 +22,7 @@ test_files_path = File.join(git_environments_path, 'test_files')
 
 #In-line files
 r10k_conf = <<-CONF
+cachedir: '/var/cache/r10k'
 sources:
   broken:
     basedir: "#{tmpfs_path}"

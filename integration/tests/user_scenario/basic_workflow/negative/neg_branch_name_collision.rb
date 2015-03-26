@@ -21,6 +21,7 @@ r10k_config_bak_path = "#{r10k_config_path}.bak"
 
 #In-line files
 r10k_conf = <<-CONF
+cachedir: '/var/cache/r10k'
 sources:
   control:
     basedir: "#{env_path}"
