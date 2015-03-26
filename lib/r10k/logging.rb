@@ -44,16 +44,17 @@ module R10K::Logging
       end
     end
 
-    def level
-      @level || Log4r::WARN # Default level is WARN
-    end
-
     def level=(val)
       level = parse_level val
       raise "Invalid log level: #{val}" unless level
       outputter.level = level
       @level = level
     end
+
+    # @!attribute [r] level
+    #   @return [Integer] The current log level. Lower numbers correspond
+    #     to more verbose log levels.
+    attr_reader :level
 
     # @!attribute [r] formatter
     #   @api private
@@ -77,6 +78,7 @@ module R10K::Logging
   Configurator.custom_levels(*LOG_LEVELS)
   Logger.global.level = Log4r::ALL
 
+  @level     = Log4r::WARN
   @formatter = default_formatter
   @outputter = default_outputter
 end
