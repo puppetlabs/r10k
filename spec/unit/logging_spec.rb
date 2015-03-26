@@ -36,5 +36,25 @@ describe R10K::Logging do
         described_class.level = 'deblag'
       }.to raise_error(ArgumentError, /Invalid log level/)
     end
+
+    describe "switching the formatter" do
+      before do
+        allow(described_class.outputter).to receive(:level=)
+      end
+
+      it "switches to the debug formatter if the new log level is debug or greater" do
+        debug_formatter = double('debug formatter')
+        expect(described_class).to receive(:debug_formatter).and_return(debug_formatter)
+        expect(described_class.outputter).to receive(:formatter=).with(debug_formatter)
+        described_class.level = 'debug'
+      end
+
+      it "switches to the default formatter if the new log level is info or less" do
+        default_formatter = double('default formatter')
+        expect(described_class).to receive(:default_formatter).and_return(default_formatter)
+        expect(described_class.outputter).to receive(:formatter=).with(default_formatter)
+        described_class.level = 'info'
+      end
+    end
   end
 end

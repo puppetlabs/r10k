@@ -42,6 +42,12 @@ module R10K::Logging
       end
       outputter.level = level
       @level = level
+
+      if level < Log4r::INFO
+        outputter.formatter = debug_formatter
+      else
+        outputter.formatter = default_formatter
+      end
     end
 
     # @!attribute [r] level
@@ -61,6 +67,10 @@ module R10K::Logging
 
     def default_formatter
       Log4r::PatternFormatter.new(:pattern => '%l\t -> %m')
+    end
+
+    def debug_formatter
+      Log4r::PatternFormatter.new(:pattern => '[%d - %l] %m')
     end
 
     def default_outputter
