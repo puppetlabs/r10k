@@ -1,5 +1,6 @@
 require 'r10k/features'
 require 'r10k/errors'
+require 'r10k/settings'
 
 module R10K
   module Git
@@ -100,5 +101,10 @@ module R10K
     end
 
     @provider = UNSET_PROVIDER
+
+    extend R10K::Settings::Mixin::ClassMethods
+
+    def_setting_attr :private_key
+    def_setting_attr :username
   end
 end

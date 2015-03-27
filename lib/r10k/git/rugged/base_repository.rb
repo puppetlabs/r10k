@@ -1,6 +1,9 @@
 require 'r10k/git/rugged'
+require 'r10k/logging'
 
 class R10K::Git::Rugged::BaseRepository
+
+  include R10K::Logging
 
   def resolve(pattern)
     object = with_repo { |repo| repo.rev_parse(pattern) }
@@ -43,5 +46,40 @@ class R10K::Git::Rugged::BaseRepository
     yield @_rugged_repo if @_rugged_repo
   ensure
     @_rugged_repo.close if @_rugged_repo
+  end
+
+
+  # Generate a lambda that can create a credentials object for the
+  # authentication type in question.
+  #
+  # @note The Rugged API expects an object that responds to #call; the
+  #   Credentials subclasses implement #call returning self so that
+  #   the Credentials object can be used, or a Proc that returns a
+  #   Credentials object can be used.
+  #
+  # @api private
+  #
+  # @return [Proc]
+  def credentials
+    Proc.new do |url, username_from_url, allowed_types|
+      private_key = R10K::Git.settings[:private_key]
+      git_user    = R10K::Git.settings[:username]
+
+      if private_key.nil?
+        raise R10K::Git::GitError.new("Git remote #{url.inspect} uses the SSH protocol but no private key was given", :git_dir => @path.to_s)
+      end
+
+      if !username_from_url.nil?
+        user = username_from_url
+      elsif git_user
+        user = git_user
+        logger.debug1 "URL #{url.inspect} did not specify an SSH user, using #{user.inspect} from configuration"
+      else
+        user = Etc.getlogin
+        logger.debug1 "URL #{url.inspect} did not specify an SSH user, using current user #{user.inspect}"
+      end
+
+      Rugged::Credentials::SshKey.new(:username => user, :privatekey => private_key)
+    end
   end
 end

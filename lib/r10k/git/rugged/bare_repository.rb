@@ -39,8 +39,9 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
   #
   # @return [void]
   def fetch
+    options = {:credentials => credentials}
     refspecs = ['+refs/*:refs/*']
-    with_repo { |repo| repo.fetch('origin', refspecs) }
+    with_repo { |repo| repo.fetch('origin', refspecs, options) }
   end
 
   def exist?
