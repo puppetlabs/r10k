@@ -46,11 +46,11 @@ module R10K
       # Forcibly remove all unmanaged content in `self.managed_directory`
       def purge!
         if stale_contents.empty?
-          logger.debug1 "No stale contents in #{managed_directory}, nothing to purge"
+          logger.debug1 "No unmanaged contents in #{managed_directory}, nothing to purge"
         else
           stale_contents.each do |fname|
             fpath = File.join(self.managed_directory, fname)
-            logger.debug "Removing stale path #{fpath}"
+            logger.info "Removing unmanaged path #{fpath}"
             FileUtils.rm_rf(fpath, :secure => true)
           end
         end
