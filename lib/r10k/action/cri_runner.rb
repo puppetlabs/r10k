@@ -45,6 +45,14 @@ module R10K
           # Translate from the Cri verbose logging option to the internal logging setting.
           opts[:loglevel] = opts.delete(:verbose)
         end
+
+        # Colored logging is only appropriate for CLI interactions, so we
+        # handle this while we're still in CLI specific code.
+        use_color = opts.delete(:color)
+        if use_color
+          R10K::Logging.use_color = use_color
+        end
+
         @opts = opts
       end
 

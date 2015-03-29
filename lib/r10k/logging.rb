@@ -1,4 +1,5 @@
 require 'r10k'
+require 'forwardable'
 
 require 'log4r'
 require 'log4r/configurator'
@@ -67,6 +68,9 @@ module R10K::Logging
         outputter.formatter = default_formatter
       end
     end
+
+    extend Forwardable
+    def_delegators :@outputter, :use_color, :use_color=
 
     # @!attribute [r] level
     #   @return [Integer] The current log level. Lower numbers correspond
