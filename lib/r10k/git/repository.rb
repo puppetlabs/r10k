@@ -2,6 +2,10 @@ require 'r10k/git'
 require 'r10k/util/subprocess'
 
 # Define an abstract base class for git repositories.
+#
+# @deprecated This has been replaced by the ShellGit provider and the
+#   StatefulRepository class and will be removed in 2.0.0
+#
 # :nocov:
 class R10K::Git::Repository
 
