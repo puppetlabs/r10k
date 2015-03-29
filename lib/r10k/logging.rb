@@ -5,8 +5,6 @@ require 'log4r/configurator'
 
 module R10K::Logging
 
-  include Log4r
-
   LOG_LEVELS = %w{DEBUG2 DEBUG1 DEBUG INFO NOTICE WARN ERROR FATAL}
 
   def logger_name
@@ -27,8 +25,6 @@ module R10K::Logging
   end
 
   class << self
-    include Log4r
-
     def levels
       @levels ||= LOG_LEVELS.each.inject({}) do |levels, k|
         levels[k] = Log4r.const_get(k)
@@ -75,8 +71,8 @@ module R10K::Logging
     end
   end
 
-  Configurator.custom_levels(*LOG_LEVELS)
-  Logger.global.level = Log4r::ALL
+  Log4r::Configurator.custom_levels(*LOG_LEVELS)
+  Log4r::Logger.global.level = Log4r::ALL
 
   @level     = Log4r::WARN
   @formatter = default_formatter
