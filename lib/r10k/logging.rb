@@ -2,6 +2,7 @@ require 'r10k'
 
 require 'log4r'
 require 'log4r/configurator'
+require 'r10k/logging/terminaloutputter'
 
 module R10K::Logging
 
@@ -91,7 +92,7 @@ module R10K::Logging
     end
 
     def default_outputter
-      Log4r::StderrOutputter.new('console', :level => self.level, :formatter => formatter)
+      R10K::Logging::TerminalOutputter.new('terminal', $stderr, :level => self.level, :formatter => formatter)
     end
   end
 
