@@ -47,11 +47,12 @@ describe R10K::Util::Subprocess::Runner::Pump do
 
   describe "backing off" do
     it "does not back off more than the max delay time" do
-      subject.max_delay = 0.005
+      max_delay = subject.min_delay * 2
+      subject.max_delay = max_delay
       subject.start
-      sleep 0.1
+      sleep max_delay * 2
 
-      Timeout.timeout(0.01) do
+      Timeout.timeout(max_delay * 1.5) do
         subject.halt!
       end
 
