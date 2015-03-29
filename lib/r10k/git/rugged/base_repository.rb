@@ -82,4 +82,9 @@ class R10K::Git::Rugged::BaseRepository
       Rugged::Credentials::SshKey.new(:username => user, :privatekey => private_key)
     end
   end
+
+  def report_transfer(results, remote)
+    logger.debug2 { "Transferred #{results[:total_objects]} objects (#{results[:received_bytes]} bytes) from '#{remote}' into #{git_dir}'" }
+    nil
+  end
 end

@@ -20,6 +20,7 @@ class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
   #
   # @return [void]
   def clone(remote, opts = {})
+    logger.debug1 { "Cloning '#{remote}' into #{@path}" }
     set_cache(remote)
     @cache_repo.sync
 
