@@ -37,7 +37,7 @@ end
 
 RSpec.configure do |config|
   config.before(:all) do
-    Log4r::Logger.global.level = 10
+    Log4r::Logger.global.level = Log4r::OFF
   end
 end
 
