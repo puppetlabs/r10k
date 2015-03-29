@@ -14,9 +14,14 @@ module R10K::Logging
   end
 
   def logger
-    unless @logger
-      @logger = Log4r::Logger.new(self.logger_name)
-      @logger.add R10K::Logging.outputter
+    if @logger.nil?
+      name = logger_name
+      if Log4r::Logger[name]
+        @logger = Log4r::Logger[name]
+      else
+        @logger = Log4r::Logger.new(name)
+        @logger.add(R10K::Logging.outputter)
+      end
     end
     @logger
   end
