@@ -41,21 +41,10 @@ module R10K
 
       # @return [Hash] The adapted options for the runner
       def handle_opts(opts)
-        # Translate from the Cri verbose logging option to the internal logging setting.
-        loglevel = opts.delete(:verbose)
-        case loglevel
-        when String, Numeric
-          opts[:loglevel] = loglevel
-        when TrueClass
-          opts[:loglevel] = 'INFO'
-        when NilClass
-          # pass
-        else
-          # When the type is unsure just pass it in as-is and let the internals
-          # raise the appropriate errors.
-          opts[:loglevel] = loglevel
+        if opts[:verbose]
+          # Translate from the Cri verbose logging option to the internal logging setting.
+          opts[:loglevel] = opts.delete(:verbose)
         end
-
         @opts = opts
       end
 
