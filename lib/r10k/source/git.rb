@@ -63,7 +63,7 @@ class R10K::Source::Git < R10K::Source::Base
   #
   # @return [void]
   def preload!
-    logger.debug "Determining current branches for Git source #{@remote.inspect}"
+    logger.debug "Fetching '#{@remote}' to determine current branches."
     @cache.sync
   end
   alias fetch_remote preload!
