@@ -15,6 +15,9 @@ require 'r10k/git/commit'
 # working directories only contain checked out files and all object files are
 # shared.
 #
+# @deprecated This has been replaced by the ShellGit provider and the
+#   StatefulRepository class and will be removed in 2.0.0
+#
 # :nocov:
 class R10K::Git::WorkingDir < R10K::Git::Repository
 

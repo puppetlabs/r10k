@@ -5,6 +5,9 @@ require 'r10k/git/repository'
 # particular object. They may be stored in a file under $GIT_DIR/refs/
 # directory, or in the $GIT_DIR/packed-refs file.
 #
+# @deprecated This has been replaced by the ShellGit provider and the
+#   StatefulRepository class and will be removed in 2.0.0
+#
 # @see https://www.kernel.org/pub/software/scm/git/docs/gitglossary.html
 # @api private
 class R10K::Git::Ref

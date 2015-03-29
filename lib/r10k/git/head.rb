@@ -6,6 +6,9 @@ require 'r10k/git/repository'
 # head: A named reference to the commit at the tip of a branch. Heads are
 # stored in a file in $GIT_DIR/refs/heads/ directory. except when using packed
 #
+# @deprecated This has been replaced by the ShellGit provider and the
+#   StatefulRepository class and will be removed in 2.0.0
+#
 # @see https://www.kernel.org/pub/software/scm/git/docs/gitglossary.html
 # @api private
 class R10K::Git::Head < R10K::Git::Ref
