@@ -25,23 +25,18 @@ module R10K::Logging
   end
 
   class << self
-    def levels
-      @levels ||= LOG_LEVELS.each.inject({}) do |levels, k|
-        levels[k] = Log4r.const_get(k)
-        levels
-      end
-    end
-
-    def parse_level(val)
+    def parse_level(string)
+      Integer(string)
+    rescue
+      const = string.upcase.to_sym
       begin
-        Integer(val)
-      rescue
-        levels[val.upcase]
+        Log4r.const_get(const)
+      rescue NameError
       end
     end
 
     def level=(val)
-      level = parse_level val
+      level = parse_level(val)
       raise "Invalid log level: #{val}" unless level
       outputter.level = level
       @level = level
