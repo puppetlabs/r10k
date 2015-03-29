@@ -81,7 +81,7 @@ class R10K::Git::Cache
     if cached?
       @repo.fetch
     else
-      logger.debug "Creating new git cache for #{@remote.inspect}"
+      logger.debug1 "Creating new git cache for #{@remote.inspect}"
 
       # TODO extract this to an initialization step
       if !File.exist?(settings[:cache_root])
