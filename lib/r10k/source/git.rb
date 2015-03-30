@@ -65,6 +65,8 @@ class R10K::Source::Git < R10K::Source::Base
   def preload!
     logger.debug "Fetching '#{@remote}' to determine current branches."
     @cache.sync
+  rescue => e
+    raise R10K::Error.wrap(e, "Unable to determine current branches for Git source '#{@name}' (#{@basedir})")
   end
   alias fetch_remote preload!
 
