@@ -8,6 +8,7 @@ git_repo_name = 'environments'
 git_control_remote = File.join(git_repo_path, "#{git_repo_name}.git")
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
+git_provider = ENV['GIT_PROVIDER'] || 'shellgit'
 
 r10k_config_path = get_r10k_config_file_path(master)
 r10k_config_bak_path = "#{r10k_config_path}.bak"
@@ -17,6 +18,8 @@ tmpfs_path = '/mnt/tmpfs'
 #In-line files
 r10k_conf = <<-CONF
 cachedir: '/var/cache/r10k'
+git:
+  provider: '#{git_provider}'
 sources:
   broken:
     basedir: "#{tmpfs_path}"

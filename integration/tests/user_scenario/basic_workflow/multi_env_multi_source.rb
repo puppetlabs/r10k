@@ -9,6 +9,8 @@ test_name 'CODEMGMT-85 - C59240 - Multiple Sources with Multiple Branches'
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 
+git_provider = ENV['GIT_PROVIDER'] || 'shellgit'
+
 local_files_root_path = ENV['FILES'] || 'files'
 helloworld_module_path = File.join(local_files_root_path, 'modules', 'helloworld')
 

@@ -7,6 +7,7 @@ test_name 'CODEMGMT-101 - C59237 - Attempt to Deploy Environment with Unauthoriz
 #Init
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 git_control_remote = 'git@github.com:puppetlabs/codemgmt-92.git'
+git_provider = ENV['GIT_PROVIDER'] || 'shellgit'
 
 unauthorized_rsa_key = OpenSSL::PKey::RSA.new(2048)
 ssh_private_key_path = '/root/.ssh/unauthorized_key'
@@ -18,6 +19,9 @@ r10k_config_bak_path = "#{r10k_config_path}.bak"
 #In-line files
 r10k_conf = <<-CONF
 cachedir: '/var/cache/r10k'
+git:
+  provider: '#{git_provider}'
+  private_key: '#{ssh_private_key_path}'
 sources:
   broken:
     basedir: "#{env_path}"

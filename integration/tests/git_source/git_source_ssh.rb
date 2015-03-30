@@ -6,6 +6,7 @@ test_name 'CODEMGMT-92 - C59234 - Single Git Source Using "SSH" Transport Protoc
 #Init
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 git_control_remote = 'git@github.com:puppetlabs/codemgmt-92.git'
+git_provider = ENV['GIT_PROVIDER'] || 'shellgit'
 
 jenkins_key_path = File.file?('/var/lib/jenkins/.ssh/id_rsa-jenkins') ? '/var/lib/jenkins/.ssh/id_rsa-jenkins' : File.expand_path('~/.ssh/id_rsa-jenkins')
 ssh_private_key_path = '/root/.ssh/id_rsa-jenkins'
@@ -17,6 +18,9 @@ r10k_config_bak_path = "#{r10k_config_path}.bak"
 #In-line files
 r10k_conf = <<-CONF
 cachedir: '/var/cache/r10k'
+git:
+  provider: '#{git_provider}'
+  private_key: '#{ssh_private_key_path}'
 sources:
   broken:
     basedir: "#{env_path}"

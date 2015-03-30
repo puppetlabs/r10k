@@ -15,6 +15,7 @@ env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 
 git_control_remote = 'git://localhost/environments.git'
 git_environments_path = '/root/environments'
+git_provider = ENV['GIT_PROVIDER'] || 'shellgit'
 last_commit = git_last_commit(master, git_environments_path)
 
 local_files_root_path = ENV['FILES'] || 'files'
@@ -30,6 +31,8 @@ site_pp = create_site_pp(master_certname, '  include helloworld')
 #In-line files
 r10k_conf = <<-CONF
 cachedir: '/var/cache/r10k'
+git:
+  provider: '#{git_provider}'
 sources:
   broken:
     basedir: "#{env_path}"

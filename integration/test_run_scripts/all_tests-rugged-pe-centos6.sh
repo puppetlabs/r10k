@@ -8,10 +8,11 @@ if [ $SCRIPT_BASE_PATH = "test_run_scripts" ]; then
 fi
 
 export pe_dist_dir=http://neptune.puppetlabs.lan/3.8/ci-ready/
+export GIT_PROVIDER=rugged
 
 beaker \
   --preserve-hosts onfail \
-  --config configs/pe/ubuntu-1404-64mda \
+  --config configs/pe/centos-6-64mda \
   --debug \
   --tests tests \
   --keyfile ~/.ssh/id_rsa-acceptance \

@@ -7,6 +7,7 @@ test_name 'CODEMGMT-84 - C59271 - Attempt to Deploy with Invalid r10k Config'
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 git_repo_path = '/git_repos'
 git_control_remote = File.join(git_repo_path, 'environments.git')
+git_provider = ENV['GIT_PROVIDER'] || 'shellgit'
 
 r10k_config_path = get_r10k_config_file_path(master)
 r10k_config_bak_path = "#{r10k_config_path}.bak"
@@ -14,6 +15,8 @@ r10k_config_bak_path = "#{r10k_config_path}.bak"
 #In-line files
 r10k_conf = <<-CONF
 cachedir: '/var/cache/r10k'
+git:
+  provider: '#{git_provider}'
 sources:
   broken:
     dir: "#{env_path}"

@@ -7,6 +7,8 @@ test_name 'CODEMGMT-85 - C59227 - Multiple Environments with Multiple Sources an
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 
+git_provider = ENV['GIT_PROVIDER'] || 'shellgit'
+
 local_files_root_path = ENV['FILES'] || 'files'
 helloworld_module_path = File.join(local_files_root_path, 'modules', 'helloworld')
 
@@ -73,6 +75,8 @@ last_commit = git_last_commit(master, env_structs[:production].environments_path
 #In-line files
 r10k_conf = <<-CONF
 cachedir: '/var/cache/r10k'
+git:
+  provider: '#{git_provider}'
 sources:
   control:
     basedir: "#{env_path}"
