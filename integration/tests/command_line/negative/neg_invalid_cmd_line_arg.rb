@@ -1,7 +1,7 @@
 require 'git_utils'
 require 'r10k_utils'
 require 'master_manipulator'
-test_name 'CODEMGMT-90 - C62420 - Invalid Command Line Argument' 
+test_name 'CODEMGMT-90 - C62420 - Invalid Command Line Argument'
 
 #Init
 git_environments_path = '/root/environments'
