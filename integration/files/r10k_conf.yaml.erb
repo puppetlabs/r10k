@@ -1,4 +1,6 @@
 cachedir: '/var/cache/r10k'
+git:
+  provider: '<%= git_provider %>'
 sources:
   <% for source in sources %>
     <%= source.repo_name %>:

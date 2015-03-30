@@ -8,6 +8,7 @@ if [ $SCRIPT_BASE_PATH = "command_line" ]; then
 fi
 
 export pe_dist_dir=http://neptune.puppetlabs.lan/3.8/ci-ready/
+export GIT_PROVIDER=shellgit
 
 beaker \
   --preserve-hosts onfail \

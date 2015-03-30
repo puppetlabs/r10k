@@ -10,6 +10,7 @@ git_repo_path = '/git_repos'
 git_repo_name = 'environments'
 git_control_remote = File.join(git_repo_path, "#{git_repo_name}.git")
 git_environments_path = File.join('/root', git_repo_name)
+git_provider = ENV['GIT_PROVIDER'] || 'shellgit'
 
 git_alt_repo_path = '/git_repos_alt'
 git_alt_repo_name = 'environments_alt'
@@ -22,6 +23,8 @@ r10k_config_bak_path = "#{r10k_config_path}.bak"
 #In-line files
 r10k_conf = <<-CONF
 cachedir: '/var/cache/r10k'
+git:
+  provider: '#{git_provider}'
 sources:
   control:
     basedir: "#{env_path}"

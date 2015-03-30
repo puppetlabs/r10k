@@ -12,6 +12,7 @@ r10k_config_path = get_r10k_config_file_path(master)
 git_repo_path = '/git_repos'
 git_repo_name = 'environments'
 git_control_remote = File.join(git_repo_path, "#{git_repo_name}.git")
+git_provider = ENV['GIT_PROVIDER'] || 'shellgit'
 
 pe_major = on(master, 'facter -p pe_major_version').stdout.rstrip
 pe_minor = on(master, 'facter -p pe_minor_version').stdout.rstrip
@@ -24,6 +25,8 @@ end
 #In-line files
 r10k_conf = <<-CONF
 cachedir: '/var/cache/r10k'
+git:
+  provider: '#{git_provider}'
 sources:
   control:
     basedir: "#{env_path}"
