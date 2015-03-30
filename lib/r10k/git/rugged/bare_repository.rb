@@ -25,6 +25,7 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
   # @param remote [String] The URL of the Git remote to clone.
   # @return [void]
   def clone(remote)
+    logger.debug1 { "Cloning '#{remote}' into #{@path}" }
     @_rugged_repo = ::Rugged::Repository.init_at(@path.to_s, true)
     with_repo do |repo|
       config = repo.config
@@ -39,9 +40,11 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
   #
   # @return [void]
   def fetch
+    logger.debug1 { "Fetching remote 'origin' at #{@path}" }
     options = {:credentials => credentials}
     refspecs = ['+refs/*:refs/*']
-    with_repo { |repo| repo.fetch('origin', refspecs, options) }
+    results = with_repo { |repo| repo.fetch('origin', refspecs, options) }
+    report_transfer(results, 'origin')
   end
 
   def exist?

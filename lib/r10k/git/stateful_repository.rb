@@ -1,9 +1,12 @@
 require 'r10k/git'
 require 'r10k/git/errors'
 require 'forwardable'
+require 'r10k/logging'
 
 # Manage how Git repositories are created and set to specific refs
 class R10K::Git::StatefulRepository
+
+  include R10K::Logging
 
   # @!attribute [r] repo
   #   @api private
@@ -37,12 +40,17 @@ class R10K::Git::StatefulRepository
 
     case status
     when :absent
+      logger.debug { "Cloning #{@repo.path} and checking out #{@ref}" }
       @repo.clone(@remote, {:ref => sha})
     when :mismatched
+      logger.debug { "Replacing #{@repo.path} and checking out #{@ref}" }
       @repo.path.rmtree
       @repo.clone(@remote, {:ref => sha})
     when :outdated
+      logger.debug { "Updating #{@repo.path} to #{@ref}" }
       @repo.checkout(sha)
+    else
+      logger.debug { "#{@repo.path} is already at Git ref #{@ref}" }
     end
   end
 

@@ -30,6 +30,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   #
   # @return [void]
   def clone(remote, opts = {})
+    logger.debug1 { "Cloning '#{remote}' into #{@path}" }
 
     # libgit2/rugged doesn't support cloning a repository and providing an
     # alternate object database, making the handling of :alternates a noop.
@@ -58,6 +59,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   # @param ref [String] The git reference to check out
   # @return [void]
   def checkout(ref)
+    logger.debug1 { "Checking out ref '#{ref}' at #{@path}" }
     sha = resolve(ref)
 
     with_repo do |repo|
@@ -67,9 +69,12 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   end
 
   def fetch(remote = 'origin')
+    logger.debug1 { "Fetching remote '#{remote}' at #{@path}" }
     options = {:credentials => credentials}
     refspecs = ["+refs/heads/*:refs/remotes/#{remote}/*"]
-    with_repo { |repo| repo.fetch(remote, refspecs, options) }
+    results = with_repo { |repo| repo.fetch(remote, refspecs, options) }
+    report_transfer(results, remote)
+    nil
   end
 
   def exist?
