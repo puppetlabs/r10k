@@ -56,7 +56,7 @@ end
 #ERB Template
 r10k_conf_template_path = File.join(local_files_root_path, 'r10k_conf.yaml.erb')
 r10k_conf = ERB.new(File.read(r10k_conf_template_path)).result(binding)
-binding.pry
+
 #Teardown
 last_commit = git_last_commit(master, sources.first.environments_path)
 teardown do
