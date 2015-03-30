@@ -1,7 +1,7 @@
 require 'uri'
 require 'json'
 require 'set'
-require 'semantic/version' 
+require 'semantic_puppet/version' 
 
 module Puppet
 module ModuleTool
@@ -178,17 +178,17 @@ module ModuleTool
       raise ArgumentError, "Invalid 'name' field in metadata.json: #{err}"
     end
 
-    # Validates that the version string can be parsed by Semantic.
+    # Validates that the version string can be parsed by SemanticPuppet.
     def validate_version(version)
-      return if Semantic::Version.valid?(version)
+      return if SemanticPuppet::Version.valid?(version)
 
       err = "version string cannot be parsed as a valid Semantic Version"
       raise ArgumentError, "Invalid 'version' field in metadata.json: #{err}"
     end
 
-    # Validates that the version range can be parsed by Semantic.
+    # Validates that the version range can be parsed by SemanticPuppet.
     def validate_version_range(version_range)
-      Semantic::VersionRange.parse(version_range)
+      SemanticPuppet::VersionRange.parse(version_range)
     rescue ArgumentError => e
       raise ArgumentError, "Invalid 'version_range' field in metadata.json: #{e}"
     end
