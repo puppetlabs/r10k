@@ -27,8 +27,16 @@ module R10K
     # @overload initialize(mesg, options)
     #   @param mesg [String] The exception mesg
     #   @param options [Hash] A set of options to store on the exception
+    #
+    # @options options [Array<String>] :backtrace
     def initialize(mesg, options = {})
       super(mesg)
+
+      bt = options.delete(:backtrace)
+      if bt
+        set_backtrace(bt)
+      end
+
       @options = options
     end
   end
