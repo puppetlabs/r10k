@@ -1,0 +1,13 @@
+class { 'git': }
+->
+git::config { 'user.name':
+  value => 'Tester',
+}
+->
+git::config { 'user.email':
+  value => 'tester@puppetlabs.com',
+}
+->
+file { '<%= git_repo_path %>':
+  ensure => directory
+}
