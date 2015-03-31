@@ -5,8 +5,6 @@ require 'log4r/configurator'
 
 module R10K::Logging
 
-  include Log4r
-
   LOG_LEVELS = %w{DEBUG2 DEBUG1 DEBUG INFO NOTICE WARN ERROR FATAL}
 
   def logger_name
@@ -27,51 +25,53 @@ module R10K::Logging
   end
 
   class << self
-    include Log4r
-
-    def levels
-      @levels ||= LOG_LEVELS.each.inject({}) do |levels, k|
-        levels[k] = Log4r.const_get(k)
-        levels
-      end
-    end
-
-    def parse_level(val)
+    def parse_level(string)
+      Integer(string)
+    rescue
+      const = string.upcase.to_sym
       begin
-        Integer(val)
-      rescue
-        levels[val.upcase]
+        Log4r.const_get(const)
+      rescue NameError
       end
-    end
-
-    def included(klass)
-      unless @log4r_loaded
-        Configurator.custom_levels(*LOG_LEVELS)
-        Logger.global.level = Log4r::ALL
-        @log4r_loaded = true
-      end
-    end
-
-    def level
-      @level || Log4r::WARN # Default level is WARN
     end
 
     def level=(val)
-      level = parse_level val
-      raise "Invalid log level: #{val}" unless level
+      level = parse_level(val)
+      if level.nil?
+        raise ArgumentError, "Invalid log level '#{val}'. Valid levels are #{LOG_LEVELS.map(&:downcase).inspect}"
+      end
       outputter.level = level
       @level = level
     end
 
-    def formatter
-      @formatter ||= Log4r::PatternFormatter.new(:pattern => '[%C - %l] %m')
+    # @!attribute [r] level
+    #   @return [Integer] The current log level. Lower numbers correspond
+    #     to more verbose log levels.
+    attr_reader :level
+
+    # @!attribute [r] formatter
+    #   @api private
+    #   @return [Log4r::Formatter]
+    attr_reader :formatter
+
+    # @!attribute [r] outputter
+    #   @api private
+    #   @return [Log4r::Outputter]
+    attr_reader :outputter
+
+    def default_formatter
+      Log4r::PatternFormatter.new(:pattern => '%l\t -> %m')
     end
 
-    def outputter
-      @outputter ||= Log4r::StderrOutputter.new('console',
-        :level => self.level,
-        :formatter => formatter
-       )
+    def default_outputter
+      Log4r::StderrOutputter.new('console', :level => self.level, :formatter => formatter)
     end
   end
+
+  Log4r::Configurator.custom_levels(*LOG_LEVELS)
+  Log4r::Logger.global.level = Log4r::ALL
+
+  @level     = Log4r::WARN
+  @formatter = default_formatter
+  @outputter = default_outputter
 end
