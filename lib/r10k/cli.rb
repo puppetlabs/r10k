@@ -31,14 +31,7 @@ module R10K::CLI
       flag :t, :trace, 'Display stack traces on application crash'
 
       loglevels = R10K::Logging::LOG_LEVELS.reverse.map(&:downcase).join(", ")
-      optional :v, :verbose, "Set log verbosity. Valid values: #{loglevels}" do |value, cmd|
-        case value
-        when true
-          R10K::Logging.level = 'INFO'
-        when String
-          R10K::Logging.level = value
-        end
-      end
+      optional :v, :verbose, "Set log verbosity. Valid values: #{loglevels}"
 
       required :c, :config, 'Specify a global configuration file (deprecated, use `r10k deploy -c`)' do |value, cmd|
         logger.warn "Calling `r10k --config <action>` as a global option is deprecated; use r10k <action> --config"

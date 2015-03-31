@@ -4,6 +4,14 @@ require 'r10k/logging'
 describe R10K::Logging do
 
   describe "parsing a log level" do
+    it "parses 'true:TrueClass' as INFO" do
+      expect(described_class.parse_level(true)).to eq Log4r::INFO
+    end
+
+    it "parses 'true:String' as nil" do
+      expect(described_class.parse_level("true")).to be_nil
+    end
+
     it "parses a numeric string as an integer" do
       expect(described_class.parse_level('2')).to eq 2
     end

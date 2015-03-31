@@ -30,12 +30,6 @@ describe R10K::Action::CriRunner do
       output = {:value => :yep, :loglevel => 'DEBUG'}
       expect(cri_runner.handle_opts(input)).to eq(output)
     end
-
-    it "sets the non-argument form of :verbose to :loglevel => 'INFO'" do
-      input = {:value => :yep, :verbose => true}
-      output = {:value => :yep, :loglevel => 'INFO'}
-      expect(cri_runner.handle_opts(input)).to eq(output)
-    end
   end
 
   describe "handling arguments" do

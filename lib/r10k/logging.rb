@@ -25,13 +25,30 @@ module R10K::Logging
   end
 
   class << self
-    def parse_level(string)
-      Integer(string)
-    rescue
-      const = string.upcase.to_sym
-      begin
-        Log4r.const_get(const)
-      rescue NameError
+
+    # Convert the input to a valid Log4r log level
+    #
+    # @param input [String, TrueClass] The level to parse. If TrueClass then
+    #   Log4r::INFO will be returned (indicating a generic raised verbosity),
+    #   if a string it will be parsed either as a numeric value or a textual
+    #   log level.
+    # @api private
+    # @return [Integer, NilClass] The numeric log level, or nil if the log
+    #   level is invalid.
+    def parse_level(input)
+      case input
+      when TrueClass
+        Log4r::INFO
+      when /\A\d+\Z/
+        Integer(input)
+      when String
+        const_name = input.upcase
+        if LOG_LEVELS.include?(const_name)
+          begin
+            Log4r.const_get(const_name.to_sym)
+          rescue NameError
+          end
+        end
       end
     end
 
