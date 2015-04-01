@@ -26,7 +26,7 @@ describe R10K::Logging do
   end
 
   describe "setting the log level" do
-    after(:all) { R10K::Logging.level = 'off' }
+    after(:all) { R10K::Logging.level = 'warn' }
 
     it "sets the outputter log level" do
       expect(described_class.outputter).to receive(:level=).with(Log4r::DEBUG)
