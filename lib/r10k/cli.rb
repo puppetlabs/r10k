@@ -33,6 +33,8 @@ module R10K::CLI
       loglevels = R10K::Logging::LOG_LEVELS.reverse.map(&:downcase).join(", ")
       optional :v, :verbose, "Set log verbosity. Valid values: #{loglevels}"
 
+      flag nil, :color, 'Enable colored log messages'
+
       required :c, :config, 'Specify a global configuration file (deprecated, use `r10k deploy -c`)' do |value, cmd|
         logger.warn "Calling `r10k --config <action>` as a global option is deprecated; use r10k <action> --config"
       end
