@@ -1,5 +1,6 @@
 require 'r10k/git/rugged'
 require 'r10k/git/rugged/base_repository'
+require 'r10k/git/errors'
 
 class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
 
@@ -52,6 +53,8 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
       # won't populate the working directory.
       checkout(opts[:ref])
     end
+  rescue Rugged::SshError, Rugged::NetworkError => e
+    raise R10K::Git::GitError.new(e.message, :git_dir => git_dir, :backtrace => e.backtrace)
   end
 
   # Check out the given Git ref
@@ -74,7 +77,8 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
     refspecs = ["+refs/heads/*:refs/remotes/#{remote}/*"]
     results = with_repo { |repo| repo.fetch(remote, refspecs, options) }
     report_transfer(results, remote)
-    nil
+  rescue Rugged::SshError, Rugged::NetworkError => e
+    raise R10K::Git::GitError.new(e.message, :git_dir => git_dir, :backtrace => e.backtrace)
   end
 
   def exist?

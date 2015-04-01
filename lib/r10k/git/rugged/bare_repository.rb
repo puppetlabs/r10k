@@ -1,5 +1,6 @@
 require 'r10k/git/rugged'
 require 'r10k/git/rugged/base_repository'
+require 'r10k/git/errors'
 
 class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
 
@@ -34,6 +35,8 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
       config['remote.origin.mirror'] = 'true'
       fetch
     end
+  rescue Rugged::SshError, Rugged::NetworkError => e
+    raise R10K::Git::GitError.new(e.message, :git_dir => git_dir, :backtrace => e.backtrace)
   end
 
   # Fetch refs and objects from the origin remote
@@ -45,6 +48,8 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
     refspecs = ['+refs/*:refs/*']
     results = with_repo { |repo| repo.fetch('origin', refspecs, options) }
     report_transfer(results, 'origin')
+  rescue Rugged::SshError, Rugged::NetworkError => e
+    raise R10K::Git::GitError.new(e.message, :git_dir => git_dir, :backtrace => e.backtrace)
   end
 
   def exist?
