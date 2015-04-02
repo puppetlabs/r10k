@@ -1,6 +1,163 @@
 CHANGELOG
 =========
 
+1.5.0
+-----
+
+2015/04/02
+
+### Announcements
+
+Ruby 1.8.7 has had a good run, but it's time for r10k to think about moving on.
+As of r10k 1.5.0, support for Ruby 1.8.7 is officially deprecated. Issues
+affecting Ruby 1.8.7 will still be fixed, but will be of lower priority. Support
+for Ruby 1.8.7 will be dropped entirely in r10k 2.0.0.
+
+### Thanks
+
+Thanks to the following contributors for their work on this release:
+
+  * [Brett Swift](https://github.com/brettswift) for adding custom prefix values
+    for sources (RK-35)
+  * [Eli Young](https://github.com/elyscape) for adding additional debug
+    information to `r10k version` (RK-37)
+  * [Pete Fritchman](https://github.com/fetep) for removing a warning generated
+    under Ruby 2.2 (RK-55)
+  * [Theo Chatzimichos](https://github.com/tampakrap) for updating the
+    dependency versions for r10k
+  * [ETL](https://github.com/etlweather), [Ben S](https://github.com/juniorsysadmin),
+    and [Robert Nelson](https://github.com/rnelson0) for their documentation
+    contributions
+
+### User notes
+
+(GH-57) Git based modules fail to detect presence of git binary
+
+As part of RK-17, r10k now checks to make sure that the `git` binary is present
+and executable before trying to run any commands. If Git is missing, r10k will
+fail hard instead of trying to run and failing on the first failed command.
+
+(GH-195) (RK-35) Allow sources to specify a custom prefix string
+
+For r10k deployments that have separate sources for Puppet code and Hiera data,
+the created environment paths must line up between the code and data repos. With
+basic prefixing where the source name is used as the prefix string, it's not
+possible to use prefixing and commonly named environments. This has been fixed
+so that the source `prefix` option can be given true, false, or a string which
+is a custom value to use for prefixing.
+
+(RK-17) Add rugged/libgit2 based Git implementation
+
+The libgit2 library and Ruby rugged gem provide a native interface to Git for
+Ruby that is faster and more consistent than shelling out to Git. An additional
+rugged based Git implementation has been added along the original 'shellgit'
+implementation, and the implementations can be swapped out as needed.
+
+(RK-24) Add '/etc/puppetlabs/r10k/r10k.yaml' to config search path
+
+In order to be more consistent with the rest of the Puppet ecosystem, r10k will
+now check for configuration in a standard location inside of '/etc/puppetlabs'.
+The old location, '/etc/r10k.yaml' is still respected so no configuration change
+is needed at this point, although the old location will be deprecated in the
+future.
+
+(RK-25) Warn if both '/etc/r10k.yaml' and '/etc/puppetlabs/r10k/r10k.yaml' exist
+
+(RK-31) Remove undocumented search for 'r10k.yaml'
+
+Early versions of r10k would try to search for 'r10k.yaml' in parent
+directories, in the same manner that programs like Git and Bundler recursively
+search for configuration. However this functionality isn't terribly useful, is a
+bit surprising, and adds a lot of complexity. This behavior has been removed in
+1.5.0.
+
+(RK-32, RK-33, RK-38) Provide configuration options for Git providers
+
+The r10k Git providers can now be selected and configured via configuration in
+r10k.yaml. See the [Git specific documentation](doc/git) for more information on
+these settings.
+
+(RK-37) Support higher verbosity levels for `r10k version`
+
+If `r10k version` is run with the `--verbose` flag, diagnostic information about
+r10k will be included along with version information.
+
+(RK-39, RK-66) Improved logging/messaging
+
+R10k now logs more information about what's going on and is more consistent
+about which levels it displays messages.
+
+(RK-74) Improved log formatting
+
+The log formatting that r10k uses was added in some distant point in the past
+where there were few users, and wasn't really designed with users in mind. The
+formatting has been improved so that at lower log levels the formatting will
+include the log level and nothing else, and at higher levels it will include
+timing information.
+
+(RK-75) Optional log coloring
+
+At higher log levels r10k can produce a lot of logging information at a rapid
+rate, and in general errors and warnings are not very visually distinct and easy
+to miss. To help solve these problems r10k 1.5.0 now has optional colored
+logging to help provide more information/context at a glance. Coloring can be
+enabled with the `--color` option.
+
+(GH-265) (RK-11) Unix commands with > 64KiB of output no longer deadlock
+
+Unix pipes have a maximum buffer size of 64KiB, and if the pipe buffer fills
+then subsequent writes will block. Since r10k used to wait for a subprocess to
+finish before reading from the attached pipes, if the process filled the buffers
+then the processes would deadlock.
+
+This has been fixed by continually reading from the subprocess pipes to prevent
+the buffers from filling up.
+
+Unfortunately implementing this correctly requires reading from the pipes until
+EOF, which breaks the ssh ControlPersist functionality. Supporting both the
+ControlPersist functionality while preventing deadlock introduces too many
+potential race conditions, so unfortunately workarounds for this issue can't be
+accepted.
+
+See https://bugzilla.mindrot.org/show_bug.cgi?id=1988 for more information about
+the ssh ControlPersist bug.
+
+### Developer notes
+
+(GH-142) Use Forge v3 API
+
+R10k was using the old and deprecated v1 Forge API to determine the latest
+version of Forge modules when using the `:latest` module version. This has been
+fixed so that the v3 API is used.
+
+(RK-16) Decouple Git platform dependent and independent code
+
+The original code that interfaced r10k and Git was very tightly coupled; there
+was no defined interface and it was expected that r10k would always shell out to
+Git. This has been fixed by extracting the shellout specific code to a library
+and defining a common interface for Git classes so that different Git
+implementations can be used. The existing shellout implementation has been
+renamed to 'shellgit' and should be functionally equivalent to the Git
+implementation in previous versions of r10k.
+
+(RK-55, GH-355) Prevent warnings on Ruby 2.2
+
+Ruby 2.2 generates warnings when comparing values and `#<=>` raises an
+exception; the code triggering this behavior has been cleaned up to prevent a
+warning from being logged.
+
+(RK-65) Switch to using the semantic_puppet gem
+
+R10k is switching from the old vendored copy of 'SemVer' that was stolen from
+Puppet to the 'semantic_puppet' gem, which is the library that Puppet now uses
+for version comparisons and parsing.
+
+(RK-48) Ignore deleted versions when fetching latest module version
+
+When looking up the latest version of a module on the Forge, if the latest
+version had been deleted r10k would try to install that deleted version anyways.
+This has been fixed so that all deleted module releases will be ignored.
+
 1.4.2
 -----
 
