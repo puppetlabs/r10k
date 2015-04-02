@@ -43,16 +43,44 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
   #
   # @return [void]
   def fetch
+    backup_branches = wipe_branches
     logger.debug1 { "Fetching remote 'origin' at #{@path}" }
     options = {:credentials => credentials}
     refspecs = ['+refs/*:refs/*']
     results = with_repo { |repo| repo.fetch('origin', refspecs, options) }
     report_transfer(results, 'origin')
   rescue Rugged::SshError, Rugged::NetworkError => e
+    restore_branches(backup_branches)
     raise R10K::Git::GitError.new(e.message, :git_dir => git_dir, :backtrace => e.backtrace)
+  rescue
+    restore_branches(backup_branches)
+    raise
   end
 
   def exist?
     @path.exist?
+  end
+
+  def wipe_branches
+    backup_branches = {}
+    with_repo do |repo|
+      repo.branches.each do |branch|
+        if !branch.head?
+          backup_branches[branch.name] = branch.target_id
+          repo.branches.delete(branch)
+        end
+      end
+    end
+    backup_branches
+  end
+
+  def restore_branches(backup_branches)
+    with_repo do |repo|
+      backup_branches.each_pair do |name, ref|
+        if !repo.branches.exist?(name)
+          repo.create_branch(name, ref)
+        end
+      end
+    end
   end
 end
