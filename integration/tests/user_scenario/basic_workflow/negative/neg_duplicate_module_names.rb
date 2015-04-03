@@ -8,7 +8,7 @@ git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
 
 #Verification
-error_message_regex = /ERROR\]/
+error_message_regex = /ERROR.*undefined method `full_module_name' for nil:NilClass/
 
 #File
 puppet_file = <<-PUPPETFILE
@@ -38,8 +38,8 @@ git_add_commit_push(master, 'production', 'Add modules.', git_environments_path)
 
 #Tests
 step 'Attempt to Deploy via r10k'
-on(master, 'r10k deploy environment -v -p', :acceptable_exit_codes => 0) do |result|
+on(master, 'r10k deploy environment -v -p', :acceptable_exit_codes => 1) do |result|
   expect_failure('Expected to fail due to CODEMGMT-71') do
-    assert_match(error_message_regex, result.stderr, 'Expected message not found!')
+    assert_no_match(error_message_regex, result.stderr, 'Expected message not found!')
   end
 end

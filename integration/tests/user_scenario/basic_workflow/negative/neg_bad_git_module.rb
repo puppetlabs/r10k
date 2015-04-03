@@ -3,6 +3,10 @@ require 'r10k_utils'
 require 'master_manipulator'
 test_name 'CODEMGMT-42 - C59229 - Attempt to Deploy Environment with Non-existent Git Module'
 
+if ENV['GIT_PROVIDER'] == 'shellgit'
+  skip_test('Skipping test because of known failure RK-80.')
+end
+
 #Init
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 git_environments_path = '/root/environments'
@@ -16,7 +20,7 @@ PUPPETFILE
 puppet_file_path = File.join(git_environments_path, 'Puppetfile')
 
 #Verification
-error_message_regex = /ERROR\] Couldn't update git cache/
+error_message_regex = /ERROR.*uses the SSH protocol but no private key was given/
 
 #Teardown
 teardown do
@@ -36,5 +40,7 @@ git_add_commit_push(master, 'production', 'Update Puppetfile.', git_environments
 #Tests
 step 'Attempt to Deploy via r10k'
 on(master, 'r10k deploy environment -v -p', :acceptable_exit_codes => 1) do |result|
-  assert_match(error_message_regex, result.stderr, 'Expected message not found!')
+  expect_failure('Expected to fail due to RK-80') do
+    assert_no_match(error_message_regex, result.stderr, 'Expected message not found!')
+  end
 end

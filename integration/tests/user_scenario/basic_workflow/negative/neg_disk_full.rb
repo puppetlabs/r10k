@@ -33,7 +33,7 @@ sources:
 CONF
 
 #Verification
-error_message_regex = /ERROR\].*No space left on device/m
+error_message_regex = /ERROR.*No space left on device/m
 
 #Teardown
 teardown do

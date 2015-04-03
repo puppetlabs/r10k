@@ -23,7 +23,7 @@ sources:
 CONF
 
 #Verification
-error_message_regex = /ERROR\]/m
+error_message_regex = /ERROR.*Unable to determine current branches for Git source 'broken'/m
 
 #Teardown
 teardown do

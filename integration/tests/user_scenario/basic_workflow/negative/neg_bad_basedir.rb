@@ -23,7 +23,7 @@ sources:
 CONF
 
 #Verification
-error_message_regex = /could not create leading directories of.*File name too long/
+error_message_regex = /ERROR.*(Failed to make directory|could not create leading directories of.*File name too long)/m
 
 #Teardown
 teardown do

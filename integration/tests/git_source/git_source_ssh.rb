@@ -8,7 +8,7 @@ env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 git_control_remote = 'git@github.com:puppetlabs/codemgmt-92.git'
 git_provider = ENV['GIT_PROVIDER'] || 'shellgit'
 
-jenkins_key_path = File.file?('/var/lib/jenkins/.ssh/id_rsa-jenkins') ? '/var/lib/jenkins/.ssh/id_rsa-jenkins' : File.expand_path('~/.ssh/id_rsa-jenkins')
+jenkins_key_path = File.file?("#{ENV['HOME']}/.ssh/id_rsa-jenkins") ? "#{ENV['HOME']}/.ssh/id_rsa-jenkins" : File.expand_path('~/.ssh/id_rsa-jenkins')
 ssh_private_key_path = '/root/.ssh/id_rsa-jenkins'
 ssh_config_path = '/root/.ssh/config'
 

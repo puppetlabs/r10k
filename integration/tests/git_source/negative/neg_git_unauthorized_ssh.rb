@@ -36,7 +36,7 @@ Host github.com
 CONF
 
 #Verification
-error_message_regex = /ERROR\].*Permission denied/m
+error_message_regex = /ERROR.*Unable to determine current branches for Git source 'broken'/m
 
 #Teardown
 teardown do
