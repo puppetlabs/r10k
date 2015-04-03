@@ -27,7 +27,7 @@ sources:
 CONF
 
 #Verification
-error_message_regex = /ERROR\].*Read-only file system/m
+error_message_regex = /ERROR.*Read-only file system/m
 
 #Teardown
 teardown do

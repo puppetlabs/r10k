@@ -14,7 +14,7 @@ puppet_file = <<-PUPPETFILE
 PUPPETFILE
 
 #Verification
-error_message_regex = /ERROR\].*syntax error/m
+error_message_regex = /ERROR.*Failed to evaluate/m
 
 #Teardown
 teardown do

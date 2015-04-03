@@ -18,7 +18,7 @@ PUPPETFILE
 puppet_file_path = File.join(git_environments_path, 'Puppetfile')
 
 #Verification
-error_message_regex = /Cannot check out Git ref 'does_not_exist'/
+error_message_regex = /ERROR.*Unable to sync repo to unresolvable ref/
 
 #Teardown
 teardown do

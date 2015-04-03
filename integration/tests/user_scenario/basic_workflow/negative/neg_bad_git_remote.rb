@@ -22,7 +22,7 @@ sources:
 CONF
 
 #Verification
-error_message_regex = /ERROR\] Couldn't update git cache for \/does\/not\/exist/
+error_message_regex = /ERROR.*Unable to determine current branches for Git source 'broken'/
 
 #Teardown
 teardown do

@@ -35,7 +35,7 @@ sources:
 CONF
 
 #Verification
-error_message_regex = /ERROR\] Environment collision/
+error_message_regex = /ERROR.*Environment collision/
 
 #Teardown
 teardown do

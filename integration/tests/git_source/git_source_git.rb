@@ -93,7 +93,7 @@ step 'Update the "r10k" Config'
 create_remote_file(master, r10k_config_path, r10k_conf)
 
 step 'Install "puppetlabs-xinetd" Module'
-on(master, puppet('module install puppetlabs-xinetd'))
+on(master, puppet('module install puppetlabs-xinetd --modulepath /opt/puppet/share/puppet/modules'))
 
 step 'Install and Configure "git-daemon" service'
 on(master, puppet('apply'), :stdin => git_daemon_xinetd_enable_manifest)
