@@ -33,6 +33,10 @@ describe R10K::ModuleRepository::Forge do
     it "can fetch the latest version of a given module" do
       expect(forge.latest_version('adrien/boolean')).to eq "1.0.1"
     end
+
+    it "ignores deleted releases" do
+      expect(forge.latest_version('r10ktesting/spotty')).to eq "0.3.0"
+    end
   end
 
   describe "it handles errors from forgeapi.puppetlabs.com", :vcr => true do

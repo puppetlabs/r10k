@@ -46,9 +46,11 @@ class R10K::ModuleRepository::Forge
       raise R10K::Error.new("Request to Puppet Forge '#{path}' failed. Status: #{response.status}")
     end
 
-    response.body['releases'].map do |version_info|
+    releases = response.body['releases'].reject { |r| r['deleted_at'] }
+    releases = releases.map do |version_info|
       version_info['version']
-    end.reverse
+    end
+    releases.reverse
   end
 
   # Query for the newest published version of a module
