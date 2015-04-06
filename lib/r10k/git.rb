@@ -1,6 +1,7 @@
 require 'r10k/features'
 require 'r10k/errors'
 require 'r10k/settings'
+require 'r10k/logging'
 
 module R10K
   module Git
@@ -49,6 +50,8 @@ module R10K
       attrs[:module]
     end
 
+    extend R10K::Logging
+
     # Manually set the Git provider by name.
     #
     # @param name [Symbol] The name of the Git provider to use.
@@ -65,7 +68,9 @@ module R10K
         @provider = NULL_PROVIDER
         raise R10K::Error, "Git provider '#{name}' is not functional."
       end
+
       @provider = attrs[:module]
+      logger.debug1 { "Setting Git provider to #{@provider.name}" }
     end
 
     # @return [Module] The namespace of the first available Git implementation.
@@ -75,7 +80,9 @@ module R10K
       when NULL_PROVIDER
         raise R10K::Error, "No Git provider set."
       when UNSET_PROVIDER
-        @provider = default
+        prov = default
+        logger.debug1 { "Setting Git provider to default provider #{prov.name}" }
+        @provider = prov
       else
         @provider
       end
