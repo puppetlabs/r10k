@@ -68,6 +68,8 @@ module R10K
       name
     end
 
+    extend R10K::Logging
+
     # Manually set the Git provider by name.
     #
     # @param name [Symbol] The name of the Git provider to use.
@@ -87,7 +89,9 @@ module R10K
       if attrs[:on_set]
         attrs[:on_set].call
       end
+
       @provider = attrs[:module]
+      logger.debug1 { "Setting Git provider to #{@provider.name}" }
     end
 
     # @return [Module] The namespace of the first available Git implementation.
@@ -98,7 +102,9 @@ module R10K
         raise R10K::Error, "No Git provider set."
       when UNSET_PROVIDER
         self.provider = default_name
+        logger.debug1 { "Setting Git provider to default provider #{default_name}" }
       end
+
       @provider
     end
 
