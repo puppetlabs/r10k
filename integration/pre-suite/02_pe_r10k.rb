@@ -40,8 +40,6 @@ on(master, "rm -rf #{prod_env_path}")
 step 'Configure r10k'
 create_remote_file(master, r10k_config_path, r10k_conf)
 on(master, "chmod 644 #{r10k_config_path}")
-#Work-a-round until CODEMGMT-110 is resolved
-on(master, "ln -s #{r10k_config_path} /etc/r10k.yaml")
 
 step 'Deploy "production" Environment via r10k'
 on(master, 'r10k deploy environment -v')
