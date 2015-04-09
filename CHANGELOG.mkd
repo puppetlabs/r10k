@@ -1,6 +1,41 @@
 CHANGELOG
 =========
 
+1.5.1
+-----
+
+2015/04/09
+
+### Thanks
+
+Thanks to all the users that helped track down RK-86, and Zack Smith in specific
+for tracing the source of the bug.
+
+### User notes
+
+(RK-62) Warn when Rugged is compiled without SSH or HTTPS transports
+
+If Rugged/libgit2 was compiled without libssh2, trying to access a Git
+repository via SSH throws a fairly cryptic error. It's not terribly easy to
+specially handle the error message that's being logged, but in lieu of that r10k
+now checks the Rugged gem to make sure it's compiled with support for SSH and
+HTTPS when the Rugged Git provider is used.
+
+(RK-79) Bump minimum required version of faraday_middlware-multi_json
+
+Faraday 0.9.0 changed the API for middleware plugins, which made it incompatible
+with the faraday_middleware-multi_json plugin. That plugin supported the new API
+in version 0.0.6 but the minimum required version in the r10k gemspec was not
+updated, allowing r10k to be installed with incompatible versions of faraday and
+faraday_middleware-multi_json. This has been fixed by requiring the minimum
+compatible version of faraday_middleware-multi_json.
+
+(RK-86) Git modules don't properly track branches
+
+R10k 1.5.0 added smarter syncing for Git caches to reduce network traffic, but
+it accidentally caused branches to stop tracking changes to the remote branch.
+This has been fixed and the pre-1.5.0 behavior has been restored.
+
 1.5.0
 -----
 
