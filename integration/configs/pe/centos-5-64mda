@@ -1,5 +1,5 @@
 HOSTS:
-  centos-5-x86_64:
+  centos-5-x86_64-master:
     roles:
       - master
       - dashboard

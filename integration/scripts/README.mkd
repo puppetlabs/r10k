@@ -1,0 +1,83 @@
+Scripts
+=======
+
+This folder contains helper scripts for setting up manual testing environments
+using [Beaker](https://github.com/puppetlabs/beaker) configuration files. The
+environments created by these scripts have "r10k" fully configured along with
+a Git repository with a valid "production" environment.
+
+## Prerequisites
+
+To utilize this test scripts you will need to have Ruby 1.9.3 or greater
+installed on your system along with Bundler. Also, the scripts utilize the
+"vmpooler" for virtual machine creation. Access to the "vmpooler" machines
+require having valid SSH private keys located on your local computer. Speak
+with a QA team member for more information on where to find the necessary
+SSH keys.
+
+## Usage
+
+The scripts are written in Bash and should run on any Linux or Mac system as
+long as the prerequisites mentioned above are satisfied.
+
+### Cloning
+
+First you will need to clone the "[r10k](https://github.com/puppetlabs/r10k)" repository on your local machine:
+
+```bash
+git clone git@github.com:puppetlabs/r10k.git
+```
+
+### Executing Script
+
+Navigate to the integration tests "scripts" folder of the "r10k" repository
+clone:
+
+```bash
+cd r10k/integration/scripts
+```
+
+There are separate scripts for each supported platform. Select a desired
+platform and execute the script:
+
+```bash
+bash setup_r10k_env_centos6.sh
+```
+
+## Connecting to Machines
+
+The setup process takes about 10 minutes to complete. Once finished Beaker
+will report that all tests have been ran successfully. The output log will
+list the machines created. The Puppet master will have a name ending with
+"-master" which you can scrape from the Beaker console output. Example:
+
+```
+a9lrs93vnujsrrg.delivery.puppetlabs.net (centos-6-x86_64-master) executed in 1.26 seconds
+```
+
+The FQDN of the Puppet master ("a9lrs93vnujsrrg.delivery.puppetlabs.net" in the
+above example) will be printed to the left of the machine tag. The machine tag
+is a combination of the platform and role of the virtual machine.
+
+Now that you have the FQDN you can connect to the machine using SSH:
+
+```bash
+ssh -i private_key root@a9lrs93vnujsrrg.delivery.puppetlabs.net
+```
+
+*Note:* The correct SSH private key needs to be installed on your local machine
+first. Speak with a QA representative to get the correct key for "vmpooler"
+machines.
+
+## Configuration Details
+
+Now that you have successfully connected to the Puppet master you can begin
+manual testing. The script has configured Git on the Puppet master to provide
+a working "production" environment for "r10k" testing. The Git repository
+serving the Puppet environments is located at "/git_repos/environments.git".
+There is a Git clone of the remote repository located at "/root/environments".
+
+When performing manual "r10k" testing you should utilize the Git clone
+repository located at "/root/environments". The "r10k" configuration file
+"/etc/puppetlabs/r10k/r10k.yaml" is already configured to use the remote Git
+repository for deployments.

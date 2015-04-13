@@ -1,5 +1,5 @@
 HOSTS:
-  sles-11-x86_64:
+  sles-11-x86_64-master:
     roles:
       - master
       - dashboard
