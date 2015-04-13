@@ -1,5 +1,5 @@
 HOSTS:
-  centos-7-x86_64:
+  centos-7-x86_64-master:
     roles:
       - master
       - dashboard

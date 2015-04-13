@@ -1,5 +1,5 @@
 HOSTS:
-  redhat-7-x86_64:
+  redhat-7-x86_64-master:
     roles:
       - master
       - dashboard

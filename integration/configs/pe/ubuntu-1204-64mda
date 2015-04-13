@@ -1,5 +1,5 @@
 HOSTS:
-  ubuntu-1204-amd64:
+  ubuntu-1204-amd64-master:
     roles:
       - master
       - dashboard

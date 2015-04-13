@@ -1,5 +1,5 @@
 HOSTS:
-  debian-7-amd64:
+  debian-7-amd64-master:
     roles:
       - master
       - dashboard

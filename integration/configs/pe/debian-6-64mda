@@ -1,5 +1,5 @@
 HOSTS:
-  debian-6-amd64:
+  debian-6-amd64-master:
     roles:
       - master
       - dashboard
