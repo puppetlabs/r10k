@@ -8,6 +8,8 @@ confine(:to, :platform => ['el', 'ubuntu', 'sles'])
 
 if ENV['GIT_PROVIDER'] == 'shellgit'
   skip_test('Skipping test because removing Git from the system affects other "shellgit" tests.')
+elsif fact_on(master, 'osfamily') == 'RedHat' and fact_on(master, "operatingsystemmajrelease").to_i < 6
+  skip_test('This version of EL is not supported by this test case!')
 end
 
 #Init
