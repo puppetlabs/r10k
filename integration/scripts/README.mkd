@@ -6,6 +6,9 @@ using [Beaker](https://github.com/puppetlabs/beaker) configuration files. The
 environments created by these scripts have "r10k" fully configured along with
 a Git repository with a valid "production" environment.
 
+These scripts are specific to the Puppet Labs environment and will not work in
+other environments without alteration!
+
 ## Prerequisites
 
 To utilize this test scripts you will need to have Ruby 1.9.3 or greater
@@ -47,7 +50,7 @@ bash setup_r10k_env_centos6.sh
 ## Connecting to Machines
 
 The setup process takes about 10 minutes to complete. Once finished Beaker
-will report that all tests have been ran successfully. The output log will
+will report that all tests have been run successfully. The output log will
 list the machines created. The Puppet master will have a name ending with
 "-master" which you can scrape from the Beaker console output. Example:
 
