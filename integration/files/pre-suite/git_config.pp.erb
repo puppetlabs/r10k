@@ -1,4 +1,10 @@
-class { 'git': }
+$git_package = $osfamily ? {
+  'Debian' => 'git-core',
+  default  => 'git'
+}
+class { 'git':
+  package_name => $git_package
+}
 ->
 git::config { 'user.name':
   value => 'Tester',

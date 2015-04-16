@@ -85,7 +85,11 @@ step 'Remove "git" Package from System'
 if master_platform == 'RedHat'
   on(master, 'yum remove -y git')
 elsif master_platform == 'Debian'
-  on(master, 'apt-get remove -y git')
+  if fact_on(master, "operatingsystemmajrelease") == '10.04'
+    on(master, 'apt-get remove -y git-core')
+  else
+    on(master, 'apt-get remove -y git')
+  end
 elsif master_platform == 'SLES'
   on(master, 'zypper remove -y git-core git')
 end
