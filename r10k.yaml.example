@@ -1,5 +1,86 @@
-:cachedir: '/var/cache/r10k'
-:sources:
-  :plops:
-    remote: 'git@github.com:my-org/org-shared-modules'
-    basedir: '/etc/puppet/environments'
+---
+# This example configuration details the most commonly used configuration
+# options for the `r10k deploy` command.
+#
+
+# The 'cachedir' setting controls where cached content, such as mirrored Git
+# repositories, are stored on the local machine. This location should be
+# persistent, as environments and modules may rely on these files in order to
+# be updated.
+#
+# See https://github.com/puppetlabs/r10k/blob/1.5.1/doc/git/cloning-and-mirroring.mkd
+# for more information on how r10k caches Git repositories.
+#
+# The default value is "~/.r10k"
+cachedir: '/var/cache/r10k'
+
+# The 'sources' setting determines what repositories r10k will use when creating
+# Puppet environments.
+sources:
+  # Each source should have a unique name, and preferrably should only use
+  # alphanumeric characters and underscores.
+  operations:
+
+    # The 'remote' setting determines the location of the VCS repository used
+    # for creating environments.
+    remote: 'git@github.com:my-org/org-operations-modules'
+
+    # The 'basedir' setting specifies where environments will be created for
+    # this source. This setting should match the Puppet 'environmentpath'
+    # setting in puppet.conf.
+    #
+    # See http://docs.puppetlabs.com/references/latest/configuration.html#environmentpath
+    # for more information about the Puppet 'environmentpath' setting.
+    basedir: '/etc/puppetlabs/puppet/environments'
+
+  # One or more sources can be specified; each source is simple another entry
+  # in the sources map.
+  qa:
+    remote: 'git@github.com:my-org/org-qa-modules'
+
+    # Multiple sources can have the same 'basedir' setting, in case there is a
+    # reason to push different sets of environments to the same Puppet master.
+    # If two different sources have the same basedir care should be exercised
+    # to make sure that two sources don't try create multiple environments with
+    # the same name. See the 'prefix' setting for more information.
+    basedir: '/etc/puppetlabs/puppet/environments'
+
+    # Sources can use the 'prefix' setting to avoid collisions between multiple
+    # sources being created in the same directory. Setting prefix to true
+    # prepends the source name and an underscore to each environment, so for
+    # the qa source the "production" branch will create the "qa_production"
+    # branch.
+    #
+    # The default value is 'false'.
+    #
+    # See https://github.com/puppetlabs/r10k/blob/1.5.1/doc/dynamic-environments/configuration.mkd#prefix
+    # for more information about the prefix setting.
+    prefix: true
+
+# Additional configuration can be supplied to configure how r10k uses Git
+# and what version of Git it uses.
+#
+# See https://github.com/puppetlabs/r10k/tree/1.5.1/doc/git for more
+# information on how r10k can configure Git.
+git:
+
+  # As of 1.5.0 r10k can interact with Git repositories in two ways - by
+  # shelling out to the 'git' executable, and by using libgit2 through the
+  # 'rugged' library.
+  #
+  # See https://github.com/puppetlabs/r10k/blob/1.5.1/doc/git/providers.mkd
+  # for more information on the Git providers.
+  provider: 'shellgit' # Either 'shellgit' or 'rugged', defaults to 'shellgit'
+
+  # The 'private_key' setting sets the the SSH private key to use for remote
+  # Git repositories accessed over SSH.
+  #
+  # The 'private_key' setting is only used by the 'rugged' Git provider.
+  #private_key: '/root/.ssh/id_rsa'
+
+  # The 'username' setting sets the SSH username for remote Git repositories
+  # when a username is not provided in the URL. The username defaults to the
+  # current user.
+  #
+  # The 'username' setting is only used by the 'rugged' Git provider.
+  #username: 'git'
