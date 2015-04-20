@@ -24,6 +24,10 @@ class R10K::Module::Forge < R10K::Module::Base
 
   include R10K::Logging
 
+  def self.forge(forge)
+    @@forge = forge
+  end
+
   def initialize(title, dirname, args)
     super
     @metadata_file = R10K::Module::MetadataFile.new(path + 'metadata.json')
@@ -149,7 +153,7 @@ class R10K::Module::Forge < R10K::Module::Base
   #
   # @return [String] The stdout from the executed command
   def pmt(argv)
-    argv = ['puppet', 'module', '--modulepath', @dirname, '--color', 'false'] + argv
+    argv = ['puppet', 'module', '--module_repository', @@forge, '--modulepath', @dirname, '--color', 'false'] + argv
 
     subproc = R10K::Util::Subprocess.new(argv)
     subproc.raise_on_fail = true
@@ -161,7 +165,7 @@ class R10K::Module::Forge < R10K::Module::Base
   end
 
   def set_version_from_forge
-    repo = R10K::ModuleRepository::Forge.new
+    repo = R10K::ModuleRepository::Forge.new(@@forge)
     expected = repo.latest_version(title)
     @expected_version = R10K::SemVer.new(expected)
   end

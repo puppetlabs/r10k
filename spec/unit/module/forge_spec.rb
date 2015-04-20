@@ -208,6 +208,7 @@ describe R10K::Module::Forge do
   end
 
   describe "and the expected version is :latest", :vcr => true, :unless => (RUBY_VERSION == '1.8.7') do
+    described_class.forge('https://forgeapi.puppetlabs.com')
     subject { described_class.new('branan/eight_hundred', fixture_modulepath, :latest) }
 
     it "sets the expected version based on the latest forge version" do

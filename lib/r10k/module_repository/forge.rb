@@ -20,10 +20,10 @@ class R10K::ModuleRepository::Forge
   #   @return [Faraday]
   attr_reader :conn
 
-  def initialize(forge = 'forgeapi.puppetlabs.com')
+  def initialize(forge)
     if forge =~ /forge\.puppetlabs\.com/
       logger.warn("#{forge} does not support the latest puppet forge API. Please update to \"forge 'https://forgeapi.puppetlabs.com'\"")
-      forge = 'forgeapi.puppetlabs.com'
+      forge = 'https://forgeapi.puppetlabs.com'
     end
     @forge = forge
     @conn  = make_conn
@@ -72,7 +72,7 @@ class R10K::ModuleRepository::Forge
     # Force use of json_pure with multi_json on Ruby 1.8.7
     multi_json_opts = (RUBY_VERSION == "1.8.7" ? {:adapter => :json_pure} : {})
 
-    Faraday.new(:url => "https://#{@forge}") do |builder|
+    Faraday.new(:url => @forge) do |builder|
       builder.request(:multi_json, multi_json_opts)
       builder.response(:multi_json, multi_json_opts)
 

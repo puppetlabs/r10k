@@ -5,13 +5,13 @@ require 'r10k/module_repository/forge'
 describe R10K::ModuleRepository::Forge do
 
   it "uses the official forge by default" do
-    forge = described_class.new
-    expect(forge.forge).to eq 'forgeapi.puppetlabs.com'
+    forge = described_class.new('https://forgeapi.puppetlabs.com')
+    expect(forge.forge).to eq 'https://forgeapi.puppetlabs.com'
   end
 
   it "replaces old forge with forgeapi" do
     forge = described_class.new(forge='forge.puppetlabs.com')
-    expect(forge.forge).to eq 'forgeapi.puppetlabs.com'
+    expect(forge.forge).to eq 'https://forgeapi.puppetlabs.com'
   end
 
   it "can use a private forge" do
@@ -20,7 +20,7 @@ describe R10K::ModuleRepository::Forge do
   end
 
   describe "and the expected version is :latest", :vcr => true do
-    subject(:forge) { described_class.new }
+    subject(:forge) { described_class.new('https://forgeapi.puppetlabs.com') }
 
     before do
       forge.conn.builder.insert_before(Faraday::Adapter::NetHttp, VCR::Middleware::Faraday)
@@ -40,7 +40,7 @@ describe R10K::ModuleRepository::Forge do
   end
 
   describe "it handles errors from forgeapi.puppetlabs.com", :vcr => true do
-    subject(:forge) { described_class.new }
+    subject(:forge) { described_class.new('https://forgeapi.puppetlabs.com') }
 
     before do
       forge.conn.builder.insert_before(Faraday::Adapter::NetHttp, VCR::Middleware::Faraday)

@@ -37,7 +37,7 @@ class Puppetfile
     @puppetfile_path = puppetfile || File.join(basedir, 'Puppetfile')
 
     @modules = []
-    @forge   = 'forgeapi.puppetlabs.com'
+    @forge   = 'https://forgeapi.puppetlabs.com'
   end
 
   def load
@@ -72,6 +72,7 @@ class Puppetfile
   # @param [String] name
   # @param [*Object] args
   def add_module(name, args)
+    R10K::Module::Forge.forge(forge)
     @modules << R10K::Module.new(name, @moduledir, args)
   end
 
