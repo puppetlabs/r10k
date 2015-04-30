@@ -35,6 +35,8 @@ module R10K
     #
     class Definition
 
+      require 'r10k/settings/enum_definition'
+
       include R10K::Util::Setopts
 
       # @!attribute [r] name
