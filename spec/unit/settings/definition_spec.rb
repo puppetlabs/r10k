@@ -49,8 +49,8 @@ describe R10K::Settings::Definition do
     end
 
     it 'returns the result of the default when the default is a proc' do
-      subject = described_class.new(:setting, :default => lambda { "I'm the result of the default lambda" })
-      expect(subject.get).to eq "I'm the result of the default lambda"
+      subject = described_class.new(:setting, :default => lambda { |defn| "I'm the result of the default lambda for the #{defn.name} definition" })
+      expect(subject.get).to eq "I'm the result of the default lambda for the setting definition"
     end
   end
 end

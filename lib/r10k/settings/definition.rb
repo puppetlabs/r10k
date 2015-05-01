@@ -82,7 +82,7 @@ module R10K
       # @return [Object] The manually set value if given, else the default value
       def get
         if @value.nil?
-          @default.is_a?(Proc) ? @default.call : @default
+          @default.is_a?(Proc) ? @default.call(self) : @default
         else
           @value
         end
