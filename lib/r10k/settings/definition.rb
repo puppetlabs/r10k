@@ -66,6 +66,11 @@ module R10K
       #     value is not valid.
       attr_reader :validate
 
+      # @!attribute [rw] collection
+      #   @return [R10K::Settings::Collection] The settings collection that
+      #     this definition belongs to.
+      attr_accessor :collection
+
       # @param name [Symbol] The name of the setting for this definition.
       # @param opts [Hash]
       def initialize(name, opts = {})

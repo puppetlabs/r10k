@@ -20,6 +20,16 @@ describe R10K::Settings::Definition do
     end
   end
 
+  describe 'with a collection' do
+    subject = described_class.new(:setting)
+
+    it "can store and retrieve a collection for this definition" do
+      collection = Object.new
+      subject.collection = collection
+      expect(subject.collection).to eq collection
+    end
+  end
+
   describe "#set" do
     it 'stores the provided value' do
       subject = described_class.new(:setting)

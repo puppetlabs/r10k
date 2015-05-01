@@ -35,6 +35,7 @@ module R10K
         @definitions = {}
 
         definition_list.each do |defn|
+          defn.collection = self
           @definitions[defn.name] = defn
         end
       end
