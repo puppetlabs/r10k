@@ -36,6 +36,7 @@ module R10K
     class Definition
 
       require 'r10k/settings/enum_definition'
+      require 'r10k/settings/path_definition'
 
       include R10K::Util::Setopts
 
