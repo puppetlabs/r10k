@@ -40,6 +40,19 @@ describe R10K::Settings::Collection do
       }.to raise_error(ArgumentError, "Cannot set value of nonexistent setting nosetting")
     end
   end
+
+  describe '#assign' do
+    it "sets each setting name/value pair" do
+      subject.assign({:somedefn => "bulk assigned value"})
+      expect(subject.get(:somedefn)).to eq "bulk assigned value"
+    end
+
+    it "raises an error if an invalid setting was given" do
+      expect {
+        subject.assign({:invalid => "bulk assigned value"})
+      }.to raise_error(ArgumentError, "Cannot set value of nonexistent setting invalid")
+    end
+  end
 end
 
 describe R10K::Settings::Collection, "with a nested collection" do
@@ -71,6 +84,14 @@ describe R10K::Settings::Collection, "with a nested collection" do
       expect {
         subject.set(:nested, Object.new)
       }.to raise_error(ArgumentError, "Cannot set value of nested collection nested; set individual values on the nested collection instead.")
+    end
+  end
+
+  describe '#assign' do
+    it "recursively sets each setting name/value pair" do
+      subject.assign({:toplevel_defn => "top level value", :nested => {:nested_defn => "nested value"}})
+      expect(subject[:toplevel_defn]).to eq 'top level value'
+      expect(subject[:nested][:nested_defn]).to eq 'nested value'
     end
   end
 end

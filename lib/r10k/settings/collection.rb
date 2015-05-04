@@ -109,6 +109,23 @@ module R10K
       end
 
       alias []= set
+
+      # Recursively bulk assign values to this collection and any nested collections.
+      #
+      # @param values [Hash] A hash of values to assign to this collection and
+      #   any nested collections
+      # @return [void]
+      def assign(values)
+        values.each_pair do |name, value|
+          if @definitions[name]
+            @definitions[name].set(value)
+          elsif @collections[name]
+            @collections[name].assign(value)
+          else
+            raise ArgumentError, "Cannot set value of nonexistent setting #{name}"
+          end
+        end
+      end
     end
   end
 end
