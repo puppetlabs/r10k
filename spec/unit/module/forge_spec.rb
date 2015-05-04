@@ -185,6 +185,12 @@ describe R10K::Module::Forge do
       expect(subject.status).to eq :mismatched
     end
 
+    it "is :mismatched if module was previously a git checkout" do
+      allow(File).to receive(:directory?).and_return true
+
+      expect(subject.status).to eq :mismatched
+    end
+
     it "is :mismatched if the metadata author doesn't match the expected author" do
       allow(subject).to receive(:exist?).and_return true
 
