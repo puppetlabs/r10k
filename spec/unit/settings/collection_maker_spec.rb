@@ -38,4 +38,22 @@ describe R10K::Settings::CollectionMaker do
       expect(defn.default).to eq 'two'
     end
   end
+
+  describe '#add_collection' do
+    let(:collection_class) { double('collection_class') }
+
+    it 'stores a copy of the collection class' do
+      subject.add_collection(collection_class)
+      expect(subject.stored_collections).to eq([collection_class])
+    end
+  end
+
+  describe '#collections' do
+    let(:collection_instance) { double('collection instance') }
+    let(:collection_class) { double('collection class', :new => collection_instance) }
+    it 'creates an instance for each stored collection' do
+      subject.add_collection(collection_class)
+      expect(subject.collections).to eq([collection_instance])
+    end
+  end
 end

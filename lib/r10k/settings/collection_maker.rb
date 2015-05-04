@@ -16,8 +16,13 @@ module R10K
       #   @return [Array<Array<Symbol, Hash>>] A list of stored settings definitions
       attr_reader :stored_definitions
 
+      # @!attribute [r] stored_collections
+      #   @return [Array<Class>] A list of stored collection classes
+      attr_reader :stored_collections
+
       def initialize
         @stored_definitions = []
+        @stored_collections = []
       end
 
       # Add a new setting definition
@@ -33,12 +38,29 @@ module R10K
         @stored_definitions << [name, opts]
       end
 
+      # Add a new nested collection
+      #
+      # @param klass [Class] The class of the nested collection to create. This
+      #   class should define #initialize with an arity of zero so that new
+      #   instances can be generated without an initializer list.
+      def add_collection(klass)
+        @stored_collections << klass
+      end
+
       # @return [Array<R10K::Settings::Definition>] A unique list of definition instances
       #   that can be passed to {R10K::Settings::Collection#initialize}
       def definitions
         @stored_definitions.map do |(name, opts)|
           defn_type = opts.delete(:type) || R10K::Settings::Definition
           defn_type.new(name, opts)
+        end
+      end
+
+      # @return [Array<R10K::Settings::Collection>] A unique list of nested collection
+      #   instances that can be passed to {R10K::Settings::Collection#initialize}
+      def collections
+        @stored_collections.map do |klass|
+          klass.new
         end
       end
     end
