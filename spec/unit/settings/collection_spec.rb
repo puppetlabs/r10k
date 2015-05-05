@@ -47,6 +47,11 @@ describe R10K::Settings::Collection do
       expect(subject.get(:somedefn)).to eq "bulk assigned value"
     end
 
+    it "converts string keys to symbol keys when assigning" do
+      subject.assign({'somedefn' => "string keyed value"})
+      expect(subject.get(:somedefn)).to eq "string keyed value"
+    end
+
     it "raises an error if an invalid setting was given" do
       expect {
         subject.assign({:invalid => "bulk assigned value"})

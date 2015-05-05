@@ -1,3 +1,5 @@
+require 'r10k/util/symbolize_keys'
+
 module R10K
   module Settings
     # Define a group of settings definitions and optional nested collections and
@@ -116,6 +118,8 @@ module R10K
       #   any nested collections
       # @return [void]
       def assign(values)
+        values = values.dup
+        R10K::Util::SymbolizeKeys.symbolize_keys!(values)
         values.each_pair do |name, value|
           if @definitions[name]
             @definitions[name].set(value)
