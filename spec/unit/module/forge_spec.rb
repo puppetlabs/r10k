@@ -207,10 +207,17 @@ describe R10K::Module::Forge do
     end
   end
 
-  describe "and the expected version is :latest", :vcr => true, :unless => (RUBY_VERSION == '1.8.7') do
+  describe "and the expected version is :latest" do
     subject { described_class.new('branan/eight_hundred', fixture_modulepath, :latest) }
 
+    let(:module_repository) { instance_double('R10K::ModuleRepository::Forge') }
+
+    before do
+      expect(R10K::ModuleRepository::Forge).to receive(:new).and_return module_repository
+    end
+
     it "sets the expected version based on the latest forge version" do
+      expect(module_repository).to receive(:latest_version).with('branan/eight_hundred').and_return('8.0.0')
       allow(subject).to receive(:exist?).and_return true
       allow(subject.metadata).to receive(:version).and_return '7.0.0'
       expect(subject.status).to eq :outdated
