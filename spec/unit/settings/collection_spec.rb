@@ -100,3 +100,32 @@ describe R10K::Settings::Collection, "with a nested collection" do
     end
   end
 end
+
+describe R10K::Settings::Collection, "with apply hooks" do
+
+  let(:collector) { Hash.new }
+
+  subject do
+    described_class.new(
+      :toplevel, [R10K::Settings::Definition.new(:toplevel_defn, :apply => lambda { |_| collector[:toplevel_defn] = 'set'})],
+      [
+        described_class.new(
+          :nested,
+          [R10K::Settings::Definition.new(:nested_defn, :apply => lambda { |_| collector[:nested_defn] = 'also set' })]
+        )
+      ]
+    )
+  end
+
+  describe '#apply!' do
+    it "calls #apply! on all definitions" do
+      subject.apply!
+      expect(collector[:toplevel_defn]).to eq 'set'
+    end
+
+    it "calls #apply! on all nested collections" do
+      subject.apply!
+      expect(collector[:nested_defn]).to eq 'also set'
+    end
+  end
+end

@@ -130,6 +130,17 @@ module R10K
           end
         end
       end
+
+      # Recursively call all apply hooks on nested collections and definitions.
+      # @return [void]
+      def apply!
+        @collections.values.each do |coll|
+          coll.apply!
+        end
+        @definitions.values.each do |defn|
+          defn.apply!
+        end
+      end
     end
   end
 end
