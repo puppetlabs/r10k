@@ -24,6 +24,12 @@ describe R10K::Settings::Definition do
       subject = described_class.new(:setting, :filter => blk)
       expect(subject.filter).to eq blk
     end
+
+    it 'accepts the :apply option' do
+      blk = lambda { |_| "I'm the apply hook" }
+      subject = described_class.new(:setting, :apply => blk)
+      expect(subject.apply).to eq blk
+    end
   end
 
   describe 'with a collection' do
@@ -74,6 +80,21 @@ describe R10K::Settings::Definition do
     it 'returns the result of the default when the default is a proc' do
       subject = described_class.new(:setting, :default => lambda { |defn| "I'm the result of the default lambda for the #{defn.name} definition" })
       expect(subject.get).to eq "I'm the result of the default lambda for the setting definition"
+    end
+  end
+
+  describe '#apply!' do
+    it "calls the apply hook if an apply hook was given" do
+      state = nil
+      blk = lambda { |defn| state = "I'm the apply hook" }
+      subject = described_class.new(:setting, :apply => blk)
+      subject.apply!
+      expect(state).to eq "I'm the apply hook"
+    end
+
+    it "is a noop if no apply hook was given" do
+      subject = described_class.new(:setting)
+      subject.apply!
     end
   end
 end

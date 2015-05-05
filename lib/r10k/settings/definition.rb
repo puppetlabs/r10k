@@ -39,6 +39,13 @@ module R10K
     #   defn.set("myvalue") #=> nil
     #   defn.get #=> myvalue:Symbol
     #
+    # @example Using an apply hook
+    #   apply = lambda { |value| $globalstate = value }
+    #   defn = R10K::Settings::Definition.new(:globalstate, :apply => apply)
+    #   defn.set(:hello)
+    #   $globalstate #=> nil
+    #   defn.apply
+    #   $globalstate #=> :hello
     #
     class Definition
 
@@ -78,6 +85,11 @@ module R10K
       #     new setting value. This proc should raise an exception if the new
       #     value is not valid.
       attr_reader :validate
+
+      # @!attribute [rw] apply
+      #   @return [Proc] An optional proc that can be used to apply this setting
+      #     to the system.
+      attr_reader :apply
 
       # @!attribute [rw] collection
       #   @return [R10K::Settings::Collection] The settings collection that
@@ -127,6 +139,15 @@ module R10K
         @value = newvalue
       end
 
+      # Invoke the apply hook if one has been set on this definition.
+      #
+      # @return [void]
+      def apply!
+        if @apply
+          @apply.call(value)
+        end
+      end
+
       private
 
       # Subclasses may define additional params that are accepted at
@@ -138,6 +159,7 @@ module R10K
           :default  => true,
           :validate => true,
           :filter   => true,
+          :apply    => true,
         }
       end
     end
