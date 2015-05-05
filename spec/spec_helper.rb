@@ -23,18 +23,6 @@ require 'matchers/exit_with'
 require 'matchers/match_realpath'
 require 'r10k-mocks'
 
-
-require 'vcr'
-VCR.configure do |vcr|
-  vcr.cassette_library_dir = File.expand_path('spec/fixtures/vcr/cassettes', PROJECT_ROOT)
-  # VCR 2.9.3 uses a Faraday constant that was deprecated in Faraday 0.9.0,
-  # and as such triggers a warning on the part of Faraday during the following
-  # hooking step. It's known and there's nothing that can be done until VCR
-  # 2.9.4 comes out.
-  vcr.hook_into :faraday
-  vcr.configure_rspec_metadata!
-end
-
 RSpec.configure do |config|
   config.before(:all) do
     Log4r::Logger.global.level = Log4r::OFF
