@@ -18,6 +18,12 @@ describe R10K::Settings::Definition do
       subject = described_class.new(:setting, :validate => blk)
       expect(subject.validate).to eq blk
     end
+
+    it 'accepts the :filter option' do
+      blk = lambda { |input| "I'm a filter" }
+      subject = described_class.new(:setting, :filter => blk)
+      expect(subject.filter).to eq blk
+    end
   end
 
   describe 'with a collection' do
@@ -35,6 +41,13 @@ describe R10K::Settings::Definition do
       subject = described_class.new(:setting)
       subject.set("I'm the value")
       expect(subject.value).to eq "I'm the value"
+    end
+
+    it 'calls the filter hook and stores the filtered value when given' do
+      filter = lambda { |input| input.upcase }
+      subject = described_class.new(:setting, :filter => filter)
+      subject.set('loud noises')
+      expect(subject.get).to eq 'LOUD NOISES'
     end
 
     it 'calls the validate hook when given' do

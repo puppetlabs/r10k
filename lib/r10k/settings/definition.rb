@@ -33,6 +33,13 @@ module R10K
     #   defn.set("a string") #=> nil
     #   defn.set(123) #=> ArgumentError
     #
+    # @example Filtering an input
+    #   filter = lambda { |input| input.to_sym }
+    #   defn = R10K::Settings::Definition.new(:filtered, :filter => filter)
+    #   defn.set("myvalue") #=> nil
+    #   defn.get #=> myvalue:Symbol
+    #
+    #
     class Definition
 
       require 'r10k/settings/enum_definition'
@@ -59,6 +66,12 @@ module R10K
       #     returned if it's a proc, otherwise the default value will simply be
       #     returned.
       attr_reader :default
+
+      # @!attribute [rw] filter
+      #   @return [Proc] An optional proc that will be called to modify a new
+      #     value before validation is called. This can be used to normalize
+      #     inputs before validation.
+      attr_reader :filter
 
       # @!attribute [rw] validate
       #   @return [Proc] An optional proc that will be called before storing a
@@ -95,13 +108,19 @@ module R10K
 
       # Assign a value to this setting.
       #
-      # If a validate hook has been assigned, that will be invoked before the
-      # setting is stored.
+      # If a filter hook has been assigned, the filter hook will be invoked
+      # and the result of the filtering will be validated/stored.
+      #
+      # If a validate hook has been assigned, the validate hook will be invoked
+      # before the setting is stored.
       #
       # @param newvalue [Object] The new setting to apply
       #
       # @return [void]
       def set(newvalue)
+        if @filter
+          newvalue = @filter.call(newvalue)
+        end
         if @validate
           @validate.call(newvalue)
         end
@@ -118,6 +137,7 @@ module R10K
           :desc     => true,
           :default  => true,
           :validate => true,
+          :filter   => true,
         }
       end
     end
