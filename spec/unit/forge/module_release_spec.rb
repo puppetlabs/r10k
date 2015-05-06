@@ -29,7 +29,7 @@ describe R10K::Forge::ModuleRelease do
   end
 
   describe '#unpack' do
-    it "unpacks the module tarball in `download_path` into `unpack_pack`", :pending => "Module unpack code" do
+    it "unpacks the module tarball in `download_path` into `unpack_path`" do
       expect(PuppetForge::Unpacker).to receive(:unpack).with(download_path, unpack_path)
       subject.unpack
     end
