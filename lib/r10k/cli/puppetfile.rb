@@ -31,6 +31,8 @@ Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
           usage   'install'
           summary 'Install all modules from a Puppetfile'
 
+          required :p, :parallel, 'Number of module installations to conduct in parallel', argument: :required
+
           # @todo add --moduledir option
           # @todo add --puppetfile option
           # @todo add --no-purge option

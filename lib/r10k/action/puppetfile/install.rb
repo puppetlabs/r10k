@@ -21,12 +21,13 @@ module R10K
             :moduledir  => :self,
             :puppetfile => :path,
             :trace      => :self,
+            :parallel   => :self
           })
         end
 
         def call
           pf = R10K::Puppetfile.new(@root, @moduledir, @path)
-          pf.accept(self)
+          pf.accept(self, @parallel.to_i)
           @ok
         end
 
