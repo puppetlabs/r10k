@@ -15,15 +15,11 @@ describe R10K::Module::Forge do
     end
 
     it "should implement 'branan-eight_hundred', '8.0.0'" do
-      expect(described_class).to be_implement('branan/eight_hundred', '8.0.0')
+      expect(described_class).to be_implement('branan-eight_hundred', '8.0.0')
     end
 
     it "should fail with an invalid title" do
       expect(described_class).to_not be_implement('branan!eight_hundred', '8.0.0')
-    end
-
-    it "should fail with an invalid version" do
-      expect(described_class).to_not be_implement('branan-eight_hundred', 'not a semantic version')
     end
   end
 
