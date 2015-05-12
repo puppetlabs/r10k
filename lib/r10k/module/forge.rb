@@ -14,7 +14,7 @@ class R10K::Module::Forge < R10K::Module::Base
   R10K::Module.register(self)
 
   def self.implement?(name, args)
-    !!(name.match %r[\w+/\w+])
+    !!(name.match %r[\w+[/-]\w+])
   end
 
   # @!attribute [r] metadata
