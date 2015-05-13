@@ -1,10 +1,14 @@
 require 'shared/puppet_forge/v3/module_release'
+require 'shared/puppet_forge/unpacker'
+require 'r10k/logging'
 require 'fileutils'
 
 module R10K
   module Forge
     # Download, unpack, and install modules from the Puppet Forge
     class ModuleRelease
+
+      include R10K::Logging
 
       # @!attribute [r] forge_release
       #   @api private
@@ -46,8 +50,7 @@ module R10K
       def install(target_dir)
         download
         verify
-        unpack
-        move(target_dir)
+        unpack(target_dir)
       ensure
         cleanup
       end
@@ -70,18 +73,13 @@ module R10K
         @forge_release.verify(download_path)
       end
 
-      # Unpack the module release at {#download_path} to {#unpack_path}
-      def unpack
-        PuppetForge::Unpacker.unpack(download_path, unpack_path)
-      end
-
-      # Move the unpacked module release at {#module_path} to the target directory.
+      # Unpack the module release at {#download_path} into the given target_dir
       #
-      # @param target_dir [Pathname] The path to where the module release should be created.
+      # @param target_dir [Pathname] The final path where the module release
+      #   should be unpacked/installed into.
       # @return [void]
-      def move(target_dir)
-        PuppetForge::Unpacker.harmonize_ownership(unpack_path, target_dir)
-        FileUtils.mv(tmpdir, target_dir)
+      def unpack(target_dir)
+        PuppetForge::Unpacker.unpack(download_path.to_s, target_dir.to_s, unpack_path.to_s)
       end
 
       # Remove all files created while downloading and unpacking the module.

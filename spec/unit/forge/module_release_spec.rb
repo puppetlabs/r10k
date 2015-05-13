@@ -29,23 +29,9 @@ describe R10K::Forge::ModuleRelease do
   end
 
   describe '#unpack' do
-    it "unpacks the module tarball in `download_path` into `unpack_path`" do
-      expect(PuppetForge::Unpacker).to receive(:unpack).with(download_path, unpack_path)
-      subject.unpack
-    end
-  end
-
-  describe '#move' do
-    it "harmonizes permissions with the unpacked directory and the target directory", :pending => "Module unpack code" do
-      expect(PuppetForge::Unpacker).to receive(:harmonize_ownership).with(unpack_path, target_dir)
-      allow(FileUtils).to receive(:mv).with(unpack_path, target_dir)
-      subject.move(target_dir)
-    end
-
-    it "moves the unpack_path into the target directory", :pending => "Module unpack code" do
-      allow(PuppetForge::Unpacker).to receive(:harmonize_ownership).with(unpack_path, target_dir)
-      expect(FileUtils).to receive(:mv).with(unpack_path, target_dir)
-      subject.move(target_dir)
+    it "unpacks the module tarball in `download_path` into the provided target path" do
+      expect(PuppetForge::Unpacker).to receive(:unpack).with(download_path.to_s, target_dir.to_s, unpack_path.to_s)
+      subject.unpack(target_dir)
     end
   end
 
@@ -89,8 +75,7 @@ describe R10K::Forge::ModuleRelease do
     it "performs all steps needed to install the module" do
       expect(subject).to receive(:download)
       expect(subject).to receive(:verify)
-      expect(subject).to receive(:unpack)
-      expect(subject).to receive(:move).with(target_dir)
+      expect(subject).to receive(:unpack).with(target_dir)
       expect(subject).to receive(:cleanup)
       subject.install(target_dir)
     end
