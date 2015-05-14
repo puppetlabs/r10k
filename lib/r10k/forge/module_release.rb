@@ -2,6 +2,7 @@ require 'shared/puppet_forge/v3/module_release'
 require 'shared/puppet_forge/unpacker'
 require 'r10k/logging'
 require 'fileutils'
+require 'forwardable'
 
 module R10K
   module Forge
@@ -16,6 +17,10 @@ module R10K
       #     release object used for downloading and verifying the module
       #     release.
       attr_reader :forge_release
+
+      extend Forwardable
+
+      def_delegators :@forge_release, :slug, :data
 
       # @!attribute [rw] download_path
       #   @return [Pathname] Where the module tarball will be downloaded to.
@@ -59,6 +64,7 @@ module R10K
       #
       # @return [void]
       def download
+        logger.debug1 "Downloading #{@forge_release.slug} from #{@forge_release.conn.url_prefix} to #{@download_path}"
         @forge_release.download(download_path)
       end
 
@@ -70,6 +76,7 @@ module R10K
       #   module release checksum.
       # @return [void]
       def verify
+        logger.debug1 "Verifying that #{download_path} matches checksum #{data['file_md5']}"
         @forge_release.verify(download_path)
       end
 
@@ -79,6 +86,7 @@ module R10K
       #   should be unpacked/installed into.
       # @return [void]
       def unpack(target_dir)
+        logger.debug1 "Unpacking #{download_path} to #{target_dir} (with tmpdir #{unpack_path})"
         PuppetForge::Unpacker.unpack(download_path.to_s, target_dir.to_s, unpack_path.to_s)
       end
 
