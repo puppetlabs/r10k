@@ -60,6 +60,19 @@ describe R10K::Module::Forge do
     end
   end
 
+  describe '#expected_version' do
+    it "returns an explicitly given expected version" do
+      subject = described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0')
+      expect(subject.expected_version).to eq '8.0.0'
+    end
+
+    it "uses the latest version from the forge when the version is :latest" do
+      subject = described_class.new('branan/eight_hundred', fixture_modulepath, :latest)
+      expect(R10K::ModuleRepository::Forge).to receive_message_chain(:new, :latest_version).and_return('8.8.8')
+      expect(subject.expected_version).to eq '8.8.8'
+    end
+  end
+
   describe "when syncing" do
     let(:metadata) do
       double('metadata',
@@ -200,24 +213,6 @@ describe R10K::Module::Forge do
       allow(subject).to receive(:exist?).and_return true
 
       expect(subject.status).to eq :insync
-    end
-  end
-
-  describe "and the expected version is :latest" do
-    subject { described_class.new('branan/eight_hundred', fixture_modulepath, :latest) }
-
-    let(:module_repository) { instance_double('R10K::ModuleRepository::Forge') }
-
-    before do
-      expect(R10K::ModuleRepository::Forge).to receive(:new).and_return module_repository
-    end
-
-    it "sets the expected version based on the latest forge version" do
-      expect(module_repository).to receive(:latest_version).with('branan/eight_hundred').and_return('8.0.0')
-      allow(subject).to receive(:exist?).and_return true
-      allow(subject.metadata).to receive(:version).and_return '7.0.0'
-      expect(subject.status).to eq :outdated
-      expect(subject.expected_version).to eq '8.0.0'
     end
   end
 end
