@@ -2,8 +2,8 @@ require 'r10k/module'
 require 'r10k/errors'
 require 'shared/puppet/module_tool/metadata'
 require 'r10k/module/metadata_file'
-require 'r10k/util/subprocess'
 
+require 'r10k/forge/module_release'
 require 'shared/puppet_forge/v3/module'
 
 require 'pathname'
@@ -29,12 +29,12 @@ class R10K::Module::Forge < R10K::Module::Base
 
   include R10K::Logging
 
-  def initialize(title, dirname, args)
+  def initialize(title, dirname, expected_version)
     super
     @metadata_file = R10K::Module::MetadataFile.new(path + 'metadata.json')
     @metadata = @metadata_file.read
 
-    @expected_version = args
+    @expected_version = expected_version || current_version || :latest
     @v3_module = PuppetForge::V3::Module.new(@title)
   end
 
@@ -67,7 +67,7 @@ class R10K::Module::Forge < R10K::Module::Base
 
   # @return [String] The version of the currently installed module
   def current_version
-    @metadata.version
+    @metadata ? @metadata.version : nil
   end
 
   alias version current_version
@@ -115,26 +115,16 @@ class R10K::Module::Forge < R10K::Module::Base
     return :insync
   end
 
-  private
-
   def install
-    FileUtils.mkdir @dirname unless File.directory? @dirname
-    cmd = []
-    cmd << 'install'
-    cmd << "--version=#{expected_version}" if expected_version
-    cmd << "--force"
-    cmd << title
-    pmt cmd
+    parent_path = @path.parent
+    if !parent_path.exist?
+      parent_path.mkpath
+    end
+    module_release = R10K::Forge::ModuleRelease.new(@title, expected_version)
+    module_release.install(@path)
   end
 
-  def upgrade
-    cmd = []
-    cmd << 'upgrade'
-    cmd << "--version=#{expected_version}" if expected_version
-    cmd << "--force"
-    cmd << title
-    pmt cmd
-  end
+  alias upgrade install
 
   def uninstall
     FileUtils.rm_rf full_path
@@ -145,22 +135,7 @@ class R10K::Module::Forge < R10K::Module::Base
     install
   end
 
-  # Wrap puppet module commands
-  #
-  # @param argv [Array<String>]
-  #
-  # @return [String] The stdout from the executed command
-  def pmt(argv)
-    argv = ['puppet', 'module', '--modulepath', @dirname, '--color', 'false'] + argv
-
-    subproc = R10K::Util::Subprocess.new(argv)
-    subproc.raise_on_fail = true
-    subproc.logger = self.logger
-
-    result = subproc.execute
-
-    result.stdout
-  end
+  private
 
   # Override the base #parse_title to ensure we have a fully qualified name
   def parse_title(title)
