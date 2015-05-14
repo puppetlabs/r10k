@@ -7,7 +7,6 @@ require 'r10k/module_repository/forge'
 
 require 'pathname'
 require 'fileutils'
-require 'r10k/semver'
 
 class R10K::Module::Forge < R10K::Module::Base
 
@@ -29,11 +28,7 @@ class R10K::Module::Forge < R10K::Module::Base
     @metadata_file = R10K::Module::MetadataFile.new(path + 'metadata.json')
     @metadata = @metadata_file.read
 
-    if args.is_a? String
-      @expected_version = R10K::SemVer.new(args)
-    elsif args.is_a? Symbol and args == :latest
-      @expected_version = args
-    end
+    @expected_version = args
   end
 
   def sync(options = {})
@@ -55,7 +50,7 @@ class R10K::Module::Forge < R10K::Module::Base
     }
   end
 
-  # @return [R10K::SemVer] The expected version that the module
+  # @return [String] The expected version that the module
   def expected_version
     if @expected_version.is_a?(Symbol) && @expected_version == :latest
       set_version_from_forge
@@ -63,7 +58,7 @@ class R10K::Module::Forge < R10K::Module::Base
     @expected_version
   end
 
-  # @return [R10K::SemVer] The version of the currently installed module
+  # @return [String] The version of the currently installed module
   def current_version
     @metadata.version
   end
@@ -163,7 +158,7 @@ class R10K::Module::Forge < R10K::Module::Base
   def set_version_from_forge
     repo = R10K::ModuleRepository::Forge.new
     expected = repo.latest_version(title)
-    @expected_version = R10K::SemVer.new(expected)
+    @expected_version = expected
   end
 
   # Override the base #parse_title to ensure we have a fully qualified name

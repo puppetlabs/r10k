@@ -51,12 +51,12 @@ describe R10K::Module::Forge do
     end
 
     it "sets the expected version" do
-      expect(subject.properties).to include(:expected => R10K::SemVer.new('8.0.0'))
+      expect(subject.properties).to include(:expected => '8.0.0')
     end
 
     it "sets the actual version" do
-      expect(subject).to receive(:current_version).and_return(R10K::SemVer.new('0.8.0'))
-      expect(subject.properties).to include(:actual => R10K::SemVer.new('0.8.0'))
+      expect(subject).to receive(:current_version).and_return('0.8.0')
+      expect(subject.properties).to include(:actual => '0.8.0')
     end
   end
 
@@ -65,7 +65,7 @@ describe R10K::Module::Forge do
       double('metadata',
              :exist? => true,
              :author => 'branan',
-             :version => R10K::SemVer.new('8.0.0'))
+             :version => '8.0.0')
     end
 
     subject { described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0') }
@@ -217,7 +217,7 @@ describe R10K::Module::Forge do
       allow(subject).to receive(:exist?).and_return true
       allow(subject.metadata).to receive(:version).and_return '7.0.0'
       expect(subject.status).to eq :outdated
-      expect(subject.expected_version).to eq R10K::SemVer.new('8.0.0')
+      expect(subject.expected_version).to eq '8.0.0'
     end
   end
 end
