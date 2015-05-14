@@ -68,7 +68,7 @@ describe R10K::Module::Forge do
 
     it "uses the latest version from the forge when the version is :latest" do
       subject = described_class.new('branan/eight_hundred', fixture_modulepath, :latest)
-      expect(R10K::ModuleRepository::Forge).to receive_message_chain(:new, :latest_version).and_return('8.8.8')
+      expect(subject.v3_module).to receive(:latest_version).and_return('8.8.8')
       expect(subject.expected_version).to eq '8.8.8'
     end
   end

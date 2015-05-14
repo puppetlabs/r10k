@@ -3,7 +3,8 @@ require 'r10k/errors'
 require 'shared/puppet/module_tool/metadata'
 require 'r10k/module/metadata_file'
 require 'r10k/util/subprocess'
-require 'r10k/module_repository/forge'
+
+require 'shared/puppet_forge/v3/module'
 
 require 'pathname'
 require 'fileutils'
@@ -21,6 +22,11 @@ class R10K::Module::Forge < R10K::Module::Base
   #   @return [Puppet::ModuleTool::Metadata]
   attr_reader :metadata
 
+  # @!attribute [r] v3_module
+  #   @api private
+  #   @return [PuppetForge::V3::Module] The Puppet Forge module metadata
+  attr_reader :v3_module
+
   include R10K::Logging
 
   def initialize(title, dirname, args)
@@ -29,6 +35,7 @@ class R10K::Module::Forge < R10K::Module::Base
     @metadata = @metadata_file.read
 
     @expected_version = args
+    @v3_module = PuppetForge::V3::Module.new(@title)
   end
 
   def sync(options = {})
@@ -53,7 +60,7 @@ class R10K::Module::Forge < R10K::Module::Base
   # @return [String] The expected version that the module
   def expected_version
     if @expected_version.is_a?(Symbol) && @expected_version == :latest
-      set_version_from_forge
+      @expected_version = @v3_module.latest_version
     end
     @expected_version
   end
@@ -153,12 +160,6 @@ class R10K::Module::Forge < R10K::Module::Base
     result = subproc.execute
 
     result.stdout
-  end
-
-  def set_version_from_forge
-    repo = R10K::ModuleRepository::Forge.new
-    expected = repo.latest_version(title)
-    @expected_version = expected
   end
 
   # Override the base #parse_title to ensure we have a fully qualified name
