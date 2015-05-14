@@ -3,6 +3,7 @@ require 'shared/puppet_forge/unpacker'
 require 'r10k/logging'
 require 'fileutils'
 require 'forwardable'
+require 'tmpdir'
 
 module R10K
   module Forge
@@ -38,8 +39,9 @@ module R10K
 
         @forge_release = PuppetForge::V3::ModuleRelease.new(@full_name, @version)
 
-        #@download_path = Pathname.new(R10K::Settings[:forge][:module_cache]) + "#{@forge_release.slug}.tgz"
-        #@unpack_path   = Pathname.new(R10K::Settings[:forge][:unpack_tmpdir]) + @forge_release.slug
+
+        @download_path = Pathname.new(Dir.mktmpdir) + (slug + '.tar.gz')
+        @unpack_path   = Pathname.new(Dir.mktmpdir) + slug
       end
 
       # Download, unpack, and install this module release to the target directory.
