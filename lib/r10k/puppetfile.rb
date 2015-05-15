@@ -111,7 +111,7 @@ class Puppetfile
       @librarian = librarian
     end
 
-    def mod(name, args = [])
+    def mod(name, args = nil)
       @librarian.add_module(name, args)
     end
 
