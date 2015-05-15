@@ -4,6 +4,7 @@
 # and instead use numeric comparisons (eg >, <, >=, <=)
 # Ruby 1.8 already did this for all ranges, but Ruby 1.9 changed range include behavior
 module R10K
+# @deprecated
 # :nocov:
 class SemVer < Numeric
   include Comparable
