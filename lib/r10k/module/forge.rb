@@ -59,7 +59,7 @@ class R10K::Module::Forge < R10K::Module::Base
 
   # @return [String] The expected version that the module
   def expected_version
-    if @expected_version.is_a?(Symbol) && @expected_version == :latest
+    if @expected_version == :latest
       @expected_version = @v3_module.latest_version
     end
     @expected_version
