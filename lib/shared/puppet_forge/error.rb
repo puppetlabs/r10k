@@ -25,6 +25,4 @@ Could not install package
       MSG
     end
   end
-
 end
-
