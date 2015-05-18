@@ -1,10 +1,16 @@
 require 'shared/puppet_forge/v3/module_release'
+require 'shared/puppet_forge/unpacker'
+require 'r10k/logging'
 require 'fileutils'
+require 'forwardable'
+require 'tmpdir'
 
 module R10K
   module Forge
     # Download, unpack, and install modules from the Puppet Forge
     class ModuleRelease
+
+      include R10K::Logging
 
       # @!attribute [r] forge_release
       #   @api private
@@ -12,6 +18,10 @@ module R10K
       #     release object used for downloading and verifying the module
       #     release.
       attr_reader :forge_release
+
+      extend Forwardable
+
+      def_delegators :@forge_release, :slug, :data
 
       # @!attribute [rw] download_path
       #   @return [Pathname] Where the module tarball will be downloaded to.
@@ -29,8 +39,9 @@ module R10K
 
         @forge_release = PuppetForge::V3::ModuleRelease.new(@full_name, @version)
 
-        #@download_path = Pathname.new(R10K::Settings[:forge][:module_cache]) + "#{@forge_release.slug}.tgz"
-        #@unpack_path   = Pathname.new(R10K::Settings[:forge][:unpack_tmpdir]) + @forge_release.slug
+
+        @download_path = Pathname.new(Dir.mktmpdir) + (slug + '.tar.gz')
+        @unpack_path   = Pathname.new(Dir.mktmpdir) + slug
       end
 
       # Download, unpack, and install this module release to the target directory.
@@ -46,8 +57,7 @@ module R10K
       def install(target_dir)
         download
         verify
-        unpack
-        move(target_dir)
+        unpack(target_dir)
       ensure
         cleanup
       end
@@ -56,6 +66,7 @@ module R10K
       #
       # @return [void]
       def download
+        logger.debug1 "Downloading #{@forge_release.slug} from #{@forge_release.conn.url_prefix} to #{@download_path}"
         @forge_release.download(download_path)
       end
 
@@ -67,21 +78,18 @@ module R10K
       #   module release checksum.
       # @return [void]
       def verify
+        logger.debug1 "Verifying that #{download_path} matches checksum #{data['file_md5']}"
         @forge_release.verify(download_path)
       end
 
-      # Unpack the module release at {#download_path} to {#unpack_path}
-      def unpack
-        PuppetForge::Unpacker.unpack(download_path, unpack_path)
-      end
-
-      # Move the unpacked module release at {#module_path} to the target directory.
+      # Unpack the module release at {#download_path} into the given target_dir
       #
-      # @param target_dir [Pathname] The path to where the module release should be created.
+      # @param target_dir [Pathname] The final path where the module release
+      #   should be unpacked/installed into.
       # @return [void]
-      def move(target_dir)
-        PuppetForge::Unpacker.harmonize_ownership(unpack_path, target_dir)
-        FileUtils.mv(tmpdir, target_dir)
+      def unpack(target_dir)
+        logger.debug1 "Unpacking #{download_path} to #{target_dir} (with tmpdir #{unpack_path})"
+        PuppetForge::Unpacker.unpack(download_path.to_s, target_dir.to_s, unpack_path.to_s)
       end
 
       # Remove all files created while downloading and unpacking the module.

@@ -51,117 +51,25 @@ describe R10K::Module::Forge do
     end
 
     it "sets the expected version" do
-      expect(subject.properties).to include(:expected => R10K::SemVer.new('8.0.0'))
+      expect(subject.properties).to include(:expected => '8.0.0')
     end
 
     it "sets the actual version" do
-      expect(subject).to receive(:current_version).and_return(R10K::SemVer.new('0.8.0'))
-      expect(subject.properties).to include(:actual => R10K::SemVer.new('0.8.0'))
+      expect(subject).to receive(:current_version).and_return('0.8.0')
+      expect(subject.properties).to include(:actual => '0.8.0')
     end
   end
 
-  describe "when syncing" do
-    let(:metadata) do
-      double('metadata',
-             :exist? => true,
-             :author => 'branan',
-             :version => R10K::SemVer.new('8.0.0'))
+  describe '#expected_version' do
+    it "returns an explicitly given expected version" do
+      subject = described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0')
+      expect(subject.expected_version).to eq '8.0.0'
     end
 
-    subject { described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0') }
-
-    describe "and the module is in sync" do
-      before do
-        allow(subject).to receive(:status).and_return :insync
-      end
-
-      it "is in sync" do
-        expect(subject).to be_insync
-      end
-
-      it "doesn't act when syncing anything" do
-        expect(subject).to receive(:install).never
-        expect(subject).to receive(:upgrade).never
-        expect(subject).to receive(:reinstall).never
-        subject.sync
-      end
-    end
-
-    describe "and the module is mismatched" do
-      before do
-        allow(subject).to receive(:status).and_return :mismatched
-      end
-
-      it "is not in sync" do
-        expect(subject).to_not be_insync
-      end
-
-      it "reinstalls the module" do
-        expect(subject).to receive(:reinstall)
-        subject.sync
-      end
-
-      it "reinstalls by removing the existing directory and calling the module tool" do
-        expect(FileUtils).to receive(:rm_rf)
-        expect(subject).to receive(:pmt) do |args|
-          expect(args).to include 'install'
-          expect(args).to include '--version=8.0.0'
-          expect(args).to include 'branan/eight_hundred'
-        end
-
-        subject.sync
-      end
-    end
-
-    describe "and the module is outdated" do
-      before do
-        allow(subject).to receive(:status).and_return :outdated
-      end
-
-      it "is not in sync" do
-        expect(subject).to_not be_insync
-      end
-
-      it "upgrades the module" do
-        expect(subject).to receive(:upgrade)
-        subject.sync
-      end
-
-      it "upgrades by calling the module tool" do
-        expect(subject).to receive(:pmt) do |args|
-          expect(args).to include 'upgrade'
-          expect(args).to include '--version=8.0.0'
-          expect(args).to include 'branan/eight_hundred'
-        end
-
-        subject.sync
-      end
-    end
-
-    describe "and the module is not installed" do
-      before do
-        allow(subject).to receive(:status).and_return :absent
-      end
-
-      it "is not in sync" do
-        expect(subject).to_not be_insync
-      end
-
-      it "installs the module" do
-        expect(subject).to receive(:uninstall).never
-        expect(subject).to receive(:install)
-        subject.sync
-      end
-
-      it "installs by calling the module tool" do
-        expect(subject).to receive(:pmt) do |args|
-          expect(args).to include 'install'
-          expect(args).to include '--version=8.0.0'
-          expect(args).to include 'branan/eight_hundred'
-        end
-
-        subject.sync
-      end
+    it "uses the latest version from the forge when the version is :latest" do
+      subject = described_class.new('branan/eight_hundred', fixture_modulepath, :latest)
+      expect(subject.v3_module).to receive(:latest_version).and_return('8.8.8')
+      expect(subject.expected_version).to eq '8.8.8'
     end
   end
 
@@ -203,21 +111,61 @@ describe R10K::Module::Forge do
     end
   end
 
-  describe "and the expected version is :latest" do
-    subject { described_class.new('branan/eight_hundred', fixture_modulepath, :latest) }
+  describe "#sync" do
+    subject { described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0') }
 
-    let(:module_repository) { instance_double('R10K::ModuleRepository::Forge') }
+    it 'does nothing when the module is in sync' do
+      allow(subject).to receive(:status).and_return :insync
 
-    before do
-      expect(R10K::ModuleRepository::Forge).to receive(:new).and_return module_repository
+      expect(subject).to receive(:install).never
+      expect(subject).to receive(:upgrade).never
+      expect(subject).to receive(:reinstall).never
+      subject.sync
     end
 
-    it "sets the expected version based on the latest forge version" do
-      expect(module_repository).to receive(:latest_version).with('branan/eight_hundred').and_return('8.0.0')
-      allow(subject).to receive(:exist?).and_return true
-      allow(subject.metadata).to receive(:version).and_return '7.0.0'
-      expect(subject.status).to eq :outdated
-      expect(subject.expected_version).to eq R10K::SemVer.new('8.0.0')
+    it 'reinstalls the module when it is mismatched' do
+      allow(subject).to receive(:status).and_return :mismatched
+      expect(subject).to receive(:reinstall)
+      subject.sync
+    end
+
+    it 'upgrades the module when it is outdated' do
+      allow(subject).to receive(:status).and_return :outdated
+      expect(subject).to receive(:upgrade)
+      subject.sync
+    end
+
+    it 'installs the module when it is absent' do
+      allow(subject).to receive(:status).and_return :absent
+      expect(subject).to receive(:install)
+      subject.sync
+    end
+  end
+
+  describe '#install' do
+    it 'installs the module from the forge' do
+      subject = described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0')
+      release = instance_double('R10K::Forge::ModuleRelease')
+      expect(R10K::Forge::ModuleRelease).to receive(:new).with('branan/eight_hundred', '8.0.0').and_return(release)
+      expect(release).to receive(:install).with(subject.path)
+      subject.install
+    end
+  end
+
+  describe '#uninstall' do
+    it 'removes the module path' do
+      subject = described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0')
+      expect(FileUtils).to receive(:rm_rf).with(subject.path.to_s)
+      subject.uninstall
+    end
+  end
+
+  describe '#reinstall' do
+    it 'uninstalls and then installs the module' do
+      subject = described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0')
+      expect(subject).to receive(:uninstall)
+      expect(subject).to receive(:install)
+      subject.reinstall
     end
   end
 end

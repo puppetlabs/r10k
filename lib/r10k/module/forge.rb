@@ -2,12 +2,12 @@ require 'r10k/module'
 require 'r10k/errors'
 require 'shared/puppet/module_tool/metadata'
 require 'r10k/module/metadata_file'
-require 'r10k/util/subprocess'
-require 'r10k/module_repository/forge'
+
+require 'r10k/forge/module_release'
+require 'shared/puppet_forge/v3/module'
 
 require 'pathname'
 require 'fileutils'
-require 'r10k/semver'
 
 class R10K::Module::Forge < R10K::Module::Base
 
@@ -22,18 +22,20 @@ class R10K::Module::Forge < R10K::Module::Base
   #   @return [Puppet::ModuleTool::Metadata]
   attr_reader :metadata
 
+  # @!attribute [r] v3_module
+  #   @api private
+  #   @return [PuppetForge::V3::Module] The Puppet Forge module metadata
+  attr_reader :v3_module
+
   include R10K::Logging
 
-  def initialize(title, dirname, args)
+  def initialize(title, dirname, expected_version)
     super
     @metadata_file = R10K::Module::MetadataFile.new(path + 'metadata.json')
     @metadata = @metadata_file.read
 
-    if args.is_a? String
-      @expected_version = R10K::SemVer.new(args)
-    elsif args.is_a? Symbol and args == :latest
-      @expected_version = args
-    end
+    @expected_version = expected_version || current_version || :latest
+    @v3_module = PuppetForge::V3::Module.new(@title)
   end
 
   def sync(options = {})
@@ -55,17 +57,17 @@ class R10K::Module::Forge < R10K::Module::Base
     }
   end
 
-  # @return [R10K::SemVer] The expected version that the module
+  # @return [String] The expected version that the module
   def expected_version
-    if @expected_version.is_a?(Symbol) && @expected_version == :latest
-      set_version_from_forge
+    if @expected_version == :latest
+      @expected_version = @v3_module.latest_version
     end
     @expected_version
   end
 
-  # @return [R10K::SemVer] The version of the currently installed module
+  # @return [String] The version of the currently installed module
   def current_version
-    @metadata.version
+    @metadata ? @metadata.version : nil
   end
 
   alias version current_version
@@ -113,26 +115,16 @@ class R10K::Module::Forge < R10K::Module::Base
     return :insync
   end
 
-  private
-
   def install
-    FileUtils.mkdir @dirname unless File.directory? @dirname
-    cmd = []
-    cmd << 'install'
-    cmd << "--version=#{expected_version}" if expected_version
-    cmd << "--force"
-    cmd << title
-    pmt cmd
+    parent_path = @path.parent
+    if !parent_path.exist?
+      parent_path.mkpath
+    end
+    module_release = R10K::Forge::ModuleRelease.new(@title, expected_version)
+    module_release.install(@path)
   end
 
-  def upgrade
-    cmd = []
-    cmd << 'upgrade'
-    cmd << "--version=#{expected_version}" if expected_version
-    cmd << "--force"
-    cmd << title
-    pmt cmd
-  end
+  alias upgrade install
 
   def uninstall
     FileUtils.rm_rf full_path
@@ -143,28 +135,7 @@ class R10K::Module::Forge < R10K::Module::Base
     install
   end
 
-  # Wrap puppet module commands
-  #
-  # @param argv [Array<String>]
-  #
-  # @return [String] The stdout from the executed command
-  def pmt(argv)
-    argv = ['puppet', 'module', '--modulepath', @dirname, '--color', 'false'] + argv
-
-    subproc = R10K::Util::Subprocess.new(argv)
-    subproc.raise_on_fail = true
-    subproc.logger = self.logger
-
-    result = subproc.execute
-
-    result.stdout
-  end
-
-  def set_version_from_forge
-    repo = R10K::ModuleRepository::Forge.new
-    expected = repo.latest_version(title)
-    @expected_version = R10K::SemVer.new(expected)
-  end
+  private
 
   # Override the base #parse_title to ensure we have a fully qualified name
   def parse_title(title)
