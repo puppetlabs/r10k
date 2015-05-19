@@ -1,6 +1,13 @@
+require 'r10k/logging'
+require 'r10k/errors'
+require 'r10k/util/license'
+require 'shared/puppet_forge/connection'
+
 module R10K
   module Action
     class Runner
+      include R10K::Logging
+
       def initialize(opts, argv, klass)
         @opts = opts
         @argv = argv
@@ -30,6 +37,19 @@ module R10K
       end
 
       def setup_settings
+        setup_authorization
+      end
+
+      def setup_authorization
+        begin
+          license = R10K::Util::License.load
+
+          if license.respond_to?(:authorization_token)
+            PuppetForge::Connection.authorization = license.authorization_token
+          end
+        rescue R10K::Error => e
+          logger.warn e.message
+        end
       end
     end
   end

@@ -27,5 +27,15 @@ describe PuppetForge::Connection do
         subject.get('/error')
       }.to raise_error(Faraday::ClientError, "the server responded with status 503")
     end
+
+    context 'when an authorization value is provided' do
+      before(:each) do
+        allow(described_class).to receive(:authorization).and_return("auth-test value")
+      end
+
+      it 'sets authorization header on requests' do
+        expect(subject.headers).to include(:authorization => "auth-test value")
+      end
+    end
   end
 end
