@@ -8,10 +8,13 @@ module PuppetForge
     #
     # @param filename [String] the file to unpack
     # @param target [String] the target directory to unpack into
+    # @return [Hash{:symbol => Array<String>}] a hash with file-category keys pointing to lists of filenames.
+    #   The categories are :valid, :invalid and :symlink
     def self.unpack(filename, target, tmpdir)
       inst = self.new(filename, target, tmpdir)
-      inst.unpack
+      file_lists = inst.unpack
       inst.move_into(Pathname.new(target))
+      file_lists
     end
 
     # Set the owner/group of the target directory to those of the source

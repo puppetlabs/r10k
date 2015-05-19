@@ -28,6 +28,24 @@ describe PuppetForge::Unpacker do
     expect(File).to be_directory(target)
   end
 
+  it "returns the appropriate categories of the contents of the tar file from the tar implementation" do
+
+    minitar = double('PuppetForge::Tar::Mini')
+
+    expect(minitar).to receive(:unpack).with(filename, anything()) do |src, dest|
+      FileUtils.mkdir(File.join(dest, 'extractedmodule'))
+      File.open(File.join(dest, 'extractedmodule', 'metadata.json'), 'w+') do |file|
+        file.puts JSON.generate('name' => module_name, 'version' => '1.0.0')
+      end
+      { :valid => [File.join('extractedmodule', 'metadata.json')], :invalid => [], :symlinks => [] }
+    end
+
+    expect(PuppetForge::Tar).to receive(:instance).and_return(minitar)
+    file_lists = PuppetForge::Unpacker.unpack(filename, target, trash_dir)
+    expect(file_lists).to eq({:valid=>["extractedmodule/metadata.json"], :invalid=>[], :symlinks=>[]})
+    expect(File).to be_directory(target)
+  end
+
   it "attempts to set the ownership of a target dir to a source dir's owner" do
 
     source_path = Pathname.new(source)
