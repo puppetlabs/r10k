@@ -89,7 +89,17 @@ module R10K
       # @return [void]
       def unpack(target_dir)
         logger.debug1 "Unpacking #{download_path} to #{target_dir} (with tmpdir #{unpack_path})"
-        PuppetForge::Unpacker.unpack(download_path.to_s, target_dir.to_s, unpack_path.to_s)
+        file_lists = PuppetForge::Unpacker.unpack(download_path.to_s, target_dir.to_s, unpack_path.to_s)
+        logger.debug2 "Valid files unpacked: #{file_lists[:valid]}"
+        if !file_lists[:symlinks].empty?
+          logger.warn "Symlinks in modules are unsupported. These files were created as copies of the original " + 
+                      "files, but are no longer symlinks: #{file_lists[:symlinks]}"
+        end
+        if !file_lists[:invalid].empty?
+          logger.warn "These files existed in the module's tar file, but are invalid filetypes and were not " +
+                      "unpacked: #{file_lists[:invalid]}"
+        end
+
       end
 
       # Remove all files created while downloading and unpacking the module.

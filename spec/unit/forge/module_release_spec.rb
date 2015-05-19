@@ -6,8 +6,8 @@ describe R10K::Forge::ModuleRelease do
 
   let(:download_path) { instance_double('Pathname') }
   let(:unpack_path) { instance_double('Pathname') }
-
   let(:target_dir) { instance_double('Pathname') }
+  let(:file_lists) { {:valid=>['valid_ex'], :invalid=>[], :symlinks=>['symlink_ex']} }
 
   before do
     subject.download_path = download_path
@@ -30,9 +30,24 @@ describe R10K::Forge::ModuleRelease do
 
   describe '#unpack' do
     it "unpacks the module tarball in `download_path` into the provided target path" do
-      expect(PuppetForge::Unpacker).to receive(:unpack).with(download_path.to_s, target_dir.to_s, unpack_path.to_s)
+      expect(PuppetForge::Unpacker).to receive(:unpack).with(download_path.to_s, target_dir.to_s, unpack_path.to_s).\
+          and_return({:valid=>["extractedmodule/metadata.json"], :invalid=>[], :symlinks=>[]})
       subject.unpack(target_dir)
     end
+    
+    it "warns of symlinks during the unpacking process" do
+      logger_dbl = double(Log4r::Logger)
+      allow(subject).to receive(:logger).and_return(logger_dbl)
+      expect(PuppetForge::Unpacker).to receive(:unpack).with(download_path.to_s, target_dir.to_s, unpack_path.to_s).\
+          and_return(file_lists)
+      expect(logger_dbl).to receive(:debug1)
+      expect(logger_dbl).to receive(:debug2)
+      expect(logger_dbl).to receive(:warn).with("Symlinks in modules are unsupported. These files were created as "\
+                                                "copies of the original files, but are no longer symlinks: "\
+                                                "#{file_lists[:symlinks]}")
+      file_lists = subject.unpack(target_dir)
+    end
+    
   end
 
   describe "#cleanup" do
