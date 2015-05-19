@@ -23,6 +23,16 @@ module PuppetForge
 
     attr_writer :conn
 
+    USER_AGENT = "PuppetForge/#{PuppetForge::VERSION} Faraday/#{Faraday::VERSION} Ruby/#{RUBY_VERSION}-p#{RUBY_PATCHLEVEL} (#{RUBY_PLATFORM})"
+
+    def self.authorization=(token)
+      @authorization = token
+    end
+
+    def self.authorization
+      @authorization
+    end
+
     # @return [Faraday::Connection] An existing Faraday connection if one was
     #   already set, otherwise a new Faraday connection.
     def conn
@@ -35,7 +45,11 @@ module PuppetForge
     # @return [Faraday::Connection]
     def make_connection(url, adapter_args = nil)
       adapter_args ||= [Faraday.default_adapter]
-      options = {:headers => {:user_agent => USER_AGENT}}
+      options = { :headers => { :user_agent => USER_AGENT }}
+
+      if token = PuppetForge::Connection.authorization
+        options[:headers][:authorization] = token
+      end
 
       Faraday.new(url, options) do |builder|
         builder.response(:json, :content_type => /\bjson$/)
@@ -44,7 +58,5 @@ module PuppetForge
         builder.adapter(*adapter_args)
       end
     end
-
-    USER_AGENT = "PuppetForge/#{PuppetForge::VERSION} Faraday/#{Faraday::VERSION} Ruby/#{RUBY_VERSION}-p#{RUBY_PATCHLEVEL} (#{RUBY_PLATFORM})"
   end
 end

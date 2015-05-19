@@ -44,6 +44,11 @@ describe R10K::Action::Runner do
       runner.call
     end
 
+    it "configures settings" do
+      expect(runner).to receive(:setup_settings)
+      runner.call
+    end
+
     it "returns the result of the wrapped class #call method" do
       expect(runner.call).to eq %w[ARGS YES]
     end
@@ -59,6 +64,54 @@ describe R10K::Action::Runner do
     it "does not modify the loglevel if :loglevel is not provided" do
       expect(R10K::Logging).to_not receive(:level=)
       runner.call
+    end
+  end
+
+  describe "configuring settings" do
+    it "configures authorization" do
+      expect(runner).to receive(:setup_authorization)
+      runner.setup_settings
+    end
+  end
+
+  describe "configuration authorization" do
+    context "when license is not present" do
+      before(:each) do
+        expect(R10K::Util::License).to receive(:load).and_return(nil)
+      end
+
+      it "does not set authorization header on connection class" do
+        expect(PuppetForge::Connection).not_to receive(:authorization=)
+        runner.setup_authorization
+      end
+    end
+
+    context "when license is present but invalid" do
+      before(:each) do
+        expect(R10K::Util::License).to receive(:load).and_raise(R10K::Error.new('invalid license'))
+      end
+
+      it "issues warning to logger" do
+        expect(runner.logger).to receive(:warn).with(/invalid license/)
+        runner.setup_authorization
+      end
+
+      it "does not set authorization header on connection class" do
+        expect(PuppetForge::Connection).not_to receive(:authorization=)
+        runner.setup_authorization
+      end
+    end
+
+    context "when license is present and valid" do
+      before(:each) do
+        mock_license = double('pe-license', :authorization_token => 'test token')
+        expect(R10K::Util::License).to receive(:load).and_return(mock_license)
+      end
+
+      it "sets authorization header on connection class" do
+        expect(PuppetForge::Connection).to receive(:authorization=).with('test token')
+        runner.setup_authorization
+      end
     end
   end
 end
