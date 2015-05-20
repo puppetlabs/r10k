@@ -117,7 +117,7 @@ Install r10k via Ruby Gems.
 gem install r10k
 ```
 
-Configure r10k by editing `/etc/r10k.yaml` and ensuring it has the following contents:
+Configure r10k by editing `/etc/puppetlabs/r10k/r10k.yaml` and ensuring it has the following contents:
 
 ```
 # The location to use for storing cached Git repos
