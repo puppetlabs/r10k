@@ -8,6 +8,8 @@ module R10K
 class Deployment
 class Config
 
+  include R10K::Logging
+
   attr_accessor :configfile
 
   def initialize(configfile)
@@ -61,6 +63,10 @@ class Config
 
   # Apply global configuration settings.
   def apply_config_settings
+    with_setting(:purgedirs) do |purgedirs|
+      logger.warn("The purgedirs key in r10k.yaml is deprecated. It is currently ignored.")
+    end
+
     with_setting(:cachedir) do |cachedir|
       R10K::Git::Cache.settings[:cache_root] = cachedir
     end
