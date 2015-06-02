@@ -25,6 +25,26 @@ describe R10K::Forge::ModuleRelease do
         end
       end
     end
+
+    describe 'using application settings' do
+      before { described_class.settings[:proxy] = 'http://proxy.setting' }
+      after { described_class.settings.reset! }
+
+      it 'has a setting for the forge proxy' do
+        subject = described_class.new('branan-eight_hundred', '8.0.0')
+        proxy_uri = subject.forge_release.conn.proxy.uri
+        expect(proxy_uri.to_s).to eq "http://proxy.setting"
+      end
+
+      it 'prefers the proxy setting over an environment variable' do
+        R10K::Util::ExecEnv.withenv('HTTPS_PROXY' => "http://proxy.from.env") do
+          subject = described_class.new('branan-eight_hundred', '8.0.0')
+          proxy_uri = subject.forge_release.conn.proxy.uri
+          expect(proxy_uri.to_s).to eq "http://proxy.setting"
+        end
+      end
+    end
+
   end
 
   describe '#download' do

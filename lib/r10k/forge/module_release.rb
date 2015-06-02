@@ -1,6 +1,7 @@
 require 'shared/puppet_forge/v3/module_release'
 require 'shared/puppet_forge/unpacker'
 require 'r10k/logging'
+require 'r10k/settings/mixin'
 require 'fileutils'
 require 'forwardable'
 require 'tmpdir'
@@ -9,6 +10,10 @@ module R10K
   module Forge
     # Download, unpack, and install modules from the Puppet Forge
     class ModuleRelease
+
+      include R10K::Settings::Mixin
+
+      def_setting_attr :proxy
 
       include R10K::Logging
 
@@ -125,6 +130,7 @@ module R10K
 
       def proxy
         [
+          settings[:proxy],
           ENV['HTTPS_PROXY'],
           ENV['https_proxy'],
           ENV['HTTP_PROXY'],
