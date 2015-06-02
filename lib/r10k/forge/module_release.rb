@@ -38,7 +38,7 @@ module R10K
         @version   = version
 
         @forge_release = PuppetForge::V3::ModuleRelease.new(@full_name, @version)
-
+        @forge_release.conn.proxy(proxy)
 
         @download_path = Pathname.new(Dir.mktmpdir) + (slug + '.tar.gz')
         @unpack_path   = Pathname.new(Dir.mktmpdir) + slug
@@ -119,6 +119,17 @@ module R10K
         if download_path.exist?
           download_path.delete
         end
+      end
+
+      private
+
+      def proxy
+        [
+          ENV['HTTPS_PROXY'],
+          ENV['https_proxy'],
+          ENV['HTTP_PROXY'],
+          ENV['http_proxy']
+        ].find { |value| value }
       end
     end
   end

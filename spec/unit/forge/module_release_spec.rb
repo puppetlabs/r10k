@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'r10k/forge/module_release'
+require 'r10k/util/exec_env'
 
 describe R10K::Forge::ModuleRelease do
   subject { described_class.new('branan-eight_hundred', '8.0.0') }
@@ -12,6 +13,18 @@ describe R10K::Forge::ModuleRelease do
   before do
     subject.download_path = download_path
     subject.unpack_path = unpack_path
+  end
+
+  describe 'setting the proxy' do
+    %w[HTTPS_PROXY https_proxy HTTP_PROXY http_proxy].each do |env_var|
+      it "respects the #{env_var} environment variable" do
+        R10K::Util::ExecEnv.withenv(env_var => "http://proxy.value") do
+          subject = described_class.new('branan-eight_hundred', '8.0.0')
+          proxy_uri = subject.forge_release.conn.proxy.uri
+          expect(proxy_uri.to_s).to eq "http://proxy.value"
+        end
+      end
+    end
   end
 
   describe '#download' do
