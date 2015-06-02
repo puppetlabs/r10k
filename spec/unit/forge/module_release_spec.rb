@@ -34,7 +34,7 @@ describe R10K::Forge::ModuleRelease do
           and_return({:valid=>["extractedmodule/metadata.json"], :invalid=>[], :symlinks=>[]})
       subject.unpack(target_dir)
     end
-    
+
     it "raises an error if symlinks are present during the unpacking process after unpacking" do
       logger_dbl = double(Log4r::Logger)
       allow(subject).to receive(:logger).and_return(logger_dbl)
@@ -44,7 +44,7 @@ describe R10K::Forge::ModuleRelease do
       expect(logger_dbl).to receive(:debug2)
       expect {
         subject.unpack(target_dir)
-      }.to raise_error(R10K::Error, "Symlinks are unsupported and were not unpacked from the module tarball. " + 
+      }.to raise_error(R10K::Error, "Symlinks are unsupported and were not unpacked from the module tarball. " +
                                     "#{subject.forge_release.slug} contained these ignored symlinks: #{file_lists[:symlinks]}")
     end
   end
