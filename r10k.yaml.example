@@ -8,9 +8,6 @@
 # persistent, as environments and modules may rely on these files in order to
 # be updated.
 #
-# See https://github.com/puppetlabs/r10k/blob/1.5.1/doc/git/cloning-and-mirroring.mkd
-# for more information on how r10k caches Git repositories.
-#
 # The default value is "~/.r10k"
 cachedir: '/var/cache/r10k'
 
@@ -52,24 +49,15 @@ sources:
     # branch.
     #
     # The default value is 'false'.
-    #
-    # See https://github.com/puppetlabs/r10k/blob/1.5.1/doc/dynamic-environments/configuration.mkd#prefix
-    # for more information about the prefix setting.
     prefix: true
 
 # Additional configuration can be supplied to configure how r10k uses Git
 # and what version of Git it uses.
-#
-# See https://github.com/puppetlabs/r10k/tree/1.5.1/doc/git for more
-# information on how r10k can configure Git.
 git:
 
   # As of 1.5.0 r10k can interact with Git repositories in two ways - by
   # shelling out to the 'git' executable, and by using libgit2 through the
   # 'rugged' library.
-  #
-  # See https://github.com/puppetlabs/r10k/blob/1.5.1/doc/git/providers.mkd
-  # for more information on the Git providers.
   provider: 'shellgit' # Either 'shellgit' or 'rugged', defaults to 'shellgit'
 
   # The 'private_key' setting sets the the SSH private key to use for remote
