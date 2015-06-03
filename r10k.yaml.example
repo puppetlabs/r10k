@@ -84,3 +84,9 @@ git:
   #
   # The 'username' setting is only used by the 'rugged' Git provider.
   #username: 'git'
+
+# Configuration options for downloading modules from the Puppet Forge
+forge:
+  # The 'proxy' setting specifies an optional HTTP proxy to use when making
+  # requests to the Puppet Forge.
+  proxy: 'http://my.site.proxy:3128'
