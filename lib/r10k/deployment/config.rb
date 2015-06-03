@@ -71,6 +71,14 @@ class Config
       R10K::Git::Cache.settings[:cache_root] = cachedir
     end
 
+    with_setting(:forge) do |forge_settings|
+      R10K::Util::SymbolizeKeys.symbolize_keys!(forge_settings)
+      proxy = forge_settings[:proxy]
+      if proxy
+        R10K::Forge::ModuleRelease.settings[:proxy] = proxy
+      end
+    end
+
     with_setting(:git) do |git_settings|
       R10K::Util::SymbolizeKeys.symbolize_keys!(git_settings)
       provider = git_settings[:provider]

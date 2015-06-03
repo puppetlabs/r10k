@@ -68,6 +68,25 @@ git:
 See the [git provider documentation](../git/providers.mkd) for more information
 regarding Git providers.
 
+### forge
+
+The 'forge' setting is a hash that contains settings for downloading modules
+from the Puppet Forge.
+
+#### proxy
+
+The proxy option sets an optional HTTP proxy to use when downloading modules
+from the Forge.
+
+```yaml
+forge:
+  proxy: 'http://my-site.proxy:3128'
+```
+
+If no proxy is given, r10k will check the environment variables 'HTTPS_PROXY',
+'https_proxy', 'HTTP_PROXY', and 'http_proxy' in that order for a proxy URL.
+
+
 Deployment options
 ------------------
 

@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'r10k/forge/module_release'
+require 'r10k/util/exec_env'
 
 describe R10K::Forge::ModuleRelease do
   subject { described_class.new('branan-eight_hundred', '8.0.0') }
@@ -12,6 +13,38 @@ describe R10K::Forge::ModuleRelease do
   before do
     subject.download_path = download_path
     subject.unpack_path = unpack_path
+  end
+
+  describe 'setting the proxy' do
+    %w[HTTPS_PROXY https_proxy HTTP_PROXY http_proxy].each do |env_var|
+      it "respects the #{env_var} environment variable" do
+        R10K::Util::ExecEnv.withenv(env_var => "http://proxy.value") do
+          subject = described_class.new('branan-eight_hundred', '8.0.0')
+          proxy_uri = subject.forge_release.conn.proxy.uri
+          expect(proxy_uri.to_s).to eq "http://proxy.value"
+        end
+      end
+    end
+
+    describe 'using application settings' do
+      before { described_class.settings[:proxy] = 'http://proxy.setting' }
+      after { described_class.settings.reset! }
+
+      it 'has a setting for the forge proxy' do
+        subject = described_class.new('branan-eight_hundred', '8.0.0')
+        proxy_uri = subject.forge_release.conn.proxy.uri
+        expect(proxy_uri.to_s).to eq "http://proxy.setting"
+      end
+
+      it 'prefers the proxy setting over an environment variable' do
+        R10K::Util::ExecEnv.withenv('HTTPS_PROXY' => "http://proxy.from.env") do
+          subject = described_class.new('branan-eight_hundred', '8.0.0')
+          proxy_uri = subject.forge_release.conn.proxy.uri
+          expect(proxy_uri.to_s).to eq "http://proxy.setting"
+        end
+      end
+    end
+
   end
 
   describe '#download' do
@@ -34,7 +67,7 @@ describe R10K::Forge::ModuleRelease do
           and_return({:valid=>["extractedmodule/metadata.json"], :invalid=>[], :symlinks=>[]})
       subject.unpack(target_dir)
     end
-    
+
     it "raises an error if symlinks are present during the unpacking process after unpacking" do
       logger_dbl = double(Log4r::Logger)
       allow(subject).to receive(:logger).and_return(logger_dbl)
@@ -44,7 +77,7 @@ describe R10K::Forge::ModuleRelease do
       expect(logger_dbl).to receive(:debug2)
       expect {
         subject.unpack(target_dir)
-      }.to raise_error(R10K::Error, "Symlinks are unsupported and were not unpacked from the module tarball. " + 
+      }.to raise_error(R10K::Error, "Symlinks are unsupported and were not unpacked from the module tarball. " +
                                     "#{subject.forge_release.slug} contained these ignored symlinks: #{file_lists[:symlinks]}")
     end
   end

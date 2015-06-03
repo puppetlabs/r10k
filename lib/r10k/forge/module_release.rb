@@ -1,6 +1,7 @@
 require 'shared/puppet_forge/v3/module_release'
 require 'shared/puppet_forge/unpacker'
 require 'r10k/logging'
+require 'r10k/settings/mixin'
 require 'fileutils'
 require 'forwardable'
 require 'tmpdir'
@@ -9,6 +10,10 @@ module R10K
   module Forge
     # Download, unpack, and install modules from the Puppet Forge
     class ModuleRelease
+
+      include R10K::Settings::Mixin
+
+      def_setting_attr :proxy
 
       include R10K::Logging
 
@@ -38,7 +43,7 @@ module R10K
         @version   = version
 
         @forge_release = PuppetForge::V3::ModuleRelease.new(@full_name, @version)
-
+        @forge_release.conn.proxy(proxy)
 
         @download_path = Pathname.new(Dir.mktmpdir) + (slug + '.tar.gz')
         @unpack_path   = Pathname.new(Dir.mktmpdir) + slug
@@ -119,6 +124,18 @@ module R10K
         if download_path.exist?
           download_path.delete
         end
+      end
+
+      private
+
+      def proxy
+        [
+          settings[:proxy],
+          ENV['HTTPS_PROXY'],
+          ENV['https_proxy'],
+          ENV['HTTP_PROXY'],
+          ENV['http_proxy']
+        ].find { |value| value }
       end
     end
   end

@@ -26,6 +26,14 @@ describe R10K::Deployment::Config do
       end
     end
 
+    describe "for the forge" do
+      it "sets the proxy when given" do
+        expect(YAML).to receive(:load_file).with('foo/bar').and_return('forge' => {'proxy' => 'https://proxy.url'})
+        expect(R10K::Forge::ModuleRelease.settings).to receive(:[]=).with(:proxy, 'https://proxy.url')
+        described_class.new('foo/bar')
+      end
+    end
+
     describe "for git" do
       it "sets the git provider when given" do
         expect(YAML).to receive(:load_file).with('foo/bar').and_return('git' => {'provider' => 'rugged'})
