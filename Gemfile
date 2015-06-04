@@ -3,11 +3,11 @@ source 'https://rubygems.org'
 gemspec
 
 group :extra do
-  gem 'rugged', '~> 0.21.4' if RUBY_VERSION > '1.8.7'
+  gem 'rugged', '~> 0.21.4'
 end
 
 group :development do
-  gem 'simplecov', '~> 0.9.1' if RUBY_VERSION > '1.8.7'
+  gem 'simplecov', '~> 0.9.1'
 end
 
 if File.exists? "#{__FILE__}.local"
