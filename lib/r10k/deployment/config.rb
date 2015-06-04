@@ -43,7 +43,7 @@ class Config
       loader = R10K::Deployment::Config::Loader.new
       @configfile = loader.search
       if @configfile.nil?
-        raise ConfigError, "No configuration file given, no config file found in parent directory, and no global config present"
+        raise ConfigError, "No configuration file given, no config file found in current directory, and no global config present"
       end
     end
     begin
