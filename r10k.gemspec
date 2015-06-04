@@ -18,6 +18,8 @@ Gem::Specification.new do |s|
     dynamic environments.
   DESCRIPTION
 
+  s.required_ruby_version = '>= 1.9.3'
+
   s.license  = 'Apache-2.0'
 
   s.add_dependency 'colored',   '1.2'
