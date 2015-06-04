@@ -21,13 +21,12 @@ locations for a configuration file.
 
   * `{current working directory}/r10k.yaml`
   * `/etc/puppetlabs/r10k/r10k.yaml` (1.5.0 and later)
-  * `/etc/r10k.yaml` (deprecated in 1.5.0)
+  * `/etc/r10k.yaml` (removed in 2.0.0, deprecated in 1.5.0)
 
-In 1.5.0 r10k added `/etc/puppetlabs/r10k/r10k.yaml` to the configuration search
-path. The old location, `/etc/r10k.yaml` has been deprecated in favor of the new
-location. If both `/etc/puppetlabs/r10k/r10k.yaml` and `/etc/r10k.yaml` exist
-and explicit configuration file has not been given, r10k will log a warning and
-use `/etc/puppetlabs/r10k/r10.yaml`.
+As of 2.0.0, r10k will no longer search for a configuration file at
+`/etc/r10k.yaml`. In 1.5.0 r10k added `/etc/puppetlabs/r10k/r10k.yaml` to the
+configuration search path. The old location, `/etc/r10k.yaml` was deprecated
+at that time.
 
 General options
 ---------------
