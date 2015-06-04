@@ -69,12 +69,9 @@ class R10K::ModuleRepository::Forge
   private
 
   def make_conn
-    # Force use of json_pure with multi_json on Ruby 1.8.7
-    multi_json_opts = (RUBY_VERSION == "1.8.7" ? {:adapter => :json_pure} : {})
-
     Faraday.new(:url => "https://#{@forge}") do |builder|
-      builder.request(:multi_json, multi_json_opts)
-      builder.response(:multi_json, multi_json_opts)
+      builder.request(:multi_json)
+      builder.response(:multi_json)
 
       # This needs to be _after_ request/response configuration for testing
       # purposes. Without this ordering the tests get badly mangled.
