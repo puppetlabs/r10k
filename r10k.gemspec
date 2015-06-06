@@ -18,6 +18,8 @@ Gem::Specification.new do |s|
     dynamic environments.
   DESCRIPTION
 
+  s.required_ruby_version = '>= 1.9.3'
+
   s.license  = 'Apache-2.0'
 
   s.add_dependency 'colored',   '1.2'
@@ -25,7 +27,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'log4r',     '1.1.10'
   s.add_dependency 'multi_json', '~> 1.10'
-  s.add_dependency 'json_pure',  '~> 1.8'
 
   s.add_dependency 'faraday',                       '~> 0.9.0'
   s.add_dependency 'faraday_middleware',            '~> 0.9.0'

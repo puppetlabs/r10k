@@ -37,10 +37,7 @@ describe R10K::Git do
     end
   end
 
-  # These tests will fail on Ruby 1.8.7 because they touch the Rugged provider,
-  # but any failures affecting 1.8.7 will affect other versions so we can
-  # use tests on 1.9+ to cover the same behavior in 1.8.7.
-  describe 'explicitly setting the provider', :if => (RUBY_VERSION != '1.8.7') do
+  describe 'explicitly setting the provider' do
     it "raises an error if the provider doesn't exist" do
       expect {
         described_class.provider = :nope
@@ -61,7 +58,7 @@ describe R10K::Git do
     end
   end
 
-  describe "retrieving the current provider", :if => (RUBY_VERSION != '1.8.7') do
+  describe "retrieving the current provider" do
     it "uses the default if a provider has not been set" do
       expect(described_class).to receive(:default_name).and_return :rugged
       expect(described_class.provider).to eq(R10K::Git::Rugged)

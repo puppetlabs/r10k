@@ -1,4 +1,3 @@
-require 'r10k/util/monkey_patches'
 require 'r10k/util/setopts'
 require 'r10k/deployment'
 require 'r10k/logging'
