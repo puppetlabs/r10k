@@ -11,9 +11,6 @@ module R10K
   # @api private
   class Deployment
 
-    require 'r10k/deployment/environment'
-    require 'r10k/deployment/basedir'
-    require 'r10k/deployment/source'
     require 'r10k/deployment/config'
 
     # Generate a deployment object based on a config
