@@ -2,9 +2,6 @@ require 'r10k/cli'
 require 'r10k/deployment'
 require 'r10k/deployment/config'
 
-require 'r10k/task_runner'
-require 'r10k/task/deployment'
-
 require 'r10k/action/cri_runner'
 require 'r10k/action/deploy'
 
