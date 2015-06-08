@@ -14,6 +14,7 @@ module R10K
       include R10K::Settings::Mixin
 
       def_setting_attr :proxy
+      def_setting_attr :baseurl
 
       include R10K::Logging
 
@@ -43,7 +44,7 @@ module R10K
         @version   = version
 
         @forge_release = PuppetForge::V3::ModuleRelease.new(@full_name, @version)
-        @forge_release.conn.proxy(proxy)
+        @forge_release.conn = conn
 
         @download_path = Pathname.new(Dir.mktmpdir) + (slug + '.tar.gz')
         @unpack_path   = Pathname.new(Dir.mktmpdir) + slug
@@ -127,6 +128,16 @@ module R10K
       end
 
       private
+
+      def conn
+        if settings[:baseurl]
+          conn = PuppetForge::Connection.make_connection(settings[:baseurl])
+        else
+          conn = PuppetForge::Connection.default_connection
+        end
+        conn.proxy(proxy)
+        conn
+      end
 
       def proxy
         [
