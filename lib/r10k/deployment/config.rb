@@ -77,6 +77,11 @@ class Config
       if proxy
         R10K::Forge::ModuleRelease.settings[:proxy] = proxy
       end
+
+      baseurl = forge_settings[:baseurl]
+      if baseurl
+        R10K::Forge::ModuleRelease.settings[:baseurl] = baseurl
+      end
     end
 
     with_setting(:git) do |git_settings|
