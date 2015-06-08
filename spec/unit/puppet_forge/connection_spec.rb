@@ -36,4 +36,11 @@ describe PuppetForge::Connection do
       end
     end
   end
+
+  describe 'creating a default connection' do
+    it 'creates a connection with the default Forge URL' do
+      conn = described_class.default_connection
+      expect(conn.url_prefix.to_s).to eq 'https://forgeapi.puppetlabs.com/'
+    end
+  end
 end
