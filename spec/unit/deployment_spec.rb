@@ -137,7 +137,7 @@ describe R10K::Deployment, "with environment collisions" do
   it "raises an error when validating" do
     expect {
       deployment.validate!
-    }.to raise_error(R10K::R10KError, /Environment collision at .* between s\d:third and s\d:third/)
+    }.to raise_error(R10K::Error, /Environment collision at .* between s\d:third and s\d:third/)
   end
 end
 

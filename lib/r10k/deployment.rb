@@ -88,7 +88,7 @@ module R10K
             msg = ""
             msg << "Environment collision at #{environment.path} between "
             msg << "#{source.name}:#{environment.name} and #{osource.name}:#{oenvironment.name}"
-            raise R10K::R10KError, msg
+            raise R10K::Error, msg
           else
             hash[environment.path] = [source, environment]
           end
