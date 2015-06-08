@@ -34,9 +34,6 @@ module R10K
       sources.each(&:preload!)
     end
 
-    # @deprecated
-    alias fetch_sources preload!
-
     # Lazily load all sources
     #
     # This instantiates the @_sources instance variable, but should not be
