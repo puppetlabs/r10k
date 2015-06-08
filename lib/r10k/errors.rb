@@ -40,7 +40,4 @@ module R10K
       @options = options
     end
   end
-
-  # @deprecated
-  R10KError = Error
 end

@@ -11,9 +11,6 @@ module R10K
   # @api private
   class Deployment
 
-    require 'r10k/deployment/environment'
-    require 'r10k/deployment/basedir'
-    require 'r10k/deployment/source'
     require 'r10k/deployment/config'
 
     # Generate a deployment object based on a config
@@ -36,9 +33,6 @@ module R10K
     def preload!
       sources.each(&:preload!)
     end
-
-    # @deprecated
-    alias fetch_sources preload!
 
     # Lazily load all sources
     #
@@ -94,7 +88,7 @@ module R10K
             msg = ""
             msg << "Environment collision at #{environment.path} between "
             msg << "#{source.name}:#{environment.name} and #{osource.name}:#{oenvironment.name}"
-            raise R10K::R10KError, msg
+            raise R10K::Error, msg
           else
             hash[environment.path] = [source, environment]
           end

@@ -55,13 +55,4 @@ class R10K::Environment::Git < R10K::Environment::Base
   extend Forwardable
 
   def_delegators :@repo, :status
-
-  # @deprecated
-  # @api private
-  def sync_modules
-    modules.each do |mod|
-      logger.debug "Deploying module #{mod.name}"
-      mod.sync
-    end
-  end
 end

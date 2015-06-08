@@ -1,5 +1,4 @@
 require 'r10k/module/forge'
-require 'r10k/semver'
 require 'spec_helper'
 
 describe R10K::Module::Forge do
