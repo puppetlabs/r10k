@@ -58,5 +58,6 @@ module PuppetForge
         builder.adapter(*adapter_args)
       end
     end
+    module_function :make_connection
   end
 end

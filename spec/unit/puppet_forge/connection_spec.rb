@@ -2,13 +2,11 @@ require 'shared/puppet_forge/connection'
 
 describe PuppetForge::Connection do
 
-  let(:extended) { Object.new.extend(described_class) }
-
   describe 'creating a new connection' do
 
     let(:faraday_stubs) { Faraday::Adapter::Test::Stubs.new }
 
-    subject { extended.make_connection('https://some.site/url', [:test, faraday_stubs]) }
+    subject { described_class.make_connection('https://some.site/url', [:test, faraday_stubs]) }
 
     it 'parses response bodies with a JSON content-type into a hash' do
       faraday_stubs.get('/json') { [200, {'Content-Type' => 'application/json'}, '{"hello": "world"}'] }
