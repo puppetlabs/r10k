@@ -1,6 +1,69 @@
 CHANGELOG
 =========
 
+2.0.0
+-----
+
+2015/06/08
+
+This is a backwards incompatible feature release, but as major releases go this
+is a pretty small one. Some changes introduced into master included some
+breaking changes and SemVer dictates that we do a major release in this case.
+Actual changes that will affect end users should be limited; the only one that
+should have big impact is the removal of Ruby 1.8.7 support. Any other issues
+encountered should be treated as bugs and will be fixed.
+
+### User notes
+
+(GH-1) Native support for installing modules from the Puppet Forge
+
+R10k can now directly install modules from the Puppet Forge, rather than
+shelling out to the Puppet module tool. This will allow for later optimizations
+like caching module downloads to speed up installing module across multiple
+environments.
+
+(RK-83) Allow '-' as a module name separator
+
+(RK-53) Remove '/etc/r10k.yaml' from config file search path.
+
+R10k 1.5.0 added '/etc/puppetlabs/r10k/r10k.yaml' to the paths checked while
+looking for a config file, in order to keep in convention with the rest of the
+Puppet Labs config files. In 2.0.0 the old location, '/etc/r10k.yaml', has been
+removed.
+
+(RK-57) Notify users of purgedirs key deprecation
+
+The purgedirs key was used in r10k 0.0.9 but has not been used in the 1.x
+release series; if this setting is given then r10k will generate a warning
+indicating that it is not used.
+
+### Deprecations/Removals
+
+(RK-47) Remove support for Ruby 1.8.7
+
+Given that Ruby 1.8.7 has been EOL for nearly two years, it's time for r10k to
+drop support for 1.8.7 as well. The Puppet 4 all in one package ships with Ruby
+2.1.6, so even if you're on a platform that doesn't have Ruby 1.9 or greater you
+can install r10k into the Puppet collection environment and used the bundled
+Ruby.
+
+(RK-54) Remove deprecated subcommands
+
+R10k 1.0.0 reorganized a number of subcommands but retained the old subcommand
+names for compatibility with 0.0.x; since it's been over 2 years since 1.0.0 has
+been released these commands have finally been removed.
+
+(RK-113) Remove deprecated Task classes and namespaces
+
+The R10K::Task namespace turned out to be unwieldy in practice and has been
+replaced with the R10K::Action namespace. Use that for running r10k as an
+application.
+
+(RK-114) Remove deprecated git classes
+
+The reorganization of the Git code in 1.5.0 rendered a number of classes
+obsolete; they've been removed.
+
 1.5.1
 -----
 
