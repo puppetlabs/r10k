@@ -28,7 +28,14 @@ module R10K
             logger.warn "#{DEFAULT_LOCATION} will be used."
           end
 
-          first = @loadpath.find {|filename| File.file? filename}
+          path = @loadpath.find {|filename| File.file? filename}
+
+          if path == OLD_DEFAULT_LOCATION
+            logger.warn "The r10k configuration file at #{OLD_DEFAULT_LOCATION} is deprecated."
+            logger.warn "Please move your r10k configuration to #{DEFAULT_LOCATION}."
+          end
+
+          path
         end
 
         private
