@@ -1,6 +1,37 @@
 CHANGELOG
 =========
 
+2.0.1
+-----
+
+2015/06/09
+
+This release fixes a couple of issues and defects found in 2.0.0.
+
+### Thanks
+
+Thanks to Tim Meusel (https://github.com/bastelfreak) and ktreese
+(https://github.com/ktreese) for reporting GH-443 and GH-447.
+
+### User notes
+
+(RK-117), (GH-443), (GH-447) Add minitar as runtime dependency
+
+Minitar is a hard runtime dependency of r10k as part of the new Forge module
+implementation, but was only added as a development dependency which means that
+r10k could be installed without all of the required runtime dependencies. This
+oversight has been corrected; r10k will now pull in minitar at installation
+time.
+
+(RK-118) Readd '/etc/r10k.yaml' to config search path
+
+The '/etc/r10k.yaml' config path was deprecated in r10k 1.5.0, but this
+deprecation was only a soft deprecation and was easy to miss. While 2.0.0 is a
+backwards incompatible release it was too aggressive to remove this entirely, so
+'/etc/r10k.yaml' will continue to be respected/read in r10k 2.x. If this file is
+present and used then a deprecation notice will be logged. Apologies for the
+churn on this!
+
 2.0.0
 -----
 
