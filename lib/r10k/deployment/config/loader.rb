@@ -11,6 +11,7 @@ module R10K
 
         CONFIG_FILE = 'r10k.yaml'
         DEFAULT_LOCATION = File.join('/etc/puppetlabs/r10k', CONFIG_FILE)
+        OLD_DEFAULT_LOCATION = File.join('/etc', CONFIG_FILE)
 
         # Search for a deployment configuration file (r10k.yaml) in several locations
         def initialize
@@ -20,6 +21,13 @@ module R10K
 
         # @return [String] The path to the first valid configfile
         def search
+
+          # If both default files are present, issue a warning.
+          if (File.file? DEFAULT_LOCATION) && (File.file? OLD_DEFAULT_LOCATION)
+            logger.warn "Both #{DEFAULT_LOCATION} and #{OLD_DEFAULT_LOCATION} configuration files exist."
+            logger.warn "#{DEFAULT_LOCATION} will be used."
+          end
+
           first = @loadpath.find {|filename| File.file? filename}
         end
 
@@ -32,6 +40,9 @@ module R10K
 
           # Add the AIO location for of r10k.yaml
           @loadpath << DEFAULT_LOCATION
+
+          # Add the old default location last.
+          @loadpath << OLD_DEFAULT_LOCATION
 
           @loadpath
         end
