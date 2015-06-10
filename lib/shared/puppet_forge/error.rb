@@ -25,4 +25,10 @@ Could not install package
       MSG
     end
   end
+
+  class ModuleNotFound < PuppetForge::Error
+  end
+
+  class ModuleReleaseNotFound < PuppetForge::Error
+  end
 end

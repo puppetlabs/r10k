@@ -8,6 +8,7 @@ describe PuppetForge::V3::ModuleRelease do
 
   let(:conn) do
     Faraday.new do |builder|
+      builder.response(:raise_error)
       builder.adapter :test, faraday_stubs
     end
   end
@@ -26,6 +27,13 @@ describe PuppetForge::V3::ModuleRelease do
       faraday_stubs.get('/v3/releases/username-modulename-3.1.4') { [200, {}, {'metadata' => 'yep'}] }
       expect(subject.data).to eq('metadata' => 'yep')
     end
+
+    it 'raises an error if the module release does not exist' do
+      faraday_stubs.get('/v3/releases/username-modulename-3.1.4') { [404, {}, {'metadata' => 'yep'}] }
+      expect {
+        subject.data
+      }.to raise_error(PuppetForge::ModuleReleaseNotFound, /The module release username-modulename-3\.1\.4 does not exist/)
+    end
   end
 
   describe '#download' do
@@ -39,6 +47,13 @@ describe PuppetForge::V3::ModuleRelease do
       expect(io).to receive(:write).with("I'm a file!")
 
       subject.download(path)
+    end
+
+    it 'raises an error if the module release does not exist' do
+      faraday_stubs.get('/v3/files/username-modulename-3.1.4.tar.gz') { [404, {}, 'not found'] }
+      expect {
+        subject.download(Pathname.new('/some/path'))
+      }.to raise_error(PuppetForge::ModuleReleaseNotFound, /The module release username-modulename-3\.1\.4 does not exist/)
     end
   end
 
