@@ -2,13 +2,11 @@ require 'shared/puppet_forge/connection'
 
 describe PuppetForge::Connection do
 
-  let(:extended) { Object.new.extend(described_class) }
-
   describe 'creating a new connection' do
 
     let(:faraday_stubs) { Faraday::Adapter::Test::Stubs.new }
 
-    subject { extended.make_connection('https://some.site/url', [:test, faraday_stubs]) }
+    subject { described_class.make_connection('https://some.site/url', [:test, faraday_stubs]) }
 
     it 'parses response bodies with a JSON content-type into a hash' do
       faraday_stubs.get('/json') { [200, {'Content-Type' => 'application/json'}, '{"hello": "world"}'] }
@@ -36,6 +34,13 @@ describe PuppetForge::Connection do
       it 'sets authorization header on requests' do
         expect(subject.headers).to include(:authorization => "auth-test value")
       end
+    end
+  end
+
+  describe 'creating a default connection' do
+    it 'creates a connection with the default Forge URL' do
+      conn = described_class.default_connection
+      expect(conn.url_prefix.to_s).to eq 'https://forgeapi.puppetlabs.com/'
     end
   end
 end

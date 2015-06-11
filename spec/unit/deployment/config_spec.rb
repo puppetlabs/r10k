@@ -32,6 +32,12 @@ describe R10K::Deployment::Config do
         expect(R10K::Forge::ModuleRelease.settings).to receive(:[]=).with(:proxy, 'https://proxy.url')
         described_class.new('foo/bar')
       end
+
+      it "sets the baseurl when given" do
+        expect(YAML).to receive(:load_file).with('foo/bar').and_return('forge' => {'baseurl' => 'https://local.puppet.forge'})
+        expect(R10K::Forge::ModuleRelease.settings).to receive(:[]=).with(:baseurl, 'https://local.puppet.forge')
+        described_class.new('foo/bar')
+      end
     end
 
     describe "for git" do

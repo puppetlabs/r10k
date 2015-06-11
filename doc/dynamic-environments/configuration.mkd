@@ -86,6 +86,15 @@ forge:
 If no proxy is given, r10k will check the environment variables 'HTTPS_PROXY',
 'https_proxy', 'HTTP_PROXY', and 'http_proxy' in that order for a proxy URL.
 
+#### baseurl
+
+The 'baseurl' setting indicates where Forge modules should be installed from.
+This defaults to 'https://forgeapi.puppetlabs.com'
+
+```yaml
+forge:
+  baseurl: 'https://private-forge.mysite'
+```
 
 Deployment options
 ------------------

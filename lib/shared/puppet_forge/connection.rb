@@ -36,8 +36,13 @@ module PuppetForge
     # @return [Faraday::Connection] An existing Faraday connection if one was
     #   already set, otherwise a new Faraday connection.
     def conn
-      @conn ||= make_connection('https://forgeapi.puppetlabs.com')
+      @conn ||= default_connection
     end
+
+    def default_connection
+      make_connection('https://forgeapi.puppetlabs.com')
+    end
+    module_function :default_connection
 
     # Generate a new Faraday connection for the given URL.
     #
@@ -58,5 +63,6 @@ module PuppetForge
         builder.adapter(*adapter_args)
       end
     end
+    module_function :make_connection
   end
 end
