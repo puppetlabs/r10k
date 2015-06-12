@@ -56,6 +56,7 @@ describe R10K::Forge::ModuleRelease do
 
   describe '#verify' do
     it "verifies the module checksum based on the Forge file checksum" do
+      allow(subject.forge_release).to receive(:data).and_return('file_md5' => 'something')
       expect(subject.forge_release).to receive(:verify).with(download_path)
       subject.verify
     end
