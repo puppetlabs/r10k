@@ -7,6 +7,7 @@ describe PuppetForge::V3::Module do
 
   let(:conn) do
     Faraday.new do |builder|
+      builder.response(:raise_error)
       builder.adapter :test, faraday_stubs
     end
   end
@@ -55,6 +56,13 @@ describe PuppetForge::V3::Module do
     it "ignores deleted releases" do
       faraday_stubs.get('/v3/modules/authorname-modulename') { [200, {}, releases_with_deletions] }
       expect(subject.versions).to eq ["0.3.0"]
+    end
+
+    it "raises an error when the module does not exist" do
+      faraday_stubs.get('/v3/modules/authorname-modulename') { [404, {}, ''] }
+      expect {
+        subject.versions
+      }.to raise_error(PuppetForge::ModuleNotFound, /The module authorname-modulename does not exist/)
     end
   end
 

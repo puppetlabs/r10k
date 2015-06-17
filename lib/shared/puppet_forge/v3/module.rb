@@ -1,6 +1,7 @@
 require 'shared/puppet_forge/v3'
 require 'shared/puppet_forge/v3/module_release'
 require 'shared/puppet_forge/connection'
+require 'shared/puppet_forge/error'
 
 module PuppetForge
   module V3
@@ -41,6 +42,8 @@ module PuppetForge
         end
 
         releases.reverse
+      rescue Faraday::ResourceNotFound => e
+        raise PuppetForge::ModuleNotFound, "The module #{@full_name} does not exist on #{conn.url_prefix}.", e.backtrace
       end
 
       # Get all released versions of this module

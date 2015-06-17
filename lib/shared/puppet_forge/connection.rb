@@ -1,4 +1,5 @@
 require 'shared/puppet_forge/version'
+require 'shared/puppet_forge/connection/connection_failure'
 
 require 'faraday'
 require 'faraday_middleware'
@@ -59,6 +60,7 @@ module PuppetForge
       Faraday.new(url, options) do |builder|
         builder.response(:json, :content_type => /\bjson$/)
         builder.response(:raise_error)
+        builder.use(:connection_failure)
 
         builder.adapter(*adapter_args)
       end

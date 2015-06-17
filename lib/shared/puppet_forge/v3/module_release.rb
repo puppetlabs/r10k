@@ -1,5 +1,6 @@
 require 'shared/puppet_forge/v3'
 require 'shared/puppet_forge/connection'
+require 'shared/puppet_forge/error'
 
 module PuppetForge
   module V3
@@ -24,9 +25,11 @@ module PuppetForge
         @version   = version
       end
 
-      # @return [Hash] The complete Forge resposne for this release.
+      # @return [Hash] The complete Forge response for this release.
       def data
         @data ||= conn.get(resource_url).body
+      rescue Faraday::ResourceNotFound => e
+        raise PuppetForge::ModuleReleaseNotFound, "The module release #{slug} does not exist on #{conn.url_prefix}.", e.backtrace
       end
 
       # @return [String] The unique identifier for this module release.
@@ -41,6 +44,8 @@ module PuppetForge
       def download(path)
         resp = conn.get(file_url)
         path.open('wb') { |fh| fh.write(resp.body) }
+      rescue Faraday::ResourceNotFound => e
+        raise PuppetForge::ModuleReleaseNotFound, "The module release #{slug} does not exist on #{conn.url_prefix}.", e.backtrace
       end
 
       # Verify that a downloaded module matches the checksum in the metadata for this release.
