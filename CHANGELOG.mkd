@@ -1,6 +1,32 @@
 CHANGELOG
 =========
 
+2.0.2
+-----
+
+2015/06/18
+
+This is a maintenance release that improves error messages around installing
+modules from the Puppet Forge.
+
+### User notes
+
+(RK-109) Add context to connection failure errors
+
+If a connection to the Puppet Forge failed for any reason, the resulting
+exception would indicate the error type but not the host or proxy host. This
+made it hard to understand why connections were failing. This has been fixed so
+that r10k will include the host and optional proxy host in error messages when
+connections fail.
+
+(RK-121) Improve error handling for nonexistent Forge modules
+
+The r10k Puppet Forge connection error handling reports when HTTP requests fail,
+but would simply print the HTTP status code on failure. For cases where a
+nonexistent module or module release was queried, r10k now specially handles
+HTTP 404 status codes and indicates that the module/module release is missing
+instead of just throwing a generic HTTP error.
+
 2.0.1
 -----
 
