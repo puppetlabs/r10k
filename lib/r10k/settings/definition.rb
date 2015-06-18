@@ -1,0 +1,82 @@
+require 'r10k/util/setopts'
+
+module R10K
+  module Settings
+
+    # Define a single setting and additional attributes like descriptions,
+    # default values, and validation.
+    class Definition
+
+      include R10K::Util::Setopts
+
+      # @!attribute [r] name
+      #   @return [String] The name of this setting
+      attr_reader :name
+
+      # @!attribute [r] value
+      #   @return [Object] An explicitly set value. This should only be used if
+      #     an optional default value should not be used; otherwise use {#resolve}.
+      attr_reader :value
+
+      # @!attribute [r] desc
+      #   @return [String] An optional documentation string for this setting.
+      attr_reader :desc
+
+      # @param name [Symbol] The name of the setting for this definition.
+      # @param opts [Hash] Additional options for this definition to control
+      #   validation, normalization, and the like.
+      #
+      # @option opts [Proc, Object] :default An optional proc or object for
+      #   this setting. If no value has been set and the default is a Proc then
+      #   it will be called and the result will be returned, otherwise if the
+      #   value is not set the default value itself is returned.
+      #
+      # @options opts [Proc] :normalize An optional proc that can be used to
+      #   normalize an explicitly assigned value.
+      def initialize(name, opts = {})
+        @name = name
+        setopts(opts, allowed_initialize_opts)
+      end
+
+      # Store an explicit value for this definition
+      #
+      # If a :normalize hook has been given then it will be called with the
+      # new value and the returned value will be stored.
+      #
+      # @param newvalue [Object] The value to store for this setting
+      # @return [void]
+      def assign(newvalue)
+        if @normalize
+          @value = @normalize.call(newvalue)
+        else
+          @value = newvalue
+        end
+      end
+
+      # Compute the final value of this setting. If a value has not been
+      # assigned the default value will be used.
+      #
+      # @return [Object] The final value of this definition.
+      def resolve
+        if !@value.nil?
+          @value
+        elsif @default
+          @default.is_a?(Proc) ? @default.call : @default
+        end
+      end
+
+      private
+
+      # Subclasses may define additional params that are accepted at
+      # initialization; they should override this method to add any
+      # additional fields that should be respected.
+      def allowed_initialize_opts
+        {
+          :desc      => true,
+          :default   => true,
+          :normalize => true,
+        }
+      end
+    end
+  end
+end
