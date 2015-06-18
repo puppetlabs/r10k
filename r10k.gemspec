@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
 
   s.authors     = "Adrien Thebo"
   s.email       = "adrien@somethingsinistral.net"
-  s.homepage    = "http://github.com/adrienthebo/r10k"
+  s.homepage    = "https://github.com/puppetlabs/r10k"
   s.summary     = "Puppet environment and module deployment"
   s.description = <<-DESCRIPTION
     R10K provides a general purpose toolset for deploying Puppet environments and modules.
