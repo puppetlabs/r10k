@@ -7,6 +7,8 @@ module R10K
     # default values, and validation.
     class Definition
 
+      require 'r10k/settings/uri_definition'
+
       include R10K::Util::Setopts
 
       # @!attribute [r] name
