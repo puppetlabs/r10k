@@ -1,6 +1,7 @@
 require 'r10k/settings/definition'
 require 'r10k/util/setopts'
 require 'r10k/util/symbolize_keys'
+require 'r10k/errors'
 
 module R10K
   module Settings
@@ -34,10 +35,25 @@ module R10K
             setting.assign(newvalues[name])
           end
         end
+      end
 
-        invalid = newvalues.keys - @settings.keys
-        if !invalid.empty?
-          @invalid_settings = invalid
+      # Validate all settings and return validation errors
+      #
+      # @return [nil, Hash] If all validation passed nil will be returned; if
+      #   validation failed then a hash of those errors will be returned.
+      def validate
+        errors = {}
+
+        @settings.each_pair do |name, setting|
+          begin
+            setting.validate
+          rescue => error
+            errors[name] = error
+          end
+        end
+
+        if !errors.empty?
+          raise ValidationError.new("Validation failures for #{@name}", :errors => errors)
         end
       end
 
@@ -49,6 +65,16 @@ module R10K
           rv[name] = setting.resolve
         end
         rv.freeze
+      end
+
+      class ValidationError < R10K::Error
+
+        attr_reader :errors
+
+        def initialize(mesg, options = {})
+          super
+          @errors = options[:errors]
+        end
       end
     end
   end

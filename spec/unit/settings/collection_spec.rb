@@ -22,6 +22,25 @@ describe R10K::Settings::Collection do
     end
   end
 
+  describe '#validate' do
+    it "raises an error containing a hash of nested validation errors" do
+      subject.assign({:symbol_defn => "Definitely not a symbol"})
+      expect {
+        errors = subject.validate
+      }.to raise_error do |error|
+        expect(error).to be_a_kind_of(R10K::Settings::Collection::ValidationError)
+        errors = error.errors
+        expect(errors.size).to eq 1
+        expect(errors[:symbol_defn]).to be_a_kind_of(TypeError)
+      end
+    end
+
+    it "it does not raise an error if no errors were found" do
+      subject.assign({:default_defn => "yep"})
+      expect(subject.validate).to be_nil
+    end
+  end
+
   describe '#resolve' do
     it "returns a frozen hash of all settings" do
       subject.assign({:symbol_defn => :some_value})
