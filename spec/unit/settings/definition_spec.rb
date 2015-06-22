@@ -16,6 +16,33 @@ describe R10K::Settings::Definition do
     end
   end
 
+  describe "#validate" do
+    it "does nothing if a value has not been assigned" do
+      subject = described_class.new(:setting, :validate => lambda { |_| raise "Shouldn't be called" })
+      subject.validate
+    end
+
+    it "does nothing if a validate hook has not been assigned" do
+      subject = described_class.new(:setting)
+      subject.assign("I'm the value")
+      subject.validate
+    end
+
+    it "raises up errors raised from the validate hook" do
+      subject = described_class.new(:satellite, :validate => lambda { |input| raise ArgumentError, "Invalid value #{input}: that's no moon!" })
+      subject.assign("Alderaan")
+      expect {
+        subject.validate
+      }.to raise_error(ArgumentError, "Invalid value Alderaan: that's no moon!")
+    end
+
+    it "returns if the validate hook did not raise an error" do
+      subject = described_class.new(:setting, :validate => lambda { |_| "That's a moon" })
+      subject.assign("Mun")
+      subject.validate
+    end
+  end
+
   describe "#resolve" do
     it "returns the value when the value has been given" do
       subject = described_class.new(:setting)

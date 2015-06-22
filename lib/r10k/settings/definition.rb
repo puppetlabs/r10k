@@ -31,6 +31,9 @@ module R10K
       #   it will be called and the result will be returned, otherwise if the
       #   value is not set the default value itself is returned.
       #
+      # @options opts [Proc] :validate An optional proc that can be used to
+      #   validate an assigned value. Default values are not assigned.
+      #
       # @options opts [Proc] :normalize An optional proc that can be used to
       #   normalize an explicitly assigned value.
       def initialize(name, opts = {})
@@ -51,6 +54,21 @@ module R10K
         else
           @value = newvalue
         end
+      end
+
+      # Call any validation hooks for this definition.
+      #
+      # The :validate hook will be called if the hook has been set and an
+      # explicit value has been assigned to this definition. Validation
+      # failures should be indicated by the :validate hook raising an exception.
+      #
+      # @raise [Exception] An exception class indicating that validation failed.
+      # @return [nil]
+      def validate
+        if @value && @validate
+          @validate.call(@value)
+        end
+        nil
       end
 
       # Compute the final value of this setting. If a value has not been
@@ -74,6 +92,7 @@ module R10K
         {
           :desc      => true,
           :default   => true,
+          :validate  => true,
           :normalize => true,
         }
       end
