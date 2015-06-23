@@ -2,6 +2,16 @@ require 'spec_helper'
 require 'r10k/settings/definition'
 
 describe R10K::Settings::Definition do
+  describe "#evaluate" do
+    it "assigns a value, validates it, and resolves a final value" do
+      subject = described_class.new(:setting)
+      expect(subject).to receive(:assign).with("myvalue")
+      expect(subject).to receive(:validate)
+      expect(subject).to receive(:resolve)
+      subject.evaluate("myvalue")
+    end
+  end
+
   describe "#assign" do
     it 'stores the provided value' do
       subject = described_class.new(:setting)

@@ -11,6 +11,16 @@ describe R10K::Settings::Collection do
     described_class.new(:collection, [symbol_defn, default_defn])
   end
 
+  describe "#evaluate" do
+    it "assigns values, validates them, and resolves a final value" do
+      expect(subject).to receive(:assign).with({:default_defn => :squid})
+      expect(subject).to receive(:validate)
+      expect(subject).to receive(:resolve)
+      subject.evaluate({:default_defn => :squid})
+    end
+  end
+
+
   describe '#assign' do
     it "assigns values to the appropriate setting" do
       subject.assign({:symbol_defn => :hello})

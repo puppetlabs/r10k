@@ -44,6 +44,14 @@ module R10K
         setopts(opts, allowed_initialize_opts)
       end
 
+      # Assign new values, perform validation checks, and return the final
+      # values for this collection
+      def evaluate(newvalue)
+        assign(newvalue)
+        validate
+        resolve
+      end
+
       # Store an explicit value for this definition
       #
       # If a :normalize hook has been given then it will be called with the

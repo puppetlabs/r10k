@@ -21,6 +21,14 @@ module R10K
         @settings = Hash[settings.map { |s| [s.name, s] }]
       end
 
+      # Assign new values, perform validation checks, and return the final
+      # values for this collection
+      def evaluate(newvalues)
+        assign(newvalues)
+        validate
+        resolve
+      end
+
       # Assign a hash of values to the settings in this collection.
       #
       # If the passed hash contains any invalid settings values, the names
