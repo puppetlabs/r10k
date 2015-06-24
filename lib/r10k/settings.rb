@@ -42,5 +42,26 @@ module R10K
         }),
       ])
     end
+
+    def self.global_settings
+      R10K::Settings::Collection.new(:global, [
+        Definition.new(:sources, {
+          :desc => "Where r10k should retrieve sources when deploying environments.
+                    Only used for r10k environment deployment.",
+        }),
+
+        Definition.new(:purgedirs, {
+          :desc => "The purgedirs setting was deprecated in r10k 1.0.0 and is no longer respected.",
+        }),
+
+        Definition.new(:cachedir, {
+          :desc => "Where r10k should store cached Git repositories.",
+        }),
+
+        R10K::Settings.forge_settings,
+
+        R10K::Settings.git_settings,
+      ])
+    end
   end
 end
