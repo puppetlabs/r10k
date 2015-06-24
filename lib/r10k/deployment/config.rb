@@ -41,52 +41,8 @@ class Config
   def load_config
     loader = R10K::Settings::Loader.new
     @config = loader.read(@configfile)
-    apply_config_settings
-  end
-
-  private
-
-  def with_setting(key, &block)
-    value = setting(key)
-    block.call(value) unless value.nil?
-  end
-
-  # Apply global configuration settings.
-  def apply_config_settings
-    with_setting(:purgedirs) do |purgedirs|
-      logger.warn("The purgedirs key in r10k.yaml is deprecated. It is currently ignored.")
-    end
-
-    with_setting(:cachedir) do |cachedir|
-      R10K::Git::Cache.settings[:cache_root] = cachedir
-    end
-
-    with_setting(:forge) do |forge_settings|
-      proxy = forge_settings[:proxy]
-      if proxy
-        R10K::Forge::ModuleRelease.settings[:proxy] = proxy
-      end
-
-      baseurl = forge_settings[:baseurl]
-      if baseurl
-        R10K::Forge::ModuleRelease.settings[:baseurl] = baseurl
-      end
-    end
-
-    with_setting(:git) do |git_settings|
-      provider = git_settings[:provider]
-      if provider
-        R10K::Git.provider = provider.to_sym
-      end
-
-      if git_settings[:private_key]
-        R10K::Git.settings[:private_key] = git_settings[:private_key]
-      end
-
-      if git_settings[:username]
-        R10K::Git.settings[:username] = git_settings[:username]
-      end
-    end
+    initializer = R10K::Initializers::GlobalInitializer.new(@config)
+    initializer.call
   end
 
   class ConfigError < R10K::Error
