@@ -12,6 +12,10 @@ module R10K
       #   - /etc/r10k.yaml
       class Loader
 
+        def self.search(override = nil)
+          new.search(override)
+        end
+
         include R10K::Logging
 
         attr_reader :loadpath
@@ -28,9 +32,14 @@ module R10K
 
         # Find the first valid config file.
         #
+        # @param override [String, nil] An optional path that when is truthy
+        #   will be preferred over all other files, to make it easy to
+        #   optionally supply an explicit configuration file that will always
+        #   be used when set.
         # @return [String, nil] The path to the first valid configfile, or nil
         #   if no file was found.
-        def search
+        def search(override = nil)
+          return override if override
 
           # If both default files are present, issue a warning.
           if (File.file? DEFAULT_LOCATION) && (File.file? OLD_DEFAULT_LOCATION)

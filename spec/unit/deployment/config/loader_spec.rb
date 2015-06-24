@@ -58,5 +58,19 @@ describe R10K::Deployment::Config::Loader do
 
       subject.search
     end
+
+    describe 'using an override value' do
+      it 'uses the override when set and ignores files in the load path' do
+        expect(File).to_not receive(:file?)
+        expect(subject.search('/some/override/r10k.yaml')).to eq '/some/override/r10k.yaml'
+      end
+
+      it 'ignores a nil override value' do
+        allow(File).to receive(:file?).and_return false
+        allow(File).to receive(:file?).with('/etc/puppetlabs/r10k/r10k.yaml').and_return true
+        allow(File).to receive(:file?).with('/etc/r10k.yaml').and_return true
+        expect(subject.search(nil)).to eq('/etc/puppetlabs/r10k/r10k.yaml')
+      end
+    end
   end
 end
