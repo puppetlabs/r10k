@@ -1,4 +1,6 @@
 require 'r10k/logging'
+require 'r10k/errors'
+require 'yaml'
 
 module R10K
   module Settings
@@ -54,6 +56,23 @@ module R10K
         path
       end
 
+      def read(override = nil)
+        path = search(override)
+
+        if path.nil?
+          raise ConfigError, "No configuration file given, no config file found in current directory, and no global config present"
+        end
+
+        begin
+          contents = ::YAML.load_file(path)
+        rescue => e
+          raise ConfigError, "Couldn't load config file: #{e.message}"
+        end
+
+        R10K::Util::SymbolizeKeys.symbolize_keys!(contents, true)
+        contents
+      end
+
       private
 
       def populate_loadpath
@@ -68,6 +87,9 @@ module R10K
         @loadpath << OLD_DEFAULT_LOCATION
 
         @loadpath
+      end
+
+      class ConfigError < R10K::Error
       end
     end
   end

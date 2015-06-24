@@ -73,4 +73,38 @@ describe R10K::Settings::Loader do
       end
     end
   end
+
+  context '#read' do
+    it "raises an error if no config file could be found" do
+      expect(subject).to receive(:search).and_return nil
+      expect {
+        subject.read
+      }.to raise_error(R10K::Settings::Loader::ConfigError, "No configuration file given, no config file found in current directory, and no global config present")
+    end
+
+    it "raises an error if the YAML file load raises an error" do
+      expect(subject).to receive(:search).and_return '/some/path/r10k.yaml'
+      expect(YAML).to receive(:load_file).and_raise(Errno::ENOENT, "/no/such/file")
+      expect {
+        subject.read
+      }.to raise_error(R10K::Settings::Loader::ConfigError, "Couldn't load config file: No such file or directory - /no/such/file")
+    end
+
+    it "recursively replaces string keys with symbol keys in the parsed structure" do
+      expect(subject).to receive(:search).and_return '/some/path/r10k.yaml'
+      expect(YAML).to receive(:load_file).and_return({
+        'cachedir' => '/var/cache/r10k',
+        'git' => {
+          'provider' => 'rugged',
+        }
+      })
+
+      expect(subject.read).to eq({
+        :cachedir => '/var/cache/r10k',
+        :git => {
+          :provider => 'rugged',
+        }
+      })
+    end
+  end
 end
