@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'r10k/deployment/config/loader'
+require 'r10k/settings/loader'
 
-describe R10K::Deployment::Config::Loader do
+describe R10K::Settings::Loader do
 
   context 'populate_loadpath' do
     it 'includes /etc/puppetlabs/r10k/r10k.yaml in the loadpath' do

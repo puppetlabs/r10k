@@ -1,5 +1,5 @@
 require 'r10k/deployment'
-require 'r10k/deployment/config/loader'
+require 'r10k/settings/loader'
 require 'r10k/util/symbolize_keys'
 require 'r10k/errors'
 require 'yaml'
@@ -40,7 +40,7 @@ class Config
   # @param [String] configfile The path to the YAML config file
   def load_config
     if @configfile.nil?
-      loader = R10K::Deployment::Config::Loader.new
+      loader = R10K::Settings::Loader.new
       @configfile = loader.search
       if @configfile.nil?
         raise ConfigError, "No configuration file given, no config file found in current directory, and no global config present"
