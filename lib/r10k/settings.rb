@@ -30,5 +30,17 @@ module R10K
         })
       ])
     end
+
+    def self.forge_settings
+      R10K::Settings::Collection.new(:forge, [
+        URIDefinition.new(:proxy, {
+          :desc => "An optional proxy server to use when downloading modules from the forge.",
+        }),
+
+        URIDefinition.new(:baseurl, {
+          :desc => "The URL to the Puppet Forge to use for downloading modules."
+        }),
+      ])
+    end
   end
 end
