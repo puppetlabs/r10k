@@ -3,6 +3,13 @@ require 'r10k/logging'
 module R10K
   class Deployment
     class Config
+
+      # Look for the r10k configuration file in standard locations.
+      #
+      # r10k.yaml is checked for in the following locations:
+      #   - $PWD/r10k.yaml
+      #   - /etc/puppetlabs/r10k/r10k.yaml
+      #   - /etc/r10k.yaml
       class Loader
 
         include R10K::Logging
@@ -19,7 +26,10 @@ module R10K
           populate_loadpath
         end
 
-        # @return [String] The path to the first valid configfile
+        # Find the first valid config file.
+        #
+        # @return [String, nil] The path to the first valid configfile, or nil
+        #   if no file was found.
         def search
 
           # If both default files are present, issue a warning.
