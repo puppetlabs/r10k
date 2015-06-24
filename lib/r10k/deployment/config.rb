@@ -39,19 +39,9 @@ class Config
   #
   # @param [String] configfile The path to the YAML config file
   def load_config
-    if @configfile.nil?
-      loader = R10K::Settings::Loader.new
-      @configfile = loader.search
-      if @configfile.nil?
-        raise ConfigError, "No configuration file given, no config file found in current directory, and no global config present"
-      end
-    end
-    begin
-      @config = ::YAML.load_file(@configfile)
-      apply_config_settings
-    rescue => e
-      raise ConfigError, "Couldn't load config file: #{e.message}"
-    end
+    loader = R10K::Settings::Loader.new
+    @config = loader.read(@configfile)
+    apply_config_settings
   end
 
   private
@@ -72,7 +62,6 @@ class Config
     end
 
     with_setting(:forge) do |forge_settings|
-      R10K::Util::SymbolizeKeys.symbolize_keys!(forge_settings)
       proxy = forge_settings[:proxy]
       if proxy
         R10K::Forge::ModuleRelease.settings[:proxy] = proxy
@@ -85,7 +74,6 @@ class Config
     end
 
     with_setting(:git) do |git_settings|
-      R10K::Util::SymbolizeKeys.symbolize_keys!(git_settings)
       provider = git_settings[:provider]
       if provider
         R10K::Git.provider = provider.to_sym
