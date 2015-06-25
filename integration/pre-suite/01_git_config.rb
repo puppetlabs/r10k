@@ -19,12 +19,9 @@ git_manifest_template_path = File.join(local_files_root_path, 'pre-suite', 'git_
 git_manifest = ERB.new(File.read(git_manifest_template_path)).result(binding)
 
 step 'Get PE Version'
-pe_major = on(master, 'facter -p pe_major_version').stdout.rstrip
-pe_minor = on(master, 'facter -p pe_minor_version').stdout.rstrip
-pe_version = "#{pe_major}.#{pe_minor}".to_f
-
-if pe_version < 3.7
-  fail_test('This pre-suite requires PE 3.7 or above!')
+on(master, puppet('--version')) do |r|
+  pe_version = r.stdout.match(/(\d){1}.(\d){1,2}.(\d){1,2}/)[0].to_f
+  fail_test('This pre-suite requires PE 3.7 or above!') if pe_version < 3.7
 end
 
 #Setup
