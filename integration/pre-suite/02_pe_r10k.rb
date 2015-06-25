@@ -14,12 +14,10 @@ git_repo_name = 'environments'
 git_control_remote = File.join(git_repo_path, "#{git_repo_name}.git")
 git_provider = ENV['GIT_PROVIDER'] || 'shellgit'
 
-pe_major = on(master, 'facter -p pe_major_version').stdout.rstrip
-pe_minor = on(master, 'facter -p pe_minor_version').stdout.rstrip
-pe_version = "#{pe_major}.#{pe_minor}".to_f
-
-if pe_version < 3.7
-  fail_test('This pre-suite requires PE 3.7 or above!')
+step 'Get PE Version'
+on(master, puppet('--version')) do |r|
+  pe_version = r.stdout.match(/(\d){1}.(\d){1,2}.(\d){1,2}/)[0].to_f
+  fail_test('This pre-suite requires PE 3.7 or above!') if pe_version < 3.7
 end
 
 #In-line files
