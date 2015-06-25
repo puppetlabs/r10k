@@ -85,6 +85,7 @@ class R10K::Module::Forge < R10K::Module::Base
   # @return [Symbol] :absent If the directory doesn't exist
   # @return [Symbol] :mismatched If the module is not a forge module, or
   #   isn't the right forge module
+  # @return [Symbol] :mismatched If the module was previously a git checkout
   # @return [Symbol] :outdated If the installed module is older than expected
   # @return [Symbol] :insync If the module is in the desired state
   def status
@@ -94,6 +95,10 @@ class R10K::Module::Forge < R10K::Module::Base
     elsif not File.exist?(@path + 'metadata.json')
       # The directory exists but doesn't have a metadata file; it probably
       # isn't a forge module.
+      return :mismatched
+    end
+
+    if File.directory?(@path + '.git')
       return :mismatched
     end
 
