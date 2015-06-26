@@ -31,7 +31,7 @@ class R10K::Module::Forge < R10K::Module::Base
   # @!attribute [rw] forge
   #   @api private
   #   @return [String] The Puppet Forge where the module can be found
-  attr :forge
+  attr_accessor :forge
   
   include R10K::Logging
 
