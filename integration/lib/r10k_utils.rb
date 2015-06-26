@@ -97,12 +97,13 @@ def clean_up_r10k(master, commit_sha, git_repo_path)
   environment_path = on(master, puppet('config', 'print', 'environmentpath')).stdout.rstrip
   prod_env_modules_path = File.join(environment_path, 'production', 'modules')
   prod_env_site_path = File.join(environment_path, 'production', 'site')
+  r10k_fqp = get_r10k_fqp(master)
 
   step 'Reset Git Repo to Known Good State'
   r10k_revert_environment(master, commit_sha, git_repo_path)
 
   step 'Restore Original "production" Environment'
-  on(master, 'r10k deploy environment -v')
+  on(master, "#{r10k_fqp} deploy environment -v")
 
   step 'Verify "production" Environment is at Original State'
   verify_production_environment(master)
@@ -134,6 +135,7 @@ def init_r10k_source_from_prod(master, git_repo_parent_path, git_repo_name, git_
   #Init
   env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
   prod_env_path = File.join(env_path, 'production')
+  r10k_fqp = get_r10k_fqp(master)
 
   local_files_root_path = ENV['FILES'] || 'files'
   prod_env_config_path = 'pre-suite/prod_env.config'
@@ -161,6 +163,49 @@ def init_r10k_source_from_prod(master, git_repo_parent_path, git_repo_name, git_
 
   #Attempt to deploy environments.
   if deploy
-    on(master, 'r10k deploy environment -v')
+    on(master, "#{r10k_fqp} deploy environment -v")
   end
+end
+
+# Get the fully qualified path for r10k.
+#
+# ==== Arguments
+#
+# * +host+ - The Beaker host to introspect
+#
+# ==== Returns
+#
+# +string+ - The fully qualified path for r10k
+#
+# ==== Examples
+#
+# get_r10k_fqp(master)
+def get_r10k_fqp(host)
+  puppet_version = get_puppet_version(host)
+  if puppet_version < 4.0
+    fqp = '/opt/puppet/bin/r10k'
+  else
+    fqp = '/opt/puppetlabs/puppet/bin/r10k'
+  end
+  fqp
+end
+
+# Get the version of puppet that is installed on a host.
+#
+# ==== Arguments
+#
+# * +host+ - The Beaker host to introspect
+#
+# ==== Returns
+#
+# +float+ - the version of puppet as a float
+#
+# ==== Examples
+#
+# get_puppet_version(master)
+def get_puppet_version(host)
+  on(host, puppet('--version')) do |result|
+    @version =  result.stdout.match(/(\d){1}.(\d){1,2}.(\d){1,2}/)[0].to_f
+  end
+  @version
 end

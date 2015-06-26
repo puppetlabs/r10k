@@ -3,18 +3,25 @@ require 'r10k_utils'
 require 'master_manipulator'
 test_name 'CODEMGMT-102 - C63192 - Multiple Environments with Hiera Data'
 
+skip_test('This test is blocked by RK-136')
+
 #Init
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
+r10k_fqp = get_r10k_fqp(master)
 
 local_files_root_path = ENV['FILES'] || 'files'
 hieratest_module_path = File.join(local_files_root_path, 'modules', 'hieratest')
 
 hiera_local_config_path = File.join(local_files_root_path, 'hiera.yaml')
 hiera_master_config_path = on(master, puppet('config', 'print', 'hiera_config')).stdout.rstrip
-hiera_data_dir = File.join(git_environments_path, 'hiera')
+if get_puppet_version(master) < 4.0
+  hiera_data_dir = File.join(git_environments_path, 'hiera')
+else
+  hiera_data_dir = File.join(git_environments_path, 'hieradata')
+end
 
 site_pp_path = File.join(git_environments_path, 'manifests', 'site.pp')
 site_pp = create_site_pp(master_certname, '  include hieratest')
@@ -80,7 +87,7 @@ restart_puppet_server(master)
 
 #Tests
 step 'Deploy Environments via r10k'
-on(master, 'r10k deploy environment -v')
+on(master, "#{r10k_fqp} deploy environment -v")
 
 env_names.each do |env|
   agents.each do |agent|

@@ -6,6 +6,7 @@ test_name 'CODEMGMT-101 - C59231 - Attempt to Deploy Environment from Git Source
 #Init
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
+r10k_fqp = get_r10k_fqp(master)
 
 unicode_env = "\uAD62\uCC63\uC0C3\uBEE7\uBE23\uB7E9\uC715\uCEFE\uBF90\uAE69"
 
@@ -27,7 +28,7 @@ git_push(master, unicode_env, git_environments_path)
 
 #Tests
 step 'Attempt to Deploy via r10k'
-on(master, 'r10k deploy environment -v -t', :acceptable_exit_codes => 0) do |result|
+on(master, "#{r10k_fqp} deploy environment -v -t", :acceptable_exit_codes => 0) do |result|
   expect_failure('Expected to fail due to RK-29') do
     assert_match(error_message_regex, result.stderr, 'Expected message not found!')
   end

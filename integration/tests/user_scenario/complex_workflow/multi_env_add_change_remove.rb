@@ -9,6 +9,7 @@ git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
 local_files_root_path = ENV['FILES'] || 'files'
 helloworld_module_path = File.join(local_files_root_path, 'modules', 'helloworld')
+r10k_fqp = get_r10k_fqp(master)
 
 initial_env_names = ['production', 'stage', 'test']
 
@@ -92,7 +93,7 @@ end
 
 #Tests
 step 'Deploy Environments via r10k'
-on(master, 'r10k deploy environment -v')
+on(master, "#{r10k_fqp} deploy environment -v")
 
 #Initial Verification
 initial_env_names.each do |env|
@@ -128,7 +129,7 @@ git_on(master, 'branch -D test', git_environments_path)
 git_on(master, 'push origin --delete test', git_environments_path)
 
 step 'Re-deploy Environments via r10k'
-on(master, 'r10k deploy environment -v -p')
+on(master, "#{r10k_fqp} deploy environment -v -p")
 
 #Second Pass Verification
 agents.each do |agent|

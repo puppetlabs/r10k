@@ -12,6 +12,7 @@ end
 #Init
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
+r10k_fqp = get_r10k_fqp(master)
 
 git_control_remote = 'git://localhost/environments.git'
 git_environments_path = '/root/environments'
@@ -93,7 +94,11 @@ step 'Update the "r10k" Config'
 create_remote_file(master, r10k_config_path, r10k_conf)
 
 step 'Install "puppetlabs-xinetd" Module'
-on(master, puppet('module install puppetlabs-xinetd --modulepath /opt/puppet/share/puppet/modules'))
+on(master, puppet('config print basemodulepath')) do |result|
+  (result.stdout.include? ':') ? separator = ':' : separator = ';'
+  @module_path = result.stdout.split(separator).first
+end
+on(master, puppet("module install puppetlabs-xinetd --modulepath #{@module_path}"))
 
 step 'Install and Configure "git-daemon" service'
 on(master, puppet('apply'), :stdin => git_daemon_xinetd_enable_manifest)
@@ -112,7 +117,7 @@ git_add_commit_push(master, 'production', 'Update site.pp and add module.', git_
 
 #Tests
 step 'Deploy "production" Environment via r10k'
-on(master, 'r10k deploy environment -v')
+on(master, "#{r10k_fqp} deploy environment -v")
 
 agents.each do |agent|
   step "Run Puppet Agent"

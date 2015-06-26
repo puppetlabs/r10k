@@ -16,6 +16,7 @@ end
 master_platform = fact_on(master, 'osfamily')
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
+r10k_fqp = get_r10k_fqp(master)
 
 git_repo_path = '/git_repos'
 git_control_remote = 'git@github.com:puppetlabs/codemgmt-92.git'
@@ -95,7 +96,7 @@ end
 
 #Tests
 step 'Deploy "production" Environment via r10k'
-on(master, 'r10k deploy environment -v')
+on(master, "#{r10k_fqp} deploy environment -v")
 
 agents.each do |agent|
   step "Run Puppet Agent"

@@ -6,6 +6,7 @@ test_name 'CODEMGMT-155 - C64588 - Single Environment with Git Module Using a Br
 #Init
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 environment_path = on(master, puppet('config', 'print', 'environmentpath')).stdout.rstrip
+r10k_fqp = get_r10k_fqp(master)
 
 git_repo_parent_path = '/git_repos'
 git_repo_module_name = 'helloworld_module'
@@ -72,7 +73,7 @@ git_add_commit_push(master, 'production', 'Update site.pp and add module.', git_
 
 #Tests
 step 'Deploy "production" Environment via r10k'
-on(master, 'r10k deploy environment -v -p')
+on(master, "#{r10k_fqp} deploy environment -v -p")
 
 agents.each do |agent|
   step 'Run Puppet Agent'
@@ -88,7 +89,7 @@ on(master, "chmod -R 644 #{git_module_clone_path}")
 git_add_commit_push(master, 'master', 'Update module.', git_module_clone_path)
 
 step 'Deploy "production" Environment Again via r10k'
-on(master, 'r10k deploy environment -v -p')
+on(master, "#{r10k_fqp} deploy environment -v -p")
 
 agents.each do |agent|
   step 'Run Puppet Agent'

@@ -7,6 +7,7 @@ test_name 'CODEMGMT-127 - C64120 - Single Environment with Forge Module where La
 #Init
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 prod_env_modules_path = File.join(env_path, 'production', 'modules')
+r10k_fqp = get_r10k_fqp(master)
 
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
@@ -47,7 +48,7 @@ git_add_commit_push(master, 'production', 'Add module.', git_environments_path)
 
 #Tests
 step 'Deploy "production" Environment via r10k with modules'
-on(master, 'r10k deploy environment -p -v')
+on(master, "#{r10k_fqp} deploy environment -p -v")
 
 agents.each do |agent|
   step "Run Puppet Agent"

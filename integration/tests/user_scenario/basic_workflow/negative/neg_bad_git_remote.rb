@@ -6,6 +6,7 @@ test_name 'CODEMGMT-42 - C59224 - Attempt to Deploy from Non-existent Git Remote
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 git_control_remote = '/does/not/exist'
 git_provider = ENV['GIT_PROVIDER'] || 'shellgit'
+r10k_fqp = get_r10k_fqp(master)
 
 r10k_config_path = get_r10k_config_file_path(master)
 r10k_config_bak_path = "#{r10k_config_path}.bak"
@@ -39,6 +40,6 @@ create_remote_file(master, r10k_config_path, r10k_conf)
 
 #Tests
 step 'Attempt to Deploy via r10k'
-on(master, 'r10k deploy environment', :acceptable_exit_codes => 1) do |result|
+on(master, "#{r10k_fqp} deploy environment", :acceptable_exit_codes => 1) do |result|
   assert_match(error_message_regex, result.stderr, 'Expected message not found!')
 end

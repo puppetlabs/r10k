@@ -8,6 +8,7 @@ test_name 'CODEMGMT-101 - C59261 - Attempt to Deploy Environment with Broken Git
 git_control_remote = '/git_repos/environments.git'
 prod_branch_head_ref_path = File.join(git_control_remote, 'refs', 'heads', 'production')
 prod_branch_head_ref_path_backup = '/tmp/production.bak'
+r10k_fqp = get_r10k_fqp(master)
 
 invalid_sha_ref = Digest::SHA1.hexdigest('broken')
 
@@ -30,7 +31,7 @@ on(master, "chmod 644 #{prod_branch_head_ref_path}")
 
 #Tests
 step 'Attempt to Deploy via r10k'
-on(master, 'r10k deploy environment -v -t', :acceptable_exit_codes => [0,1]) do |result|
+on(master, "#{r10k_fqp} deploy environment -v -t", :acceptable_exit_codes => [0,1]) do |result|
   expect_failure('Expected to fail due to RK-28') do
     assert_match(error_message_regex, result.stderr, 'Expected message not found!')
   end

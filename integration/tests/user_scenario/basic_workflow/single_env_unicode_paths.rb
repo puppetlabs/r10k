@@ -7,6 +7,7 @@ test_name 'CODEMGMT-62 - C59260 - Single Environment with Unicode File Paths'
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 environment_path = on(master, puppet('config', 'print', 'environmentpath')).stdout.rstrip
 prod_env_modules_path = File.join(environment_path, 'production', 'modules')
+r10k_fqp = get_r10k_fqp(master)
 
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
@@ -47,7 +48,7 @@ git_add_commit_push(master, 'production', 'Update site.pp and add modules.', git
 
 #Tests
 step 'Deploy "production" Environment via r10k'
-on(master, 'r10k deploy environment -v')
+on(master, "#{r10k_fqp} deploy environment -v")
 
 #Note: Usually a full Puppet Run would be performed for verification.
 #Since Puppet has problems with Unicode, this test will verify the file

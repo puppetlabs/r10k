@@ -7,6 +7,7 @@ test_name 'CODEMGMT-62 - C62387 - Single Environment Deployed to Non-existent Ba
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 original_env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 env_path = '/tmp/puppet/temp/environments'
+r10k_fqp = get_r10k_fqp(master)
 
 git_environments_path = '/root/environments'
 git_repo_path = '/git_repos'
@@ -82,7 +83,7 @@ git_add_commit_push(master, 'production', 'Update site.pp and add module.', git_
 
 #Tests
 step 'Deploy "production" Environment via r10k'
-on(master, 'r10k deploy environment -v')
+on(master, "#{r10k_fqp} deploy environment -v")
 
 agents.each do |agent|
   step "Run Puppet Agent"

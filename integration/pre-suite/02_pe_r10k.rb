@@ -13,12 +13,11 @@ git_repo_path = '/git_repos'
 git_repo_name = 'environments'
 git_control_remote = File.join(git_repo_path, "#{git_repo_name}.git")
 git_provider = ENV['GIT_PROVIDER'] || 'shellgit'
+r10k_fqp = get_r10k_fqp(master)
 
 step 'Get PE Version'
-on(master, puppet('--version')) do |r|
-  pe_version = r.stdout.match(/(\d){1}.(\d){1,2}.(\d){1,2}/)[0].to_f
-  fail_test('This pre-suite requires PE 3.7 or above!') if pe_version < 3.7
-end
+pe_version = get_puppet_version(master)
+fail_test('This pre-suite requires PE 3.7 or above!') if pe_version < 3.7
 
 #In-line files
 r10k_conf = <<-CONF
@@ -40,7 +39,7 @@ create_remote_file(master, r10k_config_path, r10k_conf)
 on(master, "chmod 644 #{r10k_config_path}")
 
 step 'Deploy "production" Environment via r10k'
-on(master, 'r10k deploy environment -v')
+on(master, "#{r10k_fqp} deploy environment -v")
 
 step 'Disable Environment Caching on Master'
 on(master, puppet('config set environment_timeout 0 --section main'))

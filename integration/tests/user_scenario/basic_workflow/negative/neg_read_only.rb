@@ -9,6 +9,7 @@ git_control_remote = File.join(git_repo_path, "#{git_repo_name}.git")
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
 git_provider = ENV['GIT_PROVIDER'] || 'shellgit'
+r10k_fqp = get_r10k_fqp(master)
 
 r10k_config_path = get_r10k_config_file_path(master)
 r10k_config_bak_path = "#{r10k_config_path}.bak"
@@ -52,6 +53,6 @@ on(master, "mount -osize=10m,ro tmpfs #{tmpfs_path} -t tmpfs")
 
 #Tests
 step 'Attempt to Deploy via r10k'
-on(master, 'r10k deploy environment', :acceptable_exit_codes => 1) do |result|
+on(master, "#{r10k_fqp} deploy environment", :acceptable_exit_codes => 1) do |result|
   assert_match(error_message_regex, result.stderr, 'Expected message not found!')
 end

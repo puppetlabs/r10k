@@ -10,6 +10,7 @@ prod_env_modules_path = File.join(env_path, 'production', 'modules')
 
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
+r10k_fqp = get_r10k_fqp(master)
 
 #Verification
 motd_path = '/etc/motd'
@@ -76,7 +77,7 @@ git_add_commit_push(master, 'production', 'Update site.pp and add modules.', git
 
 #Tests
 step 'Deploy "production" Environment via r10k'
-on(master, 'r10k deploy environment -v -p')
+on(master, "#{r10k_fqp} deploy environment -v -p")
 
 step 'Update MOTD Template'
 create_remote_file(master, motd_template_path, motd_template_contents)
@@ -112,7 +113,7 @@ step 'Push Changes'
 git_add_commit_push(master, 'production', 'Update site.pp and Puppetfile.', git_environments_path)
 
 step 'Deploy "production" Environment Again via r10k'
-on(master, 'r10k deploy environment -v -p')
+on(master, "#{r10k_fqp} deploy environment -v -p")
 
 agents.each do |agent|
   step 'Run Puppet Agent'
@@ -141,7 +142,7 @@ step 'Push Changes'
 git_add_commit_push(master, 'production', 'Update site.pp and add modules.', git_environments_path)
 
 step 'Deploy "production" Environment Again via r10k'
-on(master, 'r10k deploy environment -v -p')
+on(master, "#{r10k_fqp} deploy environment -v -p")
 
 step 'Update MOTD Template'
 create_remote_file(master, motd_template_path, motd_template_contents)

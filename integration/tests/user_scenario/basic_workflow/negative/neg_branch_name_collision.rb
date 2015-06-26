@@ -11,6 +11,7 @@ git_repo_name = 'environments'
 git_control_remote = File.join(git_repo_path, "#{git_repo_name}.git")
 git_environments_path = File.join('/root', git_repo_name)
 git_provider = ENV['GIT_PROVIDER'] || 'shellgit'
+r10k_fqp = get_r10k_fqp(master)
 
 git_alt_repo_path = '/git_repos_alt'
 git_alt_repo_name = 'environments_alt'
@@ -58,6 +59,6 @@ init_r10k_source_from_prod(master, git_alt_repo_path, git_alt_repo_name, git_alt
 
 #Tests
 step 'Attempt to Deploy via r10k'
-on(master, 'r10k deploy environment -v', :acceptable_exit_codes => 1) do |result|
+on(master, "#{r10k_fqp} deploy environment -v", :acceptable_exit_codes => 1) do |result|
   assert_match(error_message_regex, result.stderr, 'Expected message not found!')
 end
