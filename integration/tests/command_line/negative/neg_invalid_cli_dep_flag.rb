@@ -6,6 +6,7 @@ test_name 'CODEMGMT-90 - C63461 - Specify Invalid Command-line Deployment Flag'
 #Init
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
+r10k_fqp = get_r10k_fqp(master)
 
 #Verification
 error_message_regex = /deploy: illegal option/
@@ -17,6 +18,6 @@ end
 
 #Tests
 step 'Attempt to Deploy via r10k'
-on(master, 'r10k deploy -w environment -v', :acceptable_exit_codes => 1) do |result|
+on(master, "#{r10k_fqp} deploy -w environment -v", :acceptable_exit_codes => 1) do |result|
   assert_match(error_message_regex, result.stderr, 'Expected message not found!')
 end

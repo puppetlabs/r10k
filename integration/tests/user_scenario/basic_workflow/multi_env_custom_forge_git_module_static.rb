@@ -5,8 +5,12 @@ test_name 'CODEMGMT-40 - C59223 - Multiple Environments with Custom, Forge and G
 
 #Init
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
-confdir_path = on(master, puppet('config', 'print', 'confdir')).stdout.rstrip
-modules_path = File.join(confdir_path, 'modules')
+r10k_fqp = get_r10k_fqp(master)
+step 'Read module path'
+on(master, puppet('config print basemodulepath')) do |result|
+  (result.stdout.include? ':') ? separator = ':' : separator = ';'
+  @module_path = result.stdout.split(separator).first
+end
 
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
@@ -24,7 +28,7 @@ stdlib_notify_message_regex = /The test message is:.*one.*=>.*1.*two.*=>.*bats.*
 
 #File
 puppet_file = <<-PUPPETFILE
-moduledir '#{modules_path}'
+moduledir '#{@module_path}'
 mod "puppetlabs/motd"
 mod 'puppetlabs/stdlib',
   :git => 'https://github.com/puppetlabs/puppetlabs-stdlib.git'
@@ -57,7 +61,7 @@ teardown do
   on(agents, "rm -rf #{motd_path}")
 
   step 'Remove Static Modules'
-  on(agents, "rm -rf #{modules_path}/*")
+  on(agents, "rm -rf #{@module_path}/*")
 end
 
 #Setup
@@ -94,7 +98,7 @@ git_add_commit_push(master, 'production', 'Add module.', git_environments_path)
 
 #Tests
 step 'Deploy Environments via r10k'
-on(master, 'r10k deploy environment -v -p')
+on(master, "#{r10k_fqp} deploy environment -v -p")
 
 env_names.each do |env|
   agents.each do |agent|

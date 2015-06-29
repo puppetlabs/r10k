@@ -3,11 +3,13 @@ require 'r10k_utils'
 require 'master_manipulator'
 require 'openssl'
 test_name 'CODEMGMT-101 - C59237 - Attempt to Deploy Environment with Unauthorized "SSH" Git Source'
+skip_test('test requires resolution of RK-137')
 
 #Init
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 git_control_remote = 'git@github.com:puppetlabs/codemgmt-92.git'
 git_provider = ENV['GIT_PROVIDER'] || 'shellgit'
+r10k_fqp = get_r10k_fqp(master)
 
 unauthorized_rsa_key = OpenSSL::PKey::RSA.new(2048)
 ssh_private_key_path = '/root/.ssh/unauthorized_key'
@@ -67,6 +69,6 @@ on(master, "chmod 600 #{ssh_private_key_path}")
 
 #Tests
 step 'Attempt to Deploy via r10k'
-on(master, 'r10k deploy environment -v', :acceptable_exit_codes => 1) do |result|
+on(master, "#{r10k_fqp} deploy environment -v", :acceptable_exit_codes => 1) do |result|
   assert_match(error_message_regex, result.stderr, 'Expected message not found!')
 end

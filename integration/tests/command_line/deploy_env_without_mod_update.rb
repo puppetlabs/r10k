@@ -7,6 +7,7 @@ test_name 'CODEMGMT-90 - C62419 - Deploy Environment without Module Update'
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 environment_path = on(master, puppet('config', 'print', 'environmentpath')).stdout.rstrip
 prod_env_path = File.join(environment_path, 'production')
+r10k_fqp = get_r10k_fqp(master)
 
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
@@ -58,14 +59,14 @@ step 'Push Changes'
 git_add_commit_push(master, 'production', 'Update site.pp and add module.', git_environments_path)
 
 step 'Deploy "production" Environment via r10k with modules'
-on(master, 'r10k deploy environment -p -v')
+on(master, "#{r10k_fqp} deploy environment -p -v")
 
 step 'Corrupt MOTD Manifest'
 create_remote_file(master, motd_module_init_pp_path, 'Broken')
 
 #Tests
 step 'Deploy "production" Environment via r10k without module update'
-on(master, 'r10k deploy environment -v')
+on(master, "#{r10k_fqp} deploy environment -v")
 
 agents.each do |agent|
   step "Run Puppet Agent"

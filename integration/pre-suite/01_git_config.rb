@@ -19,17 +19,21 @@ git_manifest_template_path = File.join(local_files_root_path, 'pre-suite', 'git_
 git_manifest = ERB.new(File.read(git_manifest_template_path)).result(binding)
 
 step 'Get PE Version'
-on(master, puppet('--version')) do |r|
-  pe_version = r.stdout.match(/(\d){1}.(\d){1,2}.(\d){1,2}/)[0].to_f
-  fail_test('This pre-suite requires PE 3.7 or above!') if pe_version < 3.7
-end
+pe_version = get_puppet_version(master)
+fail_test('This pre-suite requires PE 3.7 or above!') if pe_version < 3.7
 
 #Setup
 step 'Stub Forge on Master'
 stub_forge_on(master)
 
+step 'Read module path'
+on(master, puppet('config print basemodulepath')) do |result|
+  (result.stdout.include? ':') ? separator = ':' : separator = ';'
+  @module_path = result.stdout.split(separator).first
+end
+
 step 'Install "git" Module'
-on(master, puppet('module install puppetlabs-git --modulepath /opt/puppet/share/puppet/modules'))
+on(master, puppet("module install  puppetlabs-git --modulepath #{@module_path}"))
 
 step 'Install and Configure Git'
 on(master, puppet('apply'), :stdin => git_manifest, :acceptable_exit_codes => [0,2]) do |result|

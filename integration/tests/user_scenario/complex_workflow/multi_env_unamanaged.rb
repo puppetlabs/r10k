@@ -6,6 +6,7 @@ test_name 'CODEMGMT-155 - C62421 - Multiple Environments with Existing Unmanaged
 #Init
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 environment_path = on(master, puppet('config', 'print', 'environmentpath')).stdout.rstrip
+r10k_fqp = get_r10k_fqp(master)
 
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
@@ -43,7 +44,7 @@ git_add_commit_push(master, 'production', 'Update site.pp and add module.', git_
 
 #Tests
 step 'Deploy "production" Environment via r10k'
-on(master, 'r10k deploy environment -v')
+on(master, "#{r10k_fqp} deploy environment -v")
 
 agents.each do |agent|
   step 'Run Puppet Agent'
@@ -65,7 +66,7 @@ agents.each do |agent|
 end
 
 step 'Re-deploy Environments via r10k'
-on(master, 'r10k deploy environment -v') do |result|
+on(master, "#{r10k_fqp} deploy environment -v") do |result|
   assert_match(removal_message_test_env_regex, result.output, 'Unexpected error was detected!')
 end
 

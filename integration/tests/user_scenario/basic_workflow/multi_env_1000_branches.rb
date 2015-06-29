@@ -8,6 +8,7 @@ test_name 'CODEMGMT-62 - C59241 - Single Source with 1,000 Branches'
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 confdir_path = on(master, puppet('config', 'print', 'confdir')).stdout.rstrip
 modules_path = File.join(confdir_path, 'modules')
+r10k_fqp = get_r10k_fqp(master)
 
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
@@ -52,7 +53,7 @@ end
 
 #Tests
 step 'Deploy Environments via r10k'
-on(master, 'r10k deploy environment -v')
+on(master, "#{r10k_fqp} deploy environment -v")
 
 #Select three environments at random and verify results.
 env_names.sample(3).each do |env|

@@ -11,6 +11,7 @@ end
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
+r10k_fqp = get_r10k_fqp(master)
 
 #File
 puppet_file = <<-PUPPETFILE
@@ -39,7 +40,7 @@ git_add_commit_push(master, 'production', 'Update Puppetfile.', git_environments
 
 #Tests
 step 'Attempt to Deploy via r10k'
-on(master, 'r10k deploy environment -v -p', :acceptable_exit_codes => 1) do |result|
+on(master, "#{r10k_fqp} deploy environment -v -p", :acceptable_exit_codes => 1) do |result|
   expect_failure('Expected to fail due to RK-80') do
     assert_no_match(error_message_regex, result.stderr, 'Expected message not found!')
   end

@@ -7,6 +7,7 @@ test_name 'CODEMGMT-73 - C59226 - Multiple Environments with Custom, Forge and G
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 confdir_path = on(master, puppet('config', 'print', 'confdir')).stdout.rstrip
 modules_path = File.join(confdir_path, 'modules')
+r10k_fqp = get_r10k_fqp(master)
 
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
@@ -91,7 +92,7 @@ end
 
 #Tests
 step 'Deploy Environments via r10k'
-on(master, 'r10k deploy environment -v -p')
+on(master, "#{r10k_fqp} deploy environment -v -p")
 
 env_names.each do |env|
   agents.each do |agent|

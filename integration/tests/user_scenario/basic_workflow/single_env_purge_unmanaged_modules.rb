@@ -7,6 +7,7 @@ test_name 'CODEMGMT-73 - C63184 - Single Environment Purge Unmanaged Modules'
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
+r10k_fqp = get_r10k_fqp(master)
 
 #Verification
 motd_path = '/etc/motd'
@@ -61,7 +62,7 @@ git_add_commit_push(master, 'production', 'Update site.pp and add module.', git_
 
 #Tests
 step 'Deploy Environments via r10k'
-on(master, 'r10k deploy environment -v -p')
+on(master, "#{r10k_fqp} deploy environment -v -p")
 
 step 'Plug-in Sync Agents'
 on(agents, puppet("plugin download --server #{master}"))
@@ -79,7 +80,7 @@ agents.each do |agent|
 end
 
 step 'Use r10k to Purge Unmanaged Modules'
-on(master, 'r10k puppetfile purge -v', :acceptable_exit_codes => 1)
+on(master, "#{r10k_fqp} puppetfile purge -v", :acceptable_exit_codes => 1)
 
 #Agent will fail because r10k will purge the "motd" module
 agents.each do |agent|

@@ -7,9 +7,14 @@ test_name 'CODEMGMT-127 - C64121 - Attempt to Deploy Environment with Forge Modu
 #Init
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
+r10k_fqp = get_r10k_fqp(master)
 
 #Verification
-error_notification_regex = /No releases matching '0.2.0'/
+if get_puppet_version(master) < 4.0
+  error_notification_regex = /No releases matching '0.2.0'/
+else
+  error_notification_regex = /error.* -> The module release puppetlabs-spotty-0.2.0 does not exist on/i
+end
 
 #File
 puppet_file = <<-PUPPETFILE
@@ -39,6 +44,6 @@ git_add_commit_push(master, 'production', 'Add module.', git_environments_path)
 
 #Tests
 step "Deploy production environment via r10k with module specified at deleted version"
-on(master, 'r10k deploy environment -p -v', :acceptable_exit_codes => 1) do |result|
+on(master, "#{r10k_fqp} deploy environment -p -v", :acceptable_exit_codes => 1) do |result|
   assert_match(error_notification_regex, result.stderr, 'Unexpected error was detected!')
 end

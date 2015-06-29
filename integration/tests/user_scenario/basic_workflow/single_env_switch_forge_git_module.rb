@@ -7,6 +7,7 @@ test_name 'CODEMGMT-111 - C63600 - Single Environment Switch Between Forge and G
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 prod_env_modules_path = File.join(env_path, 'production', 'modules')
+r10k_fqp = get_r10k_fqp(master)
 
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
@@ -73,7 +74,7 @@ git_add_commit_push(master, 'production', 'Update site.pp and add modules.', git
 
 #Tests
 step 'Deploy "production" Environment via r10k'
-on(master, 'r10k deploy environment -v -p')
+on(master, "#{r10k_fqp} deploy environment -v -p")
 
 step 'Update MOTD Template'
 create_remote_file(master, motd_template_path, motd_template_contents_forge)
@@ -101,7 +102,7 @@ step 'Push Changes'
 git_add_commit_push(master, 'production', 'Update site.pp and Puppetfile.', git_environments_path)
 
 step 'Deploy "production" Environment Again via r10k'
-on(master, 'r10k deploy environment -v -p')
+on(master, "#{r10k_fqp} deploy environment -v -p")
 
 agents.each do |agent|
   step 'Run Puppet Agent'

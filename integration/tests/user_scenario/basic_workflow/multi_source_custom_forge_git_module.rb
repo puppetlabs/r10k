@@ -6,6 +6,7 @@ test_name 'CODEMGMT-85 - C59227 - Multiple Environments with Multiple Sources an
 #Init
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
+r10k_fqp = get_r10k_fqp(master)
 
 git_provider = ENV['GIT_PROVIDER'] || 'shellgit'
 
@@ -137,7 +138,7 @@ end
 
 #Tests
 step 'Deploy Environments via r10k'
-on(master, 'r10k deploy environment -v -p')
+on(master, "#{r10k_fqp} deploy environment -v -p")
 
 agents.each do |agent|
   step 'Run Puppet Agent Against "production" Environment'

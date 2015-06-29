@@ -12,6 +12,7 @@ git_repo_module_path = File.join(git_repo_module_parent_path, "#{git_repo_module
 git_clone_module_path = '/root/helloworld_module'
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
+r10k_fqp = get_r10k_fqp(master)
 
 local_files_root_path = ENV['FILES'] || 'files'
 helloworld_module_path = File.join(local_files_root_path, 'modules', 'helloworld')
@@ -56,7 +57,7 @@ git_add_commit_push(master, 'production', 'Update site.pp.', git_environments_pa
 
 #Tests
 step 'Deploy "production" Environment via r10k'
-on(master, 'r10k deploy environment -v')
+on(master, "#{r10k_fqp} deploy environment -v")
 
 agents.each do |agent|
   step "Run Puppet Agent"

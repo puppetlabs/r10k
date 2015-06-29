@@ -7,6 +7,7 @@ test_name 'CODEMGMT-92 - C59234 - Single Git Source Using "SSH" Transport Protoc
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 git_control_remote = 'git@github.com:puppetlabs/codemgmt-92.git'
 git_provider = ENV['GIT_PROVIDER'] || 'shellgit'
+r10k_fqp = get_r10k_fqp(master)
 
 jenkins_key_path = File.file?("#{ENV['HOME']}/.ssh/id_rsa") ? "#{ENV['HOME']}/.ssh/id_rsa" : File.expand_path('~/.ssh/id_rsa-jenkins')
 ssh_private_key_path = '/root/.ssh/id_rsa-jenkins'
@@ -49,7 +50,7 @@ teardown do
   on(master, "rm -rf #{ssh_config_path}")
 
   step 'Restore Original "production" Environment via r10k'
-  on(master, 'r10k deploy environment -v')
+  on(master, "#{r10k_fqp} deploy environment -v")
 end
 
 #Setup
@@ -73,7 +74,7 @@ on(master, "chmod 600 #{ssh_private_key_path}")
 
 #Tests
 step 'Deploy "production" Environment via r10k'
-on(master, 'r10k deploy environment -v')
+on(master, "#{r10k_fqp} deploy environment -v")
 
 agents.each do |agent|
   step "Run Puppet Agent"
