@@ -18,46 +18,19 @@ describe R10K::Deployment::Config do
   end
 
   describe "applying global settings" do
-    describe "for the cachedir" do
-      it "sets the git cache root when given" do
-        expect(YAML).to receive(:load_file).with('foo/bar').and_return('cachedir' => 'some/cache')
-        expect(R10K::Git::Cache.settings).to receive(:[]=).with(:cache_root, 'some/cache')
-        described_class.new('foo/bar')
-      end
+    let(:loader) { instance_double('R10K::Settings::Loader') }
+    let(:initializer) { instance_double('R10K::Initializers::GlobalInitializer') }
+
+    before do
+      expect(R10K::Settings::Loader).to receive(:new).and_return(loader)
+      expect(R10K::Initializers::GlobalInitializer).to receive(:new).and_return(initializer)
     end
 
-    describe "for the forge" do
-      it "sets the proxy when given" do
-        expect(YAML).to receive(:load_file).with('foo/bar').and_return('forge' => {'proxy' => 'https://proxy.url'})
-        expect(R10K::Forge::ModuleRelease.settings).to receive(:[]=).with(:proxy, 'https://proxy.url')
-        described_class.new('foo/bar')
-      end
-
-      it "sets the baseurl when given" do
-        expect(YAML).to receive(:load_file).with('foo/bar').and_return('forge' => {'baseurl' => 'https://local.puppet.forge'})
-        expect(R10K::Forge::ModuleRelease.settings).to receive(:[]=).with(:baseurl, 'https://local.puppet.forge')
-        described_class.new('foo/bar')
-      end
-    end
-
-    describe "for git" do
-      it "sets the git provider when given" do
-        expect(YAML).to receive(:load_file).with('foo/bar').and_return('git' => {'provider' => 'rugged'})
-        expect(R10K::Git).to receive(:provider=).with(:rugged)
-        described_class.new('foo/bar')
-      end
-
-      it "sets the git ssh username when given" do
-        expect(YAML).to receive(:load_file).with('foo/bar').and_return('git' => {'username' => 'grit'})
-        expect(R10K::Git.settings).to receive(:[]=).with(:username, 'grit')
-        described_class.new('foo/bar')
-      end
-
-      it "sets the git private key when given" do
-        expect(YAML).to receive(:load_file).with('foo/bar').and_return('git' => {'private_key' => '/home/user/.ssh/id_rsa'})
-        expect(R10K::Git.settings).to receive(:[]=).with(:private_key, '/home/user/.ssh/id_rsa')
-        described_class.new('foo/bar')
-      end
+    it 'runs application initialization' do
+      config = instance_double('Hash')
+      allow(loader).to receive(:read)
+      expect(initializer).to receive(:call)
+      described_class.new('some/path')
     end
   end
 end
