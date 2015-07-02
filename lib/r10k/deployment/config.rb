@@ -2,6 +2,7 @@ require 'r10k/deployment'
 require 'r10k/settings/loader'
 require 'r10k/util/symbolize_keys'
 require 'r10k/errors'
+require 'r10k/initializers'
 require 'yaml'
 
 module R10K
