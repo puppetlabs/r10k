@@ -2,7 +2,7 @@ require 'securerandom'
 require 'git_utils'
 require 'r10k_utils'
 require 'master_manipulator'
-test_name 'CODEMGMT-62 - C59241 - Single Source with 1,000 Branches'
+test_name 'CODEMGMT-62 - C59241 - Single Source with 100 Branches'
 
 #Init
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
@@ -15,7 +15,6 @@ last_commit = git_last_commit(master, git_environments_path)
 local_files_root_path = ENV['FILES'] || 'files'
 helloworld_module_path = File.join(local_files_root_path, 'modules', 'helloworld')
 
-#Because of CODEMGMT-64 we can only support 100 branches currently.
 env_names = (0 ... 100).to_a.map!{ |x| x > 0 ? SecureRandom.uuid.gsub(/-/,"") * 3 : 'production'}
 
 #Manifest
