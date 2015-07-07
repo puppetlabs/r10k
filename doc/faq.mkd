@@ -50,3 +50,7 @@ on your remote repositories:
 [bitbucket-default-branch]: https://answers.atlassian.com/questions/280944/how-to-change-main-branch-in-bitbucket "Changing the default branch on Bitbucket"
 [gitolite-v2-default-branch]: http://stackoverflow.com/questions/7091599/git-default-remote-branch-with-gitolite "Changing the default branch on Gitolite v2"
 [gitolite-v3-default-branch]: http://stackoverflow.com/questions/13949093/git-change-default-branch-gitolite "Changing the default branch on Gitolite v3"
+
+#### What does the name mean?
+
+It's explained in [this blog post](http://somethingsinistral.net/blog/rethinking-puppet-deployment/#addendum).
