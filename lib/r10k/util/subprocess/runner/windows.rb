@@ -14,10 +14,7 @@ class R10K::Util::Subprocess::Runner::Windows < R10K::Util::Subprocess::Runner
   end
 
   def run
-    cmd = @argv.join(' ')
-
-    stdout, stderr, status = Open3.capture3(cmd)
-
+    stdout, stderr, status = Open3.capture3(*@argv)
     @result = R10K::Util::Subprocess::Result.new(@argv, stdout, stderr, status.exitstatus)
   end
 end
