@@ -3,7 +3,6 @@ require 'r10k_utils'
 require 'master_manipulator'
 require 'openssl'
 test_name 'CODEMGMT-101 - C59237 - Attempt to Deploy Environment with Unauthorized "SSH" Git Source'
-skip_test('test requires resolution of RK-137')
 
 #Init
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
