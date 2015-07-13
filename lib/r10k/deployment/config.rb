@@ -21,19 +21,7 @@ class Config
 
   # Perform a scan for key and check for both string and symbol keys
   def setting(key)
-    keys = [key]
-    case key
-    when String
-      keys << key.to_sym
-    when Symbol
-      keys << key.to_s
-    end
-
-    # Scan all possible keys to see if the config has a matching value
-    keys.inject(nil) do |rv, k|
-      v = @config[k]
-      break v unless v.nil?
-    end
+    @config[key]
   end
 
   # Load and store a config file, and set relevant options
@@ -41,7 +29,8 @@ class Config
   # @param [String] configfile The path to the YAML config file
   def load_config
     loader = R10K::Settings::Loader.new
-    @config = loader.read(@configfile)
+    hash = loader.read(@configfile)
+    @config = R10K::Settings.global_settings.evaluate(hash)
     initializer = R10K::Initializers::GlobalInitializer.new(@config)
     initializer.call
   end
