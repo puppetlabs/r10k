@@ -17,6 +17,7 @@ module R10K
             :config     => :self,
             :puppetfile => :self,
             :detail     => :self,
+            :format     => :self,
             :trace      => :self
           })
 
@@ -25,78 +26,58 @@ module R10K
         end
 
         def call
-          @visit_ok = true
           deployment = R10K::Deployment.load_config(@config)
-          deployment.accept(self)
-          @visit_ok
-        end
 
-        include R10K::Action::Visitor
+          output = { :sources => deployment.sources.map { |source| source_info(source) } }
+
+          case @format
+          when 'json' then json_format(output)
+          else yaml_format(output)
+          end
+
+          # exit 0
+          true
+        end
 
         private
 
-        def visit_deployment(deployment)
-          yield
+        def json_format(output)
+          require 'json'
+          puts JSON.pretty_generate(output)
         end
 
-        def visit_source(source)
-          source.generate_environments
-          display_text("#{source.name} (#{source.basedir})")
-          yield
+        def yaml_format(output)
+          require 'yaml'
+          puts output.to_yaml
         end
 
-        def visit_environment(environment)
-          if !(@argv.empty? || @argv.include?(environment.dirname))
-            return
-          end
+        def source_info(source)
+          source_info = {
+            :name => source.name,
+            :basedir => source.basedir,
+          }
 
-          indent do
-            display_text("- " + environment.dirname)
-            if @puppetfile
-              indent do
-                display_text("modules:")
-                yield
-              end
-            end
-          end
+          source_info[:prefix] = source.prefix if source.prefix
+          source_info[:remote] = source.remote if source.respond_to?(:remote)
+          source_info[:environments] = source.environments.map { |env| environment_info(env) }
+
+          source_info
         end
 
-        def visit_puppetfile(puppetfile)
-          puppetfile.load
-          yield
-        end
-
-        def visit_module(mod)
-          indent do
-            display_text("- " + mod.title)
-            if @detail
-              indent do
-                properties = mod.properties
-                str = properties.keys.sort.map do |key|
-                  "#{key}: #{properties[key]}"
-                end.join("\n")
-                display_text(str)
-              end
-            end
+        def environment_info(env)
+          if @puppetfile
+            { :name => env.dirname, :modules => env.modules.map { |mod| module_info(mod) } }
+          else
+            env.dirname
           end
         end
 
-        def indent(&block)
-          @indent += @level
-          block.call
-        ensure
-          @indent -= @level
-        end
-
-        def indent_text(str)
-          space = " " * @indent
-          str.lines.map do |line|
-            space + line
-          end.join
-        end
-
-        def display_text(str)
-          puts indent_text(str)
+        def module_info(mod)
+          if @detail
+            { :name => mod.title, :properties => mod.properties }
+          else
+            mod.title
+          end
         end
       end
     end

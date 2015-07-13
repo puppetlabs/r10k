@@ -88,6 +88,7 @@ try to deploy the given module names in all environments.
 
           flag :p, :puppetfile, 'Display Puppetfile modules'
           flag nil, :detail, 'Display detailed information'
+          required nil, :format, 'Display output in a specific format. Valid values: json, yaml. Default: yaml'
 
           runner R10K::Action::CriRunner.wrap(R10K::Action::Deploy::Display)
         end
