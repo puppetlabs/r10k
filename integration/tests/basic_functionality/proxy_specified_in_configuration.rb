@@ -1,8 +1,7 @@
-require 'erb'
 require 'git_utils'
 require 'r10k_utils'
 require 'master_manipulator'
-test_name 'RK-110 - C63604 - Specify the proxy in the r1ok.yaml'
+test_name 'RK-110 - C87652 - Specify the proxy in the r10k.yaml'
 
 confine(:to, :platform => ['el', 'sles'])
 
@@ -29,15 +28,13 @@ r10k_config_bak_path = "#{r10k_config_path}.bak"
 case master_platform
   when 'RedHat'
     pkg_manager = 'yum'
-    squid = 'squid'
   when 'Suse'
     pkg_manager = 'zypper'
-    squid = 'squid'
 end
 
-install_squid = "#{pkg_manager} install -y #{squid}"
-remove_squid = "#{pkg_manager} remove -y #{squid}"
-squid_log = "/var/log/#{squid}/access.log"
+install_squid = "#{pkg_manager} install -y squid"
+remove_squid = "#{pkg_manager} remove -y squid"
+squid_log = "/var/log/squid/access.log"
 
 #In-line files
 r10k_conf = <<-CONF
@@ -93,7 +90,7 @@ step 'turn off the firewall'
 on(master, puppet("apply -e 'service {'iptables' : ensure => stopped}'"))
 
 step 'start squid proxy'
-on(master, puppet("apply -e 'service {'#{squid}' : ensure => running}'"))
+on(master, puppet("apply -e 'service {'squid' : ensure => running}'"))
 
 #Tests
 step 'Deploy "production" Environment via r10k'
@@ -103,3 +100,4 @@ step 'Read the squid logs'
 on(master, "cat #{squid_log}") do |result|
   assert_match(squid_log_regex, result.stdout, 'Proxy logs did not indicate use of the proxy.')
 end
+

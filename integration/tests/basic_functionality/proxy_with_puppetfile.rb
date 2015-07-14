@@ -1,4 +1,3 @@
-require 'erb'
 require 'git_utils'
 require 'r10k_utils'
 require 'master_manipulator'
@@ -13,15 +12,13 @@ r10k_fqp = get_r10k_fqp(master)
 case master_platform
   when 'RedHat'
     pkg_manager = 'yum'
-    squid = 'squid'
   when 'Suse'
     pkg_manager = 'zypper'
-    squid = 'squid'
 end
 
-install_squid = "#{pkg_manager} install -y #{squid}"
-remove_squid = "#{pkg_manager} remove -y #{squid}"
-squid_log = "/var/log/#{squid}/access.log"
+install_squid = "#{pkg_manager} install -y squid"
+remove_squid = "#{pkg_manager} remove -y squid"
+squid_log = "/var/log/squid/access.log"
 
 #Verification
 squid_log_regex = /CONNECT forgeapi.puppetlabs.com:443/
@@ -45,7 +42,7 @@ step 'turn off the firewall'
 on(master, puppet("apply -e 'service {'iptables' : ensure => stopped}'"))
 
 step 'start squid proxy'
-on(master, puppet("apply -e 'service {'#{squid}' : ensure => running}'"))
+on(master, puppet("apply -e 'service {'squid' : ensure => running}'"))
 
 #Tests
 step 'make a puppetfile'
@@ -58,3 +55,4 @@ step 'Read the squid logs'
 on(master, "cat #{squid_log}") do |result|
   assert_match(squid_log_regex, result.stdout, 'Proxy logs did not indicate use of the proxy.')
 end
+
