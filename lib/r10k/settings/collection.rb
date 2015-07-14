@@ -37,6 +37,8 @@ module R10K
       # @param newvalues [Hash]
       # @return [void]
       def assign(newvalues)
+        return if newvalues.nil?
+
         R10K::Util::SymbolizeKeys.symbolize_keys!(newvalues)
         @settings.each_pair do |name, setting|
           if newvalues.key?(name)

@@ -30,6 +30,10 @@ describe R10K::Settings::Collection do
     it "can accept invalid settings" do
       subject.assign({:hardly_a_setting => "nope nope nope"})
     end
+
+    it "silently ignores attempts to assign nil" do
+      subject.assign(nil)
+    end
   end
 
   describe '#validate' do
