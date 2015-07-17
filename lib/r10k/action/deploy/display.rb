@@ -18,6 +18,7 @@ module R10K
             :puppetfile => :self,
             :detail     => :self,
             :format     => :self,
+            :fetch      => :self,
             :trace      => :self
           })
 
@@ -27,6 +28,10 @@ module R10K
 
         def call
           deployment = R10K::Deployment.load_config(@config)
+
+          if @fetch
+            deployment.preload!
+          end
 
           output = { :sources => deployment.sources.map { |source| source_info(source) } }
 
@@ -65,10 +70,17 @@ module R10K
         end
 
         def environment_info(env)
-          if @puppetfile
-            { :name => env.dirname, :modules => env.modules.map { |mod| module_info(mod) } }
-          else
+          if !@puppetfile && !@detail
             env.dirname
+          else
+            env_info = {
+              :name => env.dirname,
+              :status => (env.status rescue nil),
+            }
+
+            env_info[:modules] = env.modules.map { |mod| module_info(mod) } if @puppetfile
+
+            env_info
           end
         end
 
