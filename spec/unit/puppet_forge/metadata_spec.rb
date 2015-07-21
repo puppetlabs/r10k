@@ -1,9 +1,9 @@
 require 'spec_helper'
-require 'shared/puppet/module_tool/metadata'
+require 'shared/puppet_forge/metadata'
 
-describe Puppet::ModuleTool::Metadata do
+describe PuppetForge::Metadata do
   let(:data) { {} }
-  let(:metadata) { Puppet::ModuleTool::Metadata.new }
+  let(:metadata) { PuppetForge::Metadata.new }
 
   describe 'property lookups' do
     subject { metadata }

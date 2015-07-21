@@ -1,6 +1,6 @@
 require 'r10k/module'
 require 'r10k/errors'
-require 'shared/puppet/module_tool/metadata'
+require 'shared/puppet_forge/metadata'
 require 'r10k/module/metadata_file'
 
 require 'r10k/forge/module_release'
@@ -19,7 +19,7 @@ class R10K::Module::Forge < R10K::Module::Base
 
   # @!attribute [r] metadata
   #   @api private
-  #   @return [Puppet::ModuleTool::Metadata]
+  #   @return [PuppetForge::Metadata]
   attr_reader :metadata
 
   # @!attribute [r] v3_module

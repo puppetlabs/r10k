@@ -3,8 +3,7 @@ require 'json'
 require 'set'
 require 'semantic_puppet/version' 
 
-module Puppet
-module ModuleTool
+module PuppetForge
 
   # This class provides a data structure representing a module's metadata.
   # @api private
@@ -31,7 +30,7 @@ module ModuleTool
 
     # Returns a filesystem-friendly version of this module name.
     def dashed_name
-      @data['name'].tr('/', '-') if @data['name']
+      PuppetForge::V3.normalize_name(@data['name']) if @data['name']
     end
 
     # Returns a string that uniquely represents this version of this module.
@@ -194,4 +193,4 @@ module ModuleTool
     end
   end
 end
-end
+

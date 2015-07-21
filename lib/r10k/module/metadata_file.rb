@@ -1,6 +1,6 @@
 require 'r10k/module'
 require 'r10k/errors'
-require 'shared/puppet/module_tool/metadata'
+require 'shared/puppet_forge/metadata'
 
 class R10K::Module::MetadataFile
 
@@ -19,7 +19,7 @@ class R10K::Module::MetadataFile
     if self.exist?
       metadata_file_path.open do |f|
         begin
-          metadata = Puppet::ModuleTool::Metadata.new
+          metadata = PuppetForge::Metadata.new
           metadata.update(JSON.load(f), false)
         rescue JSON::ParserError => e
           exception = R10K::Error.wrap(e, "Could not read metadata.json")
