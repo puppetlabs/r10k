@@ -15,6 +15,13 @@ class R10K::Util::Subprocess::Runner::Windows < R10K::Util::Subprocess::Runner
 
   def run
     cmd = @argv.join(' ')
+    cmd = @argv.map do |elem|
+        if elem.match(/\s/)
+          %Q["#{elem}"]
+        else
+          elem
+        end
+    end.join(' ')
 
     stdout, stderr, status = Open3.capture3(cmd)
 
