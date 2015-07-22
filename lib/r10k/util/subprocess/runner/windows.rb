@@ -14,10 +14,10 @@ class R10K::Util::Subprocess::Runner::Windows < R10K::Util::Subprocess::Runner
   end
 
   def run
-    cmd = @argv.join(' ')
-
-    stdout, stderr, status = Open3.capture3(cmd)
-
+    spawn_opts = @cwd ? {:chdir => @cwd} : {}
+    stdout, stderr, status = Open3.capture3(*@argv, spawn_opts)
     @result = R10K::Util::Subprocess::Result.new(@argv, stdout, stderr, status.exitstatus)
+  rescue Errno::ENOENT, Errno::EACCES => e
+    @result = R10K::Util::Subprocess::Result.new(@argv, '', e.message, 255)
   end
 end
