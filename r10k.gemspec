@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'colored',   '1.2'
   s.add_dependency 'cri',       '~> 2.6.1'
+  s.add_dependency 'pmap',     '~> 1.0.2'
 
   s.add_dependency 'log4r',     '1.1.10'
   s.add_dependency 'multi_json', '~> 1.10'

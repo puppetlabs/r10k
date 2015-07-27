@@ -2,6 +2,7 @@ require 'pathname'
 require 'r10k/module'
 require 'r10k/util/purgeable'
 require 'r10k/errors'
+require 'pmap'
 
 module R10K
 class Puppetfile
@@ -88,10 +89,16 @@ class Puppetfile
     @modules.map { |mod| mod.name }
   end
 
-  def accept(visitor)
+  def accept(visitor, parallel=1)
     visitor.visit(:puppetfile, self) do
-      modules.each do |mod|
-        mod.accept(visitor)
+      if parallel > 1
+        modules.peach(parallel) do |mod|
+          mod.accept(visitor)
+        end
+      else
+        modules.each do |mod|
+          mod.accept(visitor)
+        end
       end
     end
   end
