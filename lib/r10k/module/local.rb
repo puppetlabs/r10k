@@ -18,4 +18,11 @@ class R10K::Module::Local < R10K::Module::Base
 
   def sync
   end
+
+  private
+
+  def parse_title(title)
+    ["", title]
+  end
+
 end
