@@ -31,8 +31,8 @@ Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
           usage   'install'
           summary 'Install all modules from a Puppetfile'
 
-          # @todo add --moduledir option
-          # @todo add --puppetfile option
+          required nil, :moduledir, 'Path to install modules to'
+          required nil, :puppetfile, 'Path to puppetfile'
           # @todo add --no-purge option
           runner R10K::Action::Puppetfile::CriRunner.wrap(R10K::Action::Puppetfile::Install)
         end
