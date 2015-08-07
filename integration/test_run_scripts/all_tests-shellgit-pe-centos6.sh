@@ -7,7 +7,7 @@ if [ $SCRIPT_BASE_PATH = "test_run_scripts" ]; then
   cd ../
 fi
 
-export pe_dist_dir=http://neptune.puppetlabs.lan/4.0/ci-ready/
+export pe_dist_dir=http://neptune.puppetlabs.lan/2015.2/ci-ready/
 export GIT_PROVIDER=shellgit
 
 beaker \
