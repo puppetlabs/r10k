@@ -31,4 +31,11 @@ Could not install package
 
   class ModuleReleaseNotFound < PuppetForge::Error
   end
+
+  class ModuleReleaseForbidden < PuppetForge::Error
+    def self.from_response(response)
+      body = JSON.parse(response[:body])
+      new(body["message"])
+    end
+  end
 end
