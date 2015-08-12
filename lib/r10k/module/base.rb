@@ -1,4 +1,5 @@
 require 'r10k/module'
+require 'puppet_forge'
 
 # This class defines a common interface for module implementations.
 class R10K::Module::Base
@@ -36,10 +37,10 @@ class R10K::Module::Base
   # @param dirname [String]
   # @param args [Array]
   def initialize(title, dirname, args)
-    @title   = title
+    @title   = PuppetForge::V3.normalize_name(title)
     @dirname = dirname
     @args    = args
-    @owner, @name = parse_title(title)
+    @owner, @name = parse_title(@title)
     @path = Pathname.new(File.join(@dirname, @name))
   end
 

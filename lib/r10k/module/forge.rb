@@ -1,13 +1,12 @@
 require 'r10k/module'
 require 'r10k/errors'
-require 'shared/puppet_forge/metadata'
 require 'r10k/module/metadata_file'
 
 require 'r10k/forge/module_release'
-require 'shared/puppet_forge/v3/module'
 
 require 'pathname'
 require 'fileutils'
+require 'puppet_forge'
 
 class R10K::Module::Forge < R10K::Module::Base
 
@@ -35,7 +34,7 @@ class R10K::Module::Forge < R10K::Module::Base
     @metadata = @metadata_file.read
 
     @expected_version = expected_version || current_version || :latest
-    @v3_module = PuppetForge::V3::Module.new(@title)
+    @v3_module = PuppetForge::V3::Module.new(:slug => @title)
   end
 
   def sync(options = {})
@@ -60,7 +59,11 @@ class R10K::Module::Forge < R10K::Module::Base
   # @return [String] The expected version that the module
   def expected_version
     if @expected_version == :latest
-      @expected_version = @v3_module.latest_version
+      begin
+      @expected_version = @v3_module.current_release.version
+      rescue Faraday::ResourceNotFound => e
+        raise PuppetForge::ReleaseNotFound, "The module #{@title} does not exist on #{PuppetForge::V3::Release.conn.url_prefix}.", e.backtrace
+      end
     end
     @expected_version
   end

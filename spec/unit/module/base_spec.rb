@@ -48,7 +48,7 @@ describe R10K::Module::Base do
     end
 
     it "aliases full_name to title" do
-      expect(subject.full_name).to eq 'branan/eight_hundred'
+      expect(subject.full_name).to eq 'branan-eight_hundred'
     end
 
     it "aliases author to owner" do
@@ -61,7 +61,7 @@ describe R10K::Module::Base do
   end
 
   describe "accepting a visitor" do
-    subject { described_class.new('branan/eight_hundred', '/moduledir', []) }
+    subject { described_class.new('branan-eight_hundred', '/moduledir', []) }
 
     it "passes itself to the visitor" do
       visitor = spy('visitor')

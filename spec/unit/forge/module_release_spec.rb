@@ -1,9 +1,12 @@
 require 'spec_helper'
 require 'r10k/forge/module_release'
 require 'r10k/util/exec_env'
+require 'puppet_forge'
 
 describe R10K::Forge::ModuleRelease do
   subject { described_class.new('branan-eight_hundred', '8.0.0') }
+
+  let(:forge_release_class) { PuppetForge::V3::Release }
 
   let(:download_path) { instance_double('Pathname') }
   let(:unpack_path) { instance_double('Pathname') }
@@ -20,7 +23,7 @@ describe R10K::Forge::ModuleRelease do
       it "respects the #{env_var} environment variable" do
         R10K::Util::ExecEnv.withenv(env_var => "http://proxy.value") do
           subject = described_class.new('branan-eight_hundred', '8.0.0')
-          proxy_uri = subject.forge_release.conn.proxy.uri
+          proxy_uri = forge_release_class.conn.proxy.uri
           expect(proxy_uri.to_s).to eq "http://proxy.value"
         end
       end
@@ -32,14 +35,14 @@ describe R10K::Forge::ModuleRelease do
 
       it 'has a setting for the forge proxy' do
         subject = described_class.new('branan-eight_hundred', '8.0.0')
-        proxy_uri = subject.forge_release.conn.proxy.uri
+        proxy_uri = forge_release_class.conn.proxy.uri
         expect(proxy_uri.to_s).to eq "http://proxy.setting"
       end
 
       it 'prefers the proxy setting over an environment variable' do
         R10K::Util::ExecEnv.withenv('HTTPS_PROXY' => "http://proxy.from.env") do
           subject = described_class.new('branan-eight_hundred', '8.0.0')
-          proxy_uri = subject.forge_release.conn.proxy.uri
+          proxy_uri = forge_release_class.conn.proxy.uri
           expect(proxy_uri.to_s).to eq "http://proxy.setting"
         end
       end

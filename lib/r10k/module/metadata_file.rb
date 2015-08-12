@@ -1,6 +1,6 @@
 require 'r10k/module'
 require 'r10k/errors'
-require 'shared/puppet_forge/metadata'
+require 'puppet_forge'
 
 class R10K::Module::MetadataFile
 
