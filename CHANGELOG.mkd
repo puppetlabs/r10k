@@ -1,6 +1,23 @@
 CHANGELOG
 =========
 
+2.0.3
+-----
+
+2015/8/13
+
+This is a bugfix release that resolves a critical issue issue in installing PE
+only modules.
+
+### Notes
+
+(RK-156) PE-only modules cannot be installed
+
+The mechanism used to load PE license information in r10k was preventing r10k
+from not being able to locate the pe-license Ruby library in PE 2015.2.0; this
+has been resolved by actually trying to load the relevant files instead of
+probing for a gem and then conditionally loading it.
+
 2.0.2
 -----
 
