@@ -32,6 +32,6 @@ module R10K::Module
   require 'r10k/module/base'
   require 'r10k/module/git'
   require 'r10k/module/svn'
-  require 'r10k/module/forge'
   require 'r10k/module/local'
+  require 'r10k/module/forge'
 end
