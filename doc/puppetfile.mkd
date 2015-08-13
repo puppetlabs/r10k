@@ -184,6 +184,19 @@ credentials may be visible in the process table when r10k is running. If you
 choose to supply SVN credentials make sure that the system running r10k is
 appropriately secured.
 
+### Local
+
+In the event you want to store locally written modules in your r10k-managed
+repository rather than storing each in their own repository, you can use 
+the `:local` type. 
+
+For instance, if you create a module under `modules` with the name `mymodule` 
+then the following will tell r10k to not manage that module.
+
+    mod 'mymodule', :local
+
+**Note**: Version control is not supported in this scenario. *Caveat Emptor*.
+
 ## Environment variables
 
 It is possible to set an alternate name/location for your `Puppetfile` and
