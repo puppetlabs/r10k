@@ -16,3 +16,5 @@ end
 R10K::Features.add(:shellgit) { R10K::Util::Commands.which('git') }
 
 R10K::Features.add(:rugged, :libraries => 'rugged')
+
+R10K::Features.add(:pe_license, :libraries => 'pe_license')
