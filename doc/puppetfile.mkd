@@ -184,6 +184,79 @@ credentials may be visible in the process table when r10k is running. If you
 choose to supply SVN credentials make sure that the system running r10k is
 appropriately secured.
 
+### Local
+
+In the event you want to store locally written modules in your r10k-managed
+repository in the Puppetfile managed path, you can use the `:local` type.
+
+For instance, if you have a Git repository with the following structure:
+
+```
+# tree -L 2
+.
+├── environment.conf
+├── modules
+│   └── local_module
+└── Puppetfile
+
+4 directories, 2 files
+```
+
+And you want to prevent `local_module` from being removed, you can add a 'local'
+module in your Puppetfile:
+
+```
+mod 'local_mod', :local => true
+
+# Include your other modules as normal
+mod 'branan/eight_hundred'
+mod 'puppetlabs/apache'
+```
+
+If you run r10k against this Git branch, you'll get the following:
+
+```
+# tree -L 2
+.
+├── environment.conf
+├── modules
+│   ├── apache
+│   ├── eight_hundred
+│   └── local_mod
+└── Puppetfile
+
+4 directories, 2 files
+```
+
+#### Caveats
+
+This is a workaround for r10k not being able to determine that modules
+created via VCS should not be purged, but is not meant to be a long term
+solution. The general practice around having local and remote modules in the
+same Git repository is to move modules versioned into a separate directory, like
+so:
+
+```
+# tree -L 2
+.
+├── environment.conf
+├── site-modules
+│   └── local_mod
+├── modules
+│   ├── apache
+│   └── eight_hundred
+└── Puppetfile
+
+4 directories, 2 files
+```
+
+Moving modules stored in the Git repository into a separate directory will
+remove the need to have Puppetfile entries for every locally versioned Puppet
+module.
+
+For more information see the [FAQ entry](doc/faq.mkd#how-do-i-prevent-r10k-from-removing-modules-in-the-modules-directory-of-my-git-repository)
+on managing internal and external modules in the same directory.
+
 ## Environment variables
 
 It is possible to set an alternate name/location for your `Puppetfile` and

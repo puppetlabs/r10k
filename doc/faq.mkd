@@ -51,6 +51,69 @@ on your remote repositories:
 [gitolite-v2-default-branch]: http://stackoverflow.com/questions/7091599/git-default-remote-branch-with-gitolite "Changing the default branch on Gitolite v2"
 [gitolite-v3-default-branch]: http://stackoverflow.com/questions/13949093/git-change-default-branch-gitolite "Changing the default branch on Gitolite v3"
 
+### How do I prevent r10k from removing modules in the `/modules` directory of my Git repository?
+
+By default, r10k will install modules specified in the Puppetfile into the
+`/modules` directory of each environment, but if you already use that directory
+and keep modules in it, r10k may think those modules are not meant to exist and
+may remove them.
+
+There are three ways of fixing this: including your local modules in the
+Puppetfile, moving the directory where r10k install Puppetfile sourced modules,
+or moving your modules.
+
+#### Including your local modules in the Puppetfile
+
+The Puppetfile has a concept of a "local" module, otherwise known as a module
+that r10k did not directly placed there but should not be removed. If you want
+to continue keep your modules in the `/modules` directory and still install
+external modules from the Puppetfile into that directory, you can add a `mod`
+directive to the Puppetfile for each of your local modules.
+
+```
+
+mod 'my_ntp', :local => true
+mod 'roles', :local => true
+mod 'profiles', :local => true
+
+# Include your external modules as usual
+mod 'puppetlabs/stdlib'
+mod 'puppetlabs/apache'
+```
+
+#### Move where the Puppetfile installs external modules
+
+Instead of having to add a module entry for each of your local modules, you can
+simply move where the Puppetfile installs modules with the `moduledir` setting.
+
+```
+# The moduledir setting must be set before any modules are created
+moduledir "external-modules"
+
+mod 'puppetlabs/stdlib'
+mod 'puppetlabs/apache'
+```
+
+In Puppet 3.6 and later you can create an `environment.conf` in the root of your
+environment to indicate which directories contain modules:
+
+```
+# environment.conf
+modulepath: modules:external-modules
+```
+
+#### Move your local modules
+
+Lastly, you can simply move your locally versioned modules to a separate
+directory to avoid conflicting over the `/modules` directory entirely. With this
+example as well you can use the `environment.conf file to tell Puppet which
+directories contain modules.
+
+```
+# environment.conf
+modulepath: internal-modules::modules
+```
+
 #### What does the name mean?
 
 It's explained in [this blog post](http://somethingsinistral.net/blog/rethinking-puppet-deployment/#addendum).
