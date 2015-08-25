@@ -41,7 +41,7 @@ For general use, you should install r10k from Ruby gems:
     gem install r10k
     r10k help
 
-### Puppet Enterprise
+### Puppet Enterprise 3.x
 
 Puppet Enterprise bundles a copy of Ruby, so if you do not want to use the
 system version of Ruby with r10k, you need to use the bundled PE gem command for
@@ -49,6 +49,15 @@ installation:
 
     /opt/puppet/bin/gem install r10k
     r10k help
+
+### Puppet 4
+
+Puppet 4 bundles a copy of Ruby, so if you do not want to use the
+system version of Ruby with r10k, you need to use the bundled puppet gem command
+for installation.
+
+    /opt/puppetlabs/puppet/bin/gem install r10k
+    /opt/puppetlabs/puppet/bin/r10k help
 
 ### Bundler
 
