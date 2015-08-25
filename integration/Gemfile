@@ -1,3 +1,4 @@
 source ENV['GEM_SOURCE'] || 'https://rubygems.org'
 
 gem 'beaker', '~> 2.7'
+gem 'master_manipulator', '~> 1.1.1'
