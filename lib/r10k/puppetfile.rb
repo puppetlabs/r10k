@@ -73,6 +73,9 @@ class Puppetfile
   # @param [*Object] args
   def add_module(name, args)
     @modules << R10K::Module.new(name, @moduledir, args)
+    if @modules[-1].respond_to? :forge
+      @modules[-1].forge = @forge
+    end
   end
 
   include R10K::Util::Purgeable

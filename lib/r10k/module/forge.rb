@@ -5,6 +5,7 @@ require 'r10k/module/metadata_file'
 
 require 'r10k/forge/module_release'
 require 'shared/puppet_forge/v3/module'
+require 'shared/puppet_forge/connection'
 
 require 'pathname'
 require 'fileutils'
@@ -27,6 +28,11 @@ class R10K::Module::Forge < R10K::Module::Base
   #   @return [PuppetForge::V3::Module] The Puppet Forge module metadata
   attr_reader :v3_module
 
+  # @!attribute [rw] forge
+  #   @api private
+  #   @return [String] The Puppet Forge where the module can be found
+  attr_accessor :forge
+  
   include R10K::Logging
 
   def initialize(title, dirname, expected_version)
@@ -36,6 +42,8 @@ class R10K::Module::Forge < R10K::Module::Base
 
     @expected_version = expected_version || current_version || :latest
     @v3_module = PuppetForge::V3::Module.new(@title)
+    
+    @forge = 'https://forgeapi.puppetlabs.com'
   end
 
   def sync(options = {})
@@ -126,6 +134,7 @@ class R10K::Module::Forge < R10K::Module::Base
       parent_path.mkpath
     end
     module_release = R10K::Forge::ModuleRelease.new(@title, expected_version)
+    module_release.conn = PuppetForge::Connection.make_connection(@forge)
     module_release.install(@path)
   end
 
