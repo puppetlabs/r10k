@@ -1,10 +1,9 @@
-require 'shared/puppet_forge/v3/module_release'
-require 'shared/puppet_forge/unpacker'
 require 'r10k/logging'
 require 'r10k/settings/mixin'
 require 'fileutils'
 require 'forwardable'
 require 'tmpdir'
+require 'puppet_forge'
 
 module R10K
   module Forge
@@ -43,8 +42,8 @@ module R10K
         @full_name = PuppetForge::V3.normalize_name(full_name)
         @version   = version
 
-        @forge_release = PuppetForge::V3::ModuleRelease.new(@full_name, @version)
-        @forge_release.conn = conn
+        PuppetForge::V3::Release.conn = conn
+        @forge_release = PuppetForge::V3::Release.new({ :name => @full_name, :version => @version, :slug => "#{@full_name}-#{@version}" })
 
         @download_path = Pathname.new(Dir.mktmpdir) + (slug + '.tar.gz')
         @unpack_path   = Pathname.new(Dir.mktmpdir) + slug
@@ -72,14 +71,14 @@ module R10K
       #
       # @return [void]
       def download
-        logger.debug1 "Downloading #{@forge_release.slug} from #{@forge_release.conn.url_prefix} to #{@download_path}"
+        logger.debug1 "Downloading #{@forge_release.slug} from #{PuppetForge::Release.conn.url_prefix} to #{@download_path}"
         @forge_release.download(download_path)
       end
 
       # Verify the module release downloaded to {#download_path} against the
       # module release checksum given by the Puppet Forge
       #
-      # @raise [PuppetForge::V3::ModuleRelease::ChecksumMismatch] The
+      # @raise [PuppetForge::V3::Release::ChecksumMismatch] The
       #   downloaded module release checksum doesn't match the expected Forge
       #   module release checksum.
       # @return [void]
@@ -131,8 +130,10 @@ module R10K
 
       def conn
         if settings[:baseurl]
+          PuppetForge.host = settings[:baseurl]
           conn = PuppetForge::Connection.make_connection(settings[:baseurl])
         else
+          PuppetForge.host = "https://forgeapi.puppetlabs.com"
           conn = PuppetForge::Connection.default_connection
         end
         conn.proxy(proxy)

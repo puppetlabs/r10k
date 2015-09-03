@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'r10k/action/runner'
+require 'puppet_forge/connection'
 
 
 describe R10K::Action::Runner do

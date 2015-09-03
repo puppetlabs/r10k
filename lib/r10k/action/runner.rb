@@ -1,7 +1,7 @@
 require 'r10k/logging'
 require 'r10k/errors'
 require 'r10k/util/license'
-require 'shared/puppet_forge/connection'
+require 'puppet_forge/connection'
 
 module R10K
   module Action

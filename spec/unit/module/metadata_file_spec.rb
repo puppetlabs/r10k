@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'shared/puppet_forge/metadata'
 
 describe R10K::Module::MetadataFile do
 

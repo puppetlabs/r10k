@@ -38,7 +38,7 @@ describe R10K::Module::Forge do
     end
 
     it "sets the title" do
-      expect(subject.title).to eq 'branan/eight_hundred'
+      expect(subject.title).to eq 'branan-eight_hundred'
     end
   end
 
@@ -67,7 +67,7 @@ describe R10K::Module::Forge do
 
     it "uses the latest version from the forge when the version is :latest" do
       subject = described_class.new('branan/eight_hundred', fixture_modulepath, :latest)
-      expect(subject.v3_module).to receive(:latest_version).and_return('8.8.8')
+      expect(subject.v3_module).to receive_message_chain(:current_release, :version).and_return('8.8.8')
       expect(subject.expected_version).to eq '8.8.8'
     end
   end
@@ -151,7 +151,7 @@ describe R10K::Module::Forge do
     it 'installs the module from the forge' do
       subject = described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0')
       release = instance_double('R10K::Forge::ModuleRelease')
-      expect(R10K::Forge::ModuleRelease).to receive(:new).with('branan/eight_hundred', '8.0.0').and_return(release)
+      expect(R10K::Forge::ModuleRelease).to receive(:new).with('branan-eight_hundred', '8.0.0').and_return(release)
       expect(release).to receive(:install).with(subject.path)
       subject.install
     end
