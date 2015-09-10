@@ -58,6 +58,10 @@ module R10K
           :desc => "Where r10k should store cached Git repositories.",
         }),
 
+        Definition.new(:postrun, {
+          :desc => "The command r10k should run after deploying environments.",
+        }),
+
         R10K::Settings.forge_settings,
 
         R10K::Settings.git_settings,
