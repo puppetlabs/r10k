@@ -1,7 +1,6 @@
 require 'r10k/logging'
 require 'r10k/settings/mixin'
 require 'fileutils'
-require 'forwardable'
 require 'tmpdir'
 require 'puppet_forge'
 
@@ -24,10 +23,6 @@ module R10K
       #     release.
       attr_reader :forge_release
 
-      extend Forwardable
-
-      def_delegators :@forge_release, :slug, :data
-
       # @!attribute [rw] download_path
       #   @return [Pathname] Where the module tarball will be downloaded to.
       attr_accessor :download_path
@@ -45,8 +40,8 @@ module R10K
         PuppetForge::V3::Release.conn = conn
         @forge_release = PuppetForge::V3::Release.new({ :name => @full_name, :version => @version, :slug => "#{@full_name}-#{@version}" })
 
-        @download_path = Pathname.new(Dir.mktmpdir) + (slug + '.tar.gz')
-        @unpack_path   = Pathname.new(Dir.mktmpdir) + slug
+        @download_path = Pathname.new(Dir.mktmpdir) + (@forge_release.slug + '.tar.gz')
+        @unpack_path   = Pathname.new(Dir.mktmpdir) + @forge_release.slug
       end
 
       # Download, unpack, and install this module release to the target directory.
@@ -83,7 +78,7 @@ module R10K
       #   module release checksum.
       # @return [void]
       def verify
-        logger.debug1 "Verifying that #{download_path} matches checksum #{data['file_md5']}"
+        logger.debug1 "Verifying that #{download_path} matches checksum #{@forge_release.file_md5}"
         @forge_release.verify(download_path)
       end
 
