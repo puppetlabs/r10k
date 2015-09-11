@@ -33,7 +33,7 @@ module R10K
             deployment.preload!
           end
 
-          output = { :sources => deployment.sources.map { |source| source_info(source) } }
+          output = { :sources => deployment.sources.map { |source| source_info(source, @argv) } }
 
           case @format
           when 'json' then json_format(output)
@@ -56,7 +56,7 @@ module R10K
           puts output.to_yaml
         end
 
-        def source_info(source)
+        def source_info(source, argv=[])
           source_info = {
             :name => source.name,
             :basedir => source.basedir,
@@ -64,7 +64,9 @@ module R10K
 
           source_info[:prefix] = source.prefix if source.prefix
           source_info[:remote] = source.remote if source.respond_to?(:remote)
-          source_info[:environments] = source.environments.map { |env| environment_info(env) }
+
+          env_list = source.environments.select { |env| argv.empty? || argv.include?(env.name) }
+          source_info[:environments] = env_list.map { |env| environment_info(env) }
 
           source_info
         end
