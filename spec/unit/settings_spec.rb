@@ -1,0 +1,115 @@
+require 'spec_helper'
+require 'r10k/settings'
+
+describe R10K::Settings do
+  describe "git settings" do
+    subject { described_class.git_settings }
+
+    describe "provider" do
+      it "normalizes valid values to a symbol" do
+        output = subject.evaluate("provider" => "rugged")
+        expect(output[:provider]).to eq(:rugged)
+      end
+    end
+
+    describe "username" do
+      it "defaults to the current user" do
+        expect(Etc).to receive(:getlogin).and_return("puppet")
+        output = subject.evaluate({})
+        expect(output[:username]).to eq("puppet")
+      end
+
+      it "passes values through unchanged" do
+        output = subject.evaluate("username" => "git")
+        expect(output[:username]).to eq("git")
+      end
+    end
+
+    describe "private_key" do
+      it "passes values through unchanged" do
+        output = subject.evaluate("private_key" => "/etc/puppetlabs/r10k/id_rsa")
+        expect(output[:private_key]).to eq("/etc/puppetlabs/r10k/id_rsa")
+      end
+    end
+  end
+
+  describe "forge settings" do
+    subject { described_class.forge_settings }
+
+    describe "proxy" do
+      it "accepts valid URIs" do
+        output = subject.evaluate("proxy" => "http://proxy.tessier-ashpool.freeside:3128")
+        expect(output[:proxy]).to eq "http://proxy.tessier-ashpool.freeside:3128"
+      end
+
+      it "rejects invalid URIs" do
+        expect {
+          subject.evaluate("proxy" => "that's no proxy!")
+        }.to raise_error do |err|
+          expect(err.message).to match(/Validation failures for forge/)
+          expect(err.errors.size).to eq 1
+          expect(err.errors[:proxy]).to be_a_kind_of(ArgumentError)
+          expect(err.errors[:proxy].message).to match(/could not be parsed as a URL/)
+        end
+      end
+    end
+
+    describe "baseurl" do
+      it "accepts valid URIs" do
+        output = subject.evaluate("baseurl" => "https://forge.tessier-ashpool.freeside")
+        expect(output[:baseurl]).to eq "https://forge.tessier-ashpool.freeside"
+      end
+
+      it "rejects invalid URIs" do
+        expect {
+          subject.evaluate("baseurl" => "that's no forge!")
+        }.to raise_error do |err|
+          expect(err.message).to match(/Validation failures for forge/)
+          expect(err.errors.size).to eq 1
+          expect(err.errors[:baseurl]).to be_a_kind_of(ArgumentError)
+          expect(err.errors[:baseurl].message).to match(/could not be parsed as a URL/)
+        end
+      end
+    end
+  end
+
+  describe "global settings" do
+    subject { described_class.global_settings }
+    describe "sources" do
+      it "passes values through unchanged" do
+        output = subject.evaluate("sources" => {"puppet" => {"remote" => "https://git.tessier-ashpool.freeside"}})
+        expect(output[:sources]).to eq({"puppet" => {"remote" => "https://git.tessier-ashpool.freeside"}})
+      end
+    end
+
+    describe "cachedir" do
+      it "passes values through unchanged" do
+        output = subject.evaluate("cachedir" => "/srv/r10k/git")
+        expect(output[:cachedir]).to eq("/srv/r10k/git")
+      end
+    end
+
+    describe "postrun" do
+      it "accepts an argument vector" do
+        output = subject.evaluate("postrun" => ["curl", "-F", "deploy=done", "http://reporting.tessier-ashpool.freeside/r10k"])
+        expect(output[:postrun]).to eq(["curl", "-F", "deploy=done", "http://reporting.tessier-ashpool.freeside/r10k"])
+      end
+
+      it "rejects a string command"
+    end
+
+    describe "git settings" do
+      it "passes settings through to the git settings" do
+        output = subject.evaluate("git" => {"provider" => "shellgit", "username" => "git"})
+        expect(output[:git]).to eq(:provider => :shellgit, :username => "git", :private_key => nil)
+      end
+    end
+
+    describe "forge settings" do
+      it "passes settings through to the forge settings" do
+        output = subject.evaluate("forge" => {"baseurl" => "https://forge.tessier-ashpool.freeside", "proxy" => "https://proxy.tessier-ashpool.freesize:3128"})
+        expect(output[:forge]).to eq(:baseurl => "https://forge.tessier-ashpool.freeside", :proxy => "https://proxy.tessier-ashpool.freesize:3128")
+      end
+    end
+  end
+end
