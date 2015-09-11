@@ -95,7 +95,16 @@ describe R10K::Settings do
         expect(output[:postrun]).to eq(["curl", "-F", "deploy=done", "http://reporting.tessier-ashpool.freeside/r10k"])
       end
 
-      it "rejects a string command"
+      it "rejects a string command" do
+        expect {
+          subject.evaluate("postrun" => "curl -F 'deploy=done' https://reporting.tessier-ashpool.freeside/r10k")
+        }.to raise_error do |err|
+          expect(err.message).to match(/Validation failures for global/)
+          expect(err.errors.size).to eq 1
+          expect(err.errors[:postrun]).to be_a_kind_of(ArgumentError)
+          expect(err.errors[:postrun].message).to eq("The postrun setting should be an array of strings, not a String")
+        end
+      end
     end
 
     describe "git settings" do

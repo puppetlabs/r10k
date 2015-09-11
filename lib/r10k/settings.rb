@@ -60,6 +60,11 @@ module R10K
 
         Definition.new(:postrun, {
           :desc => "The command r10k should run after deploying environments.",
+          :validate => lambda do |value|
+            if !value.is_a?(Array)
+              raise ArgumentError, "The postrun setting should be an array of strings, not a #{value.class}"
+            end
+          end
         }),
 
         R10K::Settings.forge_settings,
