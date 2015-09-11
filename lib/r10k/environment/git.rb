@@ -52,6 +52,15 @@ class R10K::Environment::Git < R10K::Environment::Base
     @synced = true
   end
 
+  # Return a sting which uniquely identifies (per source) the current state of the
+  # environment.
+  #
+  # @api public
+  # @return [String]
+  def signature
+    @repo.head
+  end
+
   extend Forwardable
 
   def_delegators :@repo, :status

@@ -73,10 +73,9 @@ module R10K
           if !@puppetfile && !@detail
             env.dirname
           else
-            env_info = {
-              :name => env.dirname,
+            env_info = env.info.merge({
               :status => (env.status rescue nil),
-            }
+            })
 
             env_info[:modules] = env.modules.map { |mod| module_info(mod) } if @puppetfile
 

@@ -2,6 +2,7 @@ require 'r10k/util/setopts'
 require 'r10k/deployment'
 require 'r10k/logging'
 require 'r10k/action/visitor'
+require 'json'
 
 module R10K
   module Action
@@ -64,16 +65,24 @@ module R10K
             logger.debug1("Environment #{environment.dirname} does not match environment name filter, skipping")
             return
           end
+
+          started_at = Time.new
+
           status = environment.status
           logger.info "Deploying environment #{environment.path}"
+
           environment.sync
+          logger.info "Environment #{environment.dirname} is now at #{environment.signature}"
 
           if status == :absent || @puppetfile
             if status == :absent
               logger.debug("Environment #{environment.dirname} is new, updating all modules")
             end
+
             yield
           end
+
+          write_environment_info!(environment, started_at)
         end
 
         def visit_puppetfile(puppetfile)
@@ -85,6 +94,17 @@ module R10K
         def visit_module(mod)
           logger.info "Deploying module #{mod.path}"
           mod.sync
+        end
+
+        def write_environment_info!(environment, started_at)
+          File.open("#{environment.path}/.r10k-deploy.json", 'w') do |f|
+            deploy_info = environment.info.merge({
+              :started_at => started_at,
+              :finished_at => Time.new,
+            })
+
+            f.puts(JSON.pretty_generate(deploy_info))
+          end
         end
       end
     end

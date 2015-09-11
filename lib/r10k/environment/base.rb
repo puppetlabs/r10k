@@ -67,6 +67,25 @@ class R10K::Environment::Base
     raise NotImplementedError, "#{self.class} has not implemented method #{__method__}"
   end
 
+  # Returns a unique identifier for the environment's current state.
+  #
+  # @api public
+  # @abstract
+  # @return [String]
+  def signature
+    raise NotImplementedError, "#{self.class} has not implemented method #{__method__}"
+  end
+
+  # Returns a hash describing the current state of the environment.
+  #
+  # @return [Hash]
+  def info
+    {
+      :name => self.name,
+      :signature => self.signature,
+    }
+  end
+
   # @return [Array<R10K::Module::Base>] All modules defined in the Puppetfile
   #   associated with this environment.
   def modules

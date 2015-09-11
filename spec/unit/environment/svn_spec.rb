@@ -110,4 +110,24 @@ describe R10K::Environment::SVN do
       expect(subject.status).to eq :insync
     end
   end
+
+  describe "environment signature" do
+    it "returns the svn revision of the branch" do
+      expect(working_dir).to receive(:revision).and_return '1337'
+      expect(subject.signature).to eq '1337'
+    end
+  end
+
+  describe "info hash" do
+    let(:info_hash) { subject.info }
+
+    before(:each) do
+      expect(working_dir).to receive(:revision).and_return '1337'
+    end
+
+    it "includes name and signature" do
+      expect(info_hash.keys).to include :name, :signature
+      expect(info_hash).not_to have_value(nil)
+    end
+  end
 end

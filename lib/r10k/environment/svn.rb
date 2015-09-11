@@ -64,6 +64,15 @@ class R10K::Environment::SVN < R10K::Environment::Base
     @synced = true
   end
 
+  # Return a sting which uniquely identifies (per source) the current state of the
+  # environment.
+  #
+  # @api public
+  # @return [String]
+  def signature
+    @working_dir.revision
+  end
+
   def status
     if !@path.exist?
       :absent
