@@ -74,4 +74,24 @@ describe R10K::Environment::Git do
       expect(subject.status).to eq :some_status
     end
   end
+
+  describe "environment signature" do
+    it "returns the git sha of HEAD" do
+      expect(subject.repo).to receive(:head).and_return 'f00b00'
+      expect(subject.signature).to eq 'f00b00'
+    end
+  end
+
+  describe "info hash" do
+    let(:info_hash) { subject.info }
+
+    before(:each) do
+      allow(subject.repo).to receive(:head).and_return 'f00b00'
+    end
+
+    it "includes name and signature" do
+      expect(info_hash.keys).to include :name, :signature
+      expect(info_hash).not_to have_value(nil)
+    end
+  end
 end
