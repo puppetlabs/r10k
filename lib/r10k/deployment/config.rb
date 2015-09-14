@@ -25,6 +25,10 @@ class Config
     @config[key]
   end
 
+  def settings
+    @config
+  end
+
   # Load and store a config file, and set relevant options
   #
   # @param [String] configfile The path to the YAML config file

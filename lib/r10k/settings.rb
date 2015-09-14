@@ -43,6 +43,20 @@ module R10K
       ])
     end
 
+    def self.deploy_settings
+      R10K::Settings::Collection.new(:deploy, [
+        Definition.new(:write_lock, {
+          :desc => "Whether r10k deploy actions should be locked out in case r10k is being managed
+          by another application. The value should be a string containing the reason for the write lock.",
+          :validate => lambda do |value|
+            if value && !value.is_a?(String)
+              raise ArgumentError, "The write_lock setting should be a string containing the reason for the write lock, not a #{value.class}"
+            end
+          end
+        }),
+      ])
+    end
+
     def self.global_settings
       R10K::Settings::Collection.new(:global, [
         Definition.new(:sources, {
@@ -70,6 +84,8 @@ module R10K
         R10K::Settings.forge_settings,
 
         R10K::Settings.git_settings,
+
+        R10K::Settings.deploy_settings,
       ])
     end
   end

@@ -73,6 +73,33 @@ describe R10K::Settings do
     end
   end
 
+  describe "deploy settings" do
+    subject { described_class.deploy_settings }
+
+    describe "write_lock" do
+      it "accepts a string with a reason for the write lock" do
+        output = subject.evaluate("write_lock" => "No maintenance window active, code freeze till 2038-01-19")
+        expect(output[:write_lock]).to eq("No maintenance window active, code freeze till 2038-01-19")
+      end
+
+      it "accepts false and null values for the write lock" do
+        output = subject.evaluate("write_lock" => false)
+        expect(output[:write_lock]).to eq false
+      end
+
+      it "rejects non-string truthy values for the write lock" do
+        expect {
+          subject.evaluate("write_lock" => %w[list of reasons why deploys are locked])
+        }.to raise_error do |err|
+          expect(err.message).to match(/Validation failures for deploy/)
+          expect(err.errors.size).to eq 1
+          expect(err.errors[:write_lock]).to be_a_kind_of(ArgumentError)
+          expect(err.errors[:write_lock].message).to match(/should be a string containing the reason/)
+        end
+      end
+    end
+  end
+
   describe "global settings" do
     subject { described_class.global_settings }
     describe "sources" do
