@@ -13,8 +13,9 @@ class Config
 
   attr_accessor :configfile
 
-  def initialize(configfile)
+  def initialize(configfile, overrides={})
     @configfile = configfile
+    @overrides = overrides
 
     load_config
   end
@@ -30,7 +31,14 @@ class Config
   def load_config
     loader = R10K::Settings::Loader.new
     hash = loader.read(@configfile)
-    @config = R10K::Settings.global_settings.evaluate(hash)
+
+    with_overrides = hash.merge(@overrides) do |key, oldval, newval|
+      logger.debug2 "Overriding config file setting '#{key}': '#{oldval}' -> '#{newval}'"
+      newval
+    end
+
+    @config = R10K::Settings.global_settings.evaluate(with_overrides)
+
     initializer = R10K::Initializers::GlobalInitializer.new(@config)
     initializer.call
   end
