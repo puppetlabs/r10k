@@ -17,6 +17,7 @@ module R10K
           @argv = argv.map { |arg| arg.gsub(/\W/,'_') }
           setopts(opts, {
             :config     => :self,
+            :cachedir   => :self,
             :puppetfile => :self,
             :purge      => :self,
             :trace      => :self
@@ -27,7 +28,7 @@ module R10K
 
         def call
           @visit_ok = true
-          deployment = R10K::Deployment.load_config(@config)
+          deployment = R10K::Deployment.load_config(@config, :cachedir => @cachedir)
           deployment.accept(self)
           @visit_ok
         end

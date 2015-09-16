@@ -23,6 +23,8 @@ module R10K::CLI
 
         required :c, :config, 'Specify a configuration file'
 
+        required nil, :cachedir, 'Specify a cachedir, overriding the value in config'
+
         run do |opts, args, cmd|
           puts cmd.help(:verbose => opts[:verbose])
           exit 0

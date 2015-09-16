@@ -17,8 +17,8 @@ module R10K
     #
     # @param path [String] The path to the deployment config
     # @return [R10K::Deployment] The deployment loaded with the given config
-    def self.load_config(path)
-      config = R10K::Deployment::Config.new(path)
+    def self.load_config(path, overrides={})
+      config = R10K::Deployment::Config.new(path, overrides)
       new(config)
     end
 
