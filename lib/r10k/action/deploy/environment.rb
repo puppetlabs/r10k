@@ -2,6 +2,7 @@ require 'r10k/util/setopts'
 require 'r10k/deployment'
 require 'r10k/logging'
 require 'r10k/action/visitor'
+require 'r10k/deployment/write_lock'
 require 'json'
 
 module R10K
@@ -11,6 +12,7 @@ module R10K
 
         include R10K::Util::Setopts
         include R10K::Logging
+        include R10K::Deployment::WriteLock
 
         def initialize(opts, argv)
           @opts = opts
@@ -28,7 +30,10 @@ module R10K
 
         def call
           @visit_ok = true
+
           deployment = R10K::Deployment.load_config(@config, :cachedir => @cachedir)
+          check_write_lock!(deployment.config.settings)
+
           deployment.accept(self)
           @visit_ok
         end

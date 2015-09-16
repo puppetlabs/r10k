@@ -130,6 +130,28 @@ sources:
     # Source settings follow
 ```
 
+### deploy
+
+The `deploy` setting is a new top level setting for controlling how r10k deploys
+behave. At this point only new settings are included under this setting, but in
+the long term the current top level deploy settings will be moved under
+`deploy`.
+
+#### write_lock
+
+The `write_lock` setting allows administrators to temporarily disallow r10k code
+deploys without having to remove the r10k configuration entirely. This can be
+useful to prevent r10k deploys at certain times or prevent r10k from interfering
+with a common set of code that may be touched by multiple r10k configurations.
+
+```yaml
+---
+
+deploy:
+  write_lock: "Deploying code is disallowed until the next maintenance window (2038-01-19)"
+
+```
+
 Source options
 --------------
 
