@@ -50,6 +50,43 @@ git:
   username: 'git'
 ```
 
+#### Supported transports with Rugged
+
+Rugged compiles libgit2 and and the Ruby bindings when the gem is installed. You
+may need libraries installed before you install the gem to use certain protocols
+to access git remote repositories.
+
+For ssh support, you need to have libssh2 installed (along with the relevant dev
+package/headers) before you install the Rugged gem.
+
+For https support on Linux, you need to have OpenSSL installed (along with the
+relevant dev package/headers) before you install the Rugged gem. OS X and
+Windows support should automatically include https support.
+
+You can check whether https or ssh support is included in your Rugged
+installation by using the following in irb and making sure the required feature
+is listed:
+
+```ruby
+irb(main):001:0> require('rugged')
+=> true
+irb(main):002:0> Rugged.features
+=> [:threads, :https, :ssh]
+irb(main):003:0> 
+```
+You will require the ':https' or ':ssh' features to use the respective protocols
+in your Puppetfile module references or in r10k.yaml. R10K 2.0.0 and later will
+automatically issue a warning if either feature is missing.
+
+libssh2 on Debian and Ubuntu is compiled against libgcrypto instead of OpenSSL
+[due to licensing reasons](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=668271), and
+unfortunately libgcrypto does not support a number of required operations,
+including reading from a private key file. You will need to either use shellgit
+or recompile your own libssh2-1 package to use OpenSSL on these distributions.
+If you see the following error message, this is the likely cause:
+
+    Failed to authenticate SSH session: Unable to extract public key from private key file: Method unimplemented in libgcrypt backend at /var/cache/r10k/ssh---git@git.example.com-sys-puppet.git
+
 Configuration
 -------------
 
