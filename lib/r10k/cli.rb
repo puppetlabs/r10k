@@ -35,9 +35,7 @@ module R10K::CLI
 
       flag nil, :color, 'Enable colored log messages'
 
-      required :c, :config, 'Specify a global configuration file (deprecated, use `r10k deploy -c`)' do |value, cmd|
-        logger.warn "Calling `r10k --config <action>` as a global option is deprecated; use r10k <action> --config"
-      end
+      required :c, :config, 'Specify a global configuration file (deprecated, use `r10k deploy -c`)'
 
       run do |opts, args, cmd|
         puts cmd.help(:verbose => opts[:verbose])
