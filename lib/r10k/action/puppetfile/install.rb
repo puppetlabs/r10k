@@ -2,6 +2,7 @@ require 'r10k/puppetfile'
 require 'r10k/util/setopts'
 require 'r10k/errors/formatting'
 require 'r10k/logging'
+require 'r10k/action/visitor'
 
 module R10K
   module Action
@@ -25,17 +26,15 @@ module R10K
         end
 
         def call
+          @visit_ok = true
           pf = R10K::Puppetfile.new(@root, @moduledir, @path)
           pf.accept(self)
-          @ok
+          @visit_ok
         end
 
-        def visit(type, other, &block)
-          send("visit_#{type}", other, &block)
-        rescue => e
-          logger.error R10K::Errors::Formatting.format_exception(e, @trace)
-          @ok = false
-        end
+        private
+
+        include R10K::Action::Visitor
 
         def visit_puppetfile(pf)
           pf.load!
