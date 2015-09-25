@@ -1,29 +1,12 @@
 require 'r10k/puppetfile'
-require 'r10k/util/setopts'
 require 'r10k/errors/formatting'
-require 'r10k/logging'
 require 'r10k/action/visitor'
+require 'r10k/action/base'
 
 module R10K
   module Action
     module Puppetfile
-      class Install
-        include R10K::Logging
-        include R10K::Util::Setopts
-
-        def initialize(opts, argv)
-          @opts = opts
-          @argv = argv
-
-          @ok = true
-
-          setopts(opts, {
-            :root       => :self,
-            :moduledir  => :self,
-            :puppetfile => :path,
-            :trace      => :self,
-          })
-        end
+      class Install < R10K::Action::Base
 
         def call
           @visit_ok = true
@@ -45,6 +28,10 @@ module R10K
         def visit_module(mod)
           logger.info "Updating module #{mod.path}"
           mod.sync
+        end
+
+        def allowed_initialize_opts
+          super.merge(root: :self, puppetfile: :self, moduledir: :self)
         end
       end
     end

@@ -1,30 +1,10 @@
-require 'r10k/util/setopts'
 require 'r10k/deployment'
-require 'r10k/logging'
+require 'r10k/action/base'
 
 module R10K
   module Action
     module Deploy
-      class Display
-
-        include R10K::Util::Setopts
-        include R10K::Logging
-
-        def initialize(opts, argv)
-          @opts = opts
-          @argv = argv
-          setopts(opts, {
-            :config     => :self,
-            :puppetfile => :self,
-            :detail     => :self,
-            :format     => :self,
-            :fetch      => :self,
-            :trace      => :self
-          })
-
-          @level  = 4
-          @indent = 0
-        end
+      class Display < R10K::Action::Base
 
         def call
           deployment = R10K::Deployment.load_config(@config)
@@ -91,6 +71,10 @@ module R10K
           else
             mod.title
           end
+        end
+
+        def allowed_initialize_opts
+          super.merge(puppetfile: :self, detail: :self, format: :self, fetch: :self)
         end
       end
     end

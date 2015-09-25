@@ -2,29 +2,20 @@ require 'r10k/util/setopts'
 require 'r10k/deployment'
 require 'r10k/logging'
 require 'r10k/action/visitor'
+require 'r10k/action/base'
 require 'r10k/deployment/write_lock'
 require 'json'
 
 module R10K
   module Action
     module Deploy
-      class Environment
+      class Environment < R10K::Action::Base
 
-        include R10K::Util::Setopts
-        include R10K::Logging
         include R10K::Deployment::WriteLock
 
         def initialize(opts, argv)
-          @opts = opts
-          @argv = argv.map { |arg| arg.gsub(/\W/,'_') }
-          setopts(opts, {
-            :config     => :self,
-            :cachedir   => :self,
-            :puppetfile => :self,
-            :purge      => :self,
-            :trace      => :self
-          })
-
+          super
+          @argv = @argv.map { |arg| arg.gsub(/\W/,'_') }
           @purge = true
         end
 
@@ -111,6 +102,10 @@ module R10K
 
             f.puts(JSON.pretty_generate(deploy_info))
           end
+        end
+
+        def allowed_initialize_opts
+          super.merge(puppetfile: :self, cachedir: :self)
         end
       end
     end

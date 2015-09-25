@@ -9,6 +9,8 @@ describe R10K::Action::Puppetfile::Check do
 
   before { allow(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, nil).and_return(puppetfile) }
 
+  it_behaves_like "a puppetfile action"
+
   it "prints 'Syntax OK' when the Puppetfile syntax could be validated" do
     expect(puppetfile).to receive(:load!)
     expect($stderr).to receive(:puts).with("Syntax OK")

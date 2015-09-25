@@ -12,6 +12,8 @@ describe R10K::Action::Puppetfile::Install do
     allow(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, nil).and_return(puppetfile)
   end
 
+  it_behaves_like "a puppetfile action"
+
   describe "installing modules" do
     let(:modules) do
       Array.new(4, R10K::Module::Base.new('author/modname', "/some/nonexistent/path/modname", nil))

@@ -1,29 +1,14 @@
-require 'r10k/util/setopts'
 require 'r10k/deployment'
 require 'r10k/action/visitor'
-require 'r10k/logging'
+require 'r10k/action/base'
 require 'r10k/deployment/write_lock'
 
 module R10K
   module Action
     module Deploy
-      class Module
+      class Module < R10K::Action::Base
 
-        include R10K::Logging
-        include R10K::Util::Setopts
         include R10K::Deployment::WriteLock
-
-        def initialize(opts, argv)
-          @opts = opts
-          @argv = argv
-          setopts(opts, {
-            :config      => :self,
-            :environment => nil,
-            :trace       => :self
-          })
-
-          @purge = true
-        end
 
         def call
           @visit_ok = true
@@ -68,6 +53,10 @@ module R10K
           else
             logger.debug1("Only updating modules #{@argv.inspect}, skipping module #{mod.name}")
           end
+        end
+
+        def allowed_initialize_opts
+          super.merge(environment: true)
         end
       end
     end
