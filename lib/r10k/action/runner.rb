@@ -12,13 +12,15 @@ module R10K
         @opts = opts
         @argv = argv
         @klass = klass
+
+        @settings = {}
       end
 
       def instance
         if @_instance.nil?
           iopts = @opts.dup
           iopts.delete(:loglevel)
-          @_instance = @klass.new(iopts, @argv)
+          @_instance = @klass.new(iopts, @argv, @settings)
         end
         @_instance
       end
@@ -27,6 +29,7 @@ module R10K
         setup_logging
         setup_settings
         # @todo check arguments
+        setup_authorization
         instance.call
       end
 
@@ -37,7 +40,23 @@ module R10K
       end
 
       def setup_settings
-        setup_authorization
+        hash = {}
+        if @opts[:config]
+          loader = R10K::Settings::Loader.new
+          hash = loader.read(@opts[:config])
+        end
+
+        overrides = {:cachedir => @opts[:cachedir]}
+        overrides.delete_if { |_, val| val.nil? }
+
+        with_overrides = hash.merge(overrides) do |key, oldval, newval|
+          logger.debug2 "Overriding config file setting '#{key}': '#{oldval}' -> '#{newval}'"
+          newval
+        end
+
+        @settings = R10K::Settings.global_settings.evaluate(with_overrides)
+
+        R10K::Initializers::GlobalInitializer.new(@settings).call
       end
 
       def setup_authorization

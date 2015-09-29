@@ -13,7 +13,7 @@ module R10K
 
         include R10K::Deployment::WriteLock
 
-        def initialize(opts, argv)
+        def initialize(opts, argv, settings = {})
           @purge = true
           super
           @argv = @argv.map { |arg| arg.gsub(/\W/,'_') }

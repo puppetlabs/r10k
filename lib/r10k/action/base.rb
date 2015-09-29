@@ -8,9 +8,10 @@ module R10K
       include R10K::Logging
       include R10K::Util::Setopts
 
-      def initialize(opts, argv)
+      def initialize(opts, argv, settings = {})
         @opts = opts
         @argv = argv
+        @settings = settings
 
         setopts(opts, allowed_initialize_opts)
       end
