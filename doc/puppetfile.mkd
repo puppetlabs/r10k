@@ -254,7 +254,7 @@ Moving modules stored in the Git repository into a separate directory will
 remove the need to have Puppetfile entries for every locally versioned Puppet
 module.
 
-For more information see the [FAQ entry](doc/faq.mkd#how-do-i-prevent-r10k-from-removing-modules-in-the-modules-directory-of-my-git-repository)
+For more information see the [FAQ entry](faq.mkd#how-do-i-prevent-r10k-from-removing-modules-in-the-modules-directory-of-my-git-repository)
 on managing internal and external modules in the same directory.
 
 ## Environment variables
