@@ -206,7 +206,7 @@ And you want to prevent `local_module` from being removed, you can add a 'local'
 module in your Puppetfile:
 
 ```
-mod 'local_mod', :local => true
+mod 'local_module', :local => true
 
 # Include your other modules as normal
 mod 'branan/eight_hundred'
@@ -222,7 +222,7 @@ If you run r10k against this Git branch, you'll get the following:
 ├── modules
 │   ├── apache
 │   ├── eight_hundred
-│   └── local_mod
+│   └── local_module
 └── Puppetfile
 
 4 directories, 2 files
@@ -241,7 +241,7 @@ so:
 .
 ├── environment.conf
 ├── site-modules
-│   └── local_mod
+│   └── local_module
 ├── modules
 │   ├── apache
 │   └── eight_hundred
