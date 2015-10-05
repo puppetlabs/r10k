@@ -1,9 +1,14 @@
 require 'r10k/git/rugged'
+require 'r10k/git/rugged/credentials'
 require 'r10k/logging'
 
 class R10K::Git::Rugged::BaseRepository
 
   include R10K::Logging
+
+  # @return [Pathname] The path to this repository.
+  # @note The `@path` instance variable must be set by inheriting classes on instantiation.
+  attr_reader :path
 
   def resolve(pattern)
     object = with_repo { |repo| repo.rev_parse(pattern) }
@@ -61,26 +66,7 @@ class R10K::Git::Rugged::BaseRepository
   #
   # @return [Proc]
   def credentials
-    Proc.new do |url, username_from_url, allowed_types|
-      private_key = R10K::Git.settings[:private_key]
-      git_user    = R10K::Git.settings[:username]
-
-      if private_key.nil?
-        raise R10K::Git::GitError.new("Git remote #{url.inspect} uses the SSH protocol but no private key was given", :git_dir => @path.to_s)
-      end
-
-      if !username_from_url.nil?
-        user = username_from_url
-      elsif git_user
-        user = git_user
-        logger.debug1 "URL #{url.inspect} did not specify an SSH user, using #{user.inspect} from configuration"
-      else
-        user = Etc.getlogin
-        logger.debug1 "URL #{url.inspect} did not specify an SSH user, using current user #{user.inspect}"
-      end
-
-      Rugged::Credentials::SshKey.new(:username => user, :privatekey => private_key)
-    end
+    R10K::Git::Rugged::Credentials.new(self)
   end
 
   def report_transfer(results, remote)

@@ -4,9 +4,6 @@ require 'r10k/git/errors'
 
 class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
 
-  #  @return [Pathname] The path to this directory
-  attr_reader :path
-
   # @return [Pathname] The path to the Git repository inside of this directory
   def git_dir
     @path + '.git'
