@@ -5,6 +5,10 @@ class R10K::Git::Rugged::BaseRepository
 
   include R10K::Logging
 
+  # @return [Pathname] The path to this repository.
+  # @note The `@path` instance variable must be set by inheriting classes on instantiation.
+  attr_reader :path
+
   def resolve(pattern)
     object = with_repo { |repo| repo.rev_parse(pattern) }
     case object
