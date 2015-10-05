@@ -14,7 +14,7 @@ module R10K
           @visit_ok = true
 
           deployment = R10K::Deployment.load_config(@config)
-          check_write_lock!(deployment.config.settings)
+          check_write_lock!(@settings)
 
           deployment.accept(self)
           @visit_ok

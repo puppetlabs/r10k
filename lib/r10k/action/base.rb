@@ -8,6 +8,8 @@ module R10K
       include R10K::Logging
       include R10K::Util::Setopts
 
+      attr_accessor :settings
+
       def initialize(opts, argv, settings = {})
         @opts = opts
         @argv = argv

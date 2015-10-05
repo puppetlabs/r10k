@@ -38,7 +38,7 @@ shared_examples_for "a deploy action that can be write locked" do
 
     describe "set" do
       before do
-        config.hash[:deploy][:write_lock] = "Disabled, yo"
+        subject.settings = {deploy: {write_lock: "Disabled, yo"}}
       end
 
       it "exits without running" do
