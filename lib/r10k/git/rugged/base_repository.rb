@@ -62,29 +62,42 @@ class R10K::Git::Rugged::BaseRepository
   # @return [Proc]
   def credentials
     Proc.new do |url, username_from_url, allowed_types|
-      private_key = R10K::Git.settings[:private_key]
-      git_user    = R10K::Git.settings[:username]
-
-      if private_key.nil?
-        raise R10K::Git::GitError.new("Git remote #{url.inspect} uses the SSH protocol but no private key was given", :git_dir => @path.to_s)
-      end
-
-      if !username_from_url.nil?
-        user = username_from_url
-      elsif git_user
-        user = git_user
-        logger.debug1 "URL #{url.inspect} did not specify an SSH user, using #{user.inspect} from configuration"
-      else
-        user = Etc.getlogin
-        logger.debug1 "URL #{url.inspect} did not specify an SSH user, using current user #{user.inspect}"
-      end
-
-      Rugged::Credentials::SshKey.new(:username => user, :privatekey => private_key)
+      get_ssh_credentials(url, username_from_url)
     end
   end
 
   def report_transfer(results, remote)
     logger.debug2 { "Transferred #{results[:total_objects]} objects (#{results[:received_bytes]} bytes) from '#{remote}' into #{git_dir}'" }
     nil
+  end
+
+  def get_ssh_credentials(url, username_from_url)
+    user = get_git_username(url, username_from_url)
+    private_key = R10K::Git.settings[:private_key]
+
+    if private_key.nil?
+      raise R10K::Git::GitError.new("Git remote #{url.inspect} uses the SSH protocol but no private key was given", :git_dir => @path.to_s)
+    end
+
+    Rugged::Credentials::SshKey.new(:username => user, :privatekey => private_key)
+  end
+
+  def get_git_username(url, username_from_url)
+    git_user = R10K::Git.settings[:username]
+
+    user = nil
+
+    if !username_from_url.nil?
+      user = username_from_url
+      logger.debug1 "URL #{url.inspect} includes the username #{username_from_url}, using that user for authentication."
+    elsif git_user
+      user = git_user
+      logger.debug1 "URL #{url.inspect} did not specify a user, using #{user.inspect} from configuration"
+    else
+      user = Etc.getlogin
+      logger.debug1 "URL #{url.inspect} did not specify a user, using current user #{user.inspect}"
+    end
+
+    user
   end
 end
