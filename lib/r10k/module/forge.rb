@@ -107,7 +107,7 @@ class R10K::Module::Forge < R10K::Module::Base
 
     # The module is present and has a metadata file, read the metadata to
     # determine the state of the module.
-    @metadata_file.read(@path + 'metadata.json')
+    @metadata = @metadata_file.read(@path + 'metadata.json')
 
     if not @title.tr('/','-') == @metadata.full_module_name.tr('/','-')
 
