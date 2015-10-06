@@ -40,16 +40,12 @@ module R10K
       end
 
       def setup_settings
-        hash = {}
-        if @opts[:config]
-          loader = R10K::Settings::Loader.new
-          hash = loader.read(@opts[:config])
-        end
+        config_settings = settings_from_config(@opts[:config])
 
         overrides = {:cachedir => @opts[:cachedir]}
         overrides.delete_if { |_, val| val.nil? }
 
-        with_overrides = hash.merge(overrides) do |key, oldval, newval|
+        with_overrides = config_settings.merge(overrides) do |key, oldval, newval|
           logger.debug2 "Overriding config file setting '#{key}': '#{oldval}' -> '#{newval}'"
           newval
         end
@@ -69,6 +65,23 @@ module R10K
         rescue R10K::Error => e
           logger.warn e.message
         end
+      end
+
+      private
+
+      def settings_from_config(override_path, requires_config = false)
+        loader = R10K::Settings::Loader.new
+        path = loader.search(override_path)
+        results = {}
+
+        if path
+          logger.debug2 "Reading configuration from #{path.inspect}"
+          results = loader.read(path)
+        else
+          logger.debug2 "No config file explicitly given and no default config file could be found, default settings will be used."
+        end
+
+        results
       end
     end
   end
