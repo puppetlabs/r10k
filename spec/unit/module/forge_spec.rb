@@ -97,6 +97,7 @@ describe R10K::Module::Forge do
     it "is :mismatched if the metadata author doesn't match the expected author" do
       allow(subject).to receive(:exist?).and_return true
 
+      allow(subject.instance_variable_get(:@metadata_file)).to receive(:read).and_return subject.metadata
       allow(subject.metadata).to receive(:full_module_name).and_return 'blargh-blargh'
 
       expect(subject.status).to eq :mismatched
@@ -105,6 +106,7 @@ describe R10K::Module::Forge do
     it "is :outdated if the metadata version doesn't match the expected version" do
       allow(subject).to receive(:exist?).and_return true
 
+      allow(subject.instance_variable_get(:@metadata_file)).to receive(:read).and_return subject.metadata
       allow(subject.metadata).to receive(:version).and_return '7.0.0'
       expect(subject.status).to eq :outdated
     end
