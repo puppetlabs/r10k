@@ -14,9 +14,9 @@ module R10K
         include R10K::Deployment::WriteLock
 
         def initialize(opts, argv)
+          @purge = true
           super
           @argv = @argv.map { |arg| arg.gsub(/\W/,'_') }
-          @purge = true
         end
 
         def call
@@ -40,6 +40,12 @@ module R10K
           # and execution will be halted.
           deployment.preload!
           deployment.validate!
+
+          undeployable = undeployable_environment_names(deployment.environments, @argv)
+          if !undeployable.empty?
+            @visit_ok = false
+            logger.error "Environment(s) \'#{undeployable.join(", ")}\' cannot be found in any source and will not be deployed."
+          end
 
           yield
 
@@ -104,8 +110,17 @@ module R10K
           end
         end
 
+        def undeployable_environment_names(environments, expected_names)
+          if expected_names.empty?
+            []
+          else
+            known_names = environments.map(&:dirname)
+            expected_names - known_names
+          end
+        end
+
         def allowed_initialize_opts
-          super.merge(puppetfile: :self, cachedir: :self)
+          super.merge(puppetfile: :self, cachedir: :self, purge: true)
         end
       end
     end

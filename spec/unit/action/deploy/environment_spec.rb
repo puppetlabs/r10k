@@ -20,4 +20,36 @@ describe R10K::Action::Deploy::Environment do
 
     it "normalizes environment names in the arg vector"
   end
+
+  describe "when called" do
+    describe "with an environment that doesn't exist" do
+      let(:config) do
+        R10K::Deployment::MockConfig.new(
+          :sources => {
+            :control => {
+              :type => :mock,
+              :basedir => '/some/nonexistent/path/control',
+              :environments => %w[first second third],
+            }
+          }
+        )
+      end
+
+      let(:deployment) do
+        R10K::Deployment.new(config)
+      end
+
+      before do
+        expect(R10K::Deployment).to receive(:load_config).and_return(deployment)
+      end
+
+      subject { described_class.new({purge: false}, %w[not_an_environment]) }
+
+      it "logs that the environments can't be deployed and returns false" do
+        expect(subject.logger).to receive(:error).with("Environment(s) 'not_an_environment' cannot be found in any source and will not be deployed.")
+        logger = subject.logger
+        expect(subject.call).to eq false
+      end
+    end
+  end
 end
