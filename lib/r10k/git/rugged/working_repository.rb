@@ -59,8 +59,13 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   # @param ref [String] The git reference to check out
   # @return [void]
   def checkout(ref)
-    logger.debug1 { "Checking out ref '#{ref}' at #{@path}" }
     sha = resolve(ref)
+
+    if sha
+      logger.debug2 { "Checking out ref '#{ref}' (resolved to SHA '#{sha}') in repository #{@path}" }
+    else
+      raise R10K::Git::GitError.new("Unable to check out unresolvable ref '#{ref}'", git_dir: git_dir)
+    end
 
     with_repo do |repo|
       repo.checkout(sha)
