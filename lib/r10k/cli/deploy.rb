@@ -21,8 +21,6 @@ module R10K::CLI
 (https://puppetlabs.com/blog/git-workflow-and-puppet-environments/).
         DESCRIPTION
 
-        required :c, :config, 'Specify a configuration file'
-
         required nil, :cachedir, 'Specify a cachedir, overriding the value in config'
 
         run do |opts, args, cmd|
