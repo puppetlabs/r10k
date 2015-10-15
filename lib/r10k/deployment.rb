@@ -107,9 +107,9 @@ module R10K
     private
 
     def load_sources
-      sources = @config.setting(:sources)
+      sources = @config[:sources]
       if sources.nil? || sources.empty?
-        raise R10K::Error, "'sources' key in #{@config.configfile} missing or empty."
+        raise R10K::Error, "Unable to load sources; the supplied configuration does not define the 'sources' key"
       end
       @_sources = sources.map do |(name, hash)|
         R10K::Source.from_hash(name, hash)
