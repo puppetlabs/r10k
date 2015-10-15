@@ -22,7 +22,7 @@ module R10K
         def call
           @visit_ok = true
 
-          deployment = R10K::Deployment.load_config(@config, :cachedir => @cachedir)
+          deployment = R10K::Deployment.new(@settings)
           check_write_lock!(@settings)
 
           deployment.accept(self)

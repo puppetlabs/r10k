@@ -13,7 +13,7 @@ module R10K
         def call
           @visit_ok = true
 
-          deployment = R10K::Deployment.load_config(@config)
+          deployment = R10K::Deployment.new(@settings)
           check_write_lock!(@settings)
 
           deployment.accept(self)

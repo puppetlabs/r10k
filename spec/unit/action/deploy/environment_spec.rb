@@ -40,7 +40,7 @@ describe R10K::Action::Deploy::Environment do
       end
 
       before do
-        expect(R10K::Deployment).to receive(:load_config).and_return(deployment)
+        expect(R10K::Deployment).to receive(:new).and_return(deployment)
       end
 
       subject { described_class.new({purge: false}, %w[not_an_environment]) }

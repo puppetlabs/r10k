@@ -15,6 +15,8 @@ module R10K
 
     # Generate a deployment object based on a config
     #
+    # @deprecated
+    #
     # @param path [String] The path to the deployment config
     # @return [R10K::Deployment] The deployment loaded with the given config
     def self.load_config(path, overrides={})

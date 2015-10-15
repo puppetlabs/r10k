@@ -24,7 +24,7 @@ shared_examples_for "a deploy action that can be write locked" do
   let(:deployment) { R10K::Deployment.new(config) }
 
   before do
-    allow(R10K::Deployment).to receive(:load_config).and_return(deployment)
+    allow(R10K::Deployment).to receive(:new).and_return(deployment)
   end
 
   describe "when the write lock is" do
