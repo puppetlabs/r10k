@@ -55,6 +55,17 @@ describe R10K::Puppetfile do
         expect_wrapped_error(e, pf_path, LoadError)
       end
     end
+
+    it "wraps and re-raises argument errors" do
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'argument-error')
+      pf_path = File.join(path, 'Puppetfile')
+      subject = described_class.new(path)
+      expect {
+        subject.load!
+      }.to raise_error do |e|
+        expect_wrapped_error(e, pf_path, ArgumentError)
+      end
+    end
   end
 
   describe "accepting a visitor" do
