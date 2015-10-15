@@ -51,7 +51,7 @@ class Puppetfile
   def load!
     dsl = R10K::Puppetfile::DSL.new(self)
     dsl.instance_eval(puppetfile_contents, @puppetfile_path)
-  rescue SyntaxError, LoadError => e
+  rescue SyntaxError, LoadError, ArgumentError => e
     raise R10K::Error.wrap(e, "Failed to evaluate #{@puppetfile_path}")
   end
 

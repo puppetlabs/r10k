@@ -1,0 +1,1 @@
+mod 'branan/eight_hundred', '1.0.0', :git => 'https://github.com/branan/eight_hundred', :ref => 'master'
