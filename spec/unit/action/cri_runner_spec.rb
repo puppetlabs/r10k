@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'r10k/action/base'
 require 'r10k/action/cri_runner'
 
 describe R10K::Action::CriRunner do
@@ -8,9 +9,10 @@ describe R10K::Action::CriRunner do
       attr_reader :opts
       attr_reader :argv
 
-      def initialize(opts, argv)
+      def initialize(opts, argv, settings = {})
         @opts = opts
         @argv = argv
+        @settings = {}
       end
 
       def call

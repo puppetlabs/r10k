@@ -19,6 +19,8 @@ module R10K
         @hash[key]
       end
 
+      alias [] setting
+
       def settings
         @hash
       end

@@ -11,7 +11,7 @@ module R10K
       #
       # @raise [SystemExit] if the deploy write_lock setting has been set
       def check_write_lock!(config)
-        write_lock = config[:deploy][:write_lock]
+        write_lock = config.fetch(:deploy, {})[:write_lock]
         if write_lock
           logger.fatal("Making changes to deployed environments has been administratively disabled.")
           logger.fatal("Reason: #{write_lock}")

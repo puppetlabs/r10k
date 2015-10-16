@@ -24,7 +24,7 @@ shared_examples_for "a deploy action that can be write locked" do
   let(:deployment) { R10K::Deployment.new(config) }
 
   before do
-    allow(R10K::Deployment).to receive(:load_config).and_return(deployment)
+    allow(R10K::Deployment).to receive(:new).and_return(deployment)
   end
 
   describe "when the write lock is" do
@@ -38,7 +38,7 @@ shared_examples_for "a deploy action that can be write locked" do
 
     describe "set" do
       before do
-        config.hash[:deploy][:write_lock] = "Disabled, yo"
+        subject.settings = {deploy: {write_lock: "Disabled, yo"}}
       end
 
       it "exits without running" do

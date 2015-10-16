@@ -25,6 +25,8 @@ class Config
     @config[key]
   end
 
+  alias [] setting
+
   def settings
     @config
   end

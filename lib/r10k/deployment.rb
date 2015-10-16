@@ -15,6 +15,8 @@ module R10K
 
     # Generate a deployment object based on a config
     #
+    # @deprecated
+    #
     # @param path [String] The path to the deployment config
     # @return [R10K::Deployment] The deployment loaded with the given config
     def self.load_config(path, overrides={})
@@ -107,9 +109,9 @@ module R10K
     private
 
     def load_sources
-      sources = @config.setting(:sources)
+      sources = @config[:sources]
       if sources.nil? || sources.empty?
-        raise R10K::Error, "'sources' key in #{@config.configfile} missing or empty."
+        raise R10K::Error, "Unable to load sources; the supplied configuration does not define the 'sources' key"
       end
       @_sources = sources.map do |(name, hash)|
         R10K::Source.from_hash(name, hash)

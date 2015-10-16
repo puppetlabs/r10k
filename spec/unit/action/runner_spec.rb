@@ -1,7 +1,8 @@
 require 'spec_helper'
-require 'r10k/action/runner'
+require 'r10k/action/base'
 require 'puppet_forge/connection'
 
+require 'r10k/action/runner'
 
 describe R10K::Action::Runner do
 
@@ -10,9 +11,10 @@ describe R10K::Action::Runner do
       attr_reader :opts
       attr_reader :argv
 
-      def initialize(opts, argv)
+      def initialize(opts, argv, settings = {})
         @opts = opts
         @argv = argv
+        @settings = {}
       end
 
       def call
@@ -50,6 +52,11 @@ describe R10K::Action::Runner do
       runner.call
     end
 
+    it "configures forge authorization" do
+      expect(runner).to receive(:setup_authorization)
+      runner.call
+    end
+
     it "returns the result of the wrapped class #call method" do
       expect(runner.call).to eq %w[ARGS YES]
     end
@@ -65,13 +72,6 @@ describe R10K::Action::Runner do
     it "does not modify the loglevel if :loglevel is not provided" do
       expect(R10K::Logging).to_not receive(:level=)
       runner.call
-    end
-  end
-
-  describe "configuring settings" do
-    it "configures authorization" do
-      expect(runner).to receive(:setup_authorization)
-      runner.setup_settings
     end
   end
 

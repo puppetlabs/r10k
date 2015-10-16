@@ -155,7 +155,7 @@ describe R10K::Deployment, "checking the 'sources' key" do
       it "raises an error when enumerating sources" do
         expect {
           deployment.sources
-        }.to raise_error(R10K::Error, "'sources' key in /some/nonexistent/config_file missing or empty.")
+        }.to raise_error(R10K::Error, "Unable to load sources; the supplied configuration does not define the 'sources' key")
       end
     end
   end
