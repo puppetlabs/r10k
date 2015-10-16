@@ -98,8 +98,8 @@ module R10K
 
     def accept(visitor)
       visitor.visit(:deployment, self) do
-        sources.each do |env|
-          env.accept(visitor)
+        sources.each do |source|
+          source.accept(visitor)
         end
       end
     end
