@@ -3,12 +3,10 @@ require 'r10k/git/rugged/working_repository'
 require 'r10k/git/rugged/cache'
 
 class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
-  def initialize(basedir, dirname)
-    super
+  def initialize(basedir, dirname, cache_repo)
+    @cache_repo = cache_repo
 
-    if exist? && origin
-      set_cache(origin)
-    end
+    super(basedir, dirname)
   end
 
   # Clone this git repository
@@ -21,7 +19,6 @@ class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
   # @return [void]
   def clone(remote, opts = {})
     logger.debug1 { "Cloning '#{remote}' into #{@path}" }
-    set_cache(remote)
     @cache_repo.sync
 
     cache_objects_dir = @cache_repo.objects_dir.to_s
@@ -62,11 +59,5 @@ class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
   # @return [String] The cache remote URL
   def cache
     with_repo { |repo| repo.config['remote.cache.url'] }
-  end
-
-  private
-
-  def set_cache(remote)
-    @cache_repo = R10K::Git::Rugged::Cache.generate(remote)
   end
 end
