@@ -46,7 +46,7 @@ class R10K::Git::Cache
 
   extend Forwardable
 
-  def_delegators :@repo, :git_dir, :branches, :tags, :exist?, :resolve, :ref_type
+  def_delegators :@repo, :git_dir, :objects_dir, :branches, :tags, :exist?, :resolve, :ref_type
 
   # @!attribute [r] path
   #   @deprecated

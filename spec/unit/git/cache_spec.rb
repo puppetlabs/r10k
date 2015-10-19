@@ -31,6 +31,10 @@ describe R10K::Git::Cache do
       expect_delegation(:git_dir)
     end
 
+    it "delegates #objects_dir" do
+      expect_delegation(:objects_dir)
+    end
+
     it "delegates #branches" do
       expect_delegation(:branches)
     end

@@ -19,6 +19,11 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
     @path
   end
 
+  # @return [Pathname] The path to the objects directory in this Git repository
+  def objects_dir
+    @path + "objects"
+  end
+
   # Clone the given remote.
   #
   # This should only be called if the repository does not exist.

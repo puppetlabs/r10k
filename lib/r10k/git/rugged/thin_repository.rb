@@ -24,7 +24,7 @@ class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
     set_cache(remote)
     @cache_repo.sync
 
-    objectpath = (@cache_repo.git_dir + 'objects').to_s
+    cache_objects_dir = @cache_repo.objects_dir.to_s
 
     # {Rugged::Repository.clone_at} doesn't support :alternates, which
     # completely breaks how thin repositories need to work. To circumvent
@@ -33,8 +33,8 @@ class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
     # fetch any objects because we don't need them, and we don't actually
     # use any refs in this repository so we skip all those steps.
     ::Rugged::Repository.init_at(@path.to_s, false)
-    @_rugged_repo = ::Rugged::Repository.new(@path.to_s, :alternates => [objectpath])
-    alternates << objectpath
+    @_rugged_repo = ::Rugged::Repository.new(@path.to_s, :alternates => [cache_objects_dir])
+    alternates << cache_objects_dir
 
     with_repo do |repo|
       config = repo.config
