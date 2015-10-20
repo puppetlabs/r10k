@@ -49,7 +49,7 @@ Install the Pupppet master
 apt-get install puppetserver
 ```
 
-# Configuring Puppet 
+# Configuring Puppet
 
 Configure the Puppet master by editing `/etc/puppetlabs/puppet/puppet.conf` and ensuring it has the following contents:
 
@@ -91,7 +91,7 @@ Install r10k via Ruby Gems.
 /opt/puppetlabs/puppet/bin/gem install r10k
 ```
 
-Configure r10k by editing `/etc/puppetlabs/r10k/r10k.yaml` and ensuring it has the following contents:
+Configure r10k by creating the following directory structure and file `/etc/puppetlabs/r10k/r10k.yaml` and ensuring it has the following contents:
 
 ```
 # The location to use for storing cached Git repos
