@@ -63,7 +63,7 @@ module R10K
         end
 
         if !errors.empty?
-          raise ValidationError.new("Validation failures for #{@name}", :errors => errors)
+          raise ValidationError.new("Validation failed for #{@name} settings group", :errors => errors)
         end
       end
 
@@ -84,6 +84,33 @@ module R10K
         def initialize(mesg, options = {})
           super
           @errors = options[:errors]
+        end
+
+        def format
+          struct = []
+          struct << "#{message}:"
+          @errors.each_pair do |name, nested|
+            struct << indent(structure_exception(name, nested))
+          end
+          struct.join("\n")
+        end
+
+        private
+
+        def structure_exception(name, exc)
+          struct = []
+          struct << "#{name}:"
+          if exc.is_a? ValidationError
+            struct << indent(exc.format)
+          else
+            struct << indent(exc.message)
+          end
+          struct.join("\n")
+        end
+
+        def indent(str, level = 4)
+          prefix = ' ' * level
+          str.gsub(/^/, prefix)
         end
       end
     end

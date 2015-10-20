@@ -53,6 +53,9 @@ module R10K
         @settings = R10K::Settings.global_settings.evaluate(with_overrides)
 
         R10K::Initializers::GlobalInitializer.new(@settings).call
+      rescue R10K::Settings::Collection::ValidationError => e
+        logger.error e.format
+        exit(8)
       end
 
       def setup_authorization

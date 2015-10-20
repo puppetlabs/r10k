@@ -64,3 +64,59 @@ describe R10K::Settings::Collection do
     end
   end
 end
+
+describe R10K::Settings::Collection::ValidationError do
+
+
+  let(:flat_errors) do
+    described_class.new("Validation failures for some group", errors: {
+      some_defn: ArgumentError.new("some_defn is wrong, somehow."),
+      uri_setting: ArgumentError.new("uri_setting NOTAURI is not a URI.")
+    })
+  end
+
+  let(:flat_error_text) do
+    [
+      "Validation failures for some group:",
+      "    some_defn:",
+      "        some_defn is wrong, somehow.",
+      "    uri_setting:",
+      "        uri_setting NOTAURI is not a URI."]
+    .join("\n")
+  end
+
+  let(:nested_errors) do
+    described_class.new("Validation failures for some nesting group", errors: {
+      file_setting: ArgumentError.new("file_setting is a potato, not a file."),
+      nested: flat_errors
+    })
+  end
+
+  let(:nested_error_text) do
+    [
+      "Validation failures for some nesting group:",
+      "    file_setting:",
+      "        file_setting is a potato, not a file.",
+      "    nested:",
+      "        Validation failures for some group:",
+      "            some_defn:",
+      "                some_defn is wrong, somehow.",
+      "            uri_setting:",
+      "                uri_setting NOTAURI is not a URI."
+    ].join("\n")
+  end
+
+  describe "formatting a human readable error message" do
+    describe "no with no nested validation errors" do
+      it "generates a human readable set of validation errors." do
+        expect(flat_errors.format).to eq flat_error_text
+      end
+    end
+
+    describe "with nested validation errors" do
+      it "generates a human readable set of validation errors." do
+        expect(nested_errors.format).to eq nested_error_text
+      end
+    end
+  end
+end
