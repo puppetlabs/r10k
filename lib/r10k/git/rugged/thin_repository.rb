@@ -3,12 +3,10 @@ require 'r10k/git/rugged/working_repository'
 require 'r10k/git/rugged/cache'
 
 class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
-  def initialize(basedir, dirname)
-    super
+  def initialize(basedir, dirname, cache_repo)
+    @cache_repo = cache_repo
 
-    if exist? && origin
-      set_cache(origin)
-    end
+    super(basedir, dirname)
   end
 
   # Clone this git repository
@@ -21,10 +19,9 @@ class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
   # @return [void]
   def clone(remote, opts = {})
     logger.debug1 { "Cloning '#{remote}' into #{@path}" }
-    set_cache(remote)
     @cache_repo.sync
 
-    objectpath = (@cache_repo.git_dir + 'objects').to_s
+    cache_objects_dir = @cache_repo.objects_dir.to_s
 
     # {Rugged::Repository.clone_at} doesn't support :alternates, which
     # completely breaks how thin repositories need to work. To circumvent
@@ -33,8 +30,8 @@ class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
     # fetch any objects because we don't need them, and we don't actually
     # use any refs in this repository so we skip all those steps.
     ::Rugged::Repository.init_at(@path.to_s, false)
-    @_rugged_repo = ::Rugged::Repository.new(@path.to_s, :alternates => [objectpath])
-    alternates << objectpath
+    @_rugged_repo = ::Rugged::Repository.new(@path.to_s, :alternates => [cache_objects_dir])
+    alternates << cache_objects_dir
 
     with_repo do |repo|
       config = repo.config
@@ -66,7 +63,15 @@ class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
 
   private
 
-  def set_cache(remote)
-    @cache_repo = R10K::Git::Rugged::Cache.generate(remote)
+  # Override the parent class repo setup so that we can make sure the alternates file is up to date
+  # before we create the Rugged::Repository object, which reads from the alternates file.
+  def setup_rugged_repo
+    if git_dir.exist?
+      entry_added = alternates.add?(@cache_repo.objects_dir.to_s)
+      if entry_added
+        logger.debug2 { "Updated repo #{@path} to include alternate object db path #{@cache_repo.objects_dir}" }
+      end
+    end
+    super
   end
 end

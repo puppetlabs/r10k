@@ -25,8 +25,8 @@ class R10K::Git::StatefulRepository
     @ref = ref
     @remote = remote
 
-    @repo = R10K::Git.thin_repository.new(basedir, dirname)
     @cache = R10K::Git.cache.generate(remote)
+    @repo = R10K::Git.thin_repository.new(basedir, dirname, @cache)
   end
 
   def sync

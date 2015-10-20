@@ -12,21 +12,34 @@ class R10K::Git::Alternates
   # @param git_dir [Pathname] The path to the git repository
   def initialize(git_dir)
     @file = git_dir + File.join('objects', 'info', 'alternates')
+    @entries = []
   end
 
-  def to_a
-    read()
-  end
-
-  def <<(path)
+  def add(path)
     write(to_a << path)
+  end
+  alias << add
+
+  # Conditionally add path to the alternates file
+  #
+  # @param path [String] The file path to add to the file if not already present
+  # @return [true, false] If the entry was added.
+  def add?(path)
+    paths = read()
+
+    add_entry = !paths.include?(path)
+
+    if add_entry
+      paths << path
+      write(paths)
+    end
+
+    add_entry
   end
 
   def include?(path)
     to_a.include?(path)
   end
-
-  private
 
   def write(entries)
     if ! @file.parent.directory?
@@ -46,4 +59,5 @@ class R10K::Git::Alternates
     end
     entries
   end
+  alias to_a read
 end

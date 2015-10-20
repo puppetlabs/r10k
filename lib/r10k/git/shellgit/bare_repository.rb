@@ -4,15 +4,20 @@ require 'r10k/git/shellgit/base_repository'
 # Create and manage Git bare repositories.
 class R10K::Git::ShellGit::BareRepository < R10K::Git::ShellGit::BaseRepository
 
+  # @param basedir [String] The base directory of the Git repository
+  # @param dirname [String] The directory name of the Git repository
+  def initialize(basedir, dirname)
+    @path = Pathname.new(File.join(basedir, dirname))
+  end
+
   # @return [Pathname] The path to this Git repository
   def git_dir
     @path
   end
 
-  # @param basedir [String] The base directory of the Git repository
-  # @param dirname [String] The directory name of the Git repository
-  def initialize(basedir, dirname)
-    @path = Pathname.new(File.join(basedir, dirname))
+  # @return [Pathname] The path to the objects directory in this Git repository
+  def objects_dir
+    @path + "objects"
   end
 
   def clone(remote)

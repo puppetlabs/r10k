@@ -8,11 +8,14 @@ require 'r10k/git/shellgit/working_repository'
 # making new clones very lightweight.
 class R10K::Git::ShellGit::ThinRepository < R10K::Git::ShellGit::WorkingRepository
 
-  def initialize(basedir, dirname)
-    super
-
-    if exist? && origin
-      set_cache(origin)
+  def initialize(basedir, dirname, cache_repo)
+    @cache_repo = cache_repo
+    super(basedir, dirname)
+    if git_dir.exist?
+      entry_added = alternates.add?(@cache_repo.objects_dir.to_s)
+      if entry_added
+        logger.debug2 { "Updated repo #{@path} to include alternate object db path #{@cache_repo.objects_dir}" }
+      end
     end
   end
 
@@ -26,7 +29,6 @@ class R10K::Git::ShellGit::ThinRepository < R10K::Git::ShellGit::WorkingReposito
   # @return [void]
   def clone(remote, opts = {})
     # todo check if opts[:reference] is set
-    set_cache(remote)
     @cache_repo.sync
 
     super(remote, opts.merge(:reference => @cache_repo.git_dir.to_s))
@@ -44,10 +46,6 @@ class R10K::Git::ShellGit::ThinRepository < R10K::Git::ShellGit::WorkingReposito
   end
 
   private
-
-  def set_cache(remote)
-    @cache_repo = R10K::Git::ShellGit::Cache.generate(remote)
-  end
 
   def setup_cache_remote
     git ["remote", "add", "cache", @cache_repo.git_dir.to_s], :path => @path.to_s

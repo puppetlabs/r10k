@@ -6,9 +6,9 @@ describe R10K::Git::Rugged::ThinRepository, :if => R10K::Features.available?(:ru
 
   let(:dirname) { 'working-repo' }
 
-  subject { described_class.new(basedir, dirname) }
-
   let(:cacherepo) { R10K::Git::Rugged::Cache.generate(remote) }
+
+  subject { described_class.new(basedir, dirname, cacherepo) }
 
   it_behaves_like "a git thin repository"
 end
