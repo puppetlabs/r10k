@@ -7,7 +7,7 @@ module R10K
       class Display < R10K::Action::Base
 
         def call
-          deployment = R10K::Deployment.load_config(@config)
+          deployment = R10K::Deployment.new(@settings)
 
           if @fetch
             deployment.preload!
