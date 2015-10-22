@@ -7,7 +7,6 @@ describe R10K::Action::Puppetfile::Install do
 
   let(:puppetfile) { R10K::Puppetfile.new('/some/nonexistent/path', nil, nil) }
 
-
   before do
     allow(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, nil).and_return(puppetfile)
   end
@@ -47,6 +46,22 @@ describe R10K::Action::Puppetfile::Install do
 
     it "purges the moduledir after installation" do
       expect(puppetfile).to receive(:purge!)
+      subject.call
+    end
+  end
+
+  describe "using custom paths" do
+    let(:puppetfile) { instance_double("R10K::Puppetfile", load!: nil, accept: nil, purge!: nil) }
+
+    it "can use a custom puppetfile path" do
+      subject = described_class.new({root: "/some/nonexistent/path", puppetfile: "/some/other/path/Puppetfile"}, [])
+      expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, "/some/other/path/Puppetfile").and_return(puppetfile)
+      subject.call
+    end
+
+    it "can use a custom moduledir path" do
+      subject = described_class.new({root: "/some/nonexistent/path", moduledir: "/some/other/path/site-modules"}, [])
+      expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", "/some/other/path/site-modules", nil).and_return(puppetfile)
       subject.call
     end
   end
