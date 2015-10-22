@@ -1,12 +1,16 @@
 require 'r10k/deployment'
 require 'r10k/action/base'
+require 'r10k/action/deploy/deploy_helpers'
 
 module R10K
   module Action
     module Deploy
       class Display < R10K::Action::Base
 
+        include R10K::Action::Deploy::DeployHelpers
+
         def call
+          expect_config!
           deployment = R10K::Deployment.new(@settings)
 
           if @fetch

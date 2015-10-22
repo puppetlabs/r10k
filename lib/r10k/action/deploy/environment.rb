@@ -3,7 +3,7 @@ require 'r10k/deployment'
 require 'r10k/logging'
 require 'r10k/action/visitor'
 require 'r10k/action/base'
-require 'r10k/deployment/write_lock'
+require 'r10k/action/deploy/deploy_helpers'
 require 'json'
 
 module R10K
@@ -11,7 +11,7 @@ module R10K
     module Deploy
       class Environment < R10K::Action::Base
 
-        include R10K::Deployment::WriteLock
+        include R10K::Action::Deploy::DeployHelpers
 
         def initialize(opts, argv, settings = {})
           @purge = true
@@ -22,6 +22,7 @@ module R10K
         def call
           @visit_ok = true
 
+          expect_config!
           deployment = R10K::Deployment.new(@settings)
           check_write_lock!(@settings)
 

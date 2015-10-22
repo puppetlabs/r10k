@@ -72,12 +72,13 @@ module R10K
 
       private
 
-      def settings_from_config(override_path, requires_config = false)
+      def settings_from_config(override_path)
         loader = R10K::Settings::Loader.new
         path = loader.search(override_path)
         results = {}
 
         if path
+          @opts[:config] = path
           logger.debug2 "Reading configuration from #{path.inspect}"
           results = loader.read(path)
         else

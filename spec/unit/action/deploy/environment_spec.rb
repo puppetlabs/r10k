@@ -5,9 +5,10 @@ require 'r10k/action/deploy/environment'
 
 describe R10K::Action::Deploy::Environment do
 
-  subject { described_class.new({}, []) }
+  subject { described_class.new({config: "/some/nonexistent/path"}, []) }
 
   it_behaves_like "a deploy action that can be write locked"
+  it_behaves_like "a deploy action that requires a config file"
 
   describe "initializing" do
     it "can accept a cachedir option" do
@@ -43,7 +44,7 @@ describe R10K::Action::Deploy::Environment do
         expect(R10K::Deployment).to receive(:new).and_return(deployment)
       end
 
-      subject { described_class.new({purge: false}, %w[not_an_environment]) }
+      subject { described_class.new({config: "/some/nonexistent/path", purge: false}, %w[not_an_environment]) }
 
       it "logs that the environments can't be deployed and returns false" do
         expect(subject.logger).to receive(:error).with("Environment(s) 'not_an_environment' cannot be found in any source and will not be deployed.")
