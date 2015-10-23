@@ -1,6 +1,156 @@
 CHANGELOG
 =========
 
+2.1.0
+-----
+
+UNRELEASED
+
+### Thanks
+
+Thanks to the following contributors for their work on this release:
+
+  * [Abel Paz](https://github.com/apazga) fixing some broken links in the Git Environments documentation
+  * [Alex Rowley](https://github.com/rowleyaj) for surfacing the --puppetfile and --module options for
+    `r10k puppetfile install`
+  * [Austin Blatt](https://github.com/austb) (our summer intern!) for extracting the vendored Puppetforge
+    code and pushing it into the upstream puppet_forge gem.
+  * [Branan Riley](https://github.com/branan) for updating the quickstart guide for Puppet 4.
+  * [Darrell](https://github.com/darrell) for adding documentation for the :local module type
+  * [David Pashley](https://github.com/dpash) for documenting potential issues with Rugged/SSH on Ubuntu
+  * [Dennis](https://github.com/pskrz) for clarifying path information in the quickstart guide
+  * [E. Dunham](https://github.com/edunham) for adding an entry to the FAQ to explain the name of r10k
+  * [Kirill Kondratenko](https://github.com/cybem) for contributing the :local module type (RK-149)
+  * [Louis Mayorga](https://github.com/lmayorga1980) for finding and reporting RK-143, and testing fixes
+    for that issue.
+  * [Mark McKinstry](https://github.com/mmckinst) for fixing some broken links in the FAQ
+  * [Patrick Robinson](https://github.com/nemski) for submitting GH-516 to catch and handle
+    ArgumentErrors raised when loading Puppetfiles
+  * [Thomas Lapinski](https://github.com/thlapin) for fixing a bug where switching from a Git module to
+    a Forge module would incorrectly leave the Git module version installed.
+  * [Thomas Mueller](https://github.com/vinzent) for updating the r10k homepage link in the gemspec.
+
+### User notes
+
+(RK-70) Expose Forge baseurl setting in r10k.yaml
+
+The Puppet Forge URL can now be changed from the default forgeapi.puppetlabs.com to a user specified value.
+This allows users to use private/testing Puppet Forge instances. See
+https://github.com/puppetlabs/r10k/blob/master/doc/dynamic-environments/configuration.mkd#baseurl
+for documentation on using the baseurl setting.
+
+(RK-96) Correctly switch from Forge modules to Git modules
+
+If a Git version of a module had been installed via a Puppetfile and the Puppetfile entry was updated to
+use the Forge version of the module, r10k would only check the metadata - and if the metadata of the Git
+version matched then r10k would assume that the Forge module was installed. This has been fixed so that
+when checking the status of a Forge module r10k specifically looks for a `.git` directory and considers
+the module mismatched when the directory is present, which means that it will correctly replace a Git
+version of a module with the Forge version.
+
+(RK-142) Add machine readable output for `r10k deploy display`
+
+The output format for `r10k deploy display` was a YAML-like, janky hand rolled version; this has been
+replaced with the ability to specify an actual data format for the output. The default output type is
+now YAML.
+
+(GH-477) Add `--fetch` option for `r10k deploy display`
+
+When `r10k deploy display` is run it might be useful to see which environments don't yet exist; the
+added `--fetch` option allows r10k to update the environment sources to check for missing environments
+when displaying environments.
+
+(RK-143) Use argument vector when executing commands on Windows
+
+R10k used the `Open3.capture3` call, and used to concatenate the string to execute and join it with
+spaces. However Windows loves including spaces in file names, which creates all sort of weird behavior
+especially when running shell commands over SSH to Windows. This has been fixed to use the argument
+vector form of `capture3` to avoid these issues.
+
+(RK-149) Add :local module type
+
+The new :local module type allows users to add modules to the Puppetfile that are included in a control
+repository, so that modules can be kept in the Puppetfile moduledir without them being destroyed.
+
+(CODEMGMT-345) Write deploy signatures to a file
+
+If the code deployed by r10k is copied to another location without the cached repos, it becomes impossible
+to use Git to interact with the repository and see which version of code r10k deployed. R10k now creates a
+`.r10k-deploy.json` file that records the time and SHA of the last code deployment.
+
+(RK-80) Support non SSH key based authentication for rugged provider
+
+An error in how the Rugged Git provider provided SSH credentials prevented HTTPS urls requiring authentication
+to function. This has been fixed so that only SSH urls are provided ssh private key credentials, and HTTPS
+urls can provided a username and password in the URL for authentication.
+
+(RK-90) Don't raise an error when forge modules are duplicated
+
+A bug in how r10k Forge modules created caused r10k to crash when two forge modules tried to create the same
+directory. This has been fixed and restores the old behavior of letting the last module specified win.
+
+In the long term trying to specify two modules with the same name will produce an error, but in the mean time
+this fix restores existing behavior so that r10k won't roll over and die on error.
+
+(RK-120) Enable --config as top level command option
+
+R10k was originally built with environment deployment in mind, but the `r10k puppetfile` subcommand made this
+assumption faulty. However the way the config file was loaded only worked with `r10k deploy` subcommands,
+which prevented users from using a custom cachedir or use other settings when running `r10k puppetfile`. This has
+been corrected so that r10k can always read a config file when running any subcommand.
+
+(RK-175) Don't crash on unresolvable Rugged ref
+
+When r10k was using the rugged provider, checking out an unresolvable ref would throw a TypeError because r10k
+didn't always ensure that the ref was resolvable. This has been fixed so that r10k explicitly ensures that refs
+can be resolved before it checks them out.
+
+(RK-174) Always ensure alternates file is up to date
+
+When r10k created a Git working repository it permanently linked the repository to a cached Git repository via
+the Git alternates file. However if the cachedir setting changed, existing repositories would still reference
+the old path which could very badly break Git. This has been fixed so that r10k always ensures that the alternates
+file is up to date before any Git operations can happen, so that changing the cachedir will not break Git repositories.
+
+(RK-169) Print validation failures for invalid configs
+
+R10k used to have very lax handling of config file input, which would cause crashes during r10k runtime. This
+has been fixed so that r10k validates all configuration before it runs and prints out all configuration
+validation errors when validation fails.
+
+(RK-21) Indicate error when deploying non-existent environment
+
+When r10k was deploying a specific list of environments, it would skip any existing environment that didn't match
+the desired list of environments. However this meant that deploying a non-existent environment would not
+deploy any environments and r10k would silently exit with an exit code of 0. This has been fixed so that
+when r10k deploys a list of environments it makes sure that each environment can be updated, and when requested
+environments are missing it logs an error and exits with a non-zero exit code.
+
+(RK-163) Add deploy/write_lock setting
+
+Users can now prevent `r10k deploy` commands that change environments and modules from running via a config
+option; this allows users to lock out code deployments at certain times (code freezes and times outside of
+maintenance windows.)
+
+(GH-516) Handle ArgumentError when loading Puppetfiles
+
+The `r10k puppetfile check` command didn't output a very useful error when a module was given the wrong number
+of arguments; this has been fixed so that r10k catches ArgumentErrors raised while loading a Puppetfile
+and wraps it so that more information is added to the error message.
+
+(GH-469) Add `--puppetfile` and `--moduledir` options to `r10k puppetfile install` subcommand
+
+The `r10k puppetfile install` subcommand was able to set a custom puppetfile path and moduledir location
+via environment variables to match librarian-puppet, but they accidentally didn't match the librarian-puppet
+semantics - and environment variables aren't very nice to expose for configuring and application. The
+`r10k puppetfile install` subcommand now supports command line flags to set these options.
+
+(CODEMGMT-339) Add command line option to set cachedir
+
+There are some scenarios where r10k needs to be run with a common config file, but on a specific basis
+may need to set a custom cachedir. To make this work `r10k deploy` now supports a `--cachedir` setting
+for these temporary overrides.
+
 2.0.3
 -----
 
