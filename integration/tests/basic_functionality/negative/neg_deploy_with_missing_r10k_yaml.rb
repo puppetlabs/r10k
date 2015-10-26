@@ -23,6 +23,6 @@ on(master, "mv #{r10k_config_path} #{r10k_config_bak_path}")
 
 #Tests
 step 'Attempt to Deploy via r10k'
-on(master, "#{r10k_fqp} deploy environment -v", :acceptable_exit_codes => 1) do |result|
+on(master, "#{r10k_fqp} deploy environment -v", :acceptable_exit_codes => 8) do |result|
   assert_match(error_message_regex, result.stderr, 'Expected message not found!')
 end
