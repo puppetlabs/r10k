@@ -23,7 +23,7 @@ sources:
 CONF
 
 #Verification
-error_message_regex = /ConfigError:.*Couldn't load config file/
+error_message_regex = /should be one of.*not .invalid./
 
 #Teardown
 teardown do
