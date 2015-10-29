@@ -33,7 +33,21 @@ describe R10K::Git::Rugged::Credentials do
   end
 
   describe "generating ssh key credentials" do
-    after { R10K::Git.settings.reset! }
+    after(:each) { R10K::Git.settings.reset! }
+
+    it "prefers a per-repository SSH private key" do
+      R10K::Git.settings[:repositories]["ssh://git@tessier-ashpool.freeside/repo.git"] = {private_key: "/etc/puppetlabs/r10k/ssh/tessier-ashpool-id_rsa"}
+      creds = subject.get_ssh_key_credentials("ssh://git@tessier-ashpool.freeside/repo.git", nil)
+      expect(creds).to be_a_kind_of(Rugged::Credentials::SshKey)
+      expect(creds.instance_variable_get(:@privatekey)).to eq("/etc/puppetlabs/r10k/ssh/tessier-ashpool-id_rsa")
+    end
+
+    it "falls back to the global SSH private key" do
+      R10K::Git.settings[:private_key] = "/etc/puppetlabs/r10k/ssh/id_rsa"
+      creds = subject.get_ssh_key_credentials("ssh://git@tessier-ashpool.freeside/repo.git", nil)
+      expect(creds).to be_a_kind_of(Rugged::Credentials::SshKey)
+      expect(creds.instance_variable_get(:@privatekey)).to eq("/etc/puppetlabs/r10k/ssh/id_rsa")
+    end
 
     it "raises an error if no key has been set" do
       R10K::Git.settings[:private_key] = nil

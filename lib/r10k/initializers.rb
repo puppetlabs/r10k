@@ -42,6 +42,7 @@ module R10K
         with_setting(:provider) { |value| R10K::Git.provider = value }
         with_setting(:username) { |value| R10K::Git.settings[:username] = value }
         with_setting(:private_key) { |value| R10K::Git.settings[:private_key] = value }
+        with_setting(:repositories) { |value| R10K::Git.settings[:repositories] = value }
       end
     end
 

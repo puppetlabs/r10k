@@ -27,7 +27,21 @@ module R10K
         Definition.new(:private_key, {
           :desc => "The path to the SSH private key for Git SSH remotes.
                     Only used by the 'rugged' Git provider.",
-        })
+        }),
+
+        Definition.new(:repositories, {
+          :desc => "Repository specific configuration.",
+          :default => {},
+          :normalize => lambda do |repositories|
+            # The config file loading logic recursively converts hash keys that are strings to symbols,
+            # but in this case it makes sense to have string hash keys. This normalization undoes the
+            # hash key symbolization.
+            repositories.inject({}) do |retval, (key, value)|
+              retval[key.to_s] = value
+              retval
+            end
+          end
+        }),
       ])
     end
 
