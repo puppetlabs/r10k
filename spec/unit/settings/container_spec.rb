@@ -59,6 +59,13 @@ describe R10K::Settings::Container do
         expect(subject[:v]).to eq 'child'
       end
 
+      it 'duplicates and stores the parent object to avoid modifying the parent object' do
+        parent[:v] = {}
+        subject[:v][:hello] = "world"
+        expect(subject[:v]).to eq({hello: "world"})
+        expect(parent[:v]).to eq({})
+      end
+
       it 'falls back to the parent value if it does not have a value' do
         parent[:v] = 'parent'
         expect(subject[:v]).to eq 'parent'

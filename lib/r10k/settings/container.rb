@@ -31,9 +31,9 @@ class R10K::Settings::Container
 
     if @settings[key]
       @settings[key]
-    elsif @parent and (pkey = @parent[key])
-      @settings[key] = pkey
-      pkey
+    elsif @parent && (pkey = @parent[key])
+      @settings[key] = pkey.dup
+      @settings[key]
     end
   end
 
