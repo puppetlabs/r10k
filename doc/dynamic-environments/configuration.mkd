@@ -70,12 +70,12 @@ regarding Git providers.
 
 #### username
 
+The username setting is only used by the Rugged git provider.
+
 The username option sets the username for SSH remotes when the SSH URL does not provide
 a username. When used with a Git hosting service this is most sensibly set to 'git'.
 
 The username defaults to the username of the currently logged in user.
-
-The username setting is only used by the Rugged git provider.
 
 ```yaml
 git:
@@ -84,14 +84,31 @@ git:
 
 #### private_key
 
+The private_key setting is only used by the Rugged git provider.
+
 The private_key option specifies the path to the default Git SSH private key for Git SSH remotes.
 The private_key setting must be set if SSH remotes are used.
-
-The private_key setting is only used by the Rugged git provider.
 
 ```yaml
 git:
   private_key: "/etc/puppetlabs/r10k/ssh/id_rsa"
+```
+
+#### repositories
+
+The repositories option allows configuration to be set on a per-remote basis. Each entry is a map of
+the repository URL and per-repository configuration for that repo.
+
+##### private_key
+
+A repository specific private key to use for SSH connections for the given repository URL. This
+overrides the global private_key setting.
+
+```yaml
+git:
+  repositories:
+    "ssh://tessier-ashpool.freeside/protected-repo.git":
+      private_key: "/etc/puppetlabs/r10k/ssh/id_rsa-protected-repo-deploy-key"
 ```
 
 ### forge
