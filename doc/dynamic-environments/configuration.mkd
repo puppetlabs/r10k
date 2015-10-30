@@ -68,6 +68,32 @@ git:
 See the [git provider documentation](../git/providers.mkd) for more information
 regarding Git providers.
 
+#### username
+
+The username option sets the username for SSH remotes when the SSH URL does not provide
+a username. When used with a Git hosting service this is most sensibly set to 'git'.
+
+The username defaults to the username of the currently logged in user.
+
+The username setting is only used by the Rugged git provider.
+
+```yaml
+git:
+  username: "git"
+```
+
+#### private_key
+
+The private_key option specifies the path to the default Git SSH private key for Git SSH remotes.
+The private_key setting must be set if SSH remotes are used.
+
+The private_key setting is only used by the Rugged git provider.
+
+```yaml
+git:
+  private_key: "/etc/puppetlabs/r10k/ssh/id_rsa"
+```
+
 ### forge
 
 The 'forge' setting is a hash that contains settings for downloading modules
