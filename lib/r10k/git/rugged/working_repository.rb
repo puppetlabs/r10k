@@ -106,6 +106,10 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   end
 
   def setup_rugged_repo
+    entry_added = alternates.add?(@cache_repo.objects_dir.to_s)
+    if entry_added
+      logger.debug2 { "Updated repo #{@path} to include alternate object db path #{@cache_repo.objects_dir}" }
+    end
     @_rugged_repo = ::Rugged::Repository.new(@path.to_s, :alternates => alternates.to_a)
   end
 end
