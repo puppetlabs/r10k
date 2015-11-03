@@ -11,12 +11,6 @@ class R10K::Git::ShellGit::ThinRepository < R10K::Git::ShellGit::WorkingReposito
   def initialize(basedir, dirname, cache_repo)
     @cache_repo = cache_repo
     super(basedir, dirname)
-    if git_dir.exist?
-      entry_added = alternates.add?(@cache_repo.objects_dir.to_s)
-      if entry_added
-        logger.debug2 { "Updated repo #{@path} to include alternate object db path #{@cache_repo.objects_dir}" }
-      end
-    end
   end
 
   # Clone this git repository
@@ -50,5 +44,22 @@ class R10K::Git::ShellGit::ThinRepository < R10K::Git::ShellGit::WorkingReposito
   def setup_cache_remote
     git ["remote", "add", "cache", @cache_repo.git_dir.to_s], :path => @path.to_s
     fetch
+  end
+
+  def git(cmd, opts = {})
+    if !@_synced_alternates
+      sync_alternates
+      @_synced_alternates = true
+    end
+    super
+  end
+
+  def sync_alternates
+    if git_dir.exist?
+      entry_added = alternates.add?(@cache_repo.objects_dir.to_s)
+      if entry_added
+        logger.debug2 { "Updated repo #{@path} to include alternate object db path #{@cache_repo.objects_dir}" }
+      end
+    end
   end
 end
