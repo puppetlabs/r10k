@@ -133,5 +133,6 @@ module R10K
 
     def_setting_attr :private_key
     def_setting_attr :username
+    def_setting_attr :repositories, {}
   end
 end
