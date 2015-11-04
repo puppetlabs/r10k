@@ -22,15 +22,15 @@ describe R10K::Initializers::GitInitializer do
 end
 
 describe R10K::Initializers::ForgeInitializer do
-  it "configures the Forge proxy" do
-    subject = described_class.new({:proxy => 'http://my.site.proxy:3128'})
-    expect(R10K::Forge::ModuleRelease.settings).to receive(:[]=).with(:proxy, 'http://my.site.proxy:3128')
+  it "sets the PuppetForge host" do
+    subject = described_class.new({:baseurl => 'https://my.site.forge'})
+    expect(PuppetForge).to receive(:host=).with('https://my.site.forge')
     subject.call
   end
 
-  it "configures the Forge baseurl" do
-    subject = described_class.new({:baseurl => 'https://my.site.forge'})
-    expect(R10K::Forge::ModuleRelease.settings).to receive(:[]=).with(:baseurl, 'https://my.site.forge')
+  it "configures PuppetForge connection proxy" do
+    subject = described_class.new({:proxy => 'http://my.site.proxy:3128'})
+    expect(PuppetForge::V3::Base.conn).to receive(:proxy).with('http://my.site.proxy:3128')
     subject.call
   end
 end
