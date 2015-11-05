@@ -4,7 +4,10 @@ module R10K
   module Util
     module Platform
       def self.platform
-        if self.windows?
+        # Test JRuby first to handle JRuby on Windows as well.
+        if self.jruby?
+          :jruby
+        elsif self.windows?
           :windows
         else
           :posix
@@ -15,8 +18,12 @@ module R10K
         RbConfig::CONFIG['host_os'] =~ /mswin|win32|dos|mingw|cygwin/i
       end
 
+      def self.jruby?
+        RUBY_PLATFORM == "java"
+      end
+
       def self.posix?
-        !windows?
+        !windows? && !jruby?
       end
     end
   end
