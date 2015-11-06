@@ -59,6 +59,8 @@ class R10K::Git::StatefulRepository
       :absent
     elsif !@repo.git_dir.exist?
       :mismatched
+    elsif !@repo.git_dir.directory?
+      :mismatched
     elsif !(@repo.origin == @remote)
       :mismatched
     elsif !(@repo.head == @cache.resolve(@ref))
