@@ -60,7 +60,7 @@ class R10K::Module::Forge < R10K::Module::Base
   def expected_version
     if @expected_version == :latest
       begin
-      @expected_version = @v3_module.current_release.version
+        @expected_version = @v3_module.current_release.version
       rescue Faraday::ResourceNotFound => e
         raise PuppetForge::ReleaseNotFound, "The module #{@title} does not exist on #{PuppetForge::V3::Release.conn.url_prefix}.", e.backtrace
       end
