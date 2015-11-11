@@ -1,6 +1,31 @@
 CHANGELOG
 =========
 
+2.1.1
+-----
+
+UNRELEASED
+
+### Notes
+
+(CODEMGMT-440) Defer git alternates setup
+
+The fix for RK-175 that updated the Git alternates file for repositories was happening too early, and
+could cause issues when multiple r10k processes were running concurrently. This has been fixed so that
+the alternates file update is deferred till the first time the git repository is actually accessed.
+
+(RK-187) Consider thin repos with a .git file (not directory) to be mismatched
+
+If a given Git thin repository had a .git file where r10k expected there to be a directory it would
+behave badly; this has been fixed so that if r10k encounters this case it treats the repository as
+mismatched.
+
+(RK-181) Correctly set baseurl/proxy with shared PuppetForge URL
+
+A combination of some odd connection handling behavior in the puppet_forge gem combined with some
+bad assumptions in r10k prevented users from being able to actually set a custom forge baseurl;
+this has been fixed.
+
 2.1.0
 -----
 
