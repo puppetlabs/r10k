@@ -99,7 +99,7 @@ environment to indicate which directories contain modules:
 
 ```
 # environment.conf
-modulepath: modules:external-modules
+modulepath = modules:external-modules
 ```
 
 #### Move your local modules
@@ -111,7 +111,7 @@ directories contain modules.
 
 ```
 # environment.conf
-modulepath: internal-modules::modules
+modulepath = internal-modules:modules
 ```
 
 #### What does the name mean?
