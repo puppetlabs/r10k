@@ -18,6 +18,8 @@ module R10K
       def self.runner
         if R10K::Util::Platform.windows?
           R10K::Util::Subprocess::Runner::Windows
+        elsif R10K::Util::Platform.jruby?
+          R10K::Util::Subprocess::Runner::JRuby
         else
           R10K::Util::Subprocess::Runner::POSIX
         end

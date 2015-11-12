@@ -1,8 +1,10 @@
 require 'spec_helper'
-require 'r10k/git/rugged/credentials'
-require 'rugged/credentials'
 
-describe R10K::Git::Rugged::Credentials do
+describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby? do
+  before(:all) do
+    require 'r10k/git/rugged/credentials'
+    require 'rugged/credentials'
+  end
 
   let(:repo) { R10K::Git::Rugged::BareRepository.new("/some/nonexistent/path", "repo.git") }
 

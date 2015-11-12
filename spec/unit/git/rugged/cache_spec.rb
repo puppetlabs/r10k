@@ -1,7 +1,10 @@
 require 'spec_helper'
-require 'r10k/git/rugged/cache'
 
-describe R10K::Git::Rugged::Cache do
+describe R10K::Git::Rugged::Cache, :unless => R10K::Util::Platform.jruby? do
+  before(:all) do
+    require 'r10k/git/rugged/cache'
+  end
+
   subject(:cache) { described_class.new('git://some/git/remote') }
 
   it "wraps a Rugged::BareRepository instance" do

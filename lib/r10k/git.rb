@@ -2,6 +2,7 @@ require 'r10k/features'
 require 'r10k/errors'
 require 'r10k/settings'
 require 'r10k/logging'
+require 'r10k/util/platform'
 
 module R10K
   module Git

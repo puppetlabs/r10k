@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 gemspec
 
 group :extra do
-  gem 'rugged', '~> 0.21.4'
+  gem 'rugged', '~> 0.21.4', :platforms => :ruby
 end
 
 group :development do
