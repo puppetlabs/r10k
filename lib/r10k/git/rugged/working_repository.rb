@@ -13,7 +13,6 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   # @param dirname [String] The directory name of the Git repository
   def initialize(basedir, dirname)
     @path = Pathname.new(File.join(basedir, dirname))
-    setup_rugged_repo
   end
 
   # Clone this git repository
@@ -99,9 +98,14 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
 
   private
 
-  def setup_rugged_repo
-    if exist? && git_dir.exist?
-      @_rugged_repo = ::Rugged::Repository.new(@path.to_s, :alternates => alternates.to_a)
+  def with_repo
+    if @_rugged_repo.nil? && git_dir.exist?
+      setup_rugged_repo
     end
+    super
+  end
+
+  def setup_rugged_repo
+    @_rugged_repo = ::Rugged::Repository.new(@path.to_s, :alternates => alternates.to_a)
   end
 end

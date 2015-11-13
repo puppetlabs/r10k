@@ -49,6 +49,14 @@ module R10K
       R10K::Settings::Collection.new(:forge, [
         URIDefinition.new(:proxy, {
           :desc => "An optional proxy server to use when downloading modules from the forge.",
+          :default => lambda do
+            [
+              ENV['HTTPS_PROXY'],
+              ENV['https_proxy'],
+              ENV['HTTP_PROXY'],
+              ENV['http_proxy']
+            ].find { |value| value }
+          end
         }),
 
         URIDefinition.new(:baseurl, {

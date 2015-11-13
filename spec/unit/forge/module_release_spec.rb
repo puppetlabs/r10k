@@ -18,38 +18,6 @@ describe R10K::Forge::ModuleRelease do
     subject.unpack_path = unpack_path
   end
 
-  describe 'setting the proxy' do
-    %w[HTTPS_PROXY https_proxy HTTP_PROXY http_proxy].each do |env_var|
-      it "respects the #{env_var} environment variable" do
-        R10K::Util::ExecEnv.withenv(env_var => "http://proxy.value") do
-          subject = described_class.new('branan-eight_hundred', '8.0.0')
-          proxy_uri = forge_release_class.conn.proxy.uri
-          expect(proxy_uri.to_s).to eq "http://proxy.value"
-        end
-      end
-    end
-
-    describe 'using application settings' do
-      before { described_class.settings[:proxy] = 'http://proxy.setting' }
-      after { described_class.settings.reset! }
-
-      it 'has a setting for the forge proxy' do
-        subject = described_class.new('branan-eight_hundred', '8.0.0')
-        proxy_uri = forge_release_class.conn.proxy.uri
-        expect(proxy_uri.to_s).to eq "http://proxy.setting"
-      end
-
-      it 'prefers the proxy setting over an environment variable' do
-        R10K::Util::ExecEnv.withenv('HTTPS_PROXY' => "http://proxy.from.env") do
-          subject = described_class.new('branan-eight_hundred', '8.0.0')
-          proxy_uri = forge_release_class.conn.proxy.uri
-          expect(proxy_uri.to_s).to eq "http://proxy.setting"
-        end
-      end
-    end
-
-  end
-
   describe '#download' do
     it "downloads the module from the forge into `download_path`" do
       expect(subject.forge_release).to receive(:download).with(download_path)

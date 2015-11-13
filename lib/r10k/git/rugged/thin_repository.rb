@@ -66,11 +66,9 @@ class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
   # Override the parent class repo setup so that we can make sure the alternates file is up to date
   # before we create the Rugged::Repository object, which reads from the alternates file.
   def setup_rugged_repo
-    if git_dir.exist?
-      entry_added = alternates.add?(@cache_repo.objects_dir.to_s)
-      if entry_added
-        logger.debug2 { "Updated repo #{@path} to include alternate object db path #{@cache_repo.objects_dir}" }
-      end
+    entry_added = alternates.add?(@cache_repo.objects_dir.to_s)
+    if entry_added
+      logger.debug2 { "Updated repo #{@path} to include alternate object db path #{@cache_repo.objects_dir}" }
     end
     super
   end

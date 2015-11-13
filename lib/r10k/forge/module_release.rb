@@ -37,7 +37,10 @@ module R10K
         @full_name = PuppetForge::V3.normalize_name(full_name)
         @version   = version
 
-        PuppetForge::V3::Release.conn = conn
+        # Copy the PuppetForge base connection to the release class; the connection
+        # objects are created in the class instances and thus are not shared with
+        # subclasses.
+        PuppetForge::V3::Release.conn = PuppetForge::V3::Base.conn
         @forge_release = PuppetForge::V3::Release.new({ :name => @full_name, :version => @version, :slug => "#{@full_name}-#{@version}" })
 
         @download_path = Pathname.new(Dir.mktmpdir) + (@forge_release.slug + '.tar.gz')
@@ -119,30 +122,6 @@ module R10K
         if download_path.exist?
           download_path.delete
         end
-      end
-
-      private
-
-      def conn
-        if settings[:baseurl]
-          PuppetForge.host = settings[:baseurl]
-          conn = PuppetForge::Connection.make_connection(settings[:baseurl])
-        else
-          PuppetForge.host = "https://forgeapi.puppetlabs.com"
-          conn = PuppetForge::Connection.default_connection
-        end
-        conn.proxy(proxy)
-        conn
-      end
-
-      def proxy
-        [
-          settings[:proxy],
-          ENV['HTTPS_PROXY'],
-          ENV['https_proxy'],
-          ENV['HTTP_PROXY'],
-          ENV['http_proxy']
-        ].find { |value| value }
       end
     end
   end

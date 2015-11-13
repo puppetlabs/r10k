@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'r10k/settings'
+require 'r10k/util/exec_env'
 
 describe R10K::Settings do
   describe "git settings" do
@@ -50,6 +51,17 @@ describe R10K::Settings do
           expect(err.errors.size).to eq 1
           expect(err.errors[:proxy]).to be_a_kind_of(ArgumentError)
           expect(err.errors[:proxy].message).to match(/could not be parsed as a URL/)
+        end
+      end
+
+      describe "setting a default value" do
+        %w[HTTPS_PROXY https_proxy HTTP_PROXY http_proxy].each do |env_var|
+          it "respects the #{env_var} environment variable" do
+            R10K::Util::ExecEnv.withenv(env_var => "http://proxy.value/#{env_var}") do
+              output = subject.evaluate({})
+              expect(output[:proxy]).to eq("http://proxy.value/#{env_var}")
+            end
+          end
         end
       end
     end

@@ -26,6 +26,14 @@ describe R10K::Git::StatefulRepository do
       end
     end
 
+    describe "when the directory has a .git file" do
+      it "is mismatched" do
+        thinrepo.path.mkdir
+        File.open("#{thinrepo.path}/.git", "w") {}
+        expect(subject.status).to eq :mismatched
+      end
+    end
+
     describe "when the repository doesn't match the desired remote" do
       it "is mismatched" do
         thinrepo.clone(remote, {:ref => '1.0.0'})

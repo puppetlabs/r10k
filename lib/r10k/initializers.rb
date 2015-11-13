@@ -48,8 +48,8 @@ module R10K
 
     class ForgeInitializer < BaseInitializer
       def call
-        with_setting(:proxy) { |value| R10K::Forge::ModuleRelease.settings[:proxy] = value }
-        with_setting(:baseurl) { |value| R10K::Forge::ModuleRelease.settings[:baseurl] = value }
+        with_setting(:baseurl) { |value| PuppetForge.host = value }
+        with_setting(:proxy) { |value| PuppetForge::V3::Base.conn.proxy(value) }
       end
     end
   end
