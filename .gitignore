@@ -6,3 +6,4 @@ bundle
 coverage
 /.yardoc
 /yardoc
+/r10k.yaml
