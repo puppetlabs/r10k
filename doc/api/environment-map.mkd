@@ -7,7 +7,11 @@ Full example of an "abstract" (unresolved) envmap:
 ```json
 {
   "environment": "production",
-  "source": <Hash representation of R10K::Source>,
+  "source": {
+    "type": "git",
+    "remote": "git@github.com:puppetlabs/puppetlabs-modules.git",
+    "branch": "production",
+  },
   "version": "63bf62a0c42bf41412c918df807d7a34512905d5",
   "resolved_at": null,
   "modules": [
@@ -42,7 +46,11 @@ Full example of a "resolved" environment map:
 ```json
 {
   "environment": "production",
-  "source": <Hash representation of R10K::Source>,
+  "source": {
+    "type": "git",
+    "remote": "git@github.com:puppetlabs/puppetlabs-modules.git",
+    "branch": "production",
+  },
   "version": "63bf62a0c42bf41412c918df807d7a34512905d5",
   "resolved_at": "2015-11-19T19:31:43.511Z",
   "modules": [
