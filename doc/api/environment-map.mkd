@@ -29,17 +29,18 @@ Full example of an "abstract" (unresolved) envmap:
 The process of "resolving" an environment map involves modifying the unresolved map in the following ways:
 
 * Value of "resolved\_at" key set to current time.
-* For "forge" type modules, value of "version" key for each module resolved as follows:
-  * "unpinned" leaves previously deployed modules at their current version, otherwise resolved as "latest"
-  * "latest" resolves to the semantically highest non-prerelease version available from the Forge
-  * Valid SemVer ranges resolve to the semantically highest non-prerelease version from Forge which is within the specified range
-  * Valid SemVer versions are considered resolved (and are considered to be in error if the specified version does not exist)
-* For "git" type modules, value of "version" key for each module resolved as follows:
-  * Branch names will be resolved to the SHA1 hash of the HEAD commit for the given branch
-  * All other valid git commit references resolve to a SHA1 hash (including expanding abbreviated SHAs)
-  * Full 40-character SHA1 hashes are considered resolved (and are considered to be in error if they do not represent a valid commit)
-* TODO: "svn" type module resolution
-* TODO: "local" type module resolution
+* For all modules, a new "resolved\_version" key is added with a value calculated from the supplied "type" and "version" as follows:
+  * For "forge" type modules:
+    * "unpinned" leaves previously deployed modules at their current version, otherwise resolved as "latest"
+    * "latest" resolves to the semantically highest non-prerelease version available from the Forge
+    * Valid SemVer ranges resolve to the semantically highest non-prerelease version from Forge which is within the specified range
+    * Valid SemVer versions are considered resolved (and are considered to be in error if the specified version does not exist)
+  * For "git" type modules, value of "version" key for each module resolved as follows:
+    * Branch names will be resolved to the SHA1 hash of the HEAD commit for the given branch
+    * All other valid git commit references resolve to a SHA1 hash (including expanding abbreviated SHAs)
+    * Full 40-character SHA1 hashes are considered resolved (and are considered to be in error if they do not represent a valid commit)
+  * TODO: "svn" type module resolution
+  * TODO: "local" type module resolution
 
 Full example of a "resolved" environment map:
 
@@ -54,13 +55,13 @@ Full example of a "resolved" environment map:
   "version": "63bf62a0c42bf41412c918df807d7a34512905d5",
   "resolved_at": "2015-11-19T19:31:43.511Z",
   "modules": [
-    { "name": "apache", "type": "forge", "source": "puppetlabs-apache", "version": "1.7.0" },
-    { "name": "mysql", "type": "forge", "source": "puppetlabs-mysql", "version": "3.6.1" },
-    { "name": "wordpress", "type": "forge", "source": "hunner-wordpress", "version": "1.0.0" },
+    { "name": "apache", "type": "forge", "source": "puppetlabs-apache", "version": "unpinned", "resolved_version": "1.7.0" },
+    { "name": "mysql", "type": "forge", "source": "puppetlabs-mysql", "version": "latest", "resolved_version": "3.6.1" },
+    { "name": "wordpress", "type": "forge", "source": "hunner-wordpress", "version": "1.0.x", "resolved_version": "1.0.0" },
 
-    { "name": "wget", "type": "git", "source": "git@github.com:maestrodev/puppet-wget.git", "version": "743d24f80c77d2769af5af7306f2ab3af177ac84" },
-    { "name": "rsyslog", "type": "git", "source": "git@github.com:saz/puppet-rsyslog.git", "version": "e6dddeec8b71cda20d3a682af7b973e3027f4f01" },
-    { "name": "logrotate", "type": "git", "source": "git@github.com:rodjek/puppet-logrotate.git", "version": "e5464e8646b0877eb6cd2dd43c5117149bd35c14" }
+    { "name": "wget", "type": "git", "source": "git@github.com:maestrodev/puppet-wget.git", "version": "master", "resolved_version": "743d24f80c77d2769af5af7306f2ab3af177ac84" },
+    { "name": "rsyslog", "type": "git", "source": "git@github.com:saz/puppet-rsyslog.git", "version": "v3.4.0", "resolved_version": "e6dddeec8b71cda20d3a682af7b973e3027f4f01" },
+    { "name": "logrotate", "type": "git", "source": "git@github.com:rodjek/puppet-logrotate.git", "version": "e5464e8646b0877eb6cd2dd43c5117149bd35c14", "resolved_version": "e5464e8646b0877eb6cd2dd43c5117149bd35c14" }
   ]
 }
 ```
