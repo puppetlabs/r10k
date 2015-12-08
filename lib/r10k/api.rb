@@ -7,12 +7,12 @@ module R10K
   #   envmap = R10K::API.parse_puppetfile(puppetfile)
   #
   #   R10K::API.sources_for_environment(envmap).each do |source|
-  #     R10K::API.update_cache!(source)
+  #     R10K::API.update_cache(source)
   #   end
   #
   #   envmap = R10K::API.resolve_environment(envmap)
   #
-  #   R10K::API.write_environment!(envmap, ops_source.path_for("production"))
+  #   R10K::API.write_environment(envmap, ops_source.path_for("production"))
   #
   module API
     extend R10K::Logging
@@ -64,17 +64,17 @@ module R10K
     # @param source_map [Hash] A hashmap representing a single remote module source (as produced by {#sources_for_environment})
     # @return [true] Returns true on success, raises on failure.
     # @raise [RuntimeError] Something bad happened!
-    def update_cache!(source_map)
+    def update_cache(source_map)
     end
 
     # Update local cache of the given remote VCS repository.
     #
-    # @param origin [String] URI for the remote repository which should be cached or updated.
+    # @param remote [String] URI for the remote repository which should be cached or updated.
     # @param opts [Hash] Additional options as defined.
     # @option opts [String] :cachedir Base path where caches are stored.
     # @return [true] Returns true on success, raises on failure.
     # @raise [RuntimeError] Something bad happened!
-    def update_vcs_cache!(origin, opts={})
+    def update_vcs_cache(remote, opts={})
     end
 
     # Update local cache of the given module from the Puppet Forge.
@@ -86,7 +86,7 @@ module R10K
     # @option opts [String] :baseurl The URL to the Puppet Forge to use for downloading modules.
     # @return [true] Returns true on success, raises on failure.
     # @raise [RuntimeError] Something bad happened!
-    def update_forge_cache!(module_slug, opts={})
+    def update_forge_cache(module_slug, opts={})
     end
 
 
@@ -98,9 +98,20 @@ module R10K
     # This function assumes that all relevant caches have already been updated.
     #
     # @param env_map [Hash] A hashmap representing a single environment's desired state.
-    # @return [Hash] A copy of env_map with any ambiguous module versions or ranges replaced with specific versions and a :resolved_at timestamp added.
+    # @return [Hash] A copy of env_map with :resolved_version key/value pairs added to each module and a :resolved_at timestamp added.
     def resolve_environment(env_map)
     end
+
+
+    # Given a map representing a single module from an environment map, resolve any ambiguity in the module version.
+    #
+    # This function assumes that the relevant cache has already been updated.
+    #
+    # @param module_map [Hash] A hashmap representing a single module entry from an environment map.
+    # @return [Hash] A copy of module_map with a new :resolved_version key/value pair added.
+    def resolve_module(module_map)
+    end
+
 
     # Given an environment map, write the base environment and all Puppetfile declared modules to disk at the given path.
     #
@@ -109,7 +120,7 @@ module R10K
     # @param opts [Hash] Additional options as defined.
     # @return [true] Returns true on success, raises on failure.
     # @raise [RuntimeError] Something bad happened!
-    def write_environment!(env_map, path, opts={})
+    def write_environment(env_map, path, opts={})
     end
 
     # Given an environment map, write the base environment only (not any Puppetfile declared modules) to disk at the given path.
@@ -119,18 +130,18 @@ module R10K
     # @param opts [Hash] Additional options as defined.
     # @return [true] Returns true on success, raises on failure.
     # @raise [RuntimeError] Something bad happened!
-    def write_env_base!(env_map, path, opts={})
+    def write_env_base(env_map, path, opts={})
     end
 
     # Write the given module, using the version/commit declared in the given environment map, to disk at the given path.
     #
-    # @param module_slug [String] Hyphen separated namespace and module name of the module to be written to disk. (E.g. "puppetlabs-apache")
+    # @param module_name [String] Name of the module to be written to disk, should match the value of the "name" key in the supplied environment map.
     # @param env_map [Hash] A fully-resolved (see {#resolve_environment}) hashmap representing a single environment's new state.
     # @param path [String] Path on disk into which the given module should be deployed. The given path should already include the environment's name. (e.g. /puppet/environments/production not /puppet/environments) Path will be created if it does not already exist.
     # @param opts [Hash] Additional options as defined.
     # @return [true] Returns true on success, raises on failure.
     # @raise [RuntimeError] Something bad happened!
-    def write_module!(module_slug, env_map, path, opts={})
+    def write_module(module_name, env_map, path, opts={})
     end
 
 
@@ -141,7 +152,7 @@ module R10K
     # @param opts [Hash] Additional options as defined.
     # @return [true] Returns true on success, raises on failure.
     # @raise [RuntimeError] Something bad happened!
-    def purge_unmanaged_environments!(base_path, env_list, opts={})
+    def purge_unmanaged_environments(base_path, env_list, opts={})
     end
 
     # Remove any deployed modules from the given path that do not exist in the given environment map.
@@ -151,7 +162,7 @@ module R10K
     # @param opts [Hash] Additional options as defined.
     # @return [true] Returns true on success, raises on failure.
     # @raise [RuntimeError] Something bad happened!
-    def purge_unmanaged_modules!(env_path, env_map, opts={})
+    def purge_unmanaged_modules(env_path, env_map, opts={})
     end
 
     private
