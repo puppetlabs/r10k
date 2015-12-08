@@ -6,8 +6,8 @@ module R10K
   #   puppetfile = R10K::API.get_puppetfile(ops_source.to_hash, "production")
   #   envmap = R10K::API.parse_puppetfile(puppetfile)
   #
-  #   R10K::API.sources_for_environment(envmap).each do |source|
-  #     R10K::API.update_cache(source)
+  #   R10K::API.module_sources_for_environment(envmap).each do |src|
+  #     R10K::API.update_cache(src)
   #   end
   #
   #   envmap = R10K::API.resolve_environment(envmap)
@@ -51,20 +51,27 @@ module R10K
     def parse_environmentdir(path)
     end
 
+    # Return a single module_source hashmap for the given module_name from the given env_map.
+    #
+    # @param module_name [String] The name of the module to build a module_source map for. Should match the "name" key of the target module in the env_map.
+    # @param env_map [Hash] A hashmap representing a single environment's desired state.
+    # @return [Hash] A hashmap representing the type (:vcs or :forge) and location of the given module's source.
+    def module_source_for_module(module_name, env_map)
+    end
+
     # Return an array of all remote sources referenced by module declarations within the given environment hashmap.
     #
     # @param env_map [Hash] A hashmap representing a single environment's state.
     # @return [Array<Hash>] An array of hashes, each hash represents the type (:vcs or :forge) and location of a single remote module source.
-    def sources_for_environment(env_map)
+    def module_sources_for_environment(env_map)
     end
 
-
-    # Update local cache represented by the given source hashmap.
+    # Update local cache represented by the given module_source hashmap.
     #
-    # @param source_map [Hash] A hashmap representing a single remote module source (as produced by {#sources_for_environment})
+    # @param module_source [Hash] A hashmap representing a single remote module source (as produced by {#module_sources_for_environment})
     # @return [true] Returns true on success, raises on failure.
     # @raise [RuntimeError] Something bad happened!
-    def update_cache(source_map)
+    def update_cache(module_source)
     end
 
     # Update local cache of the given remote VCS repository.
@@ -89,7 +96,6 @@ module R10K
     def update_forge_cache(module_slug, opts={})
     end
 
-
     # Given an environment map, returns a new environment map with any ambiguous module versions (e.g. branch names, version ranges, etc.)
     # resolved to specific versions (or commit SHAs).
     #
@@ -102,16 +108,15 @@ module R10K
     def resolve_environment(env_map)
     end
 
-
-    # Given a map representing a single module from an environment map, resolve any ambiguity in the module version.
+    # Given a module_name and an env_map, resolve any ambiguity in the specified module's version. (All other modules in the env_map will be unchanged.)
     #
-    # This function assumes that the relevant cache has already been updated.
+    # This function assumes that the relevant module cache has already been updated.
     #
-    # @param module_map [Hash] A hashmap representing a single module entry from an environment map.
-    # @return [Hash] A copy of module_map with a new :resolved_version key/value pair added.
-    def resolve_module(module_map)
+    # @param module_name [String] Name of the module to be resolved, should match the value of the "name" key in the supplied environment map.
+    # @param env_map [Hash] A hashmap representing a single environment's desired state.
+    # @return [Hash] A copy of env_map with a new :resolved_version key/value pair added for the specified module.
+    def resolve_module(module_name, env_map)
     end
-
 
     # Given an environment map, write the base environment and all Puppetfile declared modules to disk at the given path.
     #
@@ -144,7 +149,6 @@ module R10K
     def write_module(module_name, env_map, path, opts={})
     end
 
-
     # Remove any deployed environments from the given path that do not exist in the given environment list.
     #
     # @param base_path [String] Path on disk to the base environmentdir from which to remove environments.
@@ -163,6 +167,47 @@ module R10K
     # @return [true] Returns true on success, raises on failure.
     # @raise [RuntimeError] Something bad happened!
     def purge_unmanaged_modules(env_path, env_map, opts={})
+    end
+
+
+    # End-to-end integrated functions.
+
+    # Deploy an environment and all its modules into the given path, automatically updating module sources as needed.
+    #
+    # @param env_map [Hash] An abstract or resolved environment map.
+    # @param path [String] Path on disk into which the given environment should be deployed. The given path should already include the environment's name. (e.g. /puppet/environments/production not /puppet/environments) Path will be created if it does not already exist.
+    # @param opts [Hash] Additional options as defined.
+    # @option opts [Boolean] :purge Whether or not to purge unmanaged modules in the given environment path after deploy. Default: false
+    # @return [true] Returns true on success, raises on failure.
+    # @raise [RuntimeError] Something bad happened!
+    def deploy_environment(env_map, path, opts={})
+      R10K::API.module_sources_for_environment(env_map).each do |src|
+        R10K::API.update_cache(src)
+      end
+
+      env_map = R10K::API.resolve_environment(env_map)
+
+      R10K::API.write_environment(env_map, path)
+
+      if opts[:purge]
+        R10K::API.purge_unmanaged_modules(path, env_map)
+      end
+    end
+
+    # Deploy a single module into a given environment path, updating module cache as needed.
+    #
+    # @param module_name [String] Name of the module to be deployed, should match the value of the "name" key in the supplied environment map.
+    # @param env_map [Hash] A hashmap representing a single environment's desired state.
+    # @param path [String] Path on disk to the environment into which the given module should be deployed. The given path should already include the environment's name. (e.g. /puppet/environments/production not /puppet/environments) Path will be created if it does not already exist.
+    # @param opts [Hash] Additional options as defined.
+    # @return [true] Returns true on success, raises on failure.
+    # @raise [RuntimeError] Something bad happened!
+    def deploy_module_into_env(module_name, env_map, path, opts={})
+      R10K::API.update_cache(R10K::API.module_source_for_module(module_name, env_map))
+
+      env_map = R10K::API.resolve_module(module_name, env_map)
+
+      R10K::API.write_module(module_name, env_map, path)
     end
 
     private
