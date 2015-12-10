@@ -1,0 +1,14 @@
+# Fixture Puppetfile with only valid Forge module declarations
+
+# unpinned, slash seperator
+mod 'puppetlabs/apache'
+
+# unpinned, hyphen seperator
+mod 'puppetlabs-mysql'
+
+# version pinned
+mod 'puppetlabs/stdlib', '4.10.0'
+
+# track latest
+mod 'puppetlabs/vcsrepo', :latest
+

@@ -18,6 +18,10 @@ class R10K::Source::SVN < R10K::Source::Base
 
   R10K::Source.register(:svn, self)
 
+  # @!attribute [r] type
+  #   @return [:svn] The type of this control repo source
+  attr_reader :type
+
   # @!attribute [r] remote
   #   @return [String] The URL to the base directory of the SVN repository
   attr_reader :remote
@@ -53,6 +57,7 @@ class R10K::Source::SVN < R10K::Source::Base
   def initialize(name, basedir, options = {})
     super
 
+    @type = :svn
     setopts(options, {:remote => :self, :username => :self, :password => :self})
     @environments = []
     @svn_remote = R10K::SVN::Remote.new(@remote, :username => @username, :password => @password)

@@ -1,0 +1,25 @@
+# Fixture Puppetfile containing only valid SVN module declarations
+
+# Track trunk (master)
+mod 'apache',
+  :svn => 'https://github.com/puppetlabs/puppetlabs-apache/trunk'
+
+# Pin trunk at revision using "rev"
+mod 'stdlib',
+  :svn => 'https://github.com/puppetlabs/puppetlabs-stdlib/trunk',
+  :rev => '2365'
+
+# Pin trunk at revision using "revision"
+mod 'mysql',
+  :svn      => 'https://github.com/puppetlabs/puppetlabs-mysql/trunk',
+  :revision => '1344'
+
+# Track trunk with credentials, (note these credentials are not valid)
+mod 'vcsrepo',
+  :svn      => 'https://github.com/puppetlabs/puppetlabs-vcsrepo/trunk',
+  :username => 'fixtureuser',
+  :password => 'invalid'
+
+# Track svn branch
+mod 'concat',
+  :svn      => 'https://github.com/puppetlabs/puppetlabs-concat/branches/2.0.x'

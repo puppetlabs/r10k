@@ -13,6 +13,36 @@ class R10K::Module::Git < R10K::Module::Base
     false
   end
 
+  def self.parse_options(options)
+    parsed = {}
+
+    parsed[:remote] = options.delete(:git)
+
+    if options[:branch]
+      ref = options.delete(:branch)
+    end
+
+    if options[:tag]
+      ref = options.delete(:tag)
+    end
+
+    if options[:commit]
+      ref = options.delete(:commit)
+    end
+
+    if options[:ref]
+      ref = options.delete(:ref)
+    end
+
+    parsed[:ref] = ref || 'master'
+
+    unless options.empty?
+      raise ArgumentError, "Unhandled options #{options.keys.inspect} specified for #{self}"
+    end
+
+    return parsed
+  end
+
   # @!attribute [r] repo
   #   @api private
   #   @return [R10K::Git::StatefulRepository]
@@ -20,7 +50,7 @@ class R10K::Module::Git < R10K::Module::Base
 
   def initialize(title, dirname, args)
     super
-    parse_options(@args)
+    @remote, @ref = self.class.parse_options(@args).values_at(:remote, :ref)
     @repo = R10K::Git::StatefulRepository.new(@ref, @remote, @dirname, @name)
   end
 
@@ -39,32 +69,4 @@ class R10K::Module::Git < R10K::Module::Base
   extend Forwardable
 
   def_delegators :@repo, :sync, :status
-
-  private
-
-  def parse_options(options)
-    @remote = options.delete(:git)
-
-    if options[:branch]
-      @ref = options.delete(:branch)
-    end
-
-    if options[:tag]
-      @ref = options.delete(:tag)
-    end
-
-    if options[:commit]
-      @ref = options.delete(:commit)
-    end
-
-    if options[:ref]
-      @ref = options.delete(:ref)
-    end
-
-    @ref ||= 'master'
-
-    unless options.empty?
-      raise ArgumentError, "Unhandled options #{options.keys.inspect} specified for #{self.class}"
-    end
-  end
 end

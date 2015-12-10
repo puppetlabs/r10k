@@ -1,9 +1,16 @@
+require 'r10k/api/envmap_builder'
+
+require 'r10k/logging'
+require 'r10k/git'
+require 'r10k/svn/remote'
+require 'r10k/puppetfile'
+
 module R10K
   # A low-level interface for triggering r10k operations.
   #
   # @example Parse a Puppetfile and deploy the environment it represents:
   #   # Given "ops_source" is an instance of R10K::Source
-  #   puppetfile = R10K::API.get_puppetfile(ops_source.to_hash, "production")
+  #   puppetfile = R10K::API.get_puppetfile(ops_source.type, ops_source.cache.path, "production")
   #   envmap = R10K::API.parse_puppetfile(puppetfile)
   #
   #   R10K::API.module_sources_for_environment(envmap).each do |src|
@@ -17,30 +24,73 @@ module R10K
   module API
     extend R10K::Logging
 
-    extend self # TODO: split functions up into submodules and extend those instead?
+    # TODO: split functions up into submodules and extend those instead?
+    extend self
 
-    # Returns the contents of Puppetfile inside the given control repo source at the given version. Assumes source repo cache has already been updated.
+
+    # Returns the contents of Puppetfile inside the given control repo source at the given version. Assumes source repo cache has already been updated if applicable.
     #
-    # @param source [Hash] An hash representation of an R10K::Source style control repo as defined in r10k.yaml.
-    # @param version [String] Commit-ish reference to the version of the Puppetfile to extract. (For Git repos, accepts anything rev-parse would understand, e.g. "abc123", "production", "1.0.3", etc.)
+    # @param source_type [:git, :svn] Format of control repo source.
+    # @param source_cache_or_remote [String] Path to Git control repo cache or URL of SVN remote.
+    # @param version [String] Commit-ish reference to the version of the Puppetfile to extract. (For Git repos, accepts anything rev-parse would understand, e.g. "abc123", "production", "1.0.3", etc. For SVN repos, must be a branch name.)
     # @param base_path [String] Path, relative to the root of the control repo, at which the Puppetfile can be found.
     # @return [String] Return contents of Puppetfile at given commit, raises on failure.
     # @raise [RuntimeError] Something bad happened!
-    def get_puppetfile(source, version, base_path="")
+    def get_puppetfile(source_type, source_cache_or_remote, version, base_path="")
+      # Strip the leading slash to make a path relative to the root of the repo.
+      puppetfile_path = File.join(base_path, "Puppetfile").sub(/^\/+/, '')
+
+      case source_type.to_sym
+      when :git
+        return R10K::Git.bare_repository.new(source_cache_or_remote, '').blob_at(version, puppetfile_path)
+      when :svn
+        if version == 'production'
+          repo_path = "trunk/#{puppetfile_path}"
+        else
+          repo_path = "branches/#{version}/#{puppetfile_path}"
+        end
+
+        return R10K::SVN::Remote.new(source_cache_or_remote).cat(repo_path)
+      end
     end
 
-    # Creates an abstract environment hashmap from the given Puppetfile.
+    # Creates the modules portion of an abstract environment hashmap from the given Puppetfile.
     #
     # @param io_or_path [#read, String] A readable stream of Puppetfile contents or a String path to a Puppetfile on disk.
-    # @return [Hash] A hashmap representing the desired environment state as specified in the passed in Puppetfile.
+    # @return [Hash] A hashmap representing the desired state of modules as specified in the passed in Puppetfile.
+    # @raise RuntimeError
     def parse_puppetfile(io_or_path)
+      builder = R10K::API::EnvmapBuilder.new
+      parser = R10K::Puppetfile::DSL.new(builder)
+
+      if io_or_path.respond_to?(:read)
+        parser.instance_eval(io_or_path.read)
+      else
+        File.open(io_or_path, 'r') do |fh|
+          parser.instance_eval(fh.read)
+        end
+      end
+
+      return { :modules => builder.build }
     end
 
     # Creates a resolved environment hashmap representing the actual state of the Puppet environment found at the given path.
     #
     # @param path [String] Path on disk of the Puppet environment to be inspected.
+    # @param moduledir [String] The path, relative to the environment path, where the modules are deployed.
     # @return [Hash] A hashmap representing the actual state of the environment found at path.
-    def parse_deployed_env(path)
+    # @raise RuntimeError
+    def parse_deployed_env(path, moduledir="modules")
+      env_name = path.split(File::SEPARATOR).last
+
+      env_data = case
+      when File.directory?(File.join(path, '.git')) then parse_deployed_git_env(path, moduledir)
+      when File.directory?(File.join(path, '.svn')) then parse_deployed_svn_env(path, moduledir)
+      else
+        raise RuntimeError, "unrecognized deployed environment format"
+      end
+
+      return { :environment => env_name }.merge(env_data)
     end
 
     # Discover every Puppet environment under the given path and return a single hashmap containing the actual state
@@ -212,5 +262,55 @@ module R10K
 
     private
 
+
+    def parse_deployed_git_env(path, moduledir)
+      env_repo = R10K::Git.provider::WorkingRepository.new(path, '')
+
+      env_data = {
+        :source => {
+          :type => :git,
+          :remote => env_repo.origin,
+          :branch => nil, # TODO: store and extract from .r10k-deploy.json?
+        },
+        :version => env_repo.head,
+        :resolved_at => nil, # TODO: Extract from .r10k-deploy.json? or current time?
+      }
+
+      # Add :modules declared in Puppetfile
+      env_data.merge!(self.parse_puppetfile(File.join(path, "Puppetfile")))
+
+      # Find the deployed version of each module.
+      env_data[:modules].map! do |mod|
+        mod_path = File.join(path, moduledir, mod[:name])
+        mod.merge(parse_deployed_module(mod_path, mod[:type]))
+      end
+
+      return env_data
+    end
+
+    def parse_deployed_svn_env(path, moduledir)
+      raise NotImplementedError
+    end
+
+    def parse_deployed_module(path, type)
+      mod = {}
+
+      case type
+      when :git
+        git_head = File.join(path, '.git', 'HEAD')
+
+        if File.exists?(git_head)
+          mod[:resolved_version] = File.read(git_head).strip
+        end
+      when :svn
+        # TODO
+      when :forge
+        # TODO: parse metadata.json/Modulefile?
+      else
+        raise RuntimeError, "unrecognized module type"
+      end
+
+      return mod
+    end
   end
 end
