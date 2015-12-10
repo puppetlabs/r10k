@@ -18,4 +18,16 @@ describe R10K::SVN::Remote do
       expect(subject.branches).to eq(%w[apache dns robobutler staging])
     end
   end
+
+  describe "extracting file contents" do
+    it "returns contents at given path as string" do
+      allow(subject).to receive(:svn).with(['cat', 'https://svn-server.site/repo/trunk/Puppetfile']).and_return("Puppetfile Contents")
+      expect(subject.cat('trunk/Puppetfile')).to eq("Puppetfile Contents")
+    end
+
+    it "extracts file at specific revision when given" do
+      allow(subject).to receive(:svn).with(['cat', '-r 20', 'https://svn-server.site/repo/trunk/Puppetfile']).and_return("Puppetfile Contents at r20")
+      expect(subject.cat('trunk/Puppetfile', 20)).to eq("Puppetfile Contents at r20")
+    end
+  end
 end

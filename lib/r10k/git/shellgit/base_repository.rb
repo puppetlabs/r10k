@@ -1,5 +1,6 @@
 require 'r10k/git/shellgit'
 require 'r10k/logging'
+require 'r10k/util/subprocess'
 
 class R10K::Git::ShellGit::BaseRepository
 

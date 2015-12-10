@@ -31,4 +31,10 @@ class R10K::Git::ShellGit::BareRepository < R10K::Git::ShellGit::BaseRepository
   def exist?
     @path.exist?
   end
+
+  def blob_at(treeish, path)
+    result = git ['show', "#{treeish}:#{path}"], :git_dir => git_dir.to_s
+
+    result.success? ? result.stdout.strip : nil
+  end
 end

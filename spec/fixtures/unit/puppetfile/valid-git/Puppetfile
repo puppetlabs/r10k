@@ -1,0 +1,26 @@
+# Fixture Puppetfile with only valid git module declarations.
+
+# implicit ref => 'master'
+mod 'apache',
+  :git => 'https://github.com/puppetlabs/puppetlabs-apache'
+
+# Track branch via 'ref' option
+mod 'stdlib',
+  :git => 'https://github.com/puppetlabs/puppetlabs-stdlib',
+  :ref => '4.10.x'
+
+# Track branch via 'branch' option
+mod 'vcsrepo',
+  :git    => 'https://github.com/puppetlabs/puppetlabs-vcsrepo',
+  :branch => '1.3.x'
+
+# Pin to tag
+mod 'apt',
+  :git => 'https://github.com/puppetlabs/puppetlabs-apt',
+  :tag => '2.2.1'
+
+# Pin to commit
+mod 'concat',
+  :git    => 'https://github.com/puppetlabs/puppetlabs-concat',
+  :commit => 'ca98a145ca4374383dc33db7119fb0b5364e736f'
+
