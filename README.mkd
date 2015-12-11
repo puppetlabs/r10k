@@ -77,6 +77,7 @@ Puppetfile, and managing Git and SVN based dynamic environments. For more
 information see the topic specific documentation:
 
   * [Puppetfile Documentation](doc/puppetfile.mkd)
+   * [Updating your Puppetfile](doc/updating-your-puppetfile.mkd)
   * [Environment Deployment Documentation](doc/dynamic-environments.mkd)
   * [Quickstart](doc/dynamic-environments/quickstart.mkd)
   * [Common Patterns](doc/common-patterns.mkd)
