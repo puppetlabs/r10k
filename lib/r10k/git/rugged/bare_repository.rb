@@ -88,4 +88,19 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
       end
     end
   end
+
+  def blob_at(treeish, path)
+    blob = nil
+
+    with_repo do |repo|
+      object = repo.rev_parse(treeish)
+
+      # Resolve tag annotations to the underlying commit.
+      sha = object.respond_to?(:target_oid) ? object.target_oid : object.oid
+
+      blob = repo.blob_at(sha, path)
+    end
+
+    blob.content.strip
+  end
 end

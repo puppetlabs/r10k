@@ -67,4 +67,30 @@ RSpec.shared_examples "a git bare repository" do
       expect(subject.ref_type('1.2.3')).to eq :unknown
     end
   end
+
+  describe "extracting file contents at revision" do
+    before do
+      subject.clone(remote)
+    end
+
+    it "can extract at a branch ref" do
+      content = subject.blob_at('0.9.x', 'Modulefile')
+      expect(content.size).to eq 439
+    end
+
+    it "can extract at a full SHA ref" do
+      content = subject.blob_at('baa30e4d34b83187624335236cc91ecb18d9ceff', 'README.markdown')
+      expect(content.size).to eq 2360
+    end
+
+    it "can extract at a short SHA ref" do
+      content = subject.blob_at('baa30e4', 'README.markdown')
+      expect(content.size).to eq 2360
+    end
+
+    it "can extract at a tag ref" do
+      content = subject.blob_at('0.9.0-rc1', 'Modulefile')
+      expect(content.size).to eq 443
+    end
+  end
 end
