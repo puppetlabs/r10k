@@ -56,19 +56,17 @@ module R10K
 
     # Creates the modules portion of an abstract environment hashmap from the given Puppetfile.
     #
-    # @param io_or_path [#read, String] A readable stream of Puppetfile contents or a String path to a Puppetfile on disk.
+    # @param io_or_path [#read, String] A readable stream or String of Puppetfile contents.
     # @return [Hash] A hashmap representing the desired state of modules as specified in the passed in Puppetfile.
     # @raise RuntimeError
-    def parse_puppetfile(io_or_path)
+    def parse_puppetfile(io_or_content)
       builder = R10K::API::EnvmapBuilder.new
       parser = R10K::Puppetfile::DSL.new(builder)
 
-      if io_or_path.respond_to?(:read)
-        parser.instance_eval(io_or_path.read)
+      if io_or_content.respond_to?(:read)
+        parser.instance_eval(io_or_content.read)
       else
-        File.open(io_or_path, 'r') do |fh|
-          parser.instance_eval(fh.read)
-        end
+        parser.instance_eval(io_or_content)
       end
 
       return { :modules => builder.build }
