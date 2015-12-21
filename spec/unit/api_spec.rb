@@ -67,16 +67,12 @@ RSpec.describe R10K::API do
       expect(subject.parse_puppetfile(@io)).to eq({ :modules => @modules })
     end
 
-    it "reads from a File when passed a non-IO" do
-      @path = "/tmp/Puppetfile"
-      @fh = double(:fh)
+    it "parses directly as string when passed a non-IO" do
       @puppetfile_content = "Puppetfile from file!"
 
-      expect(File).to receive(:open).with(@path, 'r').and_yield(@fh)
-      expect(@fh).to receive(:read).and_return(@puppetfile_content)
       expect(@parser).to receive(:instance_eval).with(@puppetfile_content)
 
-      expect(subject.parse_puppetfile(@path)).to eq({ :modules => @modules })
+      expect(subject.parse_puppetfile(@puppetfile_content)).to eq({ :modules => @modules })
     end
   end
 
