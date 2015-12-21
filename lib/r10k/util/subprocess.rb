@@ -74,7 +74,7 @@ module R10K
         logger.debug2("Finished process:\n#{result.format}")
 
         if @raise_on_fail && result.failed?
-          raise SubprocessError.new("Command exited with non-zero exit code", :result => result)
+          raise SubprocessError.new("Command exited with non-zero exit code: #{result.stderr}", :result => result)
         end
 
         result
