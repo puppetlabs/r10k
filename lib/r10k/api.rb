@@ -95,8 +95,19 @@ module R10K
     # of every environment found.
     #
     # @param path [String] Path on disk to search for Puppet environments.
+    # @param moduledir [String] The path, relative to the environment path, where the modules are deployed.
     # @return [Array<Hash>] An array of hashmaps, each representing the actual state of a single environment found in environmentdir.
-    def parse_environmentdir(path)
+    def parse_environmentdir(path, moduledir="modules")
+      deployed_env_states = []
+
+      if path
+        deployed_envs = Dir.glob(File.join(path, '*')).select {|f| File.directory? f}
+        deployed_envs.each do |env_dir|
+          deployed_env_states << parse_deployed_env(env_dir, moduledir)
+        end
+      end
+
+      return deployed_env_states
     end
 
     # Return a single module_source hashmap for the given module_name from the given env_map.
