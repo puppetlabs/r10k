@@ -114,7 +114,32 @@ RSpec.describe R10K::API do
     end
   end
 
-  describe ".parse_deployed_git_evn" do
+  describe ".parse_environmentdir" do
+
+    it "calls parse_deployed_env on each dir in the path" do
+      env_path = '/tmp/environments'
+      parse_env_a = '/dir_a'
+      parse_env_b = '/dir_b'
+      deployed_envs = [parse_env_a, parse_env_b]
+      mock_envmap_a = { :mock => :a_envmap }
+      mock_envmap_b = { :mock => :b_envmap }
+      mock_envmaps = [mock_envmap_a, mock_envmap_b]
+      moduledir = "mods"
+      allow(Dir).to receive(:glob).with(/#{env_path}/).and_return(deployed_envs)
+      allow(File).to receive(:directory?).with(Regexp.union(deployed_envs)).and_return(true)
+      expect(R10K::API).to receive(:parse_deployed_env).with(parse_env_a, moduledir).and_return(mock_envmap_a)
+      expect(R10K::API).to receive(:parse_deployed_env).with(parse_env_b, moduledir).and_return(mock_envmap_b)
+      expect(subject.parse_environmentdir(env_path, moduledir)).to eq(mock_envmaps)
+    end
+
+    it "returns an empty array if the environment dir is empty" do
+      empty_env_path = '/tmp/no_environments'
+      allow(Dir).to receive(:glob).with(/#{empty_env_path}/).and_return([])
+      expect(subject.parse_environmentdir(empty_env_path)).to eq([])
+    end
+  end
+
+  describe ".parse_deployed_git_env" do
     pending
   end
 
