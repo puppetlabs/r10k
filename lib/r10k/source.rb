@@ -33,6 +33,7 @@ module R10K
 
     require 'r10k/source/base'
     require 'r10k/source/git'
+    require 'r10k/source/hg'
     require 'r10k/source/svn'
   end
 end
