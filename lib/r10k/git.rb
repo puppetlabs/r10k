@@ -8,6 +8,7 @@ module R10K
   module Git
     require 'r10k/git/shellgit'
     require 'r10k/git/rugged'
+    require 'r10k/git/rjgit'
 
     extend R10K::Logging
 
@@ -32,6 +33,12 @@ module R10K
               end
             end
           end
+        }
+      ],
+      [ :rjgit,
+        {
+          :feature => :rjgit,
+          :module  => R10K::Git::RJGit,
         }
       ],
     ]

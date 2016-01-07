@@ -23,6 +23,10 @@ module R10K
       private
 
       def self.provider
+        if R10K::Features.available?(:rjgit)
+          R10K::Git.provider = :rjgit
+        end
+
         R10K::Git.provider
       end
       private_class_method :provider
