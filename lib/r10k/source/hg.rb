@@ -5,20 +5,14 @@ require 'r10k/environment/name'
 
 # This class implements a source for Git environments.
 #
-# A Git source generates environments by locally caching the given Git
-# repository and enumerating the branches for the Git repository. Branches
+# A Mercurial source generates environments by locally caching the given Mercurial
+# repository and enumerating the branches for the Mercurial repository. Branches
 # are mapped to environments without modification.
-#
-# @since 1.3.0
 class R10K::Source::Hg < R10K::Source::Base
 
   include R10K::Logging
 
   R10K::Source.register(:hg, self)
-
-  # @!attribute [r] type
-  #   @return [:hg] The type of this control repo source
-  attr_reader :type
 
   # @!attribute [r] remote
   #   @return [String] The URL to the remote Mercurial repository
@@ -56,7 +50,6 @@ class R10K::Source::Hg < R10K::Source::Base
 
     @environments = []
 
-    @type             = :hg
     @remote           = options[:remote]
     @invalid_branches = (options[:invalid_branches] || 'correct_and_warn')
 
