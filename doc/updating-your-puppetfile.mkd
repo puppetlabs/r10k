@@ -14,7 +14,7 @@ You can manually update your Puppetfile very easily. By visiting the module's ho
     # New
     mod 'puppetlabs/apache', '1.0.0'
 
-When using a module directly from a git/svn repo, the `:tag` or `:ref` should be updated:
+When using a module directly from a git/hg/svn repo, the `:tag` or `:ref` should be updated:
 
     # Original
     mod 'apache',

@@ -29,6 +29,7 @@ environments and modules.
   - Installing modules from the Puppet Forge requires Puppet 3.0.0+ or later.
   Puppet 2.7 may work, but is generally not recommended as Puppet 2.7 is EOL.
   - Git is required for creating environments and modules from Git
+  - Mercurial is required for creating environments and modules from Mercurial
   - SVN is required for creating environments and modules from SVN
 
 Installation
@@ -73,7 +74,7 @@ Usage
 -----
 
 R10k has two primary roles: installing Puppet modules using a standalone
-Puppetfile, and managing Git and SVN based dynamic environments. For more
+Puppetfile, and managing Git, Mercurial and SVN based dynamic environments. For more
 information see the topic specific documentation:
 
   * [Puppetfile Documentation](doc/puppetfile.mkd)
