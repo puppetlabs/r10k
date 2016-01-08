@@ -110,7 +110,7 @@ class R10K::Source::Hg < R10K::Source::Base
 
   def branch_names
     opts = {:prefix => @prefix, :invalid => @invalid_branches, :source => @name}
-    @cache.branches.map do |branch|
+    (@cache.branches + @cache.bookmarks).map do |branch|
       R10K::Environment::Name.new(branch, opts)
     end
   end
