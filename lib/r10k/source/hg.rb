@@ -83,16 +83,16 @@ class R10K::Source::Hg < R10K::Source::Base
 
   def generate_environments
     envs = []
-    branch_names.each do |bn|
-      if bn.valid?
-        envs << R10K::Environment::Hg.new(bn.name, @basedir, bn.dirname,
-                                           {:remote => remote, :rev => bn.name})
-      elsif bn.correct?
-        logger.warn "Environment #{bn.name.inspect} contained non-word characters, correcting name to #{bn.dirname}"
-        envs << R10K::Environment::Hg.new(bn.name, @basedir, bn.dirname,
-                                           {:remote => remote, :rev => bn.name})
-      elsif bn.validate?
-        logger.error "Environment #{bn.name.inspect} contained non-word characters, ignoring it."
+    environment_names.each do |type, env|
+      if env.valid?
+        envs << R10K::Environment::Hg.new(env.name, @basedir, env.dirname,
+                                           {:remote => remote, :rev => env.name, :ref_type => type})
+      elsif env.correct?
+        logger.warn "Environment #{env.name.inspect} contained non-word characters, correcting name to #{env.dirname}"
+        envs << R10K::Environment::Hg.new(env.name, @basedir, env.dirname,
+                                           {:remote => remote, :rev => env.name, :ref_type => type})
+      elsif env.validate?
+        logger.error "Environment #{env.name.inspect} contained non-word characters, ignoring it."
       end
     end
 
@@ -108,10 +108,16 @@ class R10K::Source::Hg < R10K::Source::Base
 
   private
 
-  def branch_names
+  def environment_names
     opts = {:prefix => @prefix, :invalid => @invalid_branches, :source => @name}
-    (@cache.branches + @cache.bookmarks).map do |branch|
-      R10K::Environment::Name.new(branch, opts)
+    branches = @cache.branches.map do |branch|
+      [:branch, R10K::Environment::Name.new(branch, opts)]
     end
+
+    bookmarks = @cache.bookmarks.map do |branch|
+      [:bookmark, R10K::Environment::Name.new(branch, opts)]
+    end
+
+    branches + bookmarks
   end
 end

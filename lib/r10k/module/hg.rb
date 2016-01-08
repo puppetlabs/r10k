@@ -22,9 +22,7 @@ class R10K::Module::Hg < R10K::Module::Base
     parse_options(@args)
 
     repo_options = {}
-    if @branch
-      repo_options[:branch] = @branch
-    end
+    repo_options[:ref_type] = @ref_type if @ref_type
 
     @repo = R10K::Hg::StatefulRepository.new(@rev, @remote, @dirname, @name, repo_options)
   end
@@ -52,11 +50,12 @@ class R10K::Module::Hg < R10K::Module::Base
 
     if options[:branch]
       @rev = options.delete(:branch)
-      @branch = @rev
+      @ref_type = :branch
     end
 
     if options[:bookmark]
       @rev = options.delete(:bookmark)
+      @ref_type = :bookmark
     end
 
     if options[:tag]
@@ -73,7 +72,7 @@ class R10K::Module::Hg < R10K::Module::Base
 
     unless @rev
       @rev = 'default'
-      @branch = @rev
+      @ref_type = :branch
     end
 
     unless options.empty?
