@@ -2,6 +2,7 @@ require 'r10k/logging'
 
 require 'r10k/git'
 require 'r10k/git/cache'
+require 'r10k/hg/cache'
 
 require 'r10k/forge/module_release'
 
@@ -30,7 +31,10 @@ module R10K
           logger.warn("the purgedirs key in r10k.yaml is deprecated. it is currently ignored.")
         end
 
-        with_setting(:cachedir) { |value| R10K::Git::Cache.settings[:cache_root] = value }
+        with_setting(:cachedir) do |value|
+          R10K::Git::Cache.settings[:cache_root] = value
+          R10K::Hg::Cache.settings[:cache_root] = value
+        end
 
         with_setting(:git) { |value| GitInitializer.new(value).call }
         with_setting(:forge) { |value| ForgeInitializer.new(value).call }
