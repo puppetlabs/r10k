@@ -88,7 +88,7 @@ Module types
 ------------
 
 r10k can install Puppet modules from a number of different sources. Right now
-modules can be installed via Git, SVN, and from the Puppet Forge.
+modules can be installed via Git, Mercurial, SVN, and from the Puppet Forge.
 
 ### Git
 
@@ -151,6 +151,52 @@ If the version is set to :latest then the module will be always updated to the
 latest version available.
 
     mod 'puppetlabs/apache', :latest
+
+### Mercurial
+
+Mercurial repositories that contain a Puppet module can be cloned and used as modules.
+When Mercurial is used, the module version can be specified by using `:rev`, `:tag`,
+`:changeset`, `:branch` and `:bookmark`.
+
+When a module is installed using `:rev`, r10k uses some simple heuristics to
+determine the type of Mercurial object that should be checked out. This can be used
+with a Mercurial changeset, branch reference, or a tag.
+
+When a module is installed using `:tag` or `:changeset`, r10k assumes that the
+given object is a tag or changeset and can do some optimizations around fetching
+the object. If the tag or changeset is already available r10k will skip network
+operations when updating the repo, which can speed up install times.
+
+Module versions can also be specified using `:branch`. This behaves similarly to
+`:rev`. When is installed using `:branch`, r10k will only clone and pull that particular
+branch into each environment. This can reduce disk space usage in cases where the
+specified repository contains many branches.
+
+#### Examples
+
+    # Install puppetlabs/apache and keep it up to date with 'master'
+    mod 'apache',
+      :hg => 'https://github.com/puppetlabs/puppetlabs-apache'
+
+    # Install puppetlabs/apache and track the 'docs_experiment' branch
+    mod 'apache',
+      :hg => 'https://github.com/puppetlabs/puppetlabs-apache',
+      :rev => 'docs_experiment'
+
+    # Install puppetlabs/apache and pin to the '0.9.0' tag
+    mod 'apache',
+      :hg => 'https://github.com/puppetlabs/puppetlabs-apache',
+      :tag => '0.9.0'
+
+    # Install puppetlabs/apache and pin to the '83401079' commit
+    mod 'apache',
+      :hg    => 'https://github.com/puppetlabs/puppetlabs-apache',
+      :changeset => '83401079053dca11d61945bd9beef9ecf7576cbf'
+
+    # Install puppetlabs/apache and track the 'docs_experiment' branch
+    mod 'apache',
+      :hg    => 'https://github.com/puppetlabs/puppetlabs-apache',
+      :branch => 'docs_experiment'
 
 ### SVN
 
