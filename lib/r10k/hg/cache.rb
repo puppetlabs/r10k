@@ -1,4 +1,4 @@
-require 'r10k/hg/bare_repository'
+require 'r10k/hg/repository'
 
 require 'r10k/settings'
 require 'r10k/instance_cache'
@@ -34,22 +34,14 @@ class R10K::Hg::Cache
   # @return [Object] The concrete bare repository implementation to use for
   #   interacting with the cached Mercurial repository.
   def self.bare_repository
-    R10K::Hg::BareRepository
+
   end
 
   include R10K::Logging
 
   extend Forwardable
 
-  def_delegators :@repo, :hg_dir, :objects_dir, :branches, :tags, :exist?, :resolve, :ref_type
-
-  # @!attribute [r] path
-  #   @deprecated
-  #   @return [String] The path to the Mercurial cache repository
-  def path
-    logger.warn "#{self.class}#path is deprecated; use #hg_dir"
-    hg_dir
-  end
+  def_delegators :@repo, :path, :objects_dir, :branches, :tags, :exist?, :resolve, :ref_type
 
   # @!attribute [r] repo
   #   @api private
@@ -58,7 +50,7 @@ class R10K::Hg::Cache
   # @param remote [String] The URL of the Mercurial remote URL to cache.
   def initialize(remote)
     @remote = remote
-    @repo = self.class.bare_repository.new(settings[:cache_root], sanitized_dirname)
+    @repo = R10K::Hg::Repository.new(settings[:cache_root], sanitized_dirname, {:clone => {:noupdate => true}})
   end
 
   def sync
