@@ -21,7 +21,7 @@ class R10K::Environment::Hg < R10K::Environment::Base
   #   @return [R10K::Hg::StatefulRepository] The Mercurial repo backing this environment
   attr_reader :repo
 
-  # Initialize the given SVN environment.
+  # Initialize the given Mercurial environment.
   #
   # @param name [String] The unique name describing this environment.
   # @param basedir [String] The base directory where this environment will be created.
@@ -30,12 +30,13 @@ class R10K::Environment::Hg < R10K::Environment::Base
   #
   # @param options [String] :remote The URL to the remote Mercurial repository
   # @param options [String] :rev The Mercurial revision to use for this environment
+  # @param options [String] :ref_type :branch or :bookmark
   def initialize(name, basedir, dirname, options = {})
     super
     @remote = options[:remote]
     @rev    = options[:rev]
 
-    @repo = R10K::Hg::StatefulRepository.new(@rev, @remote, @basedir, @dirname, {:branch => name})
+    @repo = R10K::Hg::StatefulRepository.new(@rev, @remote, @basedir, @dirname, { :ref_type => options[:ref_type] })
   end
 
   # Clone or update the given Mercurial environment.

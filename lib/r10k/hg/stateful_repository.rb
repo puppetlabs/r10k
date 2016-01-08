@@ -28,13 +28,22 @@ class R10K::Hg::StatefulRepository
 
     @cache = R10K::Hg::Cache.generate(remote)
 
-    repo_options = {}
-    if repo_options[:branch]
-      repo_options[:clone] = {:branch => options[:branch]}
-      repo_options[:pull] = {:branch => options[:branch]}
-    else
-      repo_options[:clone] = {:rev => @rev}
-      repo_options[:pull] = {:rev => @rev}
+    case options[:ref_type]
+      when :branch
+        repo_options = {
+            :clone => {:branch => rev},
+            :pull => {:branch => rev}
+        }
+      when :bookmark
+        repo_options = {
+            :clone => {:rev => rev},
+            :pull => {:bookmark => rev}
+        }
+      else
+        repo_options = {
+            :clone => {:rev => rev},
+            :pull => {:rev => rev}
+        }
     end
 
     @repo = R10K::Hg::Repository.new(basedir, dirname, repo_options)

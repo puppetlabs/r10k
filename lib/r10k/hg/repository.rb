@@ -42,6 +42,7 @@ class R10K::Hg::Repository
 
     options = @options[:pull] || {}
     args << '--branch' << options[:branch] if options[:branch]
+    args << '--bookmark' << options[:bookmark] if options[:bookmark]
     args << '--rev' << options[:rev] if options[:rev]
 
     hg args, :path => path.to_s
