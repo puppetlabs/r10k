@@ -22,7 +22,9 @@ class R10K::Hg::Repository
     args = ['clone']
 
     options = @options[:clone] || {}
+
     args << '--branch' << options[:branch] if options[:branch]
+    args << '--rev' << options[:rev] if options[:rev]
 
     if opts[:rev]
       args << '--updaterev' << opts[:rev]
@@ -40,6 +42,7 @@ class R10K::Hg::Repository
 
     options = @options[:pull] || {}
     args << '--branch' << options[:branch] if options[:branch]
+    args << '--rev' << options[:rev] if options[:rev]
 
     hg args, :path => path.to_s
   end
