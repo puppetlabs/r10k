@@ -8,7 +8,7 @@ module R10K
 
       def initialize(mesg, options = {})
         super
-        hg_dir = @options[:hg_dir]
+        hg_dir = @options[path]
       end
 
       def message

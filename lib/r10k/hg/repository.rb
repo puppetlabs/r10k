@@ -2,16 +2,61 @@ require 'r10k/hg'
 require 'r10k/logging'
 require 'r10k/util/subprocess'
 
-class R10K::Hg::BaseRepository
+class R10K::Hg::Repository
+  # @attribute [r] path
+  #   @return [Pathname] The path to the Mercurial directory
+  attr_reader :path
 
-  # @abstract
-  # @return [Pathname] The path to the Mercurial directory
-  def hg_dir
-    raise NotImplementedError
+  # @param basedir [String] The base directory of the Mercurial repository
+  # @param dirname [String] The directory name of the Mercurial repository
+  def initialize(basedir, dirname, options = {})
+    @path = Pathname.new(File.join(basedir, dirname))
+    @options = options
+  end
+
+
+  def clone(remote, opts = {})
+    dest = path.to_s
+    FileUtils.mkdir_p dest unless File.exist?(dest)
+
+    args = ['clone']
+
+    options = @options[:clone] || {}
+    args << '--branch' << options[:branch] if options[:branch]
+
+    if opts[:rev]
+      args << '--updaterev' << opts[:rev]
+    elsif options[:noupdate]
+      args << '--noupdate'
+    end
+
+    args << remote << dest
+
+    hg args
+  end
+
+  def fetch
+    args = ['pull']
+
+    options = @options[:pull] || {}
+    args << '--branch' << options[:branch] if options[:branch]
+
+    hg args, :path => path.to_s
+  end
+
+  # Check out the given Mercurial revision
+  #
+  # @param ref [String] The Mercurial reference to check out
+  def checkout(rev)
+    hg ['checkout', rev], :path => path.to_s
+  end
+
+  def exist?
+    @path.exist?
   end
 
   def add_path(path_name, remote)
-    hgrc = File.join(hg_dir.to_s, '.hg/hgrc')
+    hgrc = File.join(path.to_s, '.hg/hgrc')
 
     hgrc_lines = File.readlines(hgrc)
 
@@ -33,21 +78,26 @@ class R10K::Hg::BaseRepository
   # @param pattern [String] The Mercurial revision to resolve
   # @return [String, nil] The commit SHA if the revision could be resolved, nil otherwise.
   def resolve(pattern)
-    result = hg ['log', '--rev', pattern, '--template', "{node}"], :path => hg_dir.to_s, :raise_on_fail => false
+    result = hg ['log', '--rev', pattern, '--template', "{node}"], :path => path.to_s, :raise_on_fail => false
     if result.success?
       result.stdout
     end
   end
 
+  # @return [String] The currently checked out ref
+  def head
+    resolve('.')
+  end
+
   # @return [Array<String>] All branches in this repository
   def branches
-    output = hg ['branches', '--template', '{branch}\n'], :path => hg_dir.to_s
+    output = hg ['branches', '--template', '{branch}\n'], :path => path.to_s
     output.stdout.split("\n")
   end
 
   # @return [Array<String>] All tags in this repository
   def tags
-    output = hg ['tags', '--template', '{tag}\n'], :path => hg_dir.to_s
+    output = hg ['tags', '--template', '{tag}\n'], :path => path.to_s
     output.stdout.split("\n")
   end
 
@@ -61,6 +111,14 @@ class R10K::Hg::BaseRepository
       :commit
     else
       :unknown
+    end
+  end
+
+  # @return [String] The origin remote URL
+  def resolve_path(path_name)
+    result = hg(['showconfig', "paths.#{path_name}"], :path => path.to_s, :raise_on_fail => false)
+    if result.success?
+      result.stdout
     end
   end
 
