@@ -55,12 +55,16 @@ class R10K::Module::Hg < R10K::Module::Base
       @branch = @rev
     end
 
+    if options[:bookmark]
+      @rev = options.delete(:bookmark)
+    end
+
     if options[:tag]
       @rev = options.delete(:tag)
     end
 
-    if options[:commit]
-      @rev = options.delete(:commit)
+    if options[:changeset]
+      @rev = options.delete(:changeset)
     end
 
     if options[:rev]

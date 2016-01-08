@@ -79,7 +79,7 @@ class R10K::Hg::StatefulRepository
       :mismatched
     elsif !(@repo.head == @cache.resolve(@rev))
       :outdated
-    elsif @cache.ref_type(@rev) == :branch && !@cache.synced?
+    elsif [:branch, :bookmark].include? @cache.ref_type(@rev) && !@cache.synced?
       :outdated
     else
       :insync
@@ -90,7 +90,7 @@ class R10K::Hg::StatefulRepository
   def sync_cache?
     return true if !@cache.exist?
     return true if !@cache.resolve(@rev)
-    return true if !([:commit, :tag].include? @cache.ref_type(@rev))
+    return true if !([:changeset, :tag].include? @cache.ref_type(@rev))
     return false
   end
 end

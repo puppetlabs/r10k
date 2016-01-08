@@ -41,7 +41,7 @@ class R10K::Hg::Cache
 
   extend Forwardable
 
-  def_delegators :@repo, :path, :objects_dir, :branches, :tags, :exist?, :resolve, :ref_type
+  def_delegators :@repo, :path, :objects_dir, :branches, :bookmarks, :tags, :exist?, :resolve, :ref_type
 
   # @!attribute [r] repo
   #   @api private

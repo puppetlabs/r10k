@@ -45,6 +45,15 @@ class R10K::Hg::Repository
     args << '--rev' << options[:rev] if options[:rev]
 
     hg args, :path => path.to_s
+
+    result = hg ['outgoing', '--bookmarks'], :path => path.to_s, :raise_on_fail => false
+    if result.success?
+      result.stdout.lines do |line|
+        if m = line.match(/^\s+([^\s]+)\s+[a-fA-F0-9]+$/)
+          hg ['bookmark', '-d', m[1]], :path => path.to_s
+        end
+      end
+    end
   end
 
   # Check out the given Mercurial revision
@@ -98,20 +107,28 @@ class R10K::Hg::Repository
     output.stdout.split("\n")
   end
 
+  # @return [Array<String>] All bookmarks in this repository
+  def bookmarks
+    output = hg ['bookmarks', '--template', '{bookmark}\n'], :path => path.to_s
+    output.stdout.split("\n")
+  end
+
   # @return [Array<String>] All tags in this repository
   def tags
     output = hg ['tags', '--template', '{tag}\n'], :path => path.to_s
     output.stdout.split("\n")
   end
 
-  # @return [Symbol] The type of the given ref, one of :branch, :tag, :commit, or :unknown
+  # @return [Symbol] The type of the given ref, one of :branch, :tag, :changeset, or :unknown
   def ref_type(pattern)
     if branches.include? pattern
       :branch
+    elsif bookmarks.include? pattern
+      :bookmark
     elsif tags.include? pattern
       :tag
     elsif resolve(pattern)
-      :commit
+      :changeset
     else
       :unknown
     end
