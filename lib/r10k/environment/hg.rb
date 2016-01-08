@@ -35,7 +35,7 @@ class R10K::Environment::Hg < R10K::Environment::Base
     @remote = options[:remote]
     @rev    = options[:rev]
 
-    @repo = R10K::Hg::StatefulRepository.new(name, @rev, @remote, @basedir, @dirname)
+    @repo = R10K::Hg::StatefulRepository.new(@rev, @remote, @basedir, @dirname, {:branch => name})
   end
 
   # Clone or update the given Mercurial environment.

@@ -22,12 +22,22 @@ class R10K::Hg::StatefulRepository
   # @param remote  [String] The Mecurial remote to use for the repo
   # @param basedir [String] The path containing the Mecurial repo
   # @param dirname [String] The directory name of the Mecurial repo
-  def initialize(branch, rev, remote, basedir, dirname)
+  def initialize(rev, remote, basedir, dirname, options = {})
     @rev = rev
     @remote = remote
 
     @cache = R10K::Hg::Cache.generate(remote)
-    @repo = R10K::Hg::Repository.new(basedir, dirname, {:clone => {:branch => branch}, :pull => {:branch => branch}})
+
+    repo_options = {}
+    if repo_options[:branch]
+      repo_options[:clone] = {:branch => options[:branch]}
+      repo_options[:pull] = {:branch => options[:branch]}
+    else
+      repo_options[:clone] = {:rev => @rev}
+      repo_options[:pull] = {:rev => @rev}
+    end
+
+    @repo = R10K::Hg::Repository.new(basedir, dirname, repo_options)
   end
 
   def sync
