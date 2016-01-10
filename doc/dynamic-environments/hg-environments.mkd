@@ -10,7 +10,7 @@ Dynamic Environments in a nutshell
 
 The core idea of dynamic environments is that you should be able to manage your
 Puppet modules in the same manner that you would manage any other code base. It
-builds on top of Mercurial branches and/or bookmarks.
+builds on top of Mercurial branches or bookmarks.
 
 The dynamic environment model maps your Mercurial branching strategy to
 your live Puppet masters. It creates a mapping from Mercurial named branches
@@ -27,14 +27,14 @@ Ensure that the basedir for your sources and your puppet config align.
 How it works
 ------------
 
-R10k works by tracking the state of your Git repository or repositories. Each
+R10k works by tracking the state of your Mercurial repository or repositories. Each
 repository's branches will be cloned into a directory with a matching name,
 creating a Puppet environment for the branch. If a repository includes a
-Puppetfile, such as the control repo, the Forge modules and Git/SVN
+Puppetfile, such as the control repo, the Forge modules and Git/Mercurial/SVN
 repositories described within will be cloned as well, into the same directories.
-Subsequent changes to the branches will be kept in sync on the filesystem by
+Subsequent changes to the branches or bookmarks will be kept in sync on the filesystem by
 future r10k runs. Finally, if there are directories that do not match existing
-branches, r10k will assume that the branches for those environments were delete
+branches or bookmarks, r10k will assume that the branches or bookmarks for those environments were deleted
 and will remove those environments.
 
 r10k will need to be be able to authenticate with each repository. Most Mercurial
@@ -48,7 +48,7 @@ keys][stash-access-keys].
 Configuration
 -------------
 
-The following configuration options can be specified for Git based environment
+The following configuration options can be specified for Mercurial based environment
 sources.
 
 ### invalid_branches:
@@ -63,3 +63,13 @@ Valid values:
   * 'correct': Non-word characters will silently be replaced with underscores.
   * 'error': Branches with non-word characters will be ignored and an error will
     be emitted.
+
+### environment_type:
+
+This setting determines if r10k will use named branches or bookmarks to derive the set of Puppet environments.
+At the moment, this choice is mutually exclusive and defaults to named branches.
+
+Valid values:
+
+  * 'branch': Use the set of named branches as environments. (Default)
+  * 'bookmark': Use the set of bookmarks as environments.

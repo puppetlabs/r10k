@@ -52,6 +52,7 @@ class R10K::Source::Hg < R10K::Source::Base
 
     @remote           = options[:remote]
     @invalid_branches = (options[:invalid_branches] || 'correct_and_warn')
+    @environment_type = (options[:environment_type] || 'branch').to_sym
 
     @cache  = R10K::Hg::Cache.generate(@remote)
   end
@@ -110,14 +111,16 @@ class R10K::Source::Hg < R10K::Source::Base
 
   def environment_names
     opts = {:prefix => @prefix, :invalid => @invalid_branches, :source => @name}
-    branches = @cache.branches.map do |branch|
-      [:branch, R10K::Environment::Name.new(branch, opts)]
-    end
 
-    bookmarks = @cache.bookmarks.map do |branch|
-      [:bookmark, R10K::Environment::Name.new(branch, opts)]
+    case @environment_type
+      when :bookmark
+        @cache.bookmarks.map do |branch|
+          [:bookmark, R10K::Environment::Name.new(branch, opts)]
+        end
+      else
+        @cache.branches.map do |branch|
+          [:branch, R10K::Environment::Name.new(branch, opts)]
+        end
     end
-
-    branches + bookmarks
   end
 end
