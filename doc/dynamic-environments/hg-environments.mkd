@@ -1,0 +1,65 @@
+Git Based Dynamic Environments
+==============================
+
+R10k can use Mercurial repositories to implement dynamic environments. You can create,
+update, and delete Puppet environments automatically as part of your normal Mercurial
+workflow.
+
+Dynamic Environments in a nutshell
+----------------------------------
+
+The core idea of dynamic environments is that you should be able to manage your
+Puppet modules in the same manner that you would manage any other code base. It
+builds on top of Mercurial branches and/or bookmarks.
+
+The dynamic environment model maps your Mercurial branching strategy to
+your live Puppet masters. It creates a mapping from Mercurial named branches
+and bookmarks to Puppet environments so that you can use the Mercurial branching model
+and have that be seamlessly reflected in Puppet environments. This means that creating
+a new Mercurial branch of bookmark creates a new Puppet environment, committing new changes to
+a Mercurial branch or updating a bookmark will update that environment, and deleting a Mercurial
+bookmark will remove that environment. Mercurial doesn't support deleting named branches well
+so for short lived experimentation, bookmarks are recommended.
+
+R10k supports both [directory and config file environments](https://docs.puppetlabs.com/puppet/latest/reference/environments.html).
+Ensure that the basedir for your sources and your puppet config align.
+
+How it works
+------------
+
+R10k works by tracking the state of your Git repository or repositories. Each
+repository's branches will be cloned into a directory with a matching name,
+creating a Puppet environment for the branch. If a repository includes a
+Puppetfile, such as the control repo, the Forge modules and Git/SVN
+repositories described within will be cloned as well, into the same directories.
+Subsequent changes to the branches will be kept in sync on the filesystem by
+future r10k runs. Finally, if there are directories that do not match existing
+branches, r10k will assume that the branches for those environments were delete
+and will remove those environments.
+
+r10k will need to be be able to authenticate with each repository. Most Mercurial
+systems support authentication with SSH keys. Bitbucket calls them [deployment
+keys][bitbucket-deployment-keys]. Stash calls them [SSH access
+keys][stash-access-keys].
+
+[bitbucket-deployment-keys]: https://confluence.atlassian.com/display/BITBUCKET/Use+deployment+keys
+[stash-access-keys]: https://confluence.atlassian.com/display/STASH/SSH+access+keys+for+system+use
+
+Configuration
+-------------
+
+The following configuration options can be specified for Git based environment
+sources.
+
+### invalid_branches:
+
+This setting specifies how Mercurial branch names that cannot be cleanly mapped to
+Puppet environments will be handled.
+
+Valid values:
+
+  * 'correct_and_warn': Non-word characters will be replaced with underscores
+    and a warning will be emitted. (Default)
+  * 'correct': Non-word characters will silently be replaced with underscores.
+  * 'error': Branches with non-word characters will be ignored and an error will
+    be emitted.
