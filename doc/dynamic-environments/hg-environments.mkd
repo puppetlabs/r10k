@@ -1,5 +1,5 @@
-Git Based Dynamic Environments
-==============================
+Mercurial Based Dynamic Environments
+====================================
 
 R10k can use Mercurial repositories to implement dynamic environments. You can create,
 update, and delete Puppet environments automatically as part of your normal Mercurial
