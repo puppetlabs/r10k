@@ -1,4 +1,5 @@
 require 'r10k/api/envmap_builder'
+require 'r10k/api/git'
 
 require 'r10k/logging'
 require 'r10k/git'
@@ -25,8 +26,8 @@ module R10K
     extend R10K::Logging
 
     # TODO: split functions up into submodules and extend those instead?
-    extend self
-
+    # Everything that follows is a module_function until we get to some privates at the end.
+    module_function
 
     # Returns the contents of Puppetfile inside the given control repo source at the given version. Assumes source repo cache has already been updated if applicable.
     #
@@ -70,6 +71,42 @@ module R10K
       end
 
       return { :modules => builder.build }
+    end
+
+    # Create an unresolved environment hashmap representing the desired state of a Puppet environment based on a source and branch.
+    #
+    # @param source [Hash] A hashmap representing a control repo source (like would be defined in r10k.yaml)
+    # @param branch_name [String] Branch in the control repo to build an envmap for.
+    # @param base_cachedir [String] Root of where r10k is caching things.
+    # @return [Hash] A hashmap representing the desired state of the environment matching the given branch in the given source.
+    # @raise [NotImplementedError] Control repo source has a type that is not currently supported.
+    # @raise [RuntimeError] Something bad happened, see exception message.
+    def envmap_from_source(source, branch_name, base_cachedir)
+      # TODO: enforce valid Puppet environment name here?
+      env_name = branch_name
+      env_name = "#{source[:prefix]}_#{env_name}" if source[:prefix]
+
+      case source[:type].to_sym
+      when :git
+        cachedir = cachedir_for_git_remote(source[:remote], base_cachedir)
+        version = git.rev_parse(branch_name, git_dir: cachedir)
+
+        # TODO: figure out how to pass through base_path option
+        puppetfile = get_puppetfile(:git, cachedir, version)
+      when :svn
+        raise NotImplementedError
+      else
+        raise RuntimeError.new("Unrecognized control repo source type: #{source[:type]}")
+      end
+
+      envmap = {
+        environment: env_name,
+        source: source,
+        version: version,
+        resolved_at: nil,
+      }
+
+      envmap.merge(parse_puppetfile(puppetfile))
     end
 
     # Creates a resolved environment hashmap representing the actual state of the Puppet environment found at the given path.
@@ -182,9 +219,24 @@ module R10K
     # @param env_map [Hash] A fully-resolved (see {#resolve_environment}) hashmap representing a single environment's new state.
     # @param path [String] Path on disk into which the given environment should be deployed. The given path should already include the environment's name. (e.g. /puppet/environments/production not /puppet/environments) Path will be created if it does not already exist.
     # @param opts [Hash] Additional options as defined.
+    # @option opts [String] :cachedir Base path where caches are stored.
+    # @option opts [Boolean] :clean Remove untracked files after write.
     # @return [true] Returns true on success, raises on failure.
     # @raise [RuntimeError] Something bad happened!
     def write_environment(env_map, path, opts={})
+      write_env_base(env_map, path, opts)
+
+      env_map[:modules].each do |m|
+        # TODO: Pass through moduledir
+        write_module(m[:name], env_map, File.join(path, 'modules', m[:name]), opts)
+      end
+
+      # TODO: Decide whether we want to do this here
+      File.open(File.join(path, '.r10k-deploy.json'), 'w') do |fh|
+        fh.write(JSON.pretty_generate(env_map))
+      end
+
+      return true
     end
 
     # Given an environment map, write the base environment only (not any Puppetfile declared modules) to disk at the given path.
@@ -192,20 +244,89 @@ module R10K
     # @param env_map [Hash] A fully-resolved (see {#resolve_environment}) hashmap representing a single environment's new state.
     # @param path [String] Path on disk into which the given environment should be deployed. The given path should already include the environment's name. (e.g. /puppet/environments/production not /puppet/environments) Path will be created if it does not already exist.
     # @param opts [Hash] Additional options as defined.
+    # @option opts [String] :cachedir Base path where caches are stored.
+    # @option opts [Boolean] :clean Remove untracked files in path after writing environment?
     # @return [true] Returns true on success, raises on failure.
     # @raise [RuntimeError] Something bad happened!
     def write_env_base(env_map, path, opts={})
+      if !File.directory?(path)
+        FileUtils.mkdir_p(path)
+      end
+
+      case env_map[:source][:type].to_sym
+      when :git
+        if !opts[:cachedir]
+          raise RuntimeError.new("A value is required for the :cachedir option when deploying an environment from a git source.")
+        end
+
+        cachedir = cachedir_for_git_remote(env_map[:source][:remote], opts[:cachedir])
+
+        git.reset(env_map[:version], hard: true, git_dir: cachedir, work_tree: path)
+
+        if opts[:clean]
+          git.clean(force: true, excludes: ['.r10k-deploy.json'], git_dir: cachedir, work_tree: path)
+        end
+      else
+        raise NotImplementedError
+      end
+
+      return true
     end
 
     # Write the given module, using the version/commit declared in the given environment map, to disk at the given path.
     #
     # @param module_name [String] Name of the module to be written to disk, should match the value of the "name" key in the supplied environment map.
     # @param env_map [Hash] A fully-resolved (see {#resolve_environment}) hashmap representing a single environment's new state.
-    # @param path [String] Path on disk into which the given module should be deployed. The given path should already include the environment's name. (e.g. /puppet/environments/production not /puppet/environments) Path will be created if it does not already exist.
+    # @param path [String] Path on disk into which the given module should be deployed. The given path should already include the environment and module names. (e.g. /puppet/environments/production/modules/apache) Path will be created if it does not already exist.
     # @param opts [Hash] Additional options as defined.
+    # @option opts [String] :cachedir Base path where caches are stored.
+    # @option opts [Boolean] :clean Remove untracked files in path after writing module?
     # @return [true] Returns true on success, raises on failure.
     # @raise [RuntimeError] Something bad happened!
     def write_module(module_name, env_map, path, opts={})
+      mod = env_map[:modules].find { |m| m[:name] == module_name }
+
+      if mod.nil?
+        raise RuntimeError.new("Could not find module named '#{module_name}' in supplied environment map.")
+      end
+
+      if !mod[:resolved_version]
+        raise RuntimeError.new("Cannot write module '#{module_name}' from an environment map which is not fully resolved.")
+      end
+
+      if !File.directory?(path)
+        FileUtils.mkdir_p(path)
+      end
+
+      # TODO: Safety/santity check on path?
+
+      case mod[:type].to_sym
+      when :git
+        if !opts[:cachedir]
+          raise RuntimeError.new("A value is required for the :cachedir option when deploying a module from a git source.")
+        end
+
+        cachedir = cachedir_for_git_remote(mod[:source], opts[:cachedir])
+
+        git.reset(mod[:resolved_version], hard: true, git_dir: cachedir, work_tree: path)
+
+        if opts[:clean]
+          git.clean(force: true, git_dir: cachedir, work_tree: path)
+        end
+      when :forge
+        if !opts[:cachedir]
+          raise RuntimeError.new("A value is required for the :cachedir option when deploying a module from a Forge source.")
+        end
+
+        cachedir = cachedir_for_forge_module(mod[:source], opts[:cachedir])
+
+        # TODO: use PuppetForge::Unpacker?
+        raise NotImplementedError
+      else
+        raise NotImplementedError
+      end
+
+      return true
     end
 
     # Remove any deployed environments from the given path that do not exist in the given environment list.
@@ -246,7 +367,7 @@ module R10K
 
       env_map = R10K::API.resolve_environment(env_map)
 
-      R10K::API.write_environment(env_map, path)
+      R10K::API.write_environment(env_map, path, opts)
 
       if opts[:purge]
         R10K::API.purge_unmanaged_modules(path, env_map)
@@ -271,6 +392,10 @@ module R10K
 
     private
 
+    # Shortcut to the Git command wrapper.
+    def git
+      R10K::API::Git
+    end
 
     def parse_deployed_git_env(path, moduledir)
       env_repo = R10K::Git.provider::WorkingRepository.new(path, '')
@@ -320,6 +445,16 @@ module R10K
       end
 
       return mod
+    end
+
+    def cachedir_for_git_remote(remote, cache_basedir)
+      repo_path = remote.gsub(/[^@\w\.-]/, '-')
+
+      return File.join(cache_basedir, repo_path)
+    end
+
+    def cachedir_for_forge_module(module_slug, cache_basedir)
+      return File.join(cache_basedir, module_slug)
     end
   end
 end
