@@ -202,6 +202,7 @@ module R10K
     # @param env_map [Hash] A hashmap representing a single environment's desired state.
     # @return [Hash] A copy of env_map with :resolved_version key/value pairs added to each module and a :resolved_at timestamp added.
     def resolve_environment(env_map)
+      return env_map
     end
 
     # Given a module_name and an env_map, resolve any ambiguity in the specified module's version. (All other modules in the env_map will be unchanged.)
@@ -393,11 +394,12 @@ module R10K
     private
 
     # Shortcut to the Git command wrapper.
-    def git
+    def self.git
       R10K::API::Git
     end
+    private_class_method :git
 
-    def parse_deployed_git_env(path, moduledir)
+    def self.parse_deployed_git_env(path, moduledir)
       env_repo = R10K::Git.provider::WorkingRepository.new(path, '')
 
       env_data = {
@@ -421,12 +423,14 @@ module R10K
 
       return env_data
     end
+    private_class_method :parse_deployed_git_env
 
-    def parse_deployed_svn_env(path, moduledir)
+    def self.parse_deployed_svn_env(path, moduledir)
       raise NotImplementedError
     end
+    private_class_method :parse_deployed_svn_env
 
-    def parse_deployed_module(path, type)
+    def self.parse_deployed_module(path, type)
       mod = {}
 
       case type
@@ -446,15 +450,18 @@ module R10K
 
       return mod
     end
+    private_class_method :parse_deployed_module
 
-    def cachedir_for_git_remote(remote, cache_basedir)
+    def self.cachedir_for_git_remote(remote, cache_basedir)
       repo_path = remote.gsub(/[^@\w\.-]/, '-')
 
       return File.join(cache_basedir, repo_path)
     end
+    private_class_method :cachedir_for_git_remote
 
-    def cachedir_for_forge_module(module_slug, cache_basedir)
+    def self.cachedir_for_forge_module(module_slug, cache_basedir)
       return File.join(cache_basedir, module_slug)
     end
+    private_class_method :cachedir_for_forge_module
   end
 end

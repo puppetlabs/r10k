@@ -22,9 +22,10 @@ module R10K
 
       private
 
-      def provider
+      def self.provider
         R10K::Git.provider
       end
+      private_class_method :provider
     end
   end
 end
