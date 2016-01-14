@@ -40,7 +40,7 @@ module R10K
       def rev_parse(rev, opts = {})
         cmd = ["rev-parse", rev]
 
-        git(cmd, opts).stdout
+        git(cmd, opts)
       end
 
       # Wrap git commands

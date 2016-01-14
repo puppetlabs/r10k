@@ -6,6 +6,8 @@ module R10K
     module Git
       extend R10K::Logging
 
+      class CommandFailedError < StandardError; end
+
       module_function
 
       def reset(ref, opts={})
@@ -17,7 +19,13 @@ module R10K
       end
 
       def rev_parse(rev, opts={})
-        provider.rev_parse(rev, opts)
+        result = provider.rev_parse(rev, opts)
+
+        if result.success?
+          return result.stdout.strip
+        else
+          raise CommandFailedError.new(result.stderr)
+        end
       end
 
       private

@@ -6,6 +6,9 @@ require 'r10k/git'
 require 'r10k/svn/remote'
 require 'r10k/puppetfile'
 
+require 'puppet_forge'
+require 'semantic_puppet'
+
 module R10K
   # A low-level interface for triggering r10k operations.
   #
@@ -24,6 +27,17 @@ module R10K
   #
   module API
     extend R10K::Logging
+
+    class UnresolvableError < StandardError
+      def initialize(message, modules=nil)
+        if modules && modules.respond_to?(:each)
+          modules.each { |m| message << "\n#{m[:name]} could not be resolved: #{m[:error].message}" }
+        end
+
+        super(message)
+      end
+    end
+
 
     # TODO: split functions up into submodules and extend those instead?
     # Everything that follows is a module_function until we get to some privates at the end.
@@ -118,6 +132,8 @@ module R10K
     def parse_deployed_env(path, moduledir="modules")
       env_name = path.split(File::SEPARATOR).last
 
+      # TODO: set :deployed_version for all deployed modules
+
       env_data = case
       when File.directory?(File.join(path, '.git')) then parse_deployed_git_env(path, moduledir)
       when File.directory?(File.join(path, '.svn')) then parse_deployed_svn_env(path, moduledir)
@@ -201,7 +217,31 @@ module R10K
     #
     # @param env_map [Hash] A hashmap representing a single environment's desired state.
     # @return [Hash] A copy of env_map with :resolved_version key/value pairs added to each module and a :resolved_at timestamp added.
-    def resolve_environment(env_map)
+    # @raise [R10K::API::UnresolvableError] The env_map could not be fully resolved.
+    def resolve_environment(env_map, opts={})
+      # Return already resolved envmaps unchanged.
+      return env_map if env_map[:resolved_at]
+
+      # Deep copy of modules list to iterate over.
+      unresolved = env_map[:modules].map { |mod| mod.dup }
+
+      # Capture any unresolvable modules so we can report them all at once.
+      unresolvable = []
+
+      unresolved.each do |mod|
+        begin
+          env_map = resolve_module(mod[:name], env_map, opts)
+        rescue R10K::API::UnresolvableError => e
+          unresolvable << mod.merge(:error => e)
+        end
+      end
+
+      unless unresolvable.empty?
+        raise R10K::API::UnresolvableError.new("The given environment map contains errors that prevent it from being fully resolved.", unresolvable)
+      end
+
+      env_map[:resolved_at] = Time.new
+
       return env_map
     end
 
@@ -211,8 +251,40 @@ module R10K
     #
     # @param module_name [String] Name of the module to be resolved, should match the value of the "name" key in the supplied environment map.
     # @param env_map [Hash] A hashmap representing a single environment's desired state.
+    # @param opts [Hash] Additional options as defined.
+    # @option opts [String] :cachedir Base path where caches are stored.
     # @return [Hash] A copy of env_map with a new :resolved_version key/value pair added for the specified module.
-    def resolve_module(module_name, env_map)
+    # @raise [RuntimeError, R10K::API::UnresolvableError] Something bad happened.
+    def resolve_module(module_name, env_map, opts={})
+      mod_found = false
+
+      env_map[:modules].map! do |mod|
+        if mod[:name] == module_name
+          mod = case mod[:type].to_sym
+          when :git
+            resolve_git_module(mod, opts)
+          when :forge
+            resolve_forge_module(mod, opts)
+          when :svn
+            raise NotImplementedError
+          when :local
+            raise NotImplementedError
+          else
+            raise UnresolvableError.new("Unable to resolve '#{module_name}', unrecognized module source type '#{mod[:type]}'.")
+          end
+
+          mod_found = true
+        end
+
+        # We are mapping over the modules so we need let the module we just checked be the result of the block.
+        mod
+      end
+
+      unless mod_found
+        raise RuntimeError.new("Could not find module named '#{module_name}' in supplied environment map.")
+      end
+
+      return env_map
     end
 
     # Given an environment map, write the base environment and all Puppetfile declared modules to disk at the given path.
@@ -320,6 +392,8 @@ module R10K
         end
 
         cachedir = cachedir_for_forge_module(mod[:source], opts[:cachedir])
+
+        # TODO: cache tarball
 
         # TODO: use PuppetForge::Unpacker?
         raise NotImplementedError
@@ -451,6 +525,62 @@ module R10K
       return mod
     end
     private_class_method :parse_deployed_module
+
+    def self.resolve_git_module(mod, opts={})
+      if !opts[:cachedir]
+        raise RuntimeError.new("A value is required for the :cachedir option when resolving module from a git source.")
+      end
+
+      cachedir = cachedir_for_git_remote(mod[:source], opts[:cachedir])
+
+      begin
+        mod[:resolved_version] = git.rev_parse(mod[:version], git_dir: cachedir)
+      rescue R10K::API::Git::CommandFailedError => e
+        raise UnresolvableError.new("Unable to resolve '#{mod[:version]}' to a valid Git commit for module '#{mod[:name]}'.")
+      end
+
+      return mod
+    end
+    private_class_method :resolve_git_module
+
+    def self.resolve_forge_module(mod, opts={})
+      # If the module is "unpinned" and not already deployed, resolve as "latest" but preserve declared value of "unpinned".
+      if mod[:version].to_sym == :unpinned
+        if !mod[:deployed_version]
+          resolve_to = :latest
+        else
+          resolve_to = mod[:deployed_version]
+        end
+      end
+
+      # FIXME: if somehow they have a deployed but unpinned module whose version doesn't exist on Forge, this will
+      # currently fail to resolve
+
+      begin
+        # TODO: Filter out deleted releases?
+        candidates = PuppetForge::V3::Module.find(mod[:source]).releases
+      rescue Faraday::ResourceNotFound => e
+        raise UnresolvableError.new("Unable to resolve '#{mod[:name]}', '#{mod[:source]}' could not be found on the Puppet Forge.")
+      end
+
+      if resolve_to == :latest || mod[:version].to_sym == :latest
+        # Find first non-prerelease version
+        match_release = candidates.find { |release| SemanticPuppet::Version.parse(release.version).prerelease.nil? }
+      else
+        # Find first version matching range
+        desired = SemanticPuppet::VersionRange.parse(resolve_to || mod[:version])
+        match_release = candidates.find { |release| desired.include?(SemanticPuppet::Version.parse(release.version)) }
+      end
+
+      if match_release
+        mod[:resolved_version] = match_release.version
+      else
+        raise UnresolvableError.new("Unable to resolve '#{mod[:name]}', no released version of '#{mod[:source]}' could be found on the Puppet Forge which matches the version or range: '#{mod[:version]}'")
+      end
+
+      return mod
+    end
+    private_class_method :resolve_forge_module
 
     def self.cachedir_for_git_remote(remote, cache_basedir)
       repo_path = remote.gsub(/[^@\w\.-]/, '-')
