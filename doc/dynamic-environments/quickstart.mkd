@@ -109,7 +109,7 @@ Configure r10k by creating the following directory structure and file `/etc/pupp
 
 Populate the repository by cloning it locally and performing each of the following actions within it:
 
-Note that puppet defaults to the `production` environnment. You may wish to change your default git
+Note that puppet defaults to the `production` environment. You may wish to change your default git
 branch from `master` to `production` in order to match this. Alternatively, you can set your agents'
 environment to `master`.
 
