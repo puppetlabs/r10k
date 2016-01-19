@@ -60,7 +60,7 @@ module R10K
 
       case source_type.to_sym
       when :git
-        return R10K::Git.bare_repository.new(source_cache_or_remote, '').blob_at(version, puppetfile_path)
+        return git.blob_at(version, puppetfile_path, git_dir: source_cache_or_remote)
       when :svn
         if version == 'production'
           repo_path = "trunk/#{puppetfile_path}"
@@ -357,7 +357,7 @@ module R10K
         write_module(m[:name], env_map, File.join(path, 'modules', m[:name]), opts)
       end
 
-      # TODO: Decide whether we want to do this here
+      # Write resolved env-map to disk
       File.open(File.join(path, '.r10k-deploy.json'), 'w') do |fh|
         fh.write(JSON.pretty_generate(env_map))
       end
@@ -390,7 +390,7 @@ module R10K
         git.reset(env_map[:version], hard: true, git_dir: cachedir, work_tree: path)
 
         if opts[:clean]
-          git.clean(force: true, excludes: ['.r10k-deploy.json'], git_dir: cachedir, work_tree: path)
+          git.clean(force: true, git_dir: cachedir, work_tree: path)
         end
       else
         raise NotImplementedError

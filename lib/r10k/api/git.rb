@@ -28,6 +28,10 @@ module R10K
         provider.clone(remote, local, opts)
       end
 
+      def blob_at(rev, path, opts={})
+        provider.blob_at(rev, path, opts)
+      end
+
       private
 
       def self.provider
