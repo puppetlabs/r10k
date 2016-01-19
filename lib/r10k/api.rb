@@ -8,6 +8,7 @@ require 'r10k/git/errors'
 require 'r10k/svn/remote'
 
 require 'r10k/puppetfile'
+require 'r10k/environment/name'
 
 require 'puppet_forge'
 require 'semantic_puppet'
@@ -93,15 +94,22 @@ module R10K
     # Create an unresolved environment hashmap representing the desired state of a Puppet environment based on a source and branch.
     #
     # @param source [Hash] A hashmap representing a control repo source (like would be defined in r10k.yaml)
-    # @param branch_name [String] Branch in the control repo to build an envmap for.
+    # @param env_name [String] Environment name to build an envmap for.
     # @param base_cachedir [String] Root of where r10k is caching things.
     # @return [Hash] A hashmap representing the desired state of the environment matching the given branch in the given source.
     # @raise [NotImplementedError] Control repo source has a type that is not currently supported.
     # @raise [RuntimeError] Something bad happened, see exception message.
-    def envmap_from_source(source, branch_name, base_cachedir)
-      # TODO: enforce valid Puppet environment name here?
-      env_name = branch_name
-      env_name = "#{source[:prefix]}_#{env_name}" if source[:prefix]
+    def envmap_from_source(source, env_name, base_cachedir)
+      # TODO: enforce valid Puppet environment name here? verify prefix? maybe just use R10K::Environment::Name?
+      branch_name = env_name
+
+      if source[:prefix]
+        if source[:prefix].is_a? String
+          branch_name = env_name.gsub(/^#{Regexp.quote(source[:prefix])}_/, '')
+        else
+          branch_name = env_name.gsub(/^#{Regexp.quote(source[:name])}_/, '')
+        end
+      end
 
       case source[:type].to_sym
       when :git
@@ -171,6 +179,34 @@ module R10K
       return deployed_env_states
     end
 
+    # Return a list of sanitized environment names, including prefix, from the branches of the given source.
+    #
+    # @param source [Hash] A hashmap representing a control repo source (like would be defined in r10k.yaml)
+    # @param opts [Hash] Additional options as defined.
+    # @option opts [String] :base_cachedir Base path where caches are stored.
+    # @return [Array<String>] An array of sanitized and prefixed (if appropriate) environment names.
+    # @raise NotImplementedError Currently does not support SVN control repo sources.
+    # @raise RuntimeError Something bad happened, see exception message.
+    def get_environments_for_source(source, opts={})
+      case source[:type].to_sym
+      when :git
+        git_dir = cachedir_for_git_remote(source[:remote], opts[:base_cachedir])
+        branches = git.branch_list(git_dir: git_dir)
+      when :svn
+        raise NotImplementedError
+      else
+        raise RuntimeError.new("Unrecognized control repo source type.")
+      end
+
+      env_name_opts = { source: source, prefix: source[:prefix], correct: true }
+
+      environments = branches.collect do |branch|
+        R10K::Environment::Name.new(branch, env_name_opts).dirname
+      end
+
+      return environments
+    end
+
     # Return a single module_source hashmap for the given module_name from the given env_map.
     #
     # @param module_name [String] The name of the module to build a module_source map for. Should match the "name" key of the target module in the env_map.
@@ -184,6 +220,7 @@ module R10K
     # @param env_map [Hash] A hashmap representing a single environment's state.
     # @return [Array<Hash>] An array of hashes, each hash represents the type (:vcs or :forge) and location of a single remote module source.
     def module_sources_for_environment(env_map)
+      return env_map[:modules]
     end
 
     # Update local caches represented by the given by module_sources, a collection of module_source hashmaps.
@@ -480,7 +517,28 @@ module R10K
 
     # End-to-end integrated functions.
 
-    # Deploy an environment and all its modules into the given path, automatically updating module sources as needed.
+    # TODO: document
+    def deploy_environment(env_name, basedir, sources, opts={})
+      source_environments = {}
+
+      # Collect environments (branches) for each source
+      sources.each do |name, src|
+        update_git_cache(src[:remote], opts[:cachedir])
+
+        source_environments[name] = get_environments_for_source(src, base_cachedir: opts[:cachedir])
+      end
+
+      # find target environment/source in source_environments
+      # FIXME: implement and define collision behavior
+      source = { name: sources.keys.first, type: :git }.merge(sources.values.first)
+
+      # FIXME: require :cachedir opt
+      envmap = envmap_from_source(source, env_name, opts[:cachedir])
+
+      return deploy_envmap(envmap, File.join(basedir, env_name), opts)
+    end
+
+    # Deploy an environment and all its modules, as represented by an env_map, into the given path, automatically updating module sources as needed.
     #
     # @param env_map [Hash] An abstract or resolved environment map.
     # @param path [String] Path on disk into which the given environment should be deployed. The given path should already include the environment's name. (e.g. /puppet/environments/production not /puppet/environments) Path will be created if it does not already exist.
@@ -488,12 +546,12 @@ module R10K
     # @option opts [Boolean] :purge Whether or not to purge unmanaged modules in the given environment path after deploy. Default: false
     # @return [true] Returns true on success, raises on failure.
     # @raise [RuntimeError] Something bad happened!
-    def deploy_environment(env_map, path, opts={})
+    def deploy_envmap(env_map, path, opts={})
       R10K::API.module_sources_for_environment(env_map).each do |src|
-        R10K::API.update_cache(src)
+        R10K::API.update_cache(src, opts[:cachedir])
       end
 
-      env_map = R10K::API.resolve_environment(env_map)
+      env_map = R10K::API.resolve_environment(env_map, opts)
 
       R10K::API.write_environment(env_map, path, opts)
 

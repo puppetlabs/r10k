@@ -109,6 +109,20 @@ module R10K
         end
       end
 
+      def branch_list(opts = {})
+        opts = { raise_on_fail: false }.merge(opts)
+
+        cmd = ["for-each-ref", "--format=%(refname)", "refs/heads/"]
+
+        result = git(cmd, opts)
+
+        if result.success?
+          return result.stdout.split("\n").collect { |ref| ref.gsub(/^refs\/heads\//, '') }
+        else
+          raise R10K::Git::GitError.new(result.stderr)
+        end
+      end
+
       # Wrap git commands
       #
       # @param cmd [Array<String>] cmd The arguments for the git prompt

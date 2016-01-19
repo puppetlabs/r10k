@@ -91,4 +91,18 @@ RSpec.describe R10K::Git::RJGit, :if => R10K::Util::Platform.jruby? do
       expect { subject.blob_at('branch', 'path') }.to raise_error(R10K::Git::GitError, /exceeds.*limit/i)
     end
   end
+
+  describe ".branch_list" do
+    it "returns an array of each branch name" do
+      expect(repo).to receive(:branches).and_return(['refs/heads/191_cache_update_fns', 'refs/heads/195_serialize_envmap', 'refs/heads/457_api_fixups'])
+
+      expect(subject.branch_list).to contain_exactly('191_cache_update_fns', '195_serialize_envmap', '457_api_fixups')
+    end
+
+    it "raises R10K::Git::GitError with message on RefNotFoundException" do
+      expect(repo).to receive(:branches).and_raise(Java::OrgEclipseJgitApiErrors::RefNotFoundException.new('something failed'))
+
+      expect { subject.branch_list }.to raise_error(R10K::Git::GitError, /something failed/)
+    end
+  end
 end

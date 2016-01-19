@@ -8,6 +8,8 @@ module R10K
 
       module_function
 
+      # TODO: enforce required opts at this level?
+
       def reset(ref, opts={})
         provider.reset(ref, opts)
       end
@@ -30,6 +32,10 @@ module R10K
 
       def blob_at(rev, path, opts={})
         provider.blob_at(rev, path, opts)
+      end
+
+      def branch_list(opts={})
+        provider.branch_list(opts)
       end
 
       private
