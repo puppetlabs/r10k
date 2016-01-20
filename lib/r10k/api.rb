@@ -186,22 +186,66 @@ module R10K
     def module_sources_for_environment(env_map)
     end
 
+    # Update local caches represented by the given by module_sources, a collection of module_source hashmaps.
+    #
+    # @param module_sources [Array<Hash>] An array of hashmaps each representing a single remote module source (as produced by {#module_sources_for_environment})
+    # @param base_cachedir [String] Root of where r10k is caching things.
+    # @return [true] Returns true on success, raises on failure.
+    # @raise [RuntimeError] Something bad happened!
+    def update_caches(module_sources, base_cachedir, opts = {})
+      if module_sources.respond_to?(:each)
+        module_sources.each do |module_source|
+          update_cache(module_source, base_cachedir, opts)
+        end
+        return true
+      else
+        raise RuntimeError.new("module_sources must be a collection of source hashes.")
+      end
+
+    end
     # Update local cache represented by the given module_source hashmap.
     #
     # @param module_source [Hash] A hashmap representing a single remote module source (as produced by {#module_sources_for_environment})
+    # @param base_cachedir [String] Root of where r10k is caching things.
     # @return [true] Returns true on success, raises on failure.
     # @raise [RuntimeError] Something bad happened!
-    def update_cache(module_source)
+    def update_cache(module_source, base_cachedir, opts = {})
+      type = module_source[:type]
+      source = module_source[:source]
+
+      raise RuntimeError.new('module source type cannot be nil.') if type.nil?
+
+      case type.to_sym
+      when :git
+        update_git_cache(source, base_cachedir, opts)
+      when :forge
+        raise NotImplementedError
+      when :svn
+        raise NotImplementedError
+      else
+        raise RuntimeError.new("Unrecognized module source type '#{module_source[:type]}'.")
+      end
     end
 
-    # Update local cache of the given remote VCS repository.
+    # Update local cache of the given remote git repository.
     #
     # @param remote [String] URI for the remote repository which should be cached or updated.
+    # @param base_cachedir [String] local directory which contains all specific cachedirs
     # @param opts [Hash] Additional options as defined.
     # @option opts [String] :cachedir Base path where caches are stored.
     # @return [true] Returns true on success, raises on failure.
     # @raise [RuntimeError] Something bad happened!
-    def update_vcs_cache(remote, opts={})
+    def update_git_cache(remote, base_cachedir, opts={})
+      if opts[:path]
+        raise RuntimeError.new("Cannot update a git cache as if it were a worktree with a .git directory at #{opts[:path]} for remote #{remote}")
+      end
+
+      opts[:git_dir] = cachedir_for_git_remote(remote, base_cachedir)
+      if File.directory?(opts[:git_dir])
+        git.fetch(remote, opts)
+      else
+        git.clone(remote, opts[:git_dir], opts.merge({bare: true}))
+      end
     end
 
     # Update local cache of the given module from the Puppet Forge.
@@ -213,7 +257,8 @@ module R10K
     # @option opts [String] :baseurl The URL to the Puppet Forge to use for downloading modules.
     # @return [true] Returns true on success, raises on failure.
     # @raise [RuntimeError] Something bad happened!
-    def update_forge_cache(module_slug, opts={})
+    def update_forge_cache(module_slug, base_cachedir, opts={})
+      raise NotImplementedError.new("Forge cache updating not implemented yet. Attemepted module = #{module_slug}")
     end
 
     # Given an environment map, returns a new environment map with any ambiguous module versions (e.g. branch names, version ranges, etc.)
@@ -590,15 +635,15 @@ module R10K
     end
     private_class_method :resolve_forge_module
 
-    def self.cachedir_for_git_remote(remote, cache_basedir)
+    def self.cachedir_for_git_remote(remote, base_cachedir)
       repo_path = remote.gsub(/[^@\w\.-]/, '-')
 
-      return File.join(cache_basedir, repo_path)
+      return File.join(base_cachedir, repo_path)
     end
     private_class_method :cachedir_for_git_remote
 
-    def self.cachedir_for_forge_module(module_slug, cache_basedir)
-      return File.join(cache_basedir, module_slug)
+    def self.cachedir_for_forge_module(module_slug, base_cachedir)
+      return File.join(base_cachedir, module_slug)
     end
     private_class_method :cachedir_for_forge_module
   end

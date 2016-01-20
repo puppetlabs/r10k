@@ -193,6 +193,84 @@ RSpec.describe R10K::API do
     end
   end
 
+  describe ".update_caches" do
+    let(:base_cachedir) { "/this/base/cachedir" }
+
+    it "calls update_cache on all module_sources" do
+      module_source_f = {:source => "fountain", :type => :forge}
+      module_source_g = {:source => "giddy", :type => :git}
+      module_sources = [module_source_f, module_source_g]
+      expect(R10K::API).to receive(:update_cache).with(module_source_f, base_cachedir, {}).and_return(true)
+      expect(R10K::API).to receive(:update_cache).with(module_source_g, base_cachedir, {}).and_return(true)
+      expect(subject.update_caches(module_sources, base_cachedir)).to eq(true)
+    end
+
+    it "raises an error if module_sources doesn't respond to #each" do
+      module_sources = "string_does_not_respond_to_each"
+      expect { subject.update_caches(module_sources, base_cachedir) }.to raise_error(RuntimeError, /module_sources must be/)
+    end
+  end
+
+  describe ".update_cache" do
+    let(:module_source_g) { {:source => "giddy", :type => :git} }
+    let(:module_source_f) { {:source => "fountain", :type => :forge} }
+    let(:module_source_s) { {:source => "svelte", :type => :svn} }
+    let(:module_source_o) { {:source => "otter", :type => :other} }
+    let(:base_cachedir) { "/this/base/cachedir" }
+
+    it "calls update_git_cache for a git module_source" do
+      remote_g = module_source_g[:source]
+      expect(R10K::API).to receive(:update_git_cache).with(remote_g, base_cachedir, {}).and_return(true)
+      expect(subject.update_cache(module_source_g, base_cachedir)).to eq(true)
+    end
+
+    it "raises a NotImplementedError for a forge module_source" do
+      expect { subject.update_cache(module_source_f, base_cachedir) }.to raise_error(NotImplementedError)
+    end
+
+    it "raises a NotImplementedError for an svn module_source" do
+      expect { subject.update_cache(module_source_s, base_cachedir) }.to raise_error(NotImplementedError)
+    end
+
+    it "raises a RuntimeError for any other type module source" do
+      expect { subject.update_cache(module_source_o, base_cachedir) }.to raise_error(RuntimeError, /Unrecognized module source type/)
+    end
+  end
+
+  describe ".update_git_cache" do
+    let(:remote_g) { "giddy" }
+    let(:base_cachedir) {"/this/base/cachedir"}
+    let(:opts_g) { {:base_cachedir => base_cachedir} }
+    let(:repo_cachedir_g) { "giddy_cachedir" }
+    let(:opts_g_git_dir) { opts_g.merge({git_dir: repo_cachedir_g}) }
+
+    it "raises a RuntimeError if the :path option is set" do
+      opts_angry = {:path => "angry_path"}
+      expect { subject.update_git_cache(remote_g, repo_cachedir_g, opts_angry) }.to raise_error(RuntimeError, /Cannot update.*#{opts_angry[:path]}/)
+    end
+
+    context "when cache directory already exists" do
+      it "calls the git fetch with expected :git_dir option" do
+        expect(File).to receive(:directory?).with(anything).and_return(true)
+        expect(R10K::API).to receive(:cachedir_for_git_remote).with(remote_g, base_cachedir).and_return(repo_cachedir_g)
+        expect(R10K::API::Git).to receive(:fetch).with(remote_g, opts_g_git_dir).and_return(true)
+
+        expect(subject.update_git_cache(remote_g, base_cachedir, opts_g)).to eq(true)
+      end
+    end
+
+    context "when cache directory does not already exist" do
+      it "calls git clone" do
+        opts_g_git_dir_bare = opts_g_git_dir.merge({bare: true})
+        expect(File).to receive(:directory?).with(anything).and_return(false)
+        expect(R10K::API).to receive(:cachedir_for_git_remote).with(remote_g, base_cachedir).and_return(repo_cachedir_g)
+        expect(R10K::API::Git).to receive(:clone).with(remote_g, repo_cachedir_g, opts_g_git_dir_bare).and_return(true)
+
+        expect(subject.update_git_cache(remote_g, base_cachedir, opts_g)).to eq(true)
+      end
+    end
+  end
+
   describe ".resolve_environment" do
     it "should return env_map unchanged when already resolved" do
       already_resolved = unresolved_envmap.merge(resolved_at: Time.new)
