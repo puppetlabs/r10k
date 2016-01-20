@@ -1,4 +1,5 @@
 require 'r10k/logging'
+require 'r10k/git/errors'
 
 if R10K::Features.available?(:rjgit)
   require 'rjgit'
@@ -17,7 +18,18 @@ module R10K
         repo = ::RJGit::Repo.new(opts[:work_tree], git_dir: opts[:git_dir])
         opts[:repo] = repo
         commit = resolve_version(ver, opts)
-        repo.git.reset(commit, reset_mode)
+
+        if commit.nil?
+          raise R10K::Git::GitError.new("Could not resolve '#{ver}' to a commit in repo.")
+        end
+
+        begin
+          repo.git.reset(commit, reset_mode)
+        rescue Java::OrgEclipseJgitApiErrors::GitAPIException => e
+          raise R10K::Git::GitError.new(e.message)
+        end
+
+        return true
       end
 
       def clean(opts = {})
@@ -27,21 +39,38 @@ module R10K
         end
 
         repo = ::RJGit::Repo.new(opts[:work_tree], git_dir: opts[:git_dir])
-        repo.clean
+
+        begin
+          repo.clean
+        rescue Java::OrgEclipseJgitApiErrors::GitAPIException,
+               Java::OrgEclipseJgitErrors::NoWorkTreeException => e
+          raise R10K::Git::GitError.new(e.message)
+        end
+
+        return true
       end
 
       def rev_parse(ver, opts = {})
-        ref = resolve_version(ver, opts)
-        ref.id
+        commit = resolve_version(ver, opts)
+
+        if commit.nil?
+          raise R10K::Git::GitError.new("Could not resolve '#{ver}' to a commit in repo.")
+        end
+
+        return commit.id
       end
 
       private
 
       def self.resolve_version(ver, opts = {})
         repo = opts[:repo] || ::RJGit::Repo.new(opts[:git_dir], is_bare: true)
-        ref = repo.commits(ver).first
-      end
 
+        if commits = repo.commits(ver)
+          return commits.first
+        else
+          return nil
+        end
+      end
       private_class_method :resolve_version
     end
   end

@@ -570,7 +570,7 @@ RSpec.describe R10K::API do
     end
 
     it "raises appropriatly on failure" do
-      expect(R10K::API::Git).to receive(:rev_parse).and_raise(R10K::API::Git::CommandFailedError)
+      expect(R10K::API::Git).to receive(:rev_parse).and_raise(R10K::Git::GitError.new('arbitrary failure'))
 
       expect { subject.send(:resolve_git_module, git_mod, {cachedir: cachedir}) }.to raise_error(R10K::API::UnresolvableError, /unable.*resolve.*valid.*git.*commit/i)
     end

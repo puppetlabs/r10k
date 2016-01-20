@@ -3,7 +3,10 @@ require 'r10k/api/git'
 
 require 'r10k/logging'
 require 'r10k/git'
+require 'r10k/git/errors'
+
 require 'r10k/svn/remote'
+
 require 'r10k/puppetfile'
 
 require 'puppet_forge'
@@ -103,7 +106,12 @@ module R10K
       case source[:type].to_sym
       when :git
         cachedir = cachedir_for_git_remote(source[:remote], base_cachedir)
-        version = git.rev_parse(branch_name, git_dir: cachedir)
+
+        begin
+          version = git.rev_parse(branch_name, git_dir: cachedir)
+        rescue R10K::Git::GitError => e
+          raise RuntimeError.new("Unable to resolve branch name '#{branch_name}' to a Git commit: #{e.message}")
+        end
 
         # TODO: figure out how to pass through base_path option
         puppetfile = get_puppetfile(:git, cachedir, version)
@@ -535,7 +543,7 @@ module R10K
 
       begin
         mod[:resolved_version] = git.rev_parse(mod[:version], git_dir: cachedir)
-      rescue R10K::API::Git::CommandFailedError => e
+      rescue R10K::Git::GitError => e
         raise UnresolvableError.new("Unable to resolve '#{mod[:version]}' to a valid Git commit for module '#{mod[:name]}'.")
       end
 

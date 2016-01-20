@@ -13,16 +13,26 @@ module R10K
       module_function
 
       def reset(ref, opts = {})
+        opts = { raise_on_fail: false }.merge(opts)
+
         cmd = ["reset", ref]
 
         if opts[:hard]
           cmd << "--hard"
         end
 
-        git(cmd, opts)
+        result = git(cmd, opts)
+
+        if result.success?
+          return true
+        else
+          raise R10K::Git::GitError.new(result.stderr)
+        end
       end
 
       def clean(opts = {})
+        opts = { raise_on_fail: false }.merge(opts)
+
         cmd = ["clean"]
 
         if opts[:force]
@@ -34,13 +44,27 @@ module R10K
           cmd.concat(excludes)
         end
 
-        git(cmd, opts)
+        result = git(cmd, opts)
+
+        if result.success?
+          return true
+        else
+          raise R10K::Git::GitError.new(result.stderr)
+        end
       end
 
       def rev_parse(rev, opts = {})
+        opts = { raise_on_fail: false }.merge(opts)
+
         cmd = ["rev-parse", rev]
 
-        git(cmd, opts)
+        result = git(cmd, opts)
+
+        if result.success?
+          return result.stdout.strip
+        else
+          raise R10K::Git::GitError.new(result.stderr)
+        end
       end
 
       # Wrap git commands
