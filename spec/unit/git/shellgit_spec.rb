@@ -51,10 +51,10 @@ RSpec.describe R10K::Git::ShellGit do
   end
 
   describe ".rev_parse" do
-    it "returns stdout without whitespace when git exits zero" do
+    it "returns stdout when git exits zero" do
       to_resolve = 'branch_name'
 
-      expect(subject).to receive(:git).with(array_including('rev-parse', to_resolve), any_args).and_return(double(:result, success?: true, stdout: "123abc\n"))
+      expect(subject).to receive(:git).with(array_including('rev-parse', to_resolve), any_args).and_return(double(:result, success?: true, stdout: "123abc"))
 
       expect(subject.rev_parse(to_resolve)).to eq('123abc')
     end
@@ -63,6 +63,24 @@ RSpec.describe R10K::Git::ShellGit do
       expect(subject).to receive(:git).with(array_including('rev-parse'), any_args).and_return(double(:result, success?: false, stderr: 'something failed'))
 
       expect { subject.rev_parse('something') }.to raise_error(R10K::Git::GitError, /something failed/)
+    end
+  end
+
+  describe ".blob_at" do
+    it "returns stdout when git exits zero" do
+      branch = 'shire'
+      path = 'TheRoadGoesEverOn'
+      blob_data = "Eyes that fire and sword have seen\nAnd horror in the halls of stone\nLook at last on meadows green\nAnd trees and hills they long have known."
+
+      expect(subject).to receive(:git).with(array_including('cat-file', '--textconv', "#{branch}:#{path}"), any_args).and_return(double(:result, success?: true, stdout: blob_data))
+
+      expect(subject.blob_at(branch, path)).to eq(blob_data)
+    end
+
+    it "raises R10K::Git::GitError with stderr when git exits non-zero" do
+      expect(subject).to receive(:git).with(array_including('cat-file'), any_args).and_return(double(:result, success?: false, stderr: 'something failed'))
+
+      expect { subject.blob_at('branch', 'path') }.to raise_error(R10K::Git::GitError, /something failed/)
     end
   end
 

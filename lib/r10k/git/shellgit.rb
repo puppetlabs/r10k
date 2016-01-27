@@ -89,7 +89,21 @@ module R10K
         result = git(cmd, opts)
 
         if result.success?
-          return result.stdout.strip
+          return result.stdout
+        else
+          raise R10K::Git::GitError.new(result.stderr)
+        end
+      end
+
+      def blob_at(treeish, path, opts = {})
+        opts = { raise_on_fail: false }.merge(opts)
+
+        cmd = ["cat-file", "--textconv", "#{treeish}:#{path}"]
+
+        result = git(cmd, opts)
+
+        if result.success?
+          return result.stdout
         else
           raise R10K::Git::GitError.new(result.stderr)
         end

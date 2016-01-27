@@ -99,6 +99,18 @@ module R10K
         return true
       end
 
+      def blob_at(treeish, path, opts = {})
+        repo = ::RJGit::Repo.new(opts[:git_dir], is_bare: true)
+
+        begin
+          return repo.blob(path, treeish).data
+        rescue Java::OrgEclipseJgitErrors::LargeObjectException,
+               Java::OrgEclipseJgitErrors::MissingObjectException,
+               Java::JavaIO::IOException => e
+          raise R10K::Git::GitError.new(e.message)
+        end
+      end
+
       private
 
       def self.resolve_version(ver, opts = {})

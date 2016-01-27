@@ -59,7 +59,7 @@ RSpec.describe R10K::Git::RJGit, :if => R10K::Util::Platform.jruby? do
   end
 
   describe ".rev_parse" do
-    it "returns sha without whitespace on success" do
+    it "returns SHA of object on success" do
       to_resolve = 'branch_name'
       expect(repo).to receive(:commits).with(to_resolve).and_return([double(:commit, id: '123abc')])
 
@@ -71,6 +71,24 @@ RSpec.describe R10K::Git::RJGit, :if => R10K::Util::Platform.jruby? do
       expect(repo).to receive(:commits).with(to_resolve).and_return([])
 
       expect { subject.rev_parse(to_resolve) }.to raise_error(R10K::Git::GitError, /could not resolve/i)
+    end
+  end
+
+  describe ".blob_at" do
+    it "returns blob data on success" do
+      branch = 'shire'
+      path = 'TheRoadGoesEverOn'
+      blob_data = "Eyes that fire and sword have seen\nAnd horror in the halls of stone\nLook at last on meadows green\nAnd trees and hills they long have known."
+
+      expect(repo).to receive(:blob).with(path, branch).and_return(double(:blob, data: blob_data))
+
+      expect(subject.blob_at(branch, path)).to eq(blob_data)
+    end
+
+    it "raises R10K::Git::GitError with message on failure" do
+      expect(repo).to receive(:blob).and_raise(Java::OrgEclipseJgitErrors::LargeObjectException::ExceedsLimit.new(100, 1000))
+
+      expect { subject.blob_at('branch', 'path') }.to raise_error(R10K::Git::GitError, /exceeds.*limit/i)
     end
   end
 end

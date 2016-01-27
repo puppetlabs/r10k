@@ -55,28 +55,28 @@ RSpec.describe R10K::API do
 
   describe ".get_puppetfile" do
     before(:each) do
-      @git_repo = instance_double(R10K::Git.bare_repository)
-      allow(R10K::Git.bare_repository).to receive(:new).and_return(@git_repo)
+      @git_provider = class_double(R10K::API::Git)
+      allow(R10K::API).to receive(:git).and_return(@git_provider)
 
       @svn_repo = instance_double(R10K::SVN::Remote)
       allow(R10K::SVN::Remote).to receive(:new).and_return(@svn_repo)
     end
 
     it "handles a base_path with a leading slash" do
-      expect(@git_repo).to receive(:blob_at).with('branch', 'puppet/Puppetfile')
+      expect(@git_provider).to receive(:blob_at).with('branch', 'puppet/Puppetfile', anything)
 
       subject.get_puppetfile(:git, '/tmp/repo.git', 'branch', '/puppet')
     end
 
     it "handles a base_path with lots of leading slashes" do
-      expect(@git_repo).to receive(:blob_at).with('branch', 'puppet/Puppetfile')
+      expect(@git_provider).to receive(:blob_at).with('branch', 'puppet/Puppetfile', anything)
 
       subject.get_puppetfile(:git, '/tmp/repo.git', 'branch', '//////puppet')
     end
 
     context "with a Git source" do
       it "calls #blob_at with expected values" do
-        expect(@git_repo).to receive(:blob_at).with('branch', 'Puppetfile')
+        expect(@git_provider).to receive(:blob_at).with('branch', 'Puppetfile', anything)
 
         subject.get_puppetfile(:git, '/tmp/repo.git', 'branch')
       end
@@ -454,7 +454,7 @@ RSpec.describe R10K::API do
           allow(R10K::API).to receive(:git).and_return(provider)
           allow(R10K::API).to receive(:cachedir_for_git_remote).and_return(cachedir)
 
-          expect(provider).to receive(:clean).with(hash_including(force: true, excludes: array_including('.r10k-deploy.json'), git_dir: cachedir, work_tree: path))
+          expect(provider).to receive(:clean).with(hash_including(force: true, git_dir: cachedir, work_tree: path))
 
           subject.write_env_base(envmap, path, opts.merge({clean: true}))
         end
