@@ -53,6 +53,34 @@ module R10K
         end
       end
 
+      def fetch(remote, opts = {})
+        cmd = ["fetch", remote, '+refs/*:refs/*']
+        result = git(cmd, opts)
+
+        if result.success?
+          return true
+        else
+          raise R10K::Git::GitError.new(result.stderr)
+        end
+      end
+
+      def clone(remote, local, opts={})
+        cmd = ["clone", "--mirror"]
+        if opts[:bare]
+          cmd << "--bare"
+        end
+        cmd << remote
+        cmd << local
+
+        result = git(cmd, opts)
+
+        if result.success?
+          return true
+        else
+          raise R10K::Git::GitError.new(result.stderr)
+        end
+      end
+
       def rev_parse(rev, opts = {})
         opts = { raise_on_fail: false }.merge(opts)
 

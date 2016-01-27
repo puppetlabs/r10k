@@ -20,6 +20,14 @@ module R10K
         provider.rev_parse(rev, opts)
       end
 
+      def fetch(remote, opts={})
+        provider.fetch(remote, opts)
+      end
+
+      def clone(remote, local, opts={})
+        provider.clone(remote, local, opts)
+      end
+
       private
 
       def self.provider
@@ -33,4 +41,3 @@ module R10K
     end
   end
 end
-
