@@ -11,27 +11,48 @@ module R10K
       extend R10K::Logging
 
       module_function
+      # -----------------------------------------------------------------------
 
-      def reset(ref, opts = {})
-        opts = { raise_on_fail: false }.merge(opts)
+      def blob_at(git_dir, commit, path, opts = {})
+        cmd_opts = {
+          raise_on_fail: false,
+          git_dir: git_dir,
+        }
 
-        cmd = ["reset", ref]
+        cmd = ["cat-file", "--textconv", "#{commit}:#{path}"]
 
-        if opts[:hard]
-          cmd << "--hard"
-        end
-
-        result = git(cmd, opts)
+        result = git(cmd, cmd_opts)
 
         if result.success?
-          return true
+          return result.stdout
         else
           raise R10K::Git::GitError.new(result.stderr)
         end
       end
 
-      def clean(opts = {})
-        opts = { raise_on_fail: false }.merge(opts)
+      def branch_list(git_dir, opts = {})
+        cmd_opts = {
+          raise_on_fail: false,
+          git_dir: git_dir,
+        }
+
+        cmd = ["for-each-ref", "--format=%(refname)", "refs/heads/"]
+
+        result = git(cmd, cmd_opts)
+
+        if result.success?
+          return result.stdout.split("\n").collect { |ref| ref.gsub(/^refs\/heads\//, '') }
+        else
+          raise R10K::Git::GitError.new(result.stderr)
+        end
+      end
+
+      def clean(work_tree, opts = {})
+        cmd_opts = {
+          raise_on_fail: false,
+          work_tree: work_tree,
+          git_dir: opts[:git_dir],
+        }
 
         cmd = ["clean"]
 
@@ -44,18 +65,7 @@ module R10K
           cmd.concat(excludes)
         end
 
-        result = git(cmd, opts)
-
-        if result.success?
-          return true
-        else
-          raise R10K::Git::GitError.new(result.stderr)
-        end
-      end
-
-      def fetch(remote, opts = {})
-        cmd = ["fetch", remote, '+refs/*:refs/*']
-        result = git(cmd, opts)
+        result = git(cmd, cmd_opts)
 
         if result.success?
           return true
@@ -65,14 +75,21 @@ module R10K
       end
 
       def clone(remote, local, opts={})
-        cmd = ["clone", "--mirror"]
-        if opts[:bare]
-          cmd << "--bare"
+        if opts[:private_key] || opts[:username]
+          logger.warn("Shellgit provider does not support custom SSH transport options, using default username and/or private key.")
         end
-        cmd << remote
-        cmd << local
 
-        result = git(cmd, opts)
+        cmd_opts = {
+          raise_on_fail: false,
+        }
+
+        cmd = ["clone", "--mirror", remote, local]
+
+        if opts[:bare]
+          cmd.insert(1, "--bare")
+        end
+
+        result = git(cmd, cmd_opts)
 
         if result.success?
           return true
@@ -81,12 +98,58 @@ module R10K
         end
       end
 
-      def rev_parse(rev, opts = {})
-        opts = { raise_on_fail: false }.merge(opts)
+      def fetch(git_dir, remote, opts = {})
+        if opts[:private_key] || opts[:username]
+          logger.warn("Shellgit provider does not support custom SSH transport options, using default username and/or private key.")
+        end
 
-        cmd = ["rev-parse", rev]
+        cmd_opts = {
+          raise_on_fail: false,
+          git_dir: git_dir,
+        }
 
-        result = git(cmd, opts)
+        cmd = ["fetch", remote, "+refs/*:refs/*"]
+
+        result = git(cmd, cmd_opts)
+
+        if result.success?
+          return true
+        else
+          raise R10K::Git::GitError.new(result.stderr)
+        end
+      end
+
+      def reset(work_tree, commit, opts = {})
+        cmd_opts = {
+          raise_on_fail: false,
+          work_tree: work_tree,
+          git_dir: opts[:git_dir],
+        }
+
+        cmd = ["reset", commit]
+
+        if opts[:hard]
+          cmd << "--hard"
+        end
+
+        result = git(cmd, cmd_opts)
+
+        if result.success?
+          return true
+        else
+          raise R10K::Git::GitError.new(result.stderr)
+        end
+      end
+
+      def resolve_commit(git_dir, commit, opts = {})
+        cmd_opts = {
+          raise_on_fail: false,
+          git_dir: git_dir,
+        }
+
+        cmd = ["rev-parse", commit]
+
+        result = git(cmd, cmd_opts)
 
         if result.success?
           return result.stdout
@@ -95,33 +158,6 @@ module R10K
         end
       end
 
-      def blob_at(treeish, path, opts = {})
-        opts = { raise_on_fail: false }.merge(opts)
-
-        cmd = ["cat-file", "--textconv", "#{treeish}:#{path}"]
-
-        result = git(cmd, opts)
-
-        if result.success?
-          return result.stdout
-        else
-          raise R10K::Git::GitError.new(result.stderr)
-        end
-      end
-
-      def branch_list(opts = {})
-        opts = { raise_on_fail: false }.merge(opts)
-
-        cmd = ["for-each-ref", "--format=%(refname)", "refs/heads/"]
-
-        result = git(cmd, opts)
-
-        if result.success?
-          return result.stdout.split("\n").collect { |ref| ref.gsub(/^refs\/heads\//, '') }
-        else
-          raise R10K::Git::GitError.new(result.stderr)
-        end
-      end
 
       # Wrap git commands
       #

@@ -4,7 +4,7 @@ require 'r10k/module/forge'
 
 module R10K
   module API
-    class EnvmapBuilder
+    class ModulesArrayBuilder
       def initialize
         @modules = []
       end
