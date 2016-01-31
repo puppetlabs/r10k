@@ -29,12 +29,17 @@ class Puppetfile
   #   @return [String] The path to the Puppetfile
   attr_reader :puppetfile_path
 
+  # @!attrbute [r] puppetfile_yaml_path
+  #   @return [String] The path to the Puppetfile.yaml
+  attr_reader :puppetfile_yaml_path
+
   # @param [String] basedir
   # @param [String] puppetfile The path to the Puppetfile, default to #{basedir}/Puppetfile
   def initialize(basedir, moduledir = nil, puppetfile = nil)
     @basedir         = basedir
     @moduledir       = moduledir  || File.join(basedir, 'modules')
     @puppetfile_path = puppetfile || File.join(basedir, 'Puppetfile')
+    @puppetfile_yaml_path = puppetfile || File.join(basedir, 'Puppetfile.yaml')
 
     @modules = []
     @forge   = 'forgeapi.puppetlabs.com'
@@ -43,6 +48,8 @@ class Puppetfile
   def load
     if File.readable? @puppetfile_path
       self.load!
+    elsif File.readable? @puppetfile_yaml_path
+      self.load_yaml!
     else
       logger.debug "Puppetfile #{@puppetfile_path.inspect} missing or unreadable"
     end
@@ -53,6 +60,52 @@ class Puppetfile
     dsl.instance_eval(puppetfile_contents, @puppetfile_path)
   rescue SyntaxError, LoadError, ArgumentError => e
     raise R10K::Error.wrap(e, "Failed to evaluate #{@puppetfile_path}")
+  end
+
+  def load_yaml!
+    dsl = R10K::Puppetfile::DSL.new(self)
+    require 'yaml'
+    conf = YAML::load_file(@puppetfile_yaml_path)
+    forge_conf = conf.fetch('forge', nil)
+    if forge_conf.nil?
+      dsl.forge("")
+    else
+      forge, modules = forge_conf.first
+      dsl.forge(forge)
+      modules.rach { |m|
+        args = Hash.new
+        if m.is_a?(Hash)
+          name, data = m.first
+          if data.is_a?(Hash)
+            args = data
+          elsif data == 'latest'
+            args['version'] = :latest
+          end
+        else
+          args['version'] = nil
+        end
+        dsl.mod(name, args)
+      }
+    end
+    conf['git'].each { |org_base, modules|
+      modules.each { |m|
+        if !(m.is_a?(Hash))
+          m = { m => 'master' }
+        end
+        args = Hash.new
+        repo, data = m.first
+        if data.is_a?(Hash)
+          args = data
+        else
+          name = repo.split('-', 2)[-1].gsub(/-/, '_')
+          args['git'] = "#{org_base}/#{repo}.git"
+          args['ref'] = data
+        end
+        dsl.mod(name, args)
+      }
+    }
+  rescue SyntaxError, LoadError, ArgumentError => e
+    raise R10K::Error.wrap(e, "Failed to evaluate #{@puppetfile_yaml_path}")
   end
 
   # @param [String] forge
