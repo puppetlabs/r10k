@@ -84,6 +84,21 @@ RSpec.describe R10K::Git::ShellGit do
     end
   end
 
+  describe ".branch_list" do
+    it "returns an array of each branch from stdout when git exits zero" do
+      mock_output = "refs/heads/191_cache_update_fns\nrefs/heads/195_serialize_envmap\nrefs/heads/457_api_fixups\n"
+      expect(subject).to receive(:git).with(array_including('for-each-ref'), any_args).and_return(double(:result, success?: true, stdout: mock_output))
+
+      expect(subject.branch_list).to contain_exactly('191_cache_update_fns', '195_serialize_envmap', '457_api_fixups')
+    end
+
+    it "raises R10K::Git::GitError with stderr when git exits non-zero" do
+      expect(subject).to receive(:git).with(array_including('for-each-ref'), any_args).and_return(double(:result, success?: false, stderr: 'something failed'))
+
+      expect { subject.branch_list }.to raise_error(R10K::Git::GitError, /something failed/)
+    end
+  end
+
   describe ".git" do
     let(:result_success) { double(:result, success?: true, stdout: 'successful') }
     let(:subprocess) { instance_double(R10K::Util::Subprocess) }

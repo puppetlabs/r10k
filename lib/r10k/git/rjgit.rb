@@ -15,7 +15,10 @@ module R10K
       def reset(ver, opts = {})
         reset_mode = opts[:hard] ? "HARD" : "MIXED"
 
-        repo = ::RJGit::Repo.new(opts[:work_tree], git_dir: opts[:git_dir])
+        rjgit_opts = {}
+        rjgit_opts[:git_dir] = File.expand_path(opts[:git_dir]) if opts[:git_dir]
+
+        repo = ::RJGit::Repo.new(opts[:work_tree], rjgit_opts)
         opts[:repo] = repo
         commit = resolve_version(ver, opts)
 
@@ -107,6 +110,16 @@ module R10K
         rescue Java::OrgEclipseJgitErrors::LargeObjectException,
                Java::OrgEclipseJgitErrors::MissingObjectException,
                Java::JavaIO::IOException => e
+          raise R10K::Git::GitError.new(e.message)
+        end
+      end
+
+      def branch_list(opts = {})
+        repo = ::RJGit::Repo.new(opts[:git_dir], is_bare: true)
+
+        begin
+          return repo.branches.collect { |branch| branch.gsub(/^refs\/heads\//, '') }
+        rescue Java::OrgEclipseJgitApiErrors::GitAPIException => e
           raise R10K::Git::GitError.new(e.message)
         end
       end
