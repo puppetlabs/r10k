@@ -11,37 +11,39 @@ module R10K
       extend R10K::Logging
 
       module_function
+      # -----------------------------------------------------------------------
 
-      def reset(ver, opts = {})
-        reset_mode = opts[:hard] ? "HARD" : "MIXED"
-
-        rjgit_opts = {}
-        rjgit_opts[:git_dir] = File.expand_path(opts[:git_dir]) if opts[:git_dir]
-
-        repo = ::RJGit::Repo.new(opts[:work_tree], rjgit_opts)
-        opts[:repo] = repo
-        commit = resolve_version(ver, opts)
-
-        if commit.nil?
-          raise R10K::Git::GitError.new("Could not resolve '#{ver}' to a commit in repo.")
-        end
+      def blob_at(git_dir, commit_ish, path, opts = {})
+        repo = ::RJGit::Repo.new(git_dir, is_bare: true)
 
         begin
-          repo.git.reset(commit, reset_mode)
+          return repo.blob(path, commit_ish).data
+        rescue Java::OrgEclipseJgitErrors::LargeObjectException,
+               Java::OrgEclipseJgitErrors::MissingObjectException,
+               Java::JavaIO::IOException => e
+          raise R10K::Git::GitError.new(e.message)
+        end
+      end
+
+      def branch_list(git_dir, opts = {})
+        repo = ::RJGit::Repo.new(git_dir, is_bare: true)
+
+        begin
+          return repo.branches.collect { |branch| branch.gsub(/^refs\/heads\//, '') }
         rescue Java::OrgEclipseJgitApiErrors::GitAPIException => e
           raise R10K::Git::GitError.new(e.message)
         end
-
-        return true
       end
 
-      def clean(opts = {})
-        # TODO: implement excludes:
+      def clean(work_tree, opts = {})
+        # TODO: Implement excludes.
         if opts[:excludes]
-          raise NotImplementedError, "rjgit clean does not implement excludes, yet."
+          raise NotImplementedError, "JGit's CleanCommand does not implement excludes."
         end
 
-        repo = ::RJGit::Repo.new(opts[:work_tree], git_dir: opts[:git_dir])
+        # JGit doesn't appear to care about the --force option.
+
+        repo = ::RJGit::Repo.new(work_tree, git_dir: opts[:git_dir])
 
         begin
           repo.clean
@@ -53,89 +55,111 @@ module R10K
         return true
       end
 
-      def rev_parse(ver, opts = {})
-        commit = resolve_version(ver, opts)
+      def clone(remote, local, opts={})
+        if local.nil?
+          raise R10K::Git::GitError.new("CloneCommand requires that local argument be not nil.")
+        end
+
+        local_parent = File.expand_path('..', local)
+
+        unless File.directory?(local_parent)
+          raise R10K::Git::GitError.new("CloneCommand requires that local parent directory (#{local_parent}) already exist.")
+        end
+
+        if opts[:private_key] || opts[:username]
+          raise NotImplementedError, "RJGit does not support SSH transport."
+        end
+
+        clone_opts = {
+          branch: :all,
+          is_bare: opts[:bare],
+        }
+
+        begin
+          ::RJGit::RubyGit.clone(remote, local, clone_opts)
+        rescue Java::OrgEclipseJgitApiErrors::GitAPIException,
+               Java::OrgEclipseJgitApiErrors::TransportException,
+               Java::OrgEclipseJgitApiErrors::InvalidRemoteException => e
+          raise R10K::Git::GitError.new(e.message)
+        end
+
+        return true
+      end
+
+      def fetch(git_dir, remote, opts={})
+        if opts[:private_key] || opts[:username]
+          raise NotImplementedError, "RJGit does not support SSH transport."
+        end
+
+        repo = ::RJGit::Repo.new(git_dir, is_bare: true)
+
+        fetch_opts = {
+          refspecs: "+refs/*:refs/*",
+        }
+
+        begin
+          repo.git.fetch(remote, fetch_opts)
+        rescue Java::OrgEclipseJgitApiErrors::GitAPIException,
+               Java::OrgEclipseJgitApiErrors::TransportException,
+               Java::OrgEclipseJgitApiErrors::InvalidRemoteException => e
+          raise R10K::Git::GitError.new(e.message)
+        end
+
+        return true
+      end
+
+      def reset(work_tree, commit_ish, opts = {})
+        reset_mode = opts[:hard] ? "HARD" : "MIXED"
+
+        if opts[:git_dir]
+          repo_opts = {
+            git_dir: File.expand_path(opts[:git_dir]),
+          }
+        else
+          repo_opts = {}
+        end
+
+        repo = ::RJGit::Repo.new(work_tree, repo_opts)
+
+        commit = resolve_in_repo(repo, commit_ish)
 
         if commit.nil?
-          raise R10K::Git::GitError.new("Could not resolve '#{ver}' to a commit in repo.")
+          raise R10K::Git::GitError.new("Could not resolve '#{commit_ish}' to a commit in repo.")
+        end
+
+        begin
+          repo.git.reset(commit, reset_mode)
+        rescue Java::OrgEclipseJgitApiErrors::GitAPIException => e
+          raise R10K::Git::GitError.new(e.message)
+        end
+
+        return true
+      end
+
+      def resolve_commit(git_dir, commit_ish, opts = {})
+        repo = ::RJGit::Repo.new(git_dir, is_bare: true)
+
+        commit = resolve_in_repo(repo, commit_ish)
+
+        if commit.nil?
+          raise R10K::Git::GitError.new("Could not resolve '#{commit_ish}' to a commit in repo.")
         end
 
         return commit.id
       end
 
-      def fetch(remote, opts={})
-
-        local = opts[:git_dir]
-        raise R10K::Git::GitError.new('fetch requires that opts[:git_dir] be a valid directory.') unless local && File.directory?(local)
-
-        repo = ::RJGit::Repo.new(local, is_bare: true)
-
-        rjgit_opts = opts.merge({refspecs: "+refs/*:refs/*"})
-        begin
-          repo.git.fetch(remote, rjgit_opts)
-        rescue Java::OrgEclipseJgitApiErrors::GitAPIException,
-               Java::OrgEclipseJgitApiErrors::TransportException,
-               Java::OrgEclipseJgitApiErrors::InvalidRemoteException => e
-          raise R10K::Git::GitError.new(e.message)
-        end
-
-        return true
-      end
-
-      def clone(remote, local, opts={})
-        raise R10K::Git::GitError.new("clone requires that local argument not be nil.") if local.nil?
-        local_parent = File.expand_path('..', local)
-        raise R10K::Git::GitError.new("clone requires that #{local_parent} be a valid directory.") unless File.directory?(local_parent)
-
-        rjgit_opts = opts.merge({branch: :all, is_bare: opts[:bare]})
-
-        repo = ::RJGit::Repo.new(local, is_bare: opts[:bare])
-
-        begin
-          repo.git.clone(remote, local, rjgit_opts)
-        rescue Java::OrgEclipseJgitApiErrors::GitAPIException,
-               Java::OrgEclipseJgitApiErrors::TransportException,
-               Java::OrgEclipseJgitApiErrors::InvalidRemoteException => e
-          raise R10K::Git::GitError.new(e.message)
-        end
-
-        return true
-      end
-
-      def blob_at(treeish, path, opts = {})
-        repo = ::RJGit::Repo.new(opts[:git_dir], is_bare: true)
-
-        begin
-          return repo.blob(path, treeish).data
-        rescue Java::OrgEclipseJgitErrors::LargeObjectException,
-               Java::OrgEclipseJgitErrors::MissingObjectException,
-               Java::JavaIO::IOException => e
-          raise R10K::Git::GitError.new(e.message)
-        end
-      end
-
-      def branch_list(opts = {})
-        repo = ::RJGit::Repo.new(opts[:git_dir], is_bare: true)
-
-        begin
-          return repo.branches.collect { |branch| branch.gsub(/^refs\/heads\//, '') }
-        rescue Java::OrgEclipseJgitApiErrors::GitAPIException => e
-          raise R10K::Git::GitError.new(e.message)
-        end
-      end
 
       private
+      # -----------------------------------------------------------------------
 
-      def self.resolve_version(ver, opts = {})
-        repo = opts[:repo] || ::RJGit::Repo.new(opts[:git_dir], is_bare: true)
-
-        if commits = repo.commits(ver)
+      def self.resolve_in_repo(repo, commit_ish)
+        if commits = repo.commits(commit_ish)
           return commits.first
         else
           return nil
         end
       end
-      private_class_method :resolve_version
+      private_class_method :resolve_in_repo
     end
   end
 end

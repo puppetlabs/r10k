@@ -2,69 +2,8 @@ require 'spec_helper'
 require 'r10k/git/shellgit'
 
 RSpec.describe R10K::Git::ShellGit do
-  describe ".reset" do
-    it "returns true when git exits zero" do
-      expect(subject).to receive(:git).with(array_including('reset'), any_args).and_return(double(:result, success?: true))
-
-      expect(subject.reset('testref')).to eq(true)
-    end
-
-    it "raises R10K::Git::GitError with stderr when git exits non-zero" do
-      expect(subject).to receive(:git).with(array_including('reset'), any_args).and_return(double(:result, success?: false, stderr: 'something failed'))
-
-      expect { subject.reset('testref') }.to raise_error(R10K::Git::GitError, /something failed/)
-    end
-
-    it "adds --hard flag to cmd when opts[:hard]" do
-      expect(subject).to receive(:git).with(array_including('reset', '--hard'), any_args).and_return(double(:result, success?: true))
-
-      expect(subject.reset('testref', hard: true)).to eq(true)
-    end
-  end
-
-  describe ".clean" do
-    it "returns true when git exits zero" do
-      expect(subject).to receive(:git).with(array_including('clean'), any_args).and_return(double(:result, success?: true))
-
-      expect(subject.clean()).to eq(true)
-    end
-
-    it "raises R10K::Git::GitError with stderr when git exits non-zero" do
-      expect(subject).to receive(:git).with(array_including('clean'), any_args).and_return(double(:result, success?: false, stderr: 'something failed'))
-
-      expect { subject.clean() }.to raise_error(R10K::Git::GitError, /something failed/)
-    end
-
-    it "adds --force flag to cmd when opts[:force]" do
-      expect(subject).to receive(:git).with(array_including('clean', '--force'), any_args).and_return(double(:result, success?: true))
-
-      expect(subject.clean(force: true)).to eq(true)
-    end
-
-    it "adds --excludes options to cmd when opts[:excludes]" do
-      excludes = [ 'exclude_pattern_1', 'second_exclude_pattern' ]
-
-      expect(subject).to receive(:git).with(array_including(excludes.unshift('clean')), any_args).and_return(double(:result, success?: true))
-
-      expect(subject.clean(excludes: excludes)).to eq(true)
-    end
-  end
-
-  describe ".rev_parse" do
-    it "returns stdout when git exits zero" do
-      to_resolve = 'branch_name'
-
-      expect(subject).to receive(:git).with(array_including('rev-parse', to_resolve), any_args).and_return(double(:result, success?: true, stdout: "123abc"))
-
-      expect(subject.rev_parse(to_resolve)).to eq('123abc')
-    end
-
-    it "raises R10K::Git::GitError with stderr when git exits non-zero" do
-      expect(subject).to receive(:git).with(array_including('rev-parse'), any_args).and_return(double(:result, success?: false, stderr: 'something failed'))
-
-      expect { subject.rev_parse('something') }.to raise_error(R10K::Git::GitError, /something failed/)
-    end
-  end
+  let(:git_dir) { "/tmp/r10k/cache/git_dir.git" }
+  let(:work_tree) { "/tmp/r10k/work/work_tree" }
 
   describe ".blob_at" do
     it "returns stdout when git exits zero" do
@@ -74,13 +13,13 @@ RSpec.describe R10K::Git::ShellGit do
 
       expect(subject).to receive(:git).with(array_including('cat-file', '--textconv', "#{branch}:#{path}"), any_args).and_return(double(:result, success?: true, stdout: blob_data))
 
-      expect(subject.blob_at(branch, path)).to eq(blob_data)
+      expect(subject.blob_at(git_dir, branch, path)).to eq(blob_data)
     end
 
     it "raises R10K::Git::GitError with stderr when git exits non-zero" do
       expect(subject).to receive(:git).with(array_including('cat-file'), any_args).and_return(double(:result, success?: false, stderr: 'something failed'))
 
-      expect { subject.blob_at('branch', 'path') }.to raise_error(R10K::Git::GitError, /something failed/)
+      expect { subject.blob_at(git_dir, 'branch', 'path') }.to raise_error(R10K::Git::GitError, /something failed/)
     end
   end
 
@@ -89,13 +28,86 @@ RSpec.describe R10K::Git::ShellGit do
       mock_output = "refs/heads/191_cache_update_fns\nrefs/heads/195_serialize_envmap\nrefs/heads/457_api_fixups\n"
       expect(subject).to receive(:git).with(array_including('for-each-ref'), any_args).and_return(double(:result, success?: true, stdout: mock_output))
 
-      expect(subject.branch_list).to contain_exactly('191_cache_update_fns', '195_serialize_envmap', '457_api_fixups')
+      expect(subject.branch_list(git_dir)).to contain_exactly('191_cache_update_fns', '195_serialize_envmap', '457_api_fixups')
     end
 
     it "raises R10K::Git::GitError with stderr when git exits non-zero" do
       expect(subject).to receive(:git).with(array_including('for-each-ref'), any_args).and_return(double(:result, success?: false, stderr: 'something failed'))
 
-      expect { subject.branch_list }.to raise_error(R10K::Git::GitError, /something failed/)
+      expect { subject.branch_list(git_dir) }.to raise_error(R10K::Git::GitError, /something failed/)
+    end
+  end
+
+  describe ".clean" do
+    it "returns true when git exits zero" do
+      expect(subject).to receive(:git).with(array_including('clean'), any_args).and_return(double(:result, success?: true))
+
+      expect(subject.clean(work_tree)).to eq(true)
+    end
+
+    it "raises R10K::Git::GitError with stderr when git exits non-zero" do
+      expect(subject).to receive(:git).with(array_including('clean'), any_args).and_return(double(:result, success?: false, stderr: 'something failed'))
+
+      expect { subject.clean(work_tree) }.to raise_error(R10K::Git::GitError, /something failed/)
+    end
+
+    it "adds --force flag to cmd when opts[:force]" do
+      expect(subject).to receive(:git).with(array_including('clean', '--force'), any_args).and_return(double(:result, success?: true))
+
+      expect(subject.clean(work_tree, force: true)).to eq(true)
+    end
+
+    it "adds --excludes options to cmd when opts[:excludes]" do
+      excludes = [ 'exclude_pattern_1', 'second_exclude_pattern' ]
+
+      expect(subject).to receive(:git).with(array_including(excludes.unshift('clean')), any_args).and_return(double(:result, success?: true))
+
+      expect(subject.clean(work_tree, excludes: excludes)).to eq(true)
+    end
+  end
+
+  describe ".clone" do
+    pending
+  end
+
+  describe ".fetch" do
+    pending
+  end
+
+  describe ".reset" do
+    it "returns true when git exits zero" do
+      expect(subject).to receive(:git).with(array_including('reset'), any_args).and_return(double(:result, success?: true))
+
+      expect(subject.reset(work_tree, 'testref')).to eq(true)
+    end
+
+    it "raises R10K::Git::GitError with stderr when git exits non-zero" do
+      expect(subject).to receive(:git).with(array_including('reset'), any_args).and_return(double(:result, success?: false, stderr: 'something failed'))
+
+      expect { subject.reset(work_tree, 'testref') }.to raise_error(R10K::Git::GitError, /something failed/)
+    end
+
+    it "adds --hard flag to cmd when opts[:hard]" do
+      expect(subject).to receive(:git).with(array_including('reset', '--hard'), any_args).and_return(double(:result, success?: true))
+
+      expect(subject.reset(work_tree, 'testref', hard: true)).to eq(true)
+    end
+  end
+
+
+  describe ".resolve_commit" do
+    it "returns stdout when git exits zero" do
+      to_resolve = 'branch_name'
+
+      expect(subject).to receive(:git).with(array_including('rev-parse', to_resolve), any_args).and_return(double(:result, success?: true, stdout: "123abc"))
+
+      expect(subject.resolve_commit(git_dir, to_resolve)).to eq('123abc')
+    end
+
+    it "raises R10K::Git::GitError with stderr when git exits non-zero" do
+      expect(subject).to receive(:git).with(array_including('rev-parse'), any_args).and_return(double(:result, success?: false, stderr: 'something failed'))
+
+      expect { subject.resolve_commit(git_dir, 'something') }.to raise_error(R10K::Git::GitError, /something failed/)
     end
   end
 

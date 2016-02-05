@@ -33,6 +33,6 @@ class R10K::Git::ShellGit::BareRepository < R10K::Git::ShellGit::BaseRepository
   end
 
   def blob_at(treeish, path)
-    R10K::Git::ShellGit.blob_at(treeish, path, :git_dir => git_dir.to_s)
+    R10K::Git::ShellGit.blob_at(git_dir.to_s, treeish, path)
   end
 end
