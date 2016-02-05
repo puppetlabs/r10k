@@ -2,56 +2,7 @@ require 'spec_helper'
 require 'r10k/api'
 
 RSpec.describe R10K::API do
-  let(:cachedir) { "/tmp/r10k/cache" }
-
-  let(:modules) do
-    [
-      { name: "git_module", type: "git", resolved_version: "git_version", },
-      { name: "forge_module", type: "forge", resolved_version: "forge_version", },
-      { name: "local_module", type: "local", resolved_version: "local_version", },
-      { name: "crazy_town", type: "banana", resolved_version: "cavendish", },
-    ]
-  end
-
-  let(:source) do
-    { type: :git }
-  end
-
-  let(:envmap) do
-    { source: source, modules: modules, fake: true }
-  end
-
-  let(:unresolved_forge_modules) do
-    [
-      { name: 'apache', type: 'forge', source: 'puppetlabs-apache', version: 'unpinned' }, # unpinned and undeployed
-      { name: 'stdlib', type: 'forge', source: 'puppetlabs-stdlib', version: 'unpinned', deployed_version: '1.0.0' }, # unpinned but already deployed
-      { name: 'mysql', type: 'forge', source: 'puppetlabs-mysql', version: 'latest' }, # track latest
-      { name: 'nginx', type: 'forge', source: 'jfryman-nginx', version: '0.2.4' }, # pin to version
-      { name: 'concat', type: 'forge', source: 'puppetlabs-concat', version: '1.x' }, # track latest in range
-      { name: 'hiera', type: 'forge', source: 'hunner-hiera', version: '>=1.4.0 <1.5.0' }, # track latest in range (alt)
-      { name: 'wordpress', type: 'forge', source: 'hunner/wordpress', version: '1.0.0' }, # slash seperated
-    ]
-  end
-
-  let(:unresolved_git_modules) do
-    [
-      { name: 'acl', type: 'git', source: 'git://github.com/puppetlabs/puppetlabs-acl', version: '1.1.0' }, # tag
-      { name: 'activemq', type: 'git', source: 'git://github.com/puppetlabs/puppetlabs-activemq.git', version: '5126eb7a1da3cc3687f99c5e568aceb87362c7a6' }, # full sha
-      { name: 'alternatives', type: 'git', source: 'git://github.com/adrienthebo/puppet-alternatives.git', version: '8f7c2e' }, # short sha
-      { name: 'apt', type: 'git', source: 'git://github.com/puppetlabs/puppetlabs-apt.git', version: 'feature_branch' }, # track branch
-      { name: 'autosign', type: 'git', source: 'git://github.com/danieldreier/puppet-autosign.git', version: '05461f112af32422a2139a5ebc4e4b5a1bef8aab', deployed_version: '05461f112af32422a2139a5ebc4e4b5a1bef8aab' }, # no-op
-    ]
-  end
-
-  let(:unresolved_modules) { [ unresolved_forge_modules, unresolved_git_modules ].flatten }
-
-  let(:unresolved_envmap) do
-    { source: source, modules: unresolved_modules, fake: true }
-  end
-
-  let(:mock_fh) do
-    instance_double("IO", write: true, close: true)
-  end
+  include_context "R10K::API"
 
   describe ".get_puppetfile" do
     let(:control_source_git) do
@@ -307,13 +258,13 @@ RSpec.describe R10K::API do
 
         module_names.each do |name|
           if name == unresolvable
-            expect(R10K::API).to receive(:resolve_module).with(name, anything, anything).and_raise(R10K::API::UnresolvableError.new("arbitrarily unresolvable"))
+            expect(R10K::API).to receive(:resolve_module).with(name, anything, anything).and_raise(R10K::API::Errors::UnresolvableError.new("arbitrarily unresolvable"))
           else
             expect(R10K::API).to receive(:resolve_module).with(name, anything, anything).and_return(unresolved_envmap)
           end
         end
 
-        expect { subject.resolve_environment(unresolved_envmap) }.to raise_error(R10K::API::UnresolvableError)
+        expect { subject.resolve_environment(unresolved_envmap) }.to raise_error(R10K::API::Errors::UnresolvableError)
       end
 
       it "should raise a single exception with all failed modules" do
@@ -322,11 +273,11 @@ RSpec.describe R10K::API do
         allow(R10K::API).to receive(:resolve_module).and_return(unresolved_envmap)
 
         unresolvable_names.each do |name|
-          allow(R10K::API).to receive(:resolve_module).with(name, anything, anything).and_raise(R10K::API::UnresolvableError.new("arbitrarily unresolvable"))
+          allow(R10K::API).to receive(:resolve_module).with(name, anything, anything).and_raise(R10K::API::Errors::UnresolvableError.new("arbitrarily unresolvable"))
         end
 
         expect { subject.resolve_environment(unresolved_envmap) }.to raise_error do |error|
-          expect(error).to be_a(R10K::API::UnresolvableError)
+          expect(error).to be_a(R10K::API::Errors::UnresolvableError)
 
           unresolvable_names.each do |name|
             expect(error.message).to match(Regexp.new(name, Regexp::IGNORECASE | Regexp::MULTILINE))
@@ -362,7 +313,7 @@ RSpec.describe R10K::API do
     it "should raise for unrecognized module types" do
       crazy_envmap = unresolved_envmap.merge(modules: [{name: 'crazy_type', type: 'banana'}])
 
-      expect { subject.resolve_module('crazy_type', crazy_envmap) }.to raise_error(R10K::API::UnresolvableError, /unrecognized module source type/i)
+      expect { subject.resolve_module('crazy_type', crazy_envmap) }.to raise_error(R10K::API::Errors::UnresolvableError, /unrecognized module source type/i)
     end
 
     it "should return a complete env_map on success" do
@@ -624,107 +575,5 @@ RSpec.describe R10K::API do
 
   describe ".parse_deployed_module" do
     pending
-  end
-
-  describe ".resolve_git_module" do
-    let(:git_mod) { unresolved_git_modules.sample }
-
-    it "requires a cachedir option" do
-      expect { subject.send(:resolve_git_module, git_mod) }.to raise_error(RuntimeError, /value.*required.*cachedir/i)
-    end
-
-    it "uses git.rev_parse to resolve version" do
-      expect(R10K::API::Git).to receive(:rev_parse).with(git_mod[:version], anything).and_return("abc123")
-
-      expect(subject.send(:resolve_git_module, git_mod, {cachedir: cachedir})).to include(resolved_version: "abc123")
-    end
-
-    it "raises appropriatly on failure" do
-      expect(R10K::API::Git).to receive(:rev_parse).and_raise(R10K::Git::GitError.new('arbitrary failure'))
-
-      expect { subject.send(:resolve_git_module, git_mod, {cachedir: cachedir}) }.to raise_error(R10K::API::UnresolvableError, /unable.*resolve.*valid.*git.*commit/i)
-    end
-
-    it "returns complete mod hash with resolved_version key added" do
-      allow(R10K::API::Git).to receive(:rev_parse).and_return("abc123")
-
-      expect(subject.send(:resolve_git_module, git_mod, {cachedir: cachedir})).to eq(git_mod.merge(resolved_version: "abc123"))
-    end
-  end
-
-  describe ".resolve_forge_module" do
-    let(:mock_releases) do
-      [
-        double(:release, version: "3.0.0-pre"),
-        double(:release, version: "2.0.0"),
-        double(:release, version: "1.4.2"),
-        double(:release, version: "1.0.0"),
-        double(:release, version: "0.2.9"),
-      ]
-    end
-
-    let(:mock_forge_module) { instance_double(PuppetForge::V3::Module, releases: mock_releases) }
-
-    context "when module is 'unpinned'" do
-      context "when module is not already deployed" do
-        let(:forge_mod) { unresolved_forge_modules.find { |m| m[:version] == 'unpinned' && !m[:deployed_version] } }
-
-        it "should resolve as :latest" do
-          allow(PuppetForge::V3::Module).to receive(:find).with(forge_mod[:source]).and_return(mock_forge_module)
-
-          expect(subject.send(:resolve_forge_module, forge_mod)).to eq(forge_mod.merge(resolved_version: "2.0.0"))
-        end
-      end
-
-      context "when module is already deployed" do
-        let(:forge_mod) { unresolved_forge_modules.find { |m| m[:version] == 'unpinned' && m[:deployed_version] } }
-
-        it "should resolve to deployed version" do
-          allow(PuppetForge::V3::Module).to receive(:find).with(forge_mod[:source]).and_return(mock_forge_module)
-
-          expect(subject.send(:resolve_forge_module, forge_mod)).to eq(forge_mod.merge(resolved_version: forge_mod[:deployed_version]))
-        end
-      end
-    end
-
-    context "when module is pinned to 'latest'" do
-      let(:forge_mod) { unresolved_forge_modules.find { |m| m[:version] == 'latest' } }
-
-      it "should resolve as :latest" do
-        allow(PuppetForge::V3::Module).to receive(:find).with(forge_mod[:source]).and_return(mock_forge_module)
-
-        expect(subject.send(:resolve_forge_module, forge_mod)).to eq(forge_mod.merge(resolved_version: "2.0.0"))
-      end
-    end
-
-    context "when module is pinned to N.x-style range" do
-      let(:forge_mod) { unresolved_forge_modules.find { |m| m[:version] == "1.x" } }
-
-      it "should resolve as latest in range" do
-        allow(PuppetForge::V3::Module).to receive(:find).with(forge_mod[:source]).and_return(mock_forge_module)
-
-        expect(subject.send(:resolve_forge_module, forge_mod)).to eq(forge_mod.merge(resolved_version: "1.4.2"))
-      end
-    end
-
-    context "when module is pinned to >=<-style range" do
-      let(:forge_mod) { unresolved_forge_modules.find { |m| m[:version] == ">=1.4.0 <1.5.0" } }
-
-      it "should resolve as latest in range" do
-        allow(PuppetForge::V3::Module).to receive(:find).with(forge_mod[:source]).and_return(mock_forge_module)
-
-        expect(subject.send(:resolve_forge_module, forge_mod)).to eq(forge_mod.merge(resolved_version: "1.4.2"))
-      end
-    end
-
-    context "when module is pinned to version" do
-      let(:forge_mod) { unresolved_forge_modules.find { |m| m[:version] == "1.0.0" } }
-
-      it "should resolve to exact version" do
-        allow(PuppetForge::V3::Module).to receive(:find).with(forge_mod[:source]).and_return(mock_forge_module)
-
-        expect(subject.send(:resolve_forge_module, forge_mod)).to eq(forge_mod.merge(resolved_version: "1.0.0"))
-      end
-    end
   end
 end
