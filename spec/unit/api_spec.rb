@@ -187,8 +187,8 @@ RSpec.describe R10K::API do
       expect(subject.update_cache(module_source_g, cachedir: base_cachedir)).to eq(true)
     end
 
-    it "raises a NotImplementedError for a forge module_source" do
-      expect { subject.update_cache(module_source_f) }.to raise_error(NotImplementedError)
+    it "does nothing for a forge module_source" do
+      expect(subject.update_cache(module_source_f)).to eq(nil)
     end
 
     it "raises a NotImplementedError for an svn module_source" do
@@ -556,14 +556,24 @@ RSpec.describe R10K::API do
     end
 
     context "for forge-based modules" do
-      pending
+      it "calls get_cached_forge_module for a forge module" do
+        opts = {cachedir: '/tmp'}
+        env_map = {modules: [{name: 'amodule', resolved_version: '0.1.0', type: :forge, source: 'gozar-amodule'}]}
+        mod = env_map[:modules][0]
+        release_slug = [mod[:source], mod[:resolved_version]].join('-')
+        cachedir = opts[:cachedir]
+
+        allow(Dir).to receive(:mktmpdir)
+        allow(PuppetForge::Unpacker).to receive(:unpack)
+        expect(R10K::API).to receive(:get_cached_forge_release).with(release_slug, cachedir, false, {}).and_return('a_fake_unpack_dir_for_gozar')
+        expect(subject.write_module(mod[:name], env_map, opts[:cachedir], opts)).to eq(true)
+      end
     end
 
     context "for local modules" do
       pending
     end
   end
-
 
   describe ".parse_deployed_git_env" do
     pending

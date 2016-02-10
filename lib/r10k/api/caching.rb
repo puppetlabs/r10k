@@ -2,6 +2,7 @@ require 'r10k/api/errors'
 require 'r10k/api/util'
 
 require 'r10k/logging'
+require 'puppet_forge'
 
 module R10K
   module API
@@ -47,7 +48,7 @@ module R10K
         when :git
           update_git_cache(source[:source], opts)
         when :forge
-          raise NotImplementedError
+          update_forge_cache(source[:source], opts)
         when :svn
           raise NotImplementedError
         else
@@ -74,13 +75,16 @@ module R10K
 
       # Update local cache of the given module from the Puppet Forge.
       #
-      # @param module_slug [String] Hyphen separated namespace and module name of the module to be cached or updated. (E.g. "puppetlabs-apache")
+      # @param module_slug [String] Hyphen separated namespace and name of the module to be cached or updated. (E.g. "puppetlabs-apache")
       # @option opts [String] :cachedir Base path where caches are stored.
       # @option opts [Hash] :forge Additional options to control interaction with a Puppet Forge API implementation.
       # @return [true] Returns true on success, raises on failure.
       # @raise [RuntimeError]
       def update_forge_cache(module_slug, opts={})
-        raise NotImplementedError.new("Forge module data caching is not implemented yet. Attemepted module = #{module_slug}")
+        # This is currently a no-op.
+        # This would have stored the response from a forge query for candidates for a release.
+        # But if the forge module is already deployed, then we should already have the tarball.
+        # The other case is that we need to get a new version, so the query will need to be fresh.
       end
     end
   end
