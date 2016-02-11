@@ -66,14 +66,12 @@ module R10K
           raise R10K::Git::GitError.new("CloneCommand requires that local parent directory (#{local_parent}) already exist.")
         end
 
-        if opts[:private_key] || opts[:username]
-          raise NotImplementedError, "RJGit does not support SSH transport."
-        end
-
         clone_opts = {
           branch: :all,
           is_bare: opts[:bare],
         }
+        clone_opts = clone_opts.merge(private_key_file: opts[:private_key]) if opts[:private_key]
+        clone_opts = clone_opts.merge(username: opts[:username]) if opts[:username]
 
         begin
           ::RJGit::RubyGit.clone(remote, local, clone_opts)
@@ -87,15 +85,13 @@ module R10K
       end
 
       def fetch(git_dir, remote, opts={})
-        if opts[:private_key] || opts[:username]
-          raise NotImplementedError, "RJGit does not support SSH transport."
-        end
-
         repo = ::RJGit::Repo.new(git_dir, is_bare: true)
 
         fetch_opts = {
           refspecs: "+refs/*:refs/*",
         }
+        fetch_opts = fetch_opts.merge(private_key_file: opts[:private_key]) if opts[:private_key]
+        fetch_opts = fetch_opts.merge(username: opts[:username]) if opts[:username]
 
         begin
           repo.git.fetch(remote, fetch_opts)
