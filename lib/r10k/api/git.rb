@@ -56,7 +56,7 @@ module R10K
       # @return [true] Repo was successfully cloned to local path.
       # @raise [R10K::Git::GitError] An error was encountered, see exception message.
       def clone(local, remote, opts={})
-        git_opts = filter_opts(opts, :private_key, :user, :bare)
+        git_opts = filter_opts(opts, :private_key, :username, :bare)
 
         # TODO: swap arguments in provider to match
         provider.clone(remote, local, git_opts)
