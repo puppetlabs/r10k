@@ -38,6 +38,7 @@ describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby? 
     after(:each) { R10K::Git.settings.reset! }
 
     it "prefers a per-repository SSH private key" do
+      allow(File).to receive(:readable?).with("/etc/puppetlabs/r10k/ssh/tessier-ashpool-id_rsa").and_return true
       R10K::Git.settings[:repositories]["ssh://git@tessier-ashpool.freeside/repo.git"] = {private_key: "/etc/puppetlabs/r10k/ssh/tessier-ashpool-id_rsa"}
       creds = subject.get_ssh_key_credentials("ssh://git@tessier-ashpool.freeside/repo.git", nil)
       expect(creds).to be_a_kind_of(Rugged::Credentials::SshKey)
@@ -45,6 +46,7 @@ describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby? 
     end
 
     it "falls back to the global SSH private key" do
+      allow(File).to receive(:readable?).with("/etc/puppetlabs/r10k/ssh/id_rsa").and_return true
       R10K::Git.settings[:private_key] = "/etc/puppetlabs/r10k/ssh/id_rsa"
       creds = subject.get_ssh_key_credentials("ssh://git@tessier-ashpool.freeside/repo.git", nil)
       expect(creds).to be_a_kind_of(Rugged::Credentials::SshKey)
@@ -58,11 +60,20 @@ describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby? 
       }.to raise_error(R10K::Git::GitError, /no private key was given/)
     end
 
-    it "generates the rugged sshkey credential type" do
+    it "raises an error if the private key is unreadable" do
       R10K::Git.settings[:private_key] = "/some/nonexistent/.ssh/key"
+      expect(File).to receive(:readable?).with("/some/nonexistent/.ssh/key").and_return false
+      expect {
+        subject.get_ssh_key_credentials("https://tessier-ashpool.freeside/repo.git", nil)
+      }.to raise_error(R10K::Git::GitError, /Unable to use SSH key auth for.*is missing or unreadable/)
+    end
+
+    it "generates the rugged sshkey credential type" do
+      allow(File).to receive(:readable?).with("/etc/puppetlabs/r10k/ssh/id_rsa").and_return true
+      R10K::Git.settings[:private_key] = "/etc/puppetlabs/r10k/ssh/id_rsa"
       creds = subject.get_ssh_key_credentials("https://tessier-ashpool.freeside/repo.git", nil)
       expect(creds).to be_a_kind_of(Rugged::Credentials::SshKey)
-      expect(creds.instance_variable_get(:@privatekey)).to eq("/some/nonexistent/.ssh/key")
+      expect(creds.instance_variable_get(:@privatekey)).to eq("/etc/puppetlabs/r10k/ssh/id_rsa")
     end
   end
 
@@ -75,7 +86,8 @@ describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby? 
 
   describe "generating credentials" do
     it "creates ssh key credentials for the sshkey allowed type" do
-      R10K::Git.settings[:private_key] = "/some/nonexistent/.ssh/key"
+      allow(File).to receive(:readable?).with("/etc/puppetlabs/r10k/ssh/id_rsa").and_return true
+      R10K::Git.settings[:private_key] = "/etc/puppetlabs/r10k/ssh/id_rsa"
       expect(subject.call("https://tessier-ashpool.freeside/repo.git", nil, [:ssh_key])).to be_a_kind_of(Rugged::Credentials::SshKey)
     end
 
