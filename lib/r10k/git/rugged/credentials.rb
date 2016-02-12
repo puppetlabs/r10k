@@ -40,6 +40,10 @@ class R10K::Git::Rugged::Credentials
       raise R10K::Git::GitError.new("Git remote #{url.inspect} uses the SSH protocol but no private key was given", :git_dir => @repository.path.to_s)
     end
 
+    if !File.readable?(private_key)
+      raise R10K::Git::GitError.new("Unable to use SSH key auth for #{url.inspect}: private key #{private_key.inspect} is missing or unreadable", :git_dir => @repository.path.to_s)
+    end
+
     Rugged::Credentials::SshKey.new(:username => user, :privatekey => private_key)
   end
 
