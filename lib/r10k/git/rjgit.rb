@@ -70,8 +70,8 @@ module R10K
           branch: :all,
           is_bare: opts[:bare],
         }
-        clone_opts = clone_opts.merge(private_key_file: opts[:private_key]) if opts[:private_key]
-        clone_opts = clone_opts.merge(username: opts[:username]) if opts[:username]
+        clone_opts[:private_key_file] = opts[:private_key] if opts[:private_key]
+        clone_opts[:username] = opts[:username] if opts[:username]
 
         begin
           ::RJGit::RubyGit.clone(remote, local, clone_opts)
@@ -90,8 +90,8 @@ module R10K
         fetch_opts = {
           refspecs: "+refs/*:refs/*",
         }
-        fetch_opts = fetch_opts.merge(private_key_file: opts[:private_key]) if opts[:private_key]
-        fetch_opts = fetch_opts.merge(username: opts[:username]) if opts[:username]
+        fetch_opts[:private_key_file] = opts[:private_key] if opts[:private_key]
+        fetch_opts[:username] = opts[:username] if opts[:username]
 
         begin
           repo.git.fetch(remote, fetch_opts)
