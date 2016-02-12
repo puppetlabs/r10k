@@ -27,15 +27,19 @@ class R10K::Git::Rugged::Credentials
   def get_ssh_key_credentials(url, username_from_url)
     user = get_git_username(url, username_from_url)
 
-    per_repo_private_key = R10K::Git.settings[:repositories].fetch(url, {})[:private_key]
+    per_repo_private_key = nil
+    if per_repo_settings = R10K::Git.get_repo_settings(url)
+      per_repo_private_key = per_repo_settings[:private_key]
+    end
+
     global_private_key = R10K::Git.settings[:private_key]
 
     if per_repo_private_key
       private_key = per_repo_private_key
-      logger.debug2 "Using per-repository private key #{per_repo_private_key} for URL #{url.inspect}"
+      logger.debug2 "Using per-repository private key #{private_key} for URL #{url.inspect}"
     elsif global_private_key
       private_key = global_private_key
-      logger.debug2 "URL #{url.inspect} has a per-repository private key #{per_repo_private_key}"
+      logger.debug2 "URL #{url.inspect} has no per-repository private key using '#{private_key}'."
     else
       raise R10K::Git::GitError.new("Git remote #{url.inspect} uses the SSH protocol but no private key was given", :git_dir => @repository.path.to_s)
     end

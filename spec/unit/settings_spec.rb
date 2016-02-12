@@ -149,7 +149,14 @@ describe R10K::Settings do
     describe "git settings" do
       it "passes settings through to the git settings" do
         output = subject.evaluate("git" => {"provider" => "shellgit", "username" => "git"})
-        expect(output[:git]).to eq(:provider => :shellgit, :username => "git", :private_key => nil, :repositories => {})
+        expect(output[:git]).to eq(:provider => :shellgit, :username => "git", :private_key => nil, :repositories => [])
+      end
+
+      it "handles keywords in repository settings" do
+        output = subject.evaluate("git" => {"provider" => "shellgit",
+                                  "username" => "git",
+                                  "repositories" => [ {"remote" => "foo"} ]})
+        expect(output[:git]).to eq(:provider => :shellgit, :username => "git", :private_key => nil, :repositories => [{remote: "foo"}])
       end
     end
 
