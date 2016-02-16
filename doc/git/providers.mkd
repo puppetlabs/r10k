@@ -40,14 +40,26 @@ greater to use this provider.
 
 ### SSH Configuration
 
-In order to use rugged with SSH based Git repositories, the 'private_key' option
-must be provided. An optional 'username' field can be provided when the Git
-remote URL does not provide a username.
+Since the rugged provider does not read ~/.ssh if using SSH based Git
+repositories, the 'private_key' option must be provided. An optional 'username'
+field can be provided when the Git remote URL does not provide a username.
 
 ```yaml
 git:
   private_key: '/root/.ssh/id_rsa'
   username: 'git'
+```
+
+If you have per repository private keys you can add them with the repositories list.
+
+```yaml
+git:
+  # default private key
+  private_key: '/root/.ssh/id_rsa'
+  repositories:
+    - remote: "git@github.com:my_org/private_repo"
+      # private key for this repo only
+      private_key: '/root/.ssh/private_repo_id'
 ```
 
 #### Supported transports with Rugged
@@ -72,7 +84,7 @@ irb(main):001:0> require('rugged')
 => true
 irb(main):002:0> Rugged.features
 => [:threads, :https, :ssh]
-irb(main):003:0> 
+irb(main):003:0>
 ```
 You will require the ':https' or ':ssh' features to use the respective protocols
 in your Puppetfile module references or in r10k.yaml. R10K 2.0.0 and later will

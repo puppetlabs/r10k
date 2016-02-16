@@ -39,6 +39,7 @@ module R10K
       def assign(newvalues)
         return if newvalues.nil?
 
+        # TODO: this results in inconsistency for hashes inside arrays.
         R10K::Util::SymbolizeKeys.symbolize_keys!(newvalues)
         @settings.each_pair do |name, setting|
           if newvalues.key?(name)

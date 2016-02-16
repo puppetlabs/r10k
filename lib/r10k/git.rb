@@ -135,5 +135,9 @@ module R10K
     def_setting_attr :private_key
     def_setting_attr :username
     def_setting_attr :repositories, {}
+
+    def self.get_repo_settings(remote)
+      self.settings[:repositories].find {|r| r[:remote] == remote }
+    end
   end
 end

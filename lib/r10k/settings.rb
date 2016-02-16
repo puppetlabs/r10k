@@ -30,18 +30,19 @@ module R10K
         }),
 
         Definition.new(:repositories, {
-          :desc => "Repository specific configuration.",
-          :default => {},
-          :normalize => lambda do |repositories|
-            # The config file loading logic recursively converts hash keys that are strings to symbols,
-            # but in this case it makes sense to have string hash keys. This normalization undoes the
-            # hash key symbolization.
-            repositories.inject({}) do |retval, (key, value)|
-              retval[key.to_s] = value
+        :desc => "Repository specific configuration.",
+        :default => [],
+        :normalize => lambda do |repositories|
+        # The config file loading logic recursively converts hash keys that are strings to symbols,
+        # It doesn't understand hashes inside arrays though so we have to do this manually.
+          repositories.map do |repo|
+            repo.inject({}) do |retval, (key, value)|
+              retval[key.to_sym] = value
               retval
             end
           end
-        }),
+        end
+      }),
       ])
     end
 

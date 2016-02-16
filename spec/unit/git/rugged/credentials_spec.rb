@@ -39,7 +39,8 @@ describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby? 
 
     it "prefers a per-repository SSH private key" do
       allow(File).to receive(:readable?).with("/etc/puppetlabs/r10k/ssh/tessier-ashpool-id_rsa").and_return true
-      R10K::Git.settings[:repositories]["ssh://git@tessier-ashpool.freeside/repo.git"] = {private_key: "/etc/puppetlabs/r10k/ssh/tessier-ashpool-id_rsa"}
+      R10K::Git.settings[:repositories] = [{ remote: "ssh://git@tessier-ashpool.freeside/repo.git",
+        private_key: "/etc/puppetlabs/r10k/ssh/tessier-ashpool-id_rsa"}]
       creds = subject.get_ssh_key_credentials("ssh://git@tessier-ashpool.freeside/repo.git", nil)
       expect(creds).to be_a_kind_of(Rugged::Credentials::SshKey)
       expect(creds.instance_variable_get(:@privatekey)).to eq("/etc/puppetlabs/r10k/ssh/tessier-ashpool-id_rsa")
