@@ -31,6 +31,14 @@ module R10K
         return File.join(cachedir, 'forge', module_slug)
       end
 
+      def module_slug_from_release_slug(release_slug)
+        return release_slug.split('-')[0..-2].join('-')
+      end
+
+      def release_slug_from_module_slug_version(module_slug, version)
+        return [module_slug, version].join('-')
+      end
+
       def self.extended(receiver)
         receiver.class_eval do
           private_class_method :git

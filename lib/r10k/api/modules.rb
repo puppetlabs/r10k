@@ -3,6 +3,8 @@ require 'r10k/api/util'
 
 require 'r10k/logging'
 
+require 'puppet_forge'
+
 module R10K
   module API
     # Namespace containing R10K::API methods that interact primarily with one or more modules.
@@ -123,12 +125,19 @@ module R10K
             git.clean(path, git_dir: git_dir, force: true)
           end
         when :forge
-          tarball_cachedir = cachedir_for_forge_module(mod[:source], opts[:cachedir])
+          release_slug = release_slug_from_module_slug_version(mod[:source], mod[:resolved_version])
+          cachedir = opts[:cachedir] 
+          unpackdir = File.join(cachedir, 'unpack')
+          if !File.directory?(unpackdir)
+            FileUtils.mkdir_p(unpackdir)
+          end
 
-          # TODO: cache tarball
+          forge_opts = opts[:forge] || {}
+          release_tarball = get_cached_forge_release(release_slug, cachedir, false, forge_opts)
 
-          # TODO: use PuppetForge::Unpacker?
-          raise NotImplementedError
+          tmpdir = Dir.mktmpdir(release_slug, unpackdir)
+          PuppetForge::Unpacker.unpack(release_tarball, path, tmpdir)
+
         else
           raise NotImplementedError
         end
@@ -162,12 +171,11 @@ module R10K
           if !mod[:deployed_version]
             resolve_to = :latest
           else
-            resolve_to = mod[:deployed_version]
+            # this is the short circuit where the deployed version and the resolved version are the same and no forge search is required
+            mod[:resolved_version] = mod[:deployed_version]
+            return mod
           end
         end
-
-        # FIXME: if somehow they have a deployed but unpinned module whose version doesn't exist on Forge, this will
-        # currently fail to resolve
 
         begin
           # TODO: Filter out deleted releases?
@@ -195,6 +203,53 @@ module R10K
       end
       private_class_method :resolve_forge_module
 
+      # Cache a specific module release tarball from the Puppet Forge.
+      #
+      # @param release_slug [String] Hyphen separated namespace, module name, and release of the module to be cached or updated. (E.g. "puppetlabs-apache")
+      # @param force [Boolean] Whether or not to overwrite an existing release tarball if present.
+      # @option opts [String] :cachedir Base path where caches are stored.
+      # @option opts [Hash] :forge Additional options to control interaction with a Puppet Forge API implementation.
+      # @return [String] Returns the full path to the tarball on success, raises on failure.
+      # @raise [RuntimeError]
+      # @api private
+      def self.get_cached_forge_release(release_slug, cachedir, force = false, forge_opts = {})
+        module_slug = module_slug_from_release_slug(release_slug)
+        tarball_cachedir = cachedir_for_forge_module(module_slug, cachedir)
+
+        # TODO: Implement forge options, probably with supporting code in puppet_forge gem.
+        if !forge_opts.empty?
+          raise NotImplementedError "Updating the forge cached modules does not support forge options: #{forge_opts}"
+        end
+
+        if !File.directory?(tarball_cachedir)
+          FileUtils.mkdir_p(tarball_cachedir)
+        end
+
+        final_destination = File.join(tarball_cachedir, release_slug + ".tar.gz")
+
+        if !File.exists?(final_destination) || force
+
+          Dir.mktmpdir(release_slug, tarball_cachedir) do |tmpdir|
+            tmp_destination = File.join(tmpdir, release_slug + ".tar.gz")
+
+            begin
+              PuppetForge::Release.find(release_slug).tap do |release|
+                release.download(Pathname(tmp_destination))
+                release.verify(Pathname(tmp_destination))
+              end
+            rescue PuppetForge::ReleaseNotFound, PuppetForge::ReleaseForbidden => e
+              raise RuntimeError.new, e.message, e.backtrace
+            rescue PuppetForge::V3::Release::ChecksumMismatch => e
+              raise RuntimeError.new, "The checksum of the downloaded tarball does not match. #{e.message}", e.backtrace
+            end
+
+            FileUtils.mv(tmp_destination, final_destination, force: true)
+          end
+        end
+
+        return final_destination
+      end
+      private_class_method :get_cached_forge_release
     end
   end
 end
