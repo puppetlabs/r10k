@@ -177,9 +177,10 @@ module R10K
           end
         end
 
+        forge_opts = opts[:forge] || {}
         begin
           # TODO: Filter out deleted releases?
-          candidates = PuppetForge::V3::Module.find(mod[:source]).releases
+          candidates = PuppetForge::V3::Module.find_stateless(mod[:source], forge_opts).releases
         rescue Faraday::ResourceNotFound => e
           raise Errors::UnresolvableError.new("Unable to resolve '#{mod[:name]}', '#{mod[:source]}' could not be found on the Puppet Forge.")
         end
@@ -216,11 +217,6 @@ module R10K
         module_slug = module_slug_from_release_slug(release_slug)
         tarball_cachedir = cachedir_for_forge_module(module_slug, cachedir)
 
-        # TODO: Implement forge options, probably with supporting code in puppet_forge gem.
-        if !forge_opts.empty?
-          raise NotImplementedError "Updating the forge cached modules does not support forge options: #{forge_opts}"
-        end
-
         if !File.directory?(tarball_cachedir)
           FileUtils.mkdir_p(tarball_cachedir)
         end
@@ -233,7 +229,7 @@ module R10K
             tmp_destination = File.join(tmpdir, release_slug + ".tar.gz")
 
             begin
-              PuppetForge::Release.find(release_slug).tap do |release|
+              PuppetForge::Release.find_stateless(release_slug, forge_opts).tap do |release|
                 release.download(Pathname(tmp_destination))
                 release.verify(Pathname(tmp_destination))
               end

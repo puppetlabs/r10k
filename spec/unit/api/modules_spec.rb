@@ -53,7 +53,7 @@ RSpec.describe R10K::API::Modules do
         let(:forge_mod) { unresolved_forge_modules.find { |m| m[:version] == 'unpinned' && !m[:deployed_version] } }
 
         it "should resolve as :latest" do
-          allow(PuppetForge::V3::Module).to receive(:find).with(forge_mod[:source]).and_return(mock_forge_module)
+          allow(PuppetForge::V3::Module).to receive(:find_stateless).with(forge_mod[:source], {}).and_return(mock_forge_module)
 
           expect(subject.send(:resolve_forge_module, forge_mod)).to eq(forge_mod.merge(resolved_version: "2.0.0"))
         end
@@ -63,7 +63,7 @@ RSpec.describe R10K::API::Modules do
         let(:forge_mod) { unresolved_forge_modules.find { |m| m[:version] == 'unpinned' && m[:deployed_version] } }
 
         it "should resolve to deployed version" do
-          allow(PuppetForge::V3::Module).to receive(:find).with(forge_mod[:source]).and_return(mock_forge_module)
+          allow(PuppetForge::V3::Module).to receive(:find_stateless).with(forge_mod[:source]).and_return(mock_forge_module)
 
           expect(subject.send(:resolve_forge_module, forge_mod)).to eq(forge_mod.merge(resolved_version: forge_mod[:deployed_version]))
         end
@@ -74,7 +74,7 @@ RSpec.describe R10K::API::Modules do
       let(:forge_mod) { unresolved_forge_modules.find { |m| m[:version] == 'latest' } }
 
       it "should resolve as :latest" do
-        allow(PuppetForge::V3::Module).to receive(:find).with(forge_mod[:source]).and_return(mock_forge_module)
+        allow(PuppetForge::V3::Module).to receive(:find_stateless).with(forge_mod[:source], {}).and_return(mock_forge_module)
 
         expect(subject.send(:resolve_forge_module, forge_mod)).to eq(forge_mod.merge(resolved_version: "2.0.0"))
       end
@@ -84,7 +84,7 @@ RSpec.describe R10K::API::Modules do
       let(:forge_mod) { unresolved_forge_modules.find { |m| m[:version] == "1.x" } }
 
       it "should resolve as latest in range" do
-        allow(PuppetForge::V3::Module).to receive(:find).with(forge_mod[:source]).and_return(mock_forge_module)
+        allow(PuppetForge::V3::Module).to receive(:find_stateless).with(forge_mod[:source], {}).and_return(mock_forge_module)
 
         expect(subject.send(:resolve_forge_module, forge_mod)).to eq(forge_mod.merge(resolved_version: "1.4.2"))
       end
@@ -94,7 +94,7 @@ RSpec.describe R10K::API::Modules do
       let(:forge_mod) { unresolved_forge_modules.find { |m| m[:version] == ">=1.4.0 <1.5.0" } }
 
       it "should resolve as latest in range" do
-        allow(PuppetForge::V3::Module).to receive(:find).with(forge_mod[:source]).and_return(mock_forge_module)
+        allow(PuppetForge::V3::Module).to receive(:find_stateless).with(forge_mod[:source], {}).and_return(mock_forge_module)
 
         expect(subject.send(:resolve_forge_module, forge_mod)).to eq(forge_mod.merge(resolved_version: "1.4.2"))
       end
@@ -104,7 +104,7 @@ RSpec.describe R10K::API::Modules do
       let(:forge_mod) { unresolved_forge_modules.find { |m| m[:version] == "1.0.0" } }
 
       it "should resolve to exact version" do
-        allow(PuppetForge::V3::Module).to receive(:find).with(forge_mod[:source]).and_return(mock_forge_module)
+        allow(PuppetForge::V3::Module).to receive(:find_stateless).with(forge_mod[:source], {}).and_return(mock_forge_module)
 
         expect(subject.send(:resolve_forge_module, forge_mod)).to eq(forge_mod.merge(resolved_version: "1.0.0"))
       end
