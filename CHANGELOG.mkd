@@ -1,6 +1,35 @@
 CHANGELOG
 =========
 
+2.2.0
+-----
+
+2016/03/08
+
+### Notes
+
+(RK-154) Per-repo config for Git sources
+
+Git repository options, such as the SSH private key, can now be set indepdently for each repository
+when using the Rugged provider. See [documentation](https://github.com/puppetlabs/r10k/blob/master/doc/git/providers.mkd#ssh-configuration-1)
+for details.
+
+(RK-220) Improved error message for unreadable SSH keys
+
+r10k will now check to ensure that the configured SSH private key for a given repository is readable
+before attempting to connect. This will result in a clearer error message in situations where the
+key file is not readable.
+
+(CODEMGMT-453) Support for running under JRuby 1.7 with shellgit provider
+
+r10k should now run successfully under JRuby 1.7.x when using the "shellgit" provider.
+
+(MAINT) Documentation fixes
+
+Various errors and inconsistencies in the documentation have been fixed thanks to contributions
+from [Paul Tobias](https://github.com/tobiaspal), [Rob Nelson](https://github.com/rnelson0), and
+[David Danzilio](https://github.com/danzilio). Thanks!
+
 2.1.1
 -----
 
