@@ -107,7 +107,7 @@ overrides the global private_key setting.
 ```yaml
 git:
   repositories:
-    "ssh://tessier-ashpool.freeside/protected-repo.git":
+    - remote: "ssh://tessier-ashpool.freeside/protected-repo.git"
       private_key: "/etc/puppetlabs/r10k/ssh/id_rsa-protected-repo-deploy-key"
 ```
 
