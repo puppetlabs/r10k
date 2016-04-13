@@ -30,7 +30,7 @@ describe R10K::Initializers::ForgeInitializer do
 
   it "configures PuppetForge connection proxy" do
     subject = described_class.new({:proxy => 'http://my.site.proxy:3128'})
-    expect(PuppetForge::V3::Base.conn).to receive(:proxy).with('http://my.site.proxy:3128')
+    expect(PuppetForge::Connection).to receive(:proxy=).with('http://my.site.proxy:3128')
     subject.call
   end
 end
