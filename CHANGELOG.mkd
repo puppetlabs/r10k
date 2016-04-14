@@ -1,6 +1,18 @@
 CHANGELOG
 =========
 
+2.2.1
+-----
+
+2016/03/14
+
+(RK-229) Setting Forge proxy options breaks PE Authentication
+
+A bug in the interaction between r10k and the puppet\_forge gem was preventing the correct
+Authorization headers for Puppet Enterprise-only modules from being included with requests
+to the Puppet Forge when r10k was also configured to use a proxy. This bug has been resolved
+by adding new functionality to the puppet\_forge gem and updating r10k to use the new version.
+
 2.2.0
 -----
 
