@@ -49,7 +49,7 @@ module R10K
     class ForgeInitializer < BaseInitializer
       def call
         with_setting(:baseurl) { |value| PuppetForge.host = value }
-        with_setting(:proxy) { |value| PuppetForge::V3::Base.conn.proxy(value) }
+        with_setting(:proxy) { |value| PuppetForge::Connection.proxy = value }
       end
     end
   end
