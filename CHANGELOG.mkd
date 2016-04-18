@@ -1,10 +1,23 @@
 CHANGELOG
 =========
 
+2.2.2
+-----
+
+2016/04/18
+
+(RK-241) "deploy display" action does not properly format wrapped exceptions
+
+The "deploy display" action was not capturing and logging exceptions in the same way as
+other related actions. This meant that in many cases, when an error occurred, the 
+underlying cause was not being shown. Specifically, the "deploy display" action was
+not benefitting from the improved error messaging for unreadable SSH keys which was 
+added in r10k 2.2.0 as part of RK-220.
+
 2.2.1
 -----
 
-2016/03/14
+2016/04/14
 
 (RK-229) Setting Forge proxy options breaks PE Authentication
 
