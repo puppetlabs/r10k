@@ -26,6 +26,9 @@ module R10K
 
           # exit 0
           true
+        rescue => e
+          logger.error R10K::Errors::Formatting.format_exception(e, @trace)
+          false
         end
 
         private
