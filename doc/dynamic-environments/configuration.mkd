@@ -52,6 +52,28 @@ The cachedir setting defaults to `~/.r10k`. If the HOME environment variable is
 unset r10k will assume that r10k is being run with the Puppet [`prerun_command`][prerun_command]
 setting and will set the cachedir default to `/root/.r10k`.
 
+### proxy
+
+The 'proxy' setting configures a proxy server to use for all operations which occur over
+an HTTP(S) transport. You can override this setting for Git or Forge operations only by
+setting the 'proxy' setting under the 'git' or 'forge' settings. You can also override
+for a specific Git repository by setting a proxy in the 'repositories' list of the 'git'
+setting. By default, r10k will look for and use the first environment variable it finds
+in this list: HTTPS\_PROXY, https\_proxy, HTTP\_PROXY, http\_proxy. If no proxy setting
+is found in the environment, this setting will default to use no proxy.
+
+```yaml
+proxy: 'http://proxy.example.com:3128'
+```
+
+r10k also supports using authenticated proxies with either Basic or Digest authentication:
+
+```yaml
+proxy: 'http://user:password@proxy.example.com:3128'
+```
+
+The proxy server being used will be logged at the "debug" level when r10k runs.
+
 ### git
 
 The 'git' setting is a hash that contains Git specific settings.
@@ -67,6 +89,12 @@ git:
 
 See the [git provider documentation](../git/providers.mkd) for more information
 regarding Git providers.
+
+#### proxy
+
+The 'proxy' setting allows you to set or override the global proxy setting specifically
+for Git operations that use an HTTP(S) transport. See the global proxy setting documentation
+for more information and examples.
 
 #### username
 
@@ -111,6 +139,11 @@ git:
       private_key: "/etc/puppetlabs/r10k/ssh/id_rsa-protected-repo-deploy-key"
 ```
 
+##### proxy
+
+The 'proxy' setting allows you to set or override the global proxy setting for a single, specific
+repository. See the global proxy setting documentation for more information and examples.
+
 ### forge
 
 The 'forge' setting is a hash that contains settings for downloading modules
@@ -118,16 +151,8 @@ from the Puppet Forge.
 
 #### proxy
 
-The proxy option sets an optional HTTP proxy to use when downloading modules
-from the Forge.
-
-```yaml
-forge:
-  proxy: 'http://my-site.proxy:3128'
-```
-
-If no proxy is given, r10k will check the environment variables 'HTTPS_PROXY',
-'https_proxy', 'HTTP_PROXY', and 'http_proxy' in that order for a proxy URL.
+The 'proxy' setting allows you to set or override the global proxy setting for all Forge
+interactions. See the global proxy setting documentation for more information and examples.
 
 #### baseurl
 

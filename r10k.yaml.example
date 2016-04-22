@@ -9,18 +9,25 @@
 # be updated.
 #
 # The default value is "~/.r10k"
-cachedir: '/var/cache/r10k'
+#cachedir: '/var/cache/r10k'
+
+# The 'proxy' setting configures an HTTP proxy to use for all HTTP/HTTPS
+# operations performed by r10k. This includes requests to the Puppet Forge
+# as well as any Git operations performed against an HTTP/HTTPS remote.
+# You can also configure specific proxies for only Git or Forge operations
+# using settings below. Authenticated proxies can be configured by providing
+# credentials in the URL, e.g. 'https://username:password@proxy.example.com:8888'
+#proxy: 'https://proxy.example.com:8888'
 
 # The 'sources' setting determines what repositories r10k will use when creating
 # Puppet environments.
 sources:
   # Each source should have a unique name, and preferrably should only use
   # alphanumeric characters and underscores.
-  operations:
-
+  #operations:
     # The 'remote' setting determines the location of the VCS repository used
     # for creating environments.
-    remote: 'git@github.com:my-org/org-operations-modules'
+    #remote: 'git@github.com:my-org/org-operations-modules'
 
     # The 'basedir' setting specifies where environments will be created for
     # this source. This setting should match the Puppet 'environmentpath'
@@ -28,19 +35,19 @@ sources:
     #
     # See http://docs.puppetlabs.com/references/latest/configuration.html#environmentpath
     # for more information about the Puppet 'environmentpath' setting.
-    basedir: '/etc/puppetlabs/puppet/environments'
+    #basedir: '/etc/puppetlabs/puppet/environments'
 
   # One or more sources can be specified; each source is simple another entry
   # in the sources map.
-  qa:
-    remote: 'git@github.com:my-org/org-qa-modules'
+  #qa:
+    #remote: 'git@github.com:my-org/org-qa-modules'
 
     # Multiple sources can have the same 'basedir' setting, in case there is a
     # reason to push different sets of environments to the same Puppet master.
     # If two different sources have the same basedir care should be exercised
     # to make sure that two sources don't try create multiple environments with
     # the same name. See the 'prefix' setting for more information.
-    basedir: '/etc/puppetlabs/puppet/environments'
+    #basedir: '/etc/puppetlabs/puppet/environments'
 
     # Sources can use the 'prefix' setting to avoid collisions between multiple
     # sources being created in the same directory. Setting prefix to true
@@ -49,7 +56,7 @@ sources:
     # branch.
     #
     # The default value is 'false'.
-    prefix: true
+    #prefix: true
 
 # Additional configuration can be supplied to configure how r10k uses Git
 # and what version of Git it uses.
@@ -58,7 +65,7 @@ git:
   # As of 1.5.0 r10k can interact with Git repositories in two ways - by
   # shelling out to the 'git' executable, and by using libgit2 through the
   # 'rugged' library.
-  provider: 'shellgit' # Either 'shellgit' or 'rugged', defaults to 'shellgit'
+  #provider: 'shellgit' # Either 'shellgit' or 'rugged', defaults to 'shellgit'
 
   # The 'private_key' setting sets the the SSH private key to use for remote
   # Git repositories accessed over SSH.
@@ -73,8 +80,27 @@ git:
   # The 'username' setting is only used by the 'rugged' Git provider.
   #username: 'git'
 
+  # The 'proxy' setting configures an HTTP proxy to use for all Git sources
+  # that have an HTTP/HTTPS remote URL. This can be overridden on a
+  # per-repository basis using the 'repositories' setting below.
+  #proxy: 'https://proxy.example.com:8888'
+
+  # The 'repositories' setting allows other git related settings to be
+  # configured for each remote repository individually. The value of
+  # this setting should be a list of repositories with a 'remote' key
+  # to identify the specific repository to be configured.
+  #repositories:
+  # - remote: "ssh://tessier-ashpool.freeside/protected-repo.git"
+  #   private_key: "/etc/puppetlabs/r10k/ssh/id_rsa-protected-repo-deploy-key"
+  #   proxy: 'https://proxy.example.com:8888'
+
 # Configuration options for downloading modules from the Puppet Forge
 forge:
   # The 'proxy' setting specifies an optional HTTP proxy to use when making
-  # requests to the Puppet Forge.
-  proxy: 'http://my.site.proxy:3128'
+  # requests to the Puppet Forge. This will override the top level 'proxy'
+  # option or any proxy related environment variables when configured.
+  #proxy: 'https://proxy.example.com:8888'
+
+  # The 'baseurl' setting indicates where Forge modules should be installed
+  # from. This defaults to 'https://forgeapi.puppetlabs.com'
+  #baseurl: 'https://forgemirror.example.com'
