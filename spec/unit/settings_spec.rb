@@ -47,7 +47,7 @@ describe R10K::Settings do
         expect {
           subject.evaluate("proxy" => "that's no proxy!")
         }.to raise_error do |err|
-          expect(err.message).to match(/Validation failed for forge settings group/)
+          expect(err.message).to match(/Validation failed for 'forge' settings group/)
           expect(err.errors.size).to eq 1
           expect(err.errors[:proxy]).to be_a_kind_of(ArgumentError)
           expect(err.errors[:proxy].message).to match(/could not be parsed as a URL/)
@@ -76,7 +76,7 @@ describe R10K::Settings do
         expect {
           subject.evaluate("baseurl" => "that's no forge!")
         }.to raise_error do |err|
-          expect(err.message).to match(/Validation failed for forge settings group/)
+          expect(err.message).to match(/Validation failed for 'forge' settings group/)
           expect(err.errors.size).to eq 1
           expect(err.errors[:baseurl]).to be_a_kind_of(ArgumentError)
           expect(err.errors[:baseurl].message).to match(/could not be parsed as a URL/)
@@ -103,7 +103,7 @@ describe R10K::Settings do
         expect {
           subject.evaluate("write_lock" => %w[list of reasons why deploys are locked])
         }.to raise_error do |err|
-          expect(err.message).to match(/Validation failed for deploy settings group/)
+          expect(err.message).to match(/Validation failed for 'deploy' settings group/)
           expect(err.errors.size).to eq 1
           expect(err.errors[:write_lock]).to be_a_kind_of(ArgumentError)
           expect(err.errors[:write_lock].message).to match(/should be a string containing the reason/)
@@ -138,7 +138,7 @@ describe R10K::Settings do
         expect {
           subject.evaluate("postrun" => "curl -F 'deploy=done' https://reporting.tessier-ashpool.freeside/r10k")
         }.to raise_error do |err|
-          expect(err.message).to match(/Validation failed for global settings group/)
+          expect(err.message).to match(/Validation failed for 'global' settings group/)
           expect(err.errors.size).to eq 1
           expect(err.errors[:postrun]).to be_a_kind_of(ArgumentError)
           expect(err.errors[:postrun].message).to eq("The postrun setting should be an array of strings, not a String")

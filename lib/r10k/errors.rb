@@ -39,5 +39,23 @@ module R10K
 
       @options = options
     end
+
+    protected
+
+    def structure_exception(name, exc)
+      struct = []
+      struct << "#{name}:"
+      if exc.respond_to?(:format)
+        struct << indent(exc.format)
+      else
+        struct << indent(exc.message)
+      end
+      struct.join("\n")
+    end
+
+    def indent(str, level = 4)
+      prefix = ' ' * level
+      str.gsub(/^/, prefix)
+    end
   end
 end

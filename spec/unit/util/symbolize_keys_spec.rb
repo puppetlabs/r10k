@@ -37,15 +37,31 @@ describe R10K::Util::SymbolizeKeys do
     expect(hash[key]).to eq 'bar'
   end
 
-  it "can recursively symbolize keys in nested hash values" do
-    hash = {'foo' => {'bar' => 'baz'}}
-    described_class.symbolize_keys!(hash, true)
-    expect(hash).to eq({:foo => {:bar => 'baz'}})
-  end
+  context "when symbolizing recursively" do
+    it "can recursively symbolize keys in nested hash values" do
+      hash = {'foo' => {'bar' => 'baz'}}
+      described_class.symbolize_keys!(hash, true)
+      expect(hash).to eq({:foo => {:bar => 'baz'}})
+    end
 
-  it "recurses into hash values that had symbol keys" do
-    hash = {:foo => {'bar' => {'baz' => 'quux'}}}
-    described_class.symbolize_keys!(hash, true)
-    expect(hash).to eq({:foo => {:bar => {:baz => 'quux'}}})
+    it "recurses into hash values that had symbol keys" do
+      hash = {:foo => {'bar' => {'baz' => 'quux'}}}
+      described_class.symbolize_keys!(hash, true)
+      expect(hash).to eq({:foo => {:bar => {:baz => 'quux'}}})
+    end
+
+    it "recurses into array values whose items are hashes" do
+      hash = {'foo' => [ {'item1_key' => 'val'}, {'item2_key' => 'val'} ]}
+
+      described_class.symbolize_keys!(hash, true)
+      expect(hash).to eq({:foo => [ {:item1_key => 'val'}, {:item2_key => 'val'} ]})
+    end
+
+    it "ignores nested array items that are not hashes" do
+      hash = {'foo' => [ {'item1_key' => 'val'}, 'banana' ]}
+
+      described_class.symbolize_keys!(hash, true)
+      expect(hash).to eq({:foo => [ {:item1_key => 'val'}, 'banana' ]})
+    end
   end
 end
