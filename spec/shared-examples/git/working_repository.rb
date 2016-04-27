@@ -57,21 +57,36 @@ RSpec.shared_examples "a git working repository" do
         expect(alternates[0]).to match_realpath File.join(remote, 'objects')
       end
     end
-  end
 
-  describe "updating the repo" do
-    let(:tag_090) { subject.git_dir + 'refs' + 'tags' + '0.9.0' }
-    let(:packed_refs) { subject.git_dir + 'packed-refs' }
+    context "without a proxy" do
+      before(:each) do
+        allow(R10K::Git).to receive(:get_proxy_for_remote).with(remote).and_return(nil)
+      end
 
-    before do
-      subject.clone(remote)
-      tag_090.delete if tag_090.exist?
-      packed_refs.delete if packed_refs.exist?
+      it 'does not change proxy ENV' do
+        expect(ENV).to_not receive(:[]=)
+        expect(ENV).to_not receive(:update)
+
+        subject.clone(remote)
+      end
     end
 
-    it "fetches objects from the remote" do
-      subject.fetch
-      expect(subject.tags).to include('0.9.0')
+    context "with a proxy" do
+      before(:each) do
+        allow(R10K::Git).to receive(:get_proxy_for_remote).with(remote).and_return('http://proxy.example.com:3128')
+      end
+
+      it "manages proxy-related ENV vars" do
+        # Sets proxy settings.
+        ['HTTPS_PROXY', 'https_proxy', 'HTTP_PROXY', 'http_proxy'].each do |var|
+          expect(ENV).to receive(:[]=).with(var, 'http://proxy.example.com:3128')
+        end
+
+        # Resets proxy settings when done.
+        expect(ENV).to receive(:update).with(hash_including('HTTPS_PROXY' => nil))
+
+        subject.clone(remote)
+      end
     end
   end
 
@@ -89,6 +104,37 @@ RSpec.shared_examples "a git working repository" do
       expect(subject.tags).to_not include('0.9.0')
       subject.fetch
       expect(subject.tags).to include('0.9.0')
+    end
+
+    context "without a proxy" do
+      before(:each) do
+        allow(R10K::Git).to receive(:get_proxy_for_remote).with(remote).and_return(nil)
+      end
+
+      it 'does not change proxy ENV' do
+        expect(ENV).to_not receive(:[]=)
+        expect(ENV).to_not receive(:update)
+
+        subject.fetch
+      end
+    end
+
+    context "with a proxy" do
+      before(:each) do
+        allow(R10K::Git).to receive(:get_proxy_for_remote).with(remote).and_return('http://proxy.example.com:3128')
+      end
+
+      it "manages proxy-related ENV vars" do
+        # Sets proxy settings.
+        ['HTTPS_PROXY', 'https_proxy', 'HTTP_PROXY', 'http_proxy'].each do |var|
+          expect(ENV).to receive(:[]=).with(var, 'http://proxy.example.com:3128')
+        end
+
+        # Resets proxy settings when done.
+        expect(ENV).to receive(:update).with(hash_including('HTTPS_PROXY' => nil))
+
+        subject.fetch
+      end
     end
   end
 

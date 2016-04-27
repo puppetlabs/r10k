@@ -21,11 +21,20 @@ class R10K::Git::ShellGit::BareRepository < R10K::Git::ShellGit::BaseRepository
   end
 
   def clone(remote)
-    git ['clone', '--mirror', remote, git_dir.to_s]
+    proxy = R10K::Git.get_proxy_for_remote(remote)
+
+    R10K::Git.with_proxy(proxy) do
+      git ['clone', '--mirror', remote, git_dir.to_s]
+    end
   end
 
-  def fetch
-    git ['fetch', '--prune'], :git_dir => git_dir.to_s
+  def fetch(remote_name='origin')
+    remote = remotes[remote_name]
+    proxy = R10K::Git.get_proxy_for_remote(remote)
+
+    R10K::Git.with_proxy(proxy) do
+      git ['fetch', remote_name, '--prune'], :git_dir => git_dir.to_s
+    end
   end
 
   def exist?

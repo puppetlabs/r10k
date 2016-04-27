@@ -36,7 +36,12 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
     # alternate object database.
     options = {:credentials => credentials}
     options.merge!(:alternates => [File.join(opts[:reference], 'objects')]) if opts[:reference]
-    @_rugged_repo = ::Rugged::Repository.clone_at(remote, @path.to_s, options)
+
+    proxy = R10K::Git.get_proxy_for_remote(remote)
+
+    R10K::Git.with_proxy(proxy) do
+      @_rugged_repo = ::Rugged::Repository.clone_at(remote, @path.to_s, options)
+    end
 
     if opts[:reference]
       alternates << File.join(opts[:reference], 'objects')
@@ -70,11 +75,19 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
     end
   end
 
-  def fetch(remote = 'origin')
-    logger.debug1 { "Fetching remote '#{remote}' at #{@path}" }
+  def fetch(remote_name = 'origin')
+    logger.debug1 { "Fetching remote '#{remote_name}' at #{@path}" }
     options = {:credentials => credentials}
-    refspecs = ["+refs/heads/*:refs/remotes/#{remote}/*"]
-    results = with_repo { |repo| repo.fetch(remote, refspecs, options) }
+    refspecs = ["+refs/heads/*:refs/remotes/#{remote_name}/*"]
+
+    remote = remotes[remote_name]
+    proxy = R10K::Git.get_proxy_for_remote(remote)
+    results = nil
+
+    R10K::Git.with_proxy(proxy) do
+      results = with_repo { |repo| repo.fetch(remote_name, refspecs, options) }
+    end
+
     report_transfer(results, remote)
   rescue Rugged::SshError, Rugged::NetworkError => e
     raise R10K::Git::GitError.new(e.message, :git_dir => git_dir, :backtrace => e.backtrace)

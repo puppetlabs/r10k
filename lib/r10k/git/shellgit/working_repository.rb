@@ -32,7 +32,12 @@ class R10K::Git::ShellGit::WorkingRepository < R10K::Git::ShellGit::BaseReposito
     if opts[:reference]
       argv += ['--reference', opts[:reference]]
     end
-    git argv
+
+    proxy = R10K::Git.get_proxy_for_remote(remote)
+
+    R10K::Git.with_proxy(proxy) do
+      git argv
+    end
 
     if opts[:ref]
       checkout(opts[:ref])
@@ -46,8 +51,13 @@ class R10K::Git::ShellGit::WorkingRepository < R10K::Git::ShellGit::BaseReposito
     git ['checkout', ref], :path => @path.to_s
   end
 
-  def fetch
-    git ['fetch'], :path => @path.to_s
+  def fetch(remote_name='origin')
+    remote = remotes[remote_name]
+    proxy = R10K::Git.get_proxy_for_remote(remote)
+
+    R10K::Git.with_proxy(proxy) do
+      git ['fetch', remote_name, '--prune'], :path => @path.to_s
+    end
   end
 
   def exist?

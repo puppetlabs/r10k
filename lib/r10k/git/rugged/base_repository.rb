@@ -45,10 +45,24 @@ class R10K::Git::Rugged::BaseRepository
     end
   end
 
+  def remotes
+    remotes_hash = {}
+
+    if @_rugged_repo
+      @_rugged_repo.remotes.each do |remote|
+        remotes_hash[remote.name] = remote.url
+      end
+    end
+
+    remotes_hash
+  end
+
   private
 
-  def with_repo
-    yield @_rugged_repo if @_rugged_repo
+  def with_repo(opts={})
+    if @_rugged_repo
+      yield @_rugged_repo
+    end
   ensure
     @_rugged_repo.close if @_rugged_repo
   end

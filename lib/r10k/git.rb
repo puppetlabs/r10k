@@ -1,3 +1,4 @@
+require 'uri'
 require 'r10k/features'
 require 'r10k/errors'
 require 'r10k/settings'
@@ -133,11 +134,63 @@ module R10K
     extend R10K::Settings::Mixin::ClassMethods
 
     def_setting_attr :private_key
+    def_setting_attr :proxy
     def_setting_attr :username
     def_setting_attr :repositories, {}
 
     def self.get_repo_settings(remote)
       self.settings[:repositories].find {|r| r[:remote] == remote }
+    end
+
+    def self.get_proxy_for_remote(remote)
+      # We only support proxy for HTTP(S) transport
+      return nil unless remote =~ /^http(s)?/i
+
+      repo_settings = self.get_repo_settings(remote)
+
+      if repo_settings && repo_settings.has_key?(:proxy)
+        proxy = repo_settings[:proxy] unless repo_settings[:proxy].nil? || repo_settings[:proxy].empty?
+      else
+        proxy = self.settings[:proxy]
+      end
+
+      R10K::Git.log_proxy_for_remote(proxy, remote) if proxy
+
+      proxy
+    end
+
+    def self.log_proxy_for_remote(proxy, remote)
+      # Sanitize passwords out of the proxy URI for loggging.
+      proxy_uri = URI.parse(proxy)
+      proxy_str = "#{proxy_uri.scheme}://"
+      proxy_str << "#{proxy_uri.userinfo.gsub(/:(.*)$/, ':<FILTERED>')}@" if proxy_uri.userinfo
+      proxy_str << "#{proxy_uri.host}:#{proxy_uri.port}"
+
+      logger.debug { "Using HTTP proxy '#{proxy_str}' for '#{remote}'." }
+
+      nil
+    end
+
+    # Execute block with given proxy configured in ENV
+    def self.with_proxy(new_proxy)
+      unless new_proxy.nil?
+        old_proxy = Hash[
+          ['HTTPS_PROXY', 'HTTP_PROXY', 'https_proxy', 'http_proxy'].collect do |var|
+            old_value = ENV[var]
+            ENV[var] = new_proxy
+
+            [var, old_value]
+          end
+        ]
+      end
+
+      begin
+        yield
+      ensure
+        ENV.update(old_proxy) if old_proxy
+      end
+
+      nil
     end
   end
 end
