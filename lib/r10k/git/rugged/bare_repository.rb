@@ -32,14 +32,15 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
   # @return [void]
   def clone(remote)
     logger.debug1 { "Cloning '#{remote}' into #{@path}" }
-    @_rugged_repo = ::Rugged::Repository.init_at(@path.to_s, true)
-    with_repo do |repo|
+
+    @_rugged_repo = ::Rugged::Repository.init_at(@path.to_s, true).tap do |repo|
       config = repo.config
       config['remote.origin.url']    = remote
       config['remote.origin.fetch']  = '+refs/*:refs/*'
       config['remote.origin.mirror'] = 'true'
-      fetch
     end
+
+    fetch('origin')
   rescue Rugged::SshError, Rugged::NetworkError => e
     raise R10K::Git::GitError.new(e.message, :git_dir => git_dir, :backtrace => e.backtrace)
   end
@@ -47,13 +48,21 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
   # Fetch refs and objects from the origin remote
   #
   # @return [void]
-  def fetch
+  def fetch(remote_name='origin')
     backup_branches = wipe_branches
-    logger.debug1 { "Fetching remote 'origin' at #{@path}" }
+    logger.debug1 { "Fetching remote '#{remote_name}' at #{@path}" }
     options = {:credentials => credentials}
     refspecs = ['+refs/*:refs/*']
-    results = with_repo { |repo| repo.fetch('origin', refspecs, options) }
-    report_transfer(results, 'origin')
+
+    remote = remotes[remote_name]
+    proxy = R10K::Git.get_proxy_for_remote(remote)
+    results = nil
+
+    R10K::Git.with_proxy(proxy) do
+      results = with_repo { |repo| repo.fetch(remote_name, refspecs, options) }
+    end
+
+    report_transfer(results, remote_name)
   rescue Rugged::SshError, Rugged::NetworkError => e
     restore_branches(backup_branches)
     raise R10K::Git::GitError.new(e.message, :git_dir => git_dir, :backtrace => e.backtrace)

@@ -1,4 +1,5 @@
 require 'r10k/git/shellgit'
+require 'r10k/util/subprocess'
 require 'r10k/logging'
 
 class R10K::Git::ShellGit::BaseRepository
@@ -44,6 +45,23 @@ class R10K::Git::ShellGit::BaseRepository
       :commit
     else
       :unknown
+    end
+  end
+
+  # @return [Hash] Collection of remotes for this repo, keys are the remote name and values are the remote URL.
+  def remotes
+    result = git ['config', '--local', '--get-regexp', '^remote\..*\.url$'], :git_dir => git_dir.to_s, :raise_on_fail => false
+
+    if result.success?
+      Hash[
+        result.stdout.split("\n").collect do |remote|
+          matches = /^remote\.(.*)\.url (.*)$/.match(remote)
+
+          [matches[1], matches[2]]
+        end
+      ]
+    else
+      {}
     end
   end
 
@@ -95,8 +113,6 @@ class R10K::Git::ShellGit::BaseRepository
     subproc.raise_on_fail = raise_on_fail
     subproc.logger = self.logger
 
-    result = subproc.execute
-
-    result
+    subproc.execute
   end
 end

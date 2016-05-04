@@ -17,6 +17,37 @@ RSpec.shared_examples "a git bare repository" do
       config = File.read(File.join(basedir, dirname, 'config'))
       expect(config).to match(remote)
     end
+
+    context "without a proxy" do
+      before(:each) do
+        allow(R10K::Git).to receive(:get_proxy_for_remote).with(remote).and_return(nil)
+      end
+
+      it 'does not change proxy ENV' do
+        expect(ENV).to_not receive(:[]=)
+        expect(ENV).to_not receive(:update)
+
+        subject.clone(remote)
+      end
+    end
+
+    context "with a proxy" do
+      before(:each) do
+        allow(R10K::Git).to receive(:get_proxy_for_remote).with(remote).and_return('http://proxy.example.com:3128')
+      end
+
+      it "manages proxy-related ENV vars" do
+        # Sets proxy settings.
+        ['HTTPS_PROXY', 'https_proxy', 'HTTP_PROXY', 'http_proxy'].each do |var|
+          expect(ENV).to receive(:[]=).with(var, 'http://proxy.example.com:3128')
+        end
+
+        # Resets proxy settings when done.
+        expect(ENV).to receive(:update).with(hash_including('HTTPS_PROXY' => nil))
+
+        subject.clone(remote)
+      end
+    end
   end
 
   describe "updating the repo" do
@@ -33,6 +64,37 @@ RSpec.shared_examples "a git bare repository" do
       expect(subject.tags).to_not include('0.9.0')
       subject.fetch
       expect(subject.tags).to include('0.9.0')
+    end
+
+    context "without a proxy" do
+      before(:each) do
+        allow(R10K::Git).to receive(:get_proxy_for_remote).with(remote).and_return(nil)
+      end
+
+      it 'does not change proxy ENV' do
+        expect(ENV).to_not receive(:[]=)
+        expect(ENV).to_not receive(:update)
+
+        subject.fetch
+      end
+    end
+
+    context "with a proxy" do
+      before(:each) do
+        allow(R10K::Git).to receive(:get_proxy_for_remote).with(remote).and_return('http://proxy.example.com:3128')
+      end
+
+      it "manages proxy-related ENV vars" do
+        # Sets proxy settings.
+        ['HTTPS_PROXY', 'https_proxy', 'HTTP_PROXY', 'http_proxy'].each do |var|
+          expect(ENV).to receive(:[]=).with(var, 'http://proxy.example.com:3128')
+        end
+
+        # Resets proxy settings when done.
+        expect(ENV).to receive(:update).with(hash_including('HTTPS_PROXY' => nil))
+
+        subject.fetch
+      end
     end
   end
 
