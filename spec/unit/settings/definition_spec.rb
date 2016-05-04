@@ -1,10 +1,15 @@
 require 'spec_helper'
 require 'r10k/settings/definition'
+require 'r10k/settings/collection'
+require 'r10k/settings/list'
 
 describe R10K::Settings::Definition do
+  subject { described_class.new(:setting) }
+
+  it_behaves_like "a setting with ancestors"
+
   describe "#evaluate" do
     it "assigns a value, validates it, and resolves a final value" do
-      subject = described_class.new(:setting)
       expect(subject).to receive(:assign).with("myvalue")
       expect(subject).to receive(:validate)
       expect(subject).to receive(:resolve)
@@ -14,7 +19,6 @@ describe R10K::Settings::Definition do
 
   describe "#assign" do
     it 'stores the provided value' do
-      subject = described_class.new(:setting)
       subject.assign("I'm the value")
       expect(subject.value).to eq "I'm the value"
     end
@@ -33,7 +37,6 @@ describe R10K::Settings::Definition do
     end
 
     it "does nothing if a validate hook has not been assigned" do
-      subject = described_class.new(:setting)
       subject.assign("I'm the value")
       subject.validate
     end
@@ -55,7 +58,6 @@ describe R10K::Settings::Definition do
 
   describe "#resolve" do
     it "returns the value when the value has been given" do
-      subject = described_class.new(:setting)
       subject.assign("Mun")
       expect(subject.resolve).to eq "Mun"
     end
@@ -71,7 +73,6 @@ describe R10K::Settings::Definition do
     end
 
     it "returns nil when there is no value nor default" do
-      subject = described_class.new(:setting)
       expect(subject.resolve).to be_nil
     end
   end

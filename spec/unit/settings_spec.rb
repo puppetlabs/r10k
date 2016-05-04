@@ -32,6 +32,24 @@ describe R10K::Settings do
         expect(output[:private_key]).to eq("/etc/puppetlabs/r10k/id_rsa")
       end
     end
+
+    describe "proxy" do
+      it "accepts valid URIs" do
+        output = subject.evaluate("proxy" => "http://proxy.tessier-ashpool.freeside:3128")
+        expect(output[:proxy]).to eq "http://proxy.tessier-ashpool.freeside:3128"
+      end
+
+      it "rejects invalid URIs" do
+        expect {
+          subject.evaluate("proxy" => "that's no proxy!")
+        }.to raise_error do |err|
+          expect(err.message).to match(/Validation failed for 'git' settings group/)
+          expect(err.errors.size).to eq 1
+          expect(err.errors[:proxy]).to be_a_kind_of(ArgumentError)
+          expect(err.errors[:proxy].message).to match(/could not be parsed as a URL/)
+        end
+      end
+    end
   end
 
   describe "forge settings" do
@@ -47,21 +65,10 @@ describe R10K::Settings do
         expect {
           subject.evaluate("proxy" => "that's no proxy!")
         }.to raise_error do |err|
-          expect(err.message).to match(/Validation failed for forge settings group/)
+          expect(err.message).to match(/Validation failed for 'forge' settings group/)
           expect(err.errors.size).to eq 1
           expect(err.errors[:proxy]).to be_a_kind_of(ArgumentError)
           expect(err.errors[:proxy].message).to match(/could not be parsed as a URL/)
-        end
-      end
-
-      describe "setting a default value" do
-        %w[HTTPS_PROXY https_proxy HTTP_PROXY http_proxy].each do |env_var|
-          it "respects the #{env_var} environment variable" do
-            R10K::Util::ExecEnv.withenv(env_var => "http://proxy.value/#{env_var}") do
-              output = subject.evaluate({})
-              expect(output[:proxy]).to eq("http://proxy.value/#{env_var}")
-            end
-          end
         end
       end
     end
@@ -76,7 +83,7 @@ describe R10K::Settings do
         expect {
           subject.evaluate("baseurl" => "that's no forge!")
         }.to raise_error do |err|
-          expect(err.message).to match(/Validation failed for forge settings group/)
+          expect(err.message).to match(/Validation failed for 'forge' settings group/)
           expect(err.errors.size).to eq 1
           expect(err.errors[:baseurl]).to be_a_kind_of(ArgumentError)
           expect(err.errors[:baseurl].message).to match(/could not be parsed as a URL/)
@@ -103,7 +110,7 @@ describe R10K::Settings do
         expect {
           subject.evaluate("write_lock" => %w[list of reasons why deploys are locked])
         }.to raise_error do |err|
-          expect(err.message).to match(/Validation failed for deploy settings group/)
+          expect(err.message).to match(/Validation failed for 'deploy' settings group/)
           expect(err.errors.size).to eq 1
           expect(err.errors[:write_lock]).to be_a_kind_of(ArgumentError)
           expect(err.errors[:write_lock].message).to match(/should be a string containing the reason/)
@@ -138,7 +145,7 @@ describe R10K::Settings do
         expect {
           subject.evaluate("postrun" => "curl -F 'deploy=done' https://reporting.tessier-ashpool.freeside/r10k")
         }.to raise_error do |err|
-          expect(err.message).to match(/Validation failed for global settings group/)
+          expect(err.message).to match(/Validation failed for 'global' settings group/)
           expect(err.errors.size).to eq 1
           expect(err.errors[:postrun]).to be_a_kind_of(ArgumentError)
           expect(err.errors[:postrun].message).to eq("The postrun setting should be an array of strings, not a String")
@@ -146,17 +153,39 @@ describe R10K::Settings do
       end
     end
 
+    describe "proxy" do
+      it "accepts valid URIs" do
+        output = subject.evaluate("proxy" => "http://proxy.tessier-ashpool.freeside:3128")
+        expect(output[:proxy]).to eq "http://proxy.tessier-ashpool.freeside:3128"
+      end
+
+      it "rejects invalid URIs" do
+        expect {
+          subject.evaluate("proxy" => "that's no proxy!")
+        }.to raise_error do |err|
+          expect(err.message).to match(/Validation failed for 'global' settings group/)
+          expect(err.errors.size).to eq 1
+          expect(err.errors[:proxy]).to be_a_kind_of(ArgumentError)
+          expect(err.errors[:proxy].message).to match(/could not be parsed as a URL/)
+        end
+      end
+
+      describe "setting a default value" do
+        %w[HTTPS_PROXY https_proxy HTTP_PROXY http_proxy].each do |env_var|
+          it "respects the #{env_var} environment variable" do
+            R10K::Util::ExecEnv.withenv(env_var => "http://proxy.value/#{env_var}") do
+              output = subject.evaluate({})
+              expect(output[:proxy]).to eq("http://proxy.value/#{env_var}")
+            end
+          end
+        end
+      end
+    end
+
     describe "git settings" do
       it "passes settings through to the git settings" do
         output = subject.evaluate("git" => {"provider" => "shellgit", "username" => "git"})
-        expect(output[:git]).to eq(:provider => :shellgit, :username => "git", :private_key => nil, :repositories => [])
-      end
-
-      it "handles keywords in repository settings" do
-        output = subject.evaluate("git" => {"provider" => "shellgit",
-                                  "username" => "git",
-                                  "repositories" => [ {"remote" => "foo"} ]})
-        expect(output[:git]).to eq(:provider => :shellgit, :username => "git", :private_key => nil, :repositories => [{remote: "foo"}])
+        expect(output[:git]).to include(:provider => :shellgit, :username => "git")
       end
     end
 

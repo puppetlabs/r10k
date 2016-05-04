@@ -76,7 +76,7 @@ describe R10K::Util::Attempt do
 
     it "only rescues descendants of StandardError" do
       attempt.try { |_| raise Exception }
-      expect { attempt.run }.to raise_error
+      expect { attempt.run }.to raise_error(Exception)
     end
   end
 end

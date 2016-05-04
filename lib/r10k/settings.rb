@@ -7,6 +7,7 @@ module R10K
 
     require 'r10k/settings/collection'
     require 'r10k/settings/definition'
+    require 'r10k/settings/list'
 
     def self.git_settings
       R10K::Settings::Collection.new(:git, [
@@ -29,20 +30,33 @@ module R10K
                     Only used by the 'rugged' Git provider.",
         }),
 
-        Definition.new(:repositories, {
-        :desc => "Repository specific configuration.",
-        :default => [],
-        :normalize => lambda do |repositories|
-        # The config file loading logic recursively converts hash keys that are strings to symbols,
-        # It doesn't understand hashes inside arrays though so we have to do this manually.
-          repositories.map do |repo|
-            repo.inject({}) do |retval, (key, value)|
-              retval[key.to_sym] = value
-              retval
-            end
-          end
-        end
-      }),
+        URIDefinition.new(:proxy, {
+          :desc => "An optional proxy server to use when interacting with Git sources via HTTP(S).",
+          :default => :inherit,
+        }),
+
+        List.new(:repositories, lambda {
+          R10K::Settings::Collection.new(nil, [
+            Definition.new(:remote, {
+              :desc => "Remote source that repository-specific settings should apply to.",
+            }),
+
+            Definition.new(:private_key, {
+              :desc => "The path to the SSH private key for Git SSH remotes.
+                        Only used by the 'rugged' Git provider.",
+              :default => :inherit,
+            }),
+
+            URIDefinition.new(:proxy, {
+              :desc => "An optional proxy server to use when interacting with Git sources via HTTP(S).",
+              :default => :inherit,
+            }),
+          ])
+        },
+        {
+          :desc => "Repository specific configuration.",
+          :default => [],
+        }),
       ])
     end
 
@@ -50,14 +64,7 @@ module R10K
       R10K::Settings::Collection.new(:forge, [
         URIDefinition.new(:proxy, {
           :desc => "An optional proxy server to use when downloading modules from the forge.",
-          :default => lambda do
-            [
-              ENV['HTTPS_PROXY'],
-              ENV['https_proxy'],
-              ENV['HTTP_PROXY'],
-              ENV['http_proxy']
-            ].find { |value| value }
-          end
+          :default => :inherit,
         }),
 
         URIDefinition.new(:baseurl, {
@@ -102,6 +109,18 @@ module R10K
               raise ArgumentError, "The postrun setting should be an array of strings, not a #{value.class}"
             end
           end
+        }),
+
+        URIDefinition.new(:proxy, {
+          :desc => "Proxy to use for all r10k operations which occur over HTTP(S).",
+          :default => lambda {
+            [
+              ENV['HTTPS_PROXY'],
+              ENV['https_proxy'],
+              ENV['HTTP_PROXY'],
+              ENV['http_proxy']
+            ].find { |value| value }
+          },
         }),
 
         R10K::Settings.forge_settings,

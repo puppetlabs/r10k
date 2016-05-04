@@ -1,3 +1,4 @@
+require 'r10k/settings/helpers'
 require 'r10k/settings/definition'
 require 'r10k/util/setopts'
 require 'r10k/util/symbolize_keys'
@@ -9,6 +10,7 @@ module R10K
     # Define a group of settings, which can be single definitions or nested
     # collections.
     class Collection
+      include R10K::Settings::Helpers
 
       # @!attribute [r] name
       #   @return [String] The name of this collection
@@ -18,7 +20,14 @@ module R10K
       # @param settings [Array] All settings in this collection
       def initialize(name, settings)
         @name = name
-        @settings = Hash[settings.map { |s| [s.name, s] }]
+
+        @settings = {}
+
+        # iterate through settings and adopt them
+        settings.each do |s|
+          s.parent = self
+          @settings[s.name] = s
+        end
       end
 
       # Assign new values, perform validation checks, and return the final
@@ -39,8 +48,8 @@ module R10K
       def assign(newvalues)
         return if newvalues.nil?
 
-        # TODO: this results in inconsistency for hashes inside arrays.
         R10K::Util::SymbolizeKeys.symbolize_keys!(newvalues)
+
         @settings.each_pair do |name, setting|
           if newvalues.key?(name)
             setting.assign(newvalues[name])
@@ -64,7 +73,13 @@ module R10K
         end
 
         if !errors.empty?
-          raise ValidationError.new("Validation failed for #{@name} settings group", :errors => errors)
+          if @name
+            msg = "Validation failed for '#{@name}' settings group"
+          else
+            msg = "Validation failed for settings group"
+          end
+
+          raise ValidationError.new(msg, :errors => errors)
         end
       end
 
@@ -72,10 +87,17 @@ module R10K
       # @return [Hash]
       def resolve
         rv = {}
+
         @settings.each_pair do |name, setting|
           rv[name] = setting.resolve
         end
+
         rv.freeze
+      end
+
+      # Access individual settings via a Hash-like interface.
+      def [](name)
+        @settings[name]
       end
 
       class ValidationError < R10K::Error
@@ -94,24 +116,6 @@ module R10K
             struct << indent(structure_exception(name, nested))
           end
           struct.join("\n")
-        end
-
-        private
-
-        def structure_exception(name, exc)
-          struct = []
-          struct << "#{name}:"
-          if exc.is_a? ValidationError
-            struct << indent(exc.format)
-          else
-            struct << indent(exc.message)
-          end
-          struct.join("\n")
-        end
-
-        def indent(str, level = 4)
-          prefix = ' ' * level
-          str.gsub(/^/, prefix)
         end
       end
     end

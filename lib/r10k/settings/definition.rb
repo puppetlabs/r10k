@@ -1,3 +1,4 @@
+require 'r10k/settings/helpers'
 require 'r10k/util/setopts'
 
 module R10K
@@ -6,10 +7,10 @@ module R10K
     # Define a single setting and additional attributes like descriptions,
     # default values, and validation.
     class Definition
-
       require 'r10k/settings/uri_definition'
       require 'r10k/settings/enum_definition'
 
+      include R10K::Settings::Helpers
       include R10K::Util::Setopts
 
       # @!attribute [r] name
@@ -90,7 +91,18 @@ module R10K
         if !@value.nil?
           @value
         elsif @default
-          @default.is_a?(Proc) ? @default.call : @default
+          if @default == :inherit
+            # walk all the way up to root, starting with grandparent
+            ancestor = parent
+
+            while ancestor = ancestor.parent
+              return ancestor[@name].resolve if ancestor.respond_to?(:[]) && ancestor[@name]
+            end
+          elsif @default.is_a?(Proc)
+            @default.call
+          else
+            @default
+          end
         end
       end
 

@@ -21,8 +21,12 @@ module R10K
           end
 
           value = hash[key]
-          if recurse && value.is_a?(Hash)
-            symbolize_keys!(value, true)
+          if recurse
+            if value.is_a?(Hash)
+              symbolize_keys!(value, true)
+            elsif value.is_a?(Array)
+              value.map { |item| symbolize_keys!(item, true) if item.is_a?(Hash) }
+            end
           end
         end
       end
