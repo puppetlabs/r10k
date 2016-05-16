@@ -95,11 +95,11 @@ module R10K
         file_lists = PuppetForge::Unpacker.unpack(download_path.to_s, target_dir.to_s, unpack_path.to_s)
         logger.debug2 "Valid files unpacked: #{file_lists[:valid]}"
         if !file_lists[:invalid].empty?
-          logger.warn "These files existed in the module's tar file, but are invalid filetypes and were not " +
-                      "unpacked: #{file_lists[:invalid]}"
+          logger.debug1 "These files existed in the module's tar file, but are invalid filetypes and were not " +
+                        "unpacked: #{file_lists[:invalid]}"
         end
         if !file_lists[:symlinks].empty?
-          raise R10K::Error, "Symlinks are unsupported and were not unpacked from the module tarball. " + 
+          raise R10K::Error, "Symlinks are unsupported and were not unpacked from the module tarball. " +
                              "#{@forge_release.slug} contained these ignored symlinks: #{file_lists[:symlinks]}"
         end
       end
