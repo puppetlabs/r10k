@@ -12,9 +12,18 @@ class R10K::Git::Rugged::Credentials
   # @param repository [R10K::Git::Rugged::BaseRepository]
   def initialize(repository)
     @repository = repository
+    @called = 0
   end
 
   def call(url, username_from_url, allowed_types)
+    @called += 1
+
+    # Break out of infinite HTTP auth retry loop introduced in libgit2/rugged 0.24.0, libssh
+    # auth seems to already abort after ~50 attempts.
+    if @called > 50
+      raise R10K::Git::GitError.new("Authentication failed for Git remote #{url.inspect}.")
+    end
+
     if allowed_types.include?(:ssh_key)
       get_ssh_key_credentials(url, username_from_url)
     elsif allowed_types.include?(:plaintext)
