@@ -1,6 +1,31 @@
 CHANGELOG
 =========
 
+2.3.0
+-----
+
+2016/05/17
+
+### New Features
+
+(RK-236/RK-237) Added HTTP proxy support for Git operations.
+
+Previously, r10k only supported the use of HTTP proxies for connecting to the Puppet
+Forge. With these changes, r10k can now be configured to use an HTTP proxy for both
+Forge and Git operations. Configuration can be specified globally, for Forge or Git
+only, or on a per-Git repository basis. See [configuration documentation](https://github.com/puppetlabs/r10k/blob/master/doc/dynamic-environments/configuration.mkd) 
+for more details.
+
+### Bug Fixes
+
+(RK-238) When r10k encounters and ignores invalid file types in a module archive, it
+will now log the message at the DEBUG1 level instead of at WARN.
+
+(RK-243) In certain cases, when using the "rugged" Git provider, specifying invalid HTTP
+credentials for a repository could result in an infinite loop. Authentication retry
+for HTTP repositories is now capped at 50 attempts which matches the existing behavior
+for SSH.
+
 2.2.2
 -----
 
