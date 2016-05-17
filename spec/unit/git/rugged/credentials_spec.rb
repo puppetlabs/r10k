@@ -99,5 +99,11 @@ describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby? 
     it "creates default credentials when no other types are allowed" do
       expect(subject.call("https://tessier-ashpool.freeside/repo.git", nil, [])).to be_a_kind_of(Rugged::Credentials::Default)
     end
+
+    it "refuses to generate credentials more than 50 times" do
+      (1..50).each { subject.call("https://tessier-ashpool.freeside/repo.git", nil, [:plaintext]) }
+
+      expect { subject.call("https://tessier-ashpool.freeside/repo.git", nil, [:plaintext]) }.to raise_error(R10K::Git::GitError, /authentication failed/i)
+    end
   end
 end
