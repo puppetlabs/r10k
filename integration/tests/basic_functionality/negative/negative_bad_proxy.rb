@@ -20,7 +20,8 @@ install_squid = "#{pkg_manager} install -y squid"
 remove_squid = "#{pkg_manager} remove -y squid"
 
 #Verification
-error_regex = /Unable to connect to.*getaddrinfo: Name or service not known/i
+proxy_hostname = "http://notarealhostname:3128"
+error_regex = /Unable to connect to.*#{proxy_hostname}/i
 
 #Teardown
 teardown do
@@ -38,7 +39,7 @@ end
 
 step 'Install and configure squid proxy'
 on(master, install_squid)
-master.add_env_var('http_proxy', "http://notarealhostname:3128")
+master.add_env_var('http_proxy', proxy_hostname)
 
 step 'turn off the firewall'
 on(master, puppet("apply -e 'service {'iptables' : ensure => stopped}'"))
