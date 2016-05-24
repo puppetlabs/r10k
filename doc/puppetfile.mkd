@@ -52,8 +52,7 @@ handles modules.
 
 The `forge` setting specifies which server that Forge based modules are fetched
 from. This is currently a noop and is provided for compatibility with
-librarian-puppet, but will be made functional in a future version. See
-[GH-106](https://github.com/adrienthebo/r10k/issues/106) for more information.
+librarian-puppet.
 
 ### moduledir
 
@@ -88,7 +87,25 @@ Module types
 ------------
 
 r10k can install Puppet modules from a number of different sources. Right now
-modules can be installed via Git, SVN, and from the Puppet Forge.
+modules can be installed from the Puppet Forge, Git, or SVN.
+
+### Puppet Forge
+
+Modules can be installed from the Puppet Forge.
+
+If no version is specified the latest version available at the time will be
+installed, and will be kept at that version.
+
+    mod 'puppetlabs/apache'
+
+If a version is specified then that version will be installed.
+
+    mod 'puppetlabs/apache', '0.10.0'
+
+If the version is set to :latest then the module will be always updated to the
+latest version available.
+
+    mod 'puppetlabs/apache', :latest
 
 ### Git
 
@@ -133,24 +150,6 @@ Module versions can also be specified using `:branch`. This behaves similarly to
     mod 'apache',
       :git    => 'https://github.com/puppetlabs/puppetlabs-apache',
       :branch => 'docs_experiment'
-
-### Forge
-
-Modules can be installed using the Puppet module tool.
-
-If no version is specified the latest version available at the time will be
-installed, and will be kept at that version.
-
-    mod 'puppetlabs/apache'
-
-If a version is specified then that version will be installed.
-
-    mod 'puppetlabs/apache', '0.10.0'
-
-If the version is set to :latest then the module will be always updated to the
-latest version available.
-
-    mod 'puppetlabs/apache', :latest
 
 ### SVN
 
@@ -256,6 +255,22 @@ module.
 
 For more information see the [FAQ entry](faq.mkd#how-do-i-prevent-r10k-from-removing-modules-in-the-modules-directory-of-my-git-repository)
 on managing internal and external modules in the same directory.
+
+### Per-Item Install Path
+
+Git and SVN content types support installing into an alternate path without changing
+the value of moduledir by specifying an 'install\_path' option:
+
+```
+# This will install the 'apache' module into 'external/apache'.
+mod 'apache',
+  :git => 'git@github.com:puppetlabs/puppetlabs-apache.git',
+  :install_path => 'external'
+```
+
+The given 'install\_path' can be an absolute path or a path relative to the base of
+the environment. Note that r10k will exit with an error if you attempt to set the
+'path' option to a directory outside of the environment.
 
 ## Environment variables
 

@@ -72,10 +72,19 @@ class Puppetfile
   # @param [String] name
   # @param [*Object] args
   def add_module(name, args)
-    @modules << R10K::Module.new(name, @moduledir, args)
+    if args.is_a?(Hash) && install_path = args.delete(:install_path)
+      install_path = resolve_install_path(install_path)
+      validate_install_path(install_path, name)
+    else
+      install_path = @moduledir
+    end
+
+    @modules << R10K::Module.new(name, install_path, args)
   end
 
   include R10K::Util::Purgeable
+
+  # FIXME: make Purgeable aware of multiple module dirs
 
   def managed_directory
     @moduledir
@@ -100,6 +109,26 @@ class Puppetfile
 
   def puppetfile_contents
     File.read(@puppetfile_path)
+  end
+
+  def resolve_install_path(path)
+    pn = Pathname.new(path)
+
+    unless pn.absolute?
+      pn = Pathname.new(File.join(basedir, path))
+    end
+
+    pn.cleanpath.to_s
+  end
+
+  def validate_install_path(path, modname)
+    real_basedir = Pathname.new(basedir).cleanpath.to_s
+
+    unless /^#{Regexp.escape(real_basedir)}.*/ =~ path
+      raise R10K::Error.new("Puppetfile cannot manage content '#{modname}' outside of containing environment: #{path} is not within #{real_basedir}")
+    end
+
+    true
   end
 
   class DSL

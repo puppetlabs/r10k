@@ -27,6 +27,72 @@ describe R10K::Puppetfile do
     end
   end
 
+  describe "adding modules" do
+    it "should accept Forge modules with a string arg" do
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, '1.2.3').and_call_original
+
+      expect { subject.add_module('puppet/test_module', '1.2.3') }.to change { subject.modules }
+      expect(subject.modules.collect(&:name)).to include('test_module')
+    end
+
+    it "should accept non-Forge modules with a hash arg" do
+      module_opts = { git: 'git@example.com:puppet/test_module.git' }
+
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, module_opts).and_call_original
+
+      expect { subject.add_module('puppet/test_module', module_opts) }.to change { subject.modules }
+      expect(subject.modules.collect(&:name)).to include('test_module')
+    end
+
+    it "should accept non-Forge modules with a valid relative :install_path option" do
+      module_opts = {
+        install_path: 'vendor',
+        git: 'git@example.com:puppet/test_module.git',
+      }
+
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', File.join(subject.basedir, 'vendor'), module_opts).and_call_original
+
+      expect { subject.add_module('puppet/test_module', module_opts) }.to change { subject.modules }
+      expect(subject.modules.collect(&:name)).to include('test_module')
+    end
+
+    it "should accept non-Forge modules with a valid absolute :install_path option" do
+      install_path = File.join(subject.basedir, 'vendor')
+
+      module_opts = {
+        install_path: install_path,
+        git: 'git@example.com:puppet/test_module.git',
+      }
+
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', install_path, module_opts).and_call_original
+
+      expect { subject.add_module('puppet/test_module', module_opts) }.to change { subject.modules }
+      expect(subject.modules.collect(&:name)).to include('test_module')
+    end
+
+    it "should reject non-Forge modules with an invalid relative :install_path option" do
+      module_opts = {
+        install_path: '../../vendor',
+        git: 'git@example.com:puppet/test_module.git',
+      }
+
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', File.join(subject.basedir, 'vendor'), module_opts).and_call_original
+
+      expect { subject.add_module('puppet/test_module', module_opts) }.to raise_error(R10K::Error, /cannot manage content.*is not within/i).and not_change { subject.modules }
+    end
+
+    it "should reject non-Forge modules with an invalid absolute :install_path option" do
+      module_opts = {
+        install_path: '/tmp/mydata/vendor',
+        git: 'git@example.com:puppet/test_module.git',
+      }
+
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', File.join(subject.basedir, 'vendor'), module_opts).and_call_original
+
+      expect { subject.add_module('puppet/test_module', module_opts) }.to raise_error(R10K::Error, /cannot manage content.*is not within/i).and not_change { subject.modules }
+    end
+  end
+
   describe "evaluating a Puppetfile" do
     def expect_wrapped_error(orig, pf_path, wrapped_error)
       expect(orig).to be_a_kind_of(R10K::Error)
