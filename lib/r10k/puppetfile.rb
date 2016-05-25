@@ -37,6 +37,7 @@ class Puppetfile
     @puppetfile_path = puppetfile || File.join(basedir, 'Puppetfile')
 
     @modules = []
+    @managed_content = {}
     @forge   = 'forgeapi.puppetlabs.com'
   end
 
@@ -79,22 +80,28 @@ class Puppetfile
       install_path = @moduledir
     end
 
-    @modules << R10K::Module.new(name, install_path, args)
+    # Keep track of all the content this Puppetfile is managing to enable purging.
+    @managed_content[install_path] = Array.new unless @managed_content.has_key?(install_path)
+
+    mod = R10K::Module.new(name, install_path, args)
+
+    @managed_content[install_path] << mod.name
+    @modules << mod
   end
 
   include R10K::Util::Purgeable
 
-  # FIXME: make Purgeable aware of multiple module dirs
-
-  def managed_directory
-    @moduledir
+  def managed_directories
+    @managed_content.keys
   end
 
-  # List all modules that should exist in the module directory
+  # Returns an array of the full paths to all the content being managed.
   # @note This implements a required method for the Purgeable mixin
   # @return [Array<String>]
   def desired_contents
-    @modules.map { |mod| mod.name }
+    @managed_content.flat_map do |install_path, modnames|
+      modnames.collect { |name| File.join(install_path, name) }
+    end
   end
 
   def accept(visitor)
@@ -118,6 +125,9 @@ class Puppetfile
       pn = Pathname.new(File.join(basedir, path))
     end
 
+    # .cleanpath is as good as we can do without touching the filesystem.
+    # The .realpath methods will also choke if some of the intermediate
+    # paths are missing, even though we will create them later as needed.
     pn.cleanpath.to_s
   end
 

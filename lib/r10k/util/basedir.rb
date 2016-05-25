@@ -39,16 +39,18 @@ module R10K
 
       # Return the path of the basedir
       # @note This implements a required method for the Purgeable mixin
-      # @return [String]
-      def managed_directory
-        @path
+      # @return [Array]
+      def managed_directories
+        [@path]
       end
 
       # List all environments that should exist in this basedir
       # @note This implements a required method for the Purgeable mixin
       # @return [Array<String>]
       def desired_contents
-        @sources.map(&:desired_contents).flatten
+        @sources.flat_map do |src|
+          src.desired_contents.collect { |env| File.join(@path, env) }
+        end
       end
 
       def purge!
