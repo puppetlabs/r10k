@@ -1,0 +1,25 @@
+HOSTS:
+  ubuntu-1604-amd64-master:
+    roles:
+      - master
+      - dashboard
+      - database
+      - agent
+    platform: ubuntu-16.04-amd64
+    template: Delivery/Quality Assurance/Templates/vCloud/ubuntu-1604-x86_64
+    hypervisor: vcloud
+  ubuntu-1604-agent:
+    roles:
+      - agent
+      - frictionless
+    platform: ubuntu-16.04-amd64
+    template: Delivery/Quality Assurance/Templates/vCloud/ubuntu-1604-x86_64
+    hypervisor: vcloud
+CONFIG:
+  nfs_server: none
+  consoleport: 443
+  datastore: instance0
+  folder: Delivery/Quality Assurance/Enterprise/Dynamic
+  resourcepool: delivery/Quality Assurance/Enterprise/Dynamic
+  pooling_api: http://vmpooler.delivery.puppetlabs.net/
+  forge_host: forge-aio01-petest.puppetlabs.com
