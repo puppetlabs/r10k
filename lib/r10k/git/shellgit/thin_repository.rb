@@ -39,6 +39,12 @@ class R10K::Git::ShellGit::ThinRepository < R10K::Git::ShellGit::WorkingReposito
     git(['config', '--get', 'remote.cache.url'], :path => @path.to_s, :raise_on_fail => false).stdout
   end
 
+  # Determine whether the workdir differs from origin.  Ignore untracked files because of .r10k-deploy.json
+  def changes
+    changes = git(['status', '--porcelain', '--untracked-files=no'], :path => @path.to_s, :raise_on_fail => false).stdout.split("\n")
+    changes.count
+  end
+
   private
 
   def setup_cache_remote
