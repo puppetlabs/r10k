@@ -103,3 +103,14 @@ Contributors
 ------------
 
 Please see the CHANGELOG for a listing of the (very awesome) contributors.
+
+git@github.com:puppetlabs/r10k.git
+
+## Maintenance
+
+Maintainers:
+
+* Jesse Scott, jesse@puppet.com
+* Anderson Mills, anderson@puppet.com
+
+Tickets: File at https://tickets.puppet.com/browse/RK
