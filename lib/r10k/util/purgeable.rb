@@ -15,21 +15,22 @@ module R10K
 
       # @!method desired_contents
       #   @abstract Including classes must implement this method to list the
-      #     expected filenames of managed_directory
-      #   @return [Array<String>] A list of directory contents that should be present
+      #     expected filenames of managed_directories
+      #   @return [Array<String>] The full paths to all the content this object is managing
 
-      # @!method managed_directory
-      #   @abstract Including classes must implement this method to return the
-      #     path to the directory that can be purged
-      #   @return [String] The path to the directory to be purged
+      # @!method managed_directories
+      #   @abstract Including classes must implement this method to return an array of
+      #     paths that can be purged
+      #   @return [Array<String>] The paths to the directories to be purged
 
-      # @return [Array<String>] The present directory entries in `self.managed_directory`
+      # @return [Array<String>] The present directory entries in `self.managed_directories`
       def current_contents
-        dir = self.managed_directory
-        glob_exp = File.join(dir, '*')
+        dirs = self.managed_directories
 
-        Dir.glob(glob_exp).map do |fname|
-          File.basename(fname)
+        dirs.flat_map do |dir|
+          glob_exp = File.join(dir, '*')
+
+          Dir.glob(glob_exp)
         end
       end
 
@@ -43,13 +44,12 @@ module R10K
         current_contents - desired_contents
       end
 
-      # Forcibly remove all unmanaged content in `self.managed_directory`
+      # Forcibly remove all unmanaged content in `self.managed_directories`
       def purge!
         if stale_contents.empty?
-          logger.debug1 "No unmanaged contents in #{managed_directory}, nothing to purge"
+          logger.debug1 "No unmanaged contents in #{managed_directories.join(', ')}, nothing to purge"
         else
-          stale_contents.each do |fname|
-            fpath = File.join(self.managed_directory, fname)
+          stale_contents.each do |fpath|
             logger.info "Removing unmanaged path #{fpath}"
             FileUtils.rm_rf(fpath, :secure => true)
           end

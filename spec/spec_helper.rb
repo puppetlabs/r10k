@@ -23,6 +23,9 @@ require 'matchers/exit_with'
 require 'matchers/match_realpath'
 require 'r10k-mocks'
 
+# Add a negated version of the change matcher.
+RSpec::Matchers.define_negated_matcher :not_change, :change
+
 RSpec.configure do |config|
   config.before(:all) do
     Log4r::Logger.global.level = Log4r::OFF

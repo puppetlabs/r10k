@@ -37,6 +37,7 @@ class Puppetfile
     @puppetfile_path = puppetfile || File.join(basedir, 'Puppetfile')
 
     @modules = []
+    @managed_content = {}
     @forge   = 'forgeapi.puppetlabs.com'
   end
 
@@ -72,20 +73,35 @@ class Puppetfile
   # @param [String] name
   # @param [*Object] args
   def add_module(name, args)
-    @modules << R10K::Module.new(name, @moduledir, args)
+    if args.is_a?(Hash) && install_path = args.delete(:install_path)
+      install_path = resolve_install_path(install_path)
+      validate_install_path(install_path, name)
+    else
+      install_path = @moduledir
+    end
+
+    # Keep track of all the content this Puppetfile is managing to enable purging.
+    @managed_content[install_path] = Array.new unless @managed_content.has_key?(install_path)
+
+    mod = R10K::Module.new(name, install_path, args)
+
+    @managed_content[install_path] << mod.name
+    @modules << mod
   end
 
   include R10K::Util::Purgeable
 
-  def managed_directory
-    @moduledir
+  def managed_directories
+    @managed_content.keys
   end
 
-  # List all modules that should exist in the module directory
+  # Returns an array of the full paths to all the content being managed.
   # @note This implements a required method for the Purgeable mixin
   # @return [Array<String>]
   def desired_contents
-    @modules.map { |mod| mod.name }
+    @managed_content.flat_map do |install_path, modnames|
+      modnames.collect { |name| File.join(install_path, name) }
+    end
   end
 
   def accept(visitor)
@@ -100,6 +116,29 @@ class Puppetfile
 
   def puppetfile_contents
     File.read(@puppetfile_path)
+  end
+
+  def resolve_install_path(path)
+    pn = Pathname.new(path)
+
+    unless pn.absolute?
+      pn = Pathname.new(File.join(basedir, path))
+    end
+
+    # .cleanpath is as good as we can do without touching the filesystem.
+    # The .realpath methods will also choke if some of the intermediate
+    # paths are missing, even though we will create them later as needed.
+    pn.cleanpath.to_s
+  end
+
+  def validate_install_path(path, modname)
+    real_basedir = Pathname.new(basedir).cleanpath.to_s
+
+    unless /^#{Regexp.escape(real_basedir)}.*/ =~ path
+      raise R10K::Error.new("Puppetfile cannot manage content '#{modname}' outside of containing environment: #{path} is not within #{real_basedir}")
+    end
+
+    true
   end
 
   class DSL
