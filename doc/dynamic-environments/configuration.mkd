@@ -353,16 +353,15 @@ must override the `prefix` so environment folders line up in both directories:
 
 ```yaml
 ---
-  sources:
-    main:
-      app1_data:
-        remote: 'git://git-server.site/my-org/app1-hieradata'
-        basedir: '/etc/puppet/hieradata'
-        prefix: "app1"
-      app1_modules:
-        remote: 'git://git-server.site/my-org/app1-puppet-modules'
-        basedir: '/etc/puppet/environments'
-        prefix: "app1"
+sources:
+  app1_data:
+    remote: 'git://git-server.site/my-org/app1-hieradata'
+    basedir: '/etc/puppet/hieradata'
+    prefix: "app1"
+  app1_modules:
+    remote: 'git://git-server.site/my-org/app1-puppet-modules'
+    basedir: '/etc/puppet/environments'
+    prefix: "app1"
 ```
 
 
