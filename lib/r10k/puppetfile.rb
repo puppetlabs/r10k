@@ -29,6 +29,10 @@ class Puppetfile
   #   @return [String] The path to the Puppetfile
   attr_reader :puppetfile_path
 
+  # @!attribute [rw] environment
+  #   @return [R10K::Environment] Optional R10K::Environment that this Puppetfile belongs to.
+  attr_accessor :environment
+
   # @param [String] basedir
   # @param [String] puppetfile The path to the Puppetfile, default to #{basedir}/Puppetfile
   def initialize(basedir, moduledir = nil, puppetfile = nil)

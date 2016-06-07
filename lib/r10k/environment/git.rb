@@ -61,6 +61,20 @@ class R10K::Environment::Git < R10K::Environment::Base
     @repo.head
   end
 
+  include R10K::Util::Purgeable
+
+  def managed_directories
+    [@full_path]
+  end
+
+  # Returns an array of the full paths to all the content being managed.
+  # @note This implements a required method for the Purgeable mixin
+  # @return [Array<String>]
+  def desired_contents
+    desired = [File.join(@full_path, '.git')]
+    desired += @repo.tracked_paths.map { |entry| File.join(@full_path, entry) }
+  end
+
   extend Forwardable
 
   def_delegators :@repo, :status

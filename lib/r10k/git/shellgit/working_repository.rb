@@ -47,8 +47,15 @@ class R10K::Git::ShellGit::WorkingRepository < R10K::Git::ShellGit::BaseReposito
   # Check out the given Git ref
   #
   # @param ref [String] The git reference to check out
-  def checkout(ref)
-    git ['checkout', ref], :path => @path.to_s
+  # @param opts [Hash] Optional hash of additional options.
+  def checkout(ref, opts = {})
+    if opts && opts[:force]
+      force_opt = '--force'
+    else
+      force_opt = ''
+    end
+
+    git ['checkout', ref, force_opt], :path => @path.to_s
   end
 
   def fetch(remote_name='origin')
@@ -79,5 +86,10 @@ class R10K::Git::ShellGit::WorkingRepository < R10K::Git::ShellGit::BaseReposito
     if result.success?
       result.stdout
     end
+  end
+
+  # does the working tree have local modifications to tracked files?
+  def dirty?
+    # TODO
   end
 end

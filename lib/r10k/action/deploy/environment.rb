@@ -50,8 +50,8 @@ module R10K
 
           yield
 
+          logger.debug("Purging unmanaged environments...")
           deployment.purge! if @purge
-
         ensure
           if (postcmd = @settings[:postrun])
             subproc = R10K::Util::Subprocess.new(postcmd)
@@ -86,12 +86,20 @@ module R10K
             yield
           end
 
-          write_environment_info!(environment, started_at)
+          if @visit_ok
+            # TODO: add configurable whitelist
+            # TODO: add config option to control
+            logger.debug("Purging unmanaged content for environment '#{environment.dirname}'...")
+            environment.purge!(:recurse => true, :whitelist => environment.whitelist)
+
+            write_environment_info!(environment, started_at)
+          end
         end
 
         def visit_puppetfile(puppetfile)
           puppetfile.load
           yield
+          logger.debug("Purging unmanaged Puppetfile content for environment '#{puppetfile.environment.dirname}'...")
           puppetfile.purge!
         end
 

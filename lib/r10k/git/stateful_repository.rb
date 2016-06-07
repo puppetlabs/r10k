@@ -13,7 +13,7 @@ class R10K::Git::StatefulRepository
   attr_reader :repo
 
   extend Forwardable
-  def_delegators :@repo, :head
+  def_delegators :@repo, :head, :tracked_paths
 
   # Create a new shallow git working directory
   #
@@ -48,7 +48,7 @@ class R10K::Git::StatefulRepository
       @repo.clone(@remote, {:ref => sha})
     when :outdated
       logger.debug { "Updating #{@repo.path} to #{@ref}" }
-      @repo.checkout(sha)
+      @repo.checkout(sha, {:force => true})
     else
       logger.debug { "#{@repo.path} is already at Git ref #{@ref}" }
     end
@@ -66,6 +66,8 @@ class R10K::Git::StatefulRepository
     elsif !(@repo.head == @cache.resolve(@ref))
       :outdated
     elsif @cache.ref_type(@ref) == :branch && !@cache.synced?
+      :outdated
+    elsif @repo.dirty?
       :outdated
     else
       :insync

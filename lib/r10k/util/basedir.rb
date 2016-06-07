@@ -55,11 +55,9 @@ module R10K
 
       def purge!
         @sources.each do |source|
-          logger.debug1 "Source #{source.name} in #{@path} manages contents #{source.desired_contents.inspect}"
+          logger.debug1 "Source '#{source.name}' in #{@path} manages contents #{source.desired_contents.inspect}"
         end
-        if !stale_contents.empty?
-          logger.debug "The path #{@path} has unmanaged contents #{stale_contents.inspect}"
-        end
+
         super
       end
     end
