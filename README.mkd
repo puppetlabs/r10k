@@ -104,8 +104,6 @@ Contributors
 
 Please see the CHANGELOG for a listing of the (very awesome) contributors.
 
-git@github.com:puppetlabs/r10k.git
-
 ## Maintenance
 
 Maintainers:
