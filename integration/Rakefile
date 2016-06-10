@@ -1,0 +1,41 @@
+require 'rototiller'
+
+desc 'The acceptance tests for r10k, run in the beaker framework'
+rototiller_task :acceptance => [:beaker_hostgenerator] do |t|
+
+  flags = [
+      {:name => '--hosts', :default => 'configs/generated', :override_env => 'BEAKER_HOST'},
+      {:name => '--keyfile', :default => "#{ENV['HOME']}/.ssh/id_rsa-acceptance", :override_env => 'BEAKER_KEYFILE'},
+      {:name => '--load-path', :default => 'lib'},
+      {:name => '--pre-suite', :default => 'pre-suite'},
+      {:name => '--tests', :default => 'tests', :override_env => 'BEAKER_TESTS'},
+      {:name => '--preserve-hosts', :default => 'onfail', :override_env => 'BEAKER_PRESERVE_HOSTS'},
+  ]
+  t.add_flag(*flags)
+
+  t.add_env do |env|
+    env.name = 'BEAKER_PE_DIR'
+    env.message = 'The location to download PE from example "http://neptune.puppetlabs.lan/2016.2/ci-ready"'
+  end
+
+  t.add_env do |env|
+    env.name = 'GIT_PROVIDER'
+    env.message = 'The git provider that r10k should use on a SUT'
+  end
+
+  t.add_command({:name => 'beaker --debug', :override_env => 'BEAKER_EXECUTABLE'})
+end
+
+desc 'Generate a host configuration used by Beaker'
+rototiller_task :beaker_hostgenerator do |t|
+
+  t.add_command do |c|
+    c.name = 'beaker-hostgenerator'
+    c.argument = '> configs/generated'
+  end
+
+  #this is a hack :(
+  t.add_flag(:name => '', :default => 'centos6-64mdca-64.fa', :override_env => 'TEST_TARGET')
+
+  t.add_flag(:name => '--global-config', :default => '{forge_host=forge-aio01-petest.puppetlabs.com}', :override_env => 'BHG_GLOBAL_CONFIG')
+end

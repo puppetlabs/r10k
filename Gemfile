@@ -1,5 +1,4 @@
-source 'https://rubygems.org'
-
+source ENV['GEM_SOURCE'] || 'https://rubygems.org'
 gemspec
 
 group :extra do
