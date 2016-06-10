@@ -49,7 +49,8 @@ class R10K::Git::ShellGit::WorkingRepository < R10K::Git::ShellGit::BaseReposito
   # @param ref [String] The git reference to check out
   # @param opts [Hash] Optional hash of additional options.
   def checkout(ref, opts = {})
-    if opts && opts[:force]
+    # :force defaults to true
+    if !opts.has_key?(:force) || opts[:force]
       force_opt = '--force'
     else
       force_opt = ''

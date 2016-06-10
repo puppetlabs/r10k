@@ -44,8 +44,8 @@ class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
     checkout(opts.fetch(:ref, 'HEAD'))
   end
 
-  def checkout(ref)
-    super(@cache_repo.resolve(ref))
+  def checkout(ref, opts = {})
+    super(@cache_repo.resolve(ref), opts)
   end
 
   # Fetch refs and objects from one of the Git remotes
@@ -59,6 +59,20 @@ class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
   # @return [String] The cache remote URL
   def cache
     with_repo { |repo| repo.config['remote.cache.url'] }
+  end
+
+  def tracked_paths(ref="HEAD")
+    with_repo do |repo|
+      commit = repo.rev_parse(ref)
+
+      unless commit && commit.tree
+        raise R10K::Error.new("Unable to resolve '#{ref}' to a valid commit in repo #{@path}")
+      end
+
+      commit.tree.walk(:postorder).collect do |root, entry|
+        root.empty? ? entry[:name] : File.join(root, entry[:name])
+      end
+    end
   end
 
   private
