@@ -84,6 +84,21 @@ module R10K
             end
           end
         }),
+
+        EnumDefinition.new(:purge_levels, {
+          :desc => "Controls how aggressively r10k will purge unmanaged content from the target directory. Should be a list of values indicating at what levels unmanaged content should be purged. Options are 'source', 'environment', and 'module'. For backwards compatibility, the default is [source, module].",
+          :multi => true,
+          :enum => [:source, :environment, :module],
+          :default => [:source, :module],
+          :normalize => lambda do |input|
+            if input.respond_to?(:collect)
+              input.collect { |val| val.to_sym }
+            else
+              # Convert single values to a list of one symbolized value.
+              [input.to_sym]
+            end
+          end,
+        }),
       ])
     end
 
