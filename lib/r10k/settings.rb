@@ -86,10 +86,10 @@ module R10K
         }),
 
         EnumDefinition.new(:purge_levels, {
-          :desc => "Controls how aggressively r10k will purge unmanaged content from the target directory. Should be a list of values indicating at what levels unmanaged content should be purged. Options are 'source', 'environment', and 'module'. For backwards compatibility, the default is [source, module].",
+          :desc => "Controls how aggressively r10k will purge unmanaged content from the target directory. Should be a list of values indicating at what levels unmanaged content should be purged. Options are 'deployment', 'environment', and 'puppetfile'. For backwards compatibility, the default is ['deployment', 'puppetfile'].",
           :multi => true,
-          :enum => [:source, :environment, :module],
-          :default => [:source, :module],
+          :enum => [:deployment, :environment, :puppetfile],
+          :default => [:deployment, :puppetfile],
           :normalize => lambda do |input|
             if input.respond_to?(:collect)
               input.collect { |val| val.to_sym }
@@ -98,6 +98,11 @@ module R10K
               [input.to_sym]
             end
           end,
+        }),
+
+        Definition.new(:purge_whitelist, {
+          :desc => "A list of filename patterns to be excluded from any purge operations. Patterns are matched relative to the root of each deployed environment, if you want a pattern to match recursively you need to use the '**' glob in your pattern. Basic shell style globs are supported.",
+          :default => [],
         }),
       ])
     end

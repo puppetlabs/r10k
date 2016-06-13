@@ -200,12 +200,92 @@ sources:
 
 ### deploy
 
-The `deploy` setting is a new top level setting for controlling how r10k deploys
+The `deploy` setting is a top level setting for controlling how r10k deploys
 behave. At this point only new settings are included under this setting, but in
 the long term the current top level deploy settings will be moved under
 `deploy`.
 
-#### write_lock
+#### purge\_levels
+
+The `purge_levels` setting controls how aggressively r10k will purge unmanaged
+content during a deployment. Given value must be a list of strings indicating at
+what levels unmanaged content should be purged. The valid string options for the
+list are 'deployment', 'environment', and 'puppetfile'.
+
+```yaml
+---
+deploy:
+  purge_levels: [ 'deployment', 'environment', 'puppetfile' ]
+```
+
+This setting currently only impacts the "deploy environment" action.
+
+The default value is `['deployment', 'puppetfile']` to maintain parity with
+existing behavior before this setting was added.
+
+The effect of enabling the various purge levels is as follows:
+
+##### deployment
+
+After each deploy, in the configured basedir, r10k will recursively remove any
+content found which is not managed by one of the sources declared in the r10k.yaml
+configuration. Note that disabling this level of purging may cause the number of
+deployed environments to grow without bound; deleting branches from a control
+repo would no longer cause the matching environment to be purged.
+
+##### environment
+
+After a given environment is deployed, r10k will recursively remove any content
+found which is neither committed to the control repo branch that maps to that
+environment, nor declared in a Puppetfile committed to that branch.
+
+Enabling this purge level will cause r10k to load and parse the Puppetfile for
+the environment even without the `--puppetfile` flag being set. However,
+Puppetfile content will still only be deployed if the environment is new or
+the `--puppetfile` flag is set. Additionally, no environment-level content
+will be purged if a Puppetfile content deploy was triggered but an error was
+encountered.
+
+Note that the .r10k-deploy.json file is exempt from this purging.
+
+##### puppetfile
+
+After Puppetfile content for a given environment is deployed, r10k will
+recursively remove any content found in a directory managed by the Puppetfile
+which is not also declared in that Puppetfile. Directories considered to be
+managed by a Puppetfile include the configured `moduledir` (which defaults to
+"modules") as well as alternate directories specified as an `install\_path`
+option to any Puppetfile content declarations.
+
+#### purge\_whitelist
+
+The `purge_whitelist` setting exempts the specified filename patterns from
+being purged. This setting is currently only considered during `environment`
+level purging. (See above.) Given value must be a list of shell style filename
+patterns in string format.
+
+See the Ruby [documentation for the `fnmatch` method](http://ruby-doc.org/core-2.2.0/File.html#method-c-fnmatch)
+for more details on valid patterns. Note that the `FNM_PATHNAME` and
+`FNM_DOTMATCH` flags are in effect when r10k considers the whitelist.
+
+Patterns are relative to the root of the environment being purged and *do
+not match recursively* by default. For example, a whitelist value of
+`*myfile*` would only preserve a matching file at the root of the
+environment. To preserve the file throughout the deployed environment,
+a recursive pattern such as `**/*myfile*` would be required.
+
+Files matching a whitelist pattern may still be removed if they exist in
+a folder that is otherwise subject to purging. In this case, an additional
+whitelist rule to preserve the containing folder is required.
+
+```yaml
+---
+deploy:
+  purge_whitelist: [ 'custom.json', '**/*.xpp' ]
+```
+
+
+#### write\_lock
 
 The `write_lock` setting allows administrators to temporarily disallow r10k code
 deploys without having to remove the r10k configuration entirely. This can be
@@ -214,10 +294,8 @@ with a common set of code that may be touched by multiple r10k configurations.
 
 ```yaml
 ---
-
 deploy:
   write_lock: "Deploying code is disallowed until the next maintenance window (2038-01-19)"
-
 ```
 
 Source options

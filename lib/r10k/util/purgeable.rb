@@ -29,7 +29,7 @@ module R10K
 
         dirs.flat_map do |dir|
           if recurse
-            glob_exp = File.join(dir, '**', '{*,.*}')
+            glob_exp = File.join(dir, '**', '{*,.[^.]*}')
           else
             glob_exp = File.join(dir, '*')
           end
@@ -44,9 +44,13 @@ module R10K
       end
 
       # @return [Array<String>] Directory contents that are present but not expected
+      # TODO: consider splitting whitelist into "exclude" and "whitelist" to differentiate
+      # between built-in and user-supplied whitelist items
       def stale_contents(recurse, whitelist)
         (current_contents(recurse) - desired_contents).reject do |item|
-          whitelist.any? { |whitelist_item| /^#{Regexp.escape(whitelist_item)}/ =~ item }
+          exempt = whitelist.any? { |whitelist_item| File.fnmatch?(whitelist_item, item, File::FNM_PATHNAME | File::FNM_DOTMATCH) }
+          #logger.debug "Did not purge #{item} due to whitelist match" if exempt
+          exempt
         end
       end
 

@@ -43,6 +43,8 @@ class Puppetfile
     @modules = []
     @managed_content = {}
     @forge   = 'forgeapi.puppetlabs.com'
+
+    @loaded = false
   end
 
   def load
@@ -56,6 +58,7 @@ class Puppetfile
   def load!
     dsl = R10K::Puppetfile::DSL.new(self)
     dsl.instance_eval(puppetfile_contents, @puppetfile_path)
+    @loaded = true
   rescue SyntaxError, LoadError, ArgumentError => e
     raise R10K::Error.wrap(e, "Failed to evaluate #{@puppetfile_path}")
   end
@@ -96,6 +99,8 @@ class Puppetfile
   include R10K::Util::Purgeable
 
   def managed_directories
+    self.load unless @loaded
+
     @managed_content.keys
   end
 
@@ -103,6 +108,8 @@ class Puppetfile
   # @note This implements a required method for the Purgeable mixin
   # @return [Array<String>]
   def desired_contents
+    self.load unless @loaded
+
     @managed_content.flat_map do |install_path, modnames|
       modnames.collect { |name| File.join(install_path, name) }
     end

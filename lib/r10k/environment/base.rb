@@ -101,11 +101,13 @@ class R10K::Environment::Base
     end
   end
 
-  def whitelist
-    # TODO: add user configurable whitelist
+  def whitelist(user_whitelist = [])
     list = [File.join(@full_path, '.r10k-deploy.json')].to_set
+
+    list += user_whitelist.collect { |pattern| File.join(@full_path, pattern) }
+
     list += @puppetfile.desired_contents.flat_map do |item|
-      desired_tree = []
+      desired_tree = [ File.join(item, '**', '*') ]
 
       Pathname.new(item).ascend do |path|
         break if path.to_s == @full_path
