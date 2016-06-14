@@ -1,3 +1,5 @@
 source ENV['GEM_SOURCE'] || 'https://rubygems.org'
 
 gem 'beaker', '~> 2.7'
+gem 'rototiller', '= 0.1.0'
+gem 'beaker-hostgenerator', '~> 0.7.0'
