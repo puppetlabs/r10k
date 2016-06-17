@@ -67,6 +67,9 @@ class R10K::Git::StatefulRepository
       :outdated
     elsif @cache.ref_type(@ref) == :branch && !@cache.synced?
       :outdated
+    elsif @repo.changes > 0
+      logger.debug { "Found #{@repo.changes} changes unstaged in workdir" }
+      :mismatched
     else
       :insync
     end
