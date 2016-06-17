@@ -2,7 +2,9 @@
 
 require 'r10k/cli'
 require 'colored'
-File.open("/tmp/r10k.lock", File::RDWR|File::CREAT, 0644) do |f|
+lockfile = "/tmp/r10k.lock"
+
+File.open(lockfile, File::RDWR|File::CREAT, 0644) do |f|
   f.flock(File::LOCK_EX)
   begin
     R10K::CLI.command.run(ARGV)
