@@ -2,16 +2,18 @@
 
 require 'r10k/cli'
 require 'colored'
-
-begin
-  R10K::CLI.command.run(ARGV)
-rescue Interrupt
-  $stderr.puts "Aborted!".red
-  exit(1)
-rescue SystemExit => e
-  exit(e.status)
-rescue Exception => e
-  $stderr.puts "\nError while running: #{e.inspect}".red
-  $stderr.puts e.backtrace.join("\n").red if ARGV.include? '--trace'
-  exit(1)
+File.open("/tmp/r10k.lock", File::RDWR|File::CREAT, 0644) do |f|
+  f.flock(File::LOCK_EX)
+  begin
+    R10K::CLI.command.run(ARGV)
+  rescue Interrupt
+    $stderr.puts "Aborted!".red
+    exit(1)
+  rescue SystemExit => e
+    exit(e.status)
+  rescue Exception => e
+    $stderr.puts "\nError while running: #{e.inspect}".red
+    $stderr.puts e.backtrace.join("\n").red if ARGV.include? '--trace'
+    exit(1)
+  end
 end
