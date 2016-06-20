@@ -27,12 +27,12 @@ cachedir: '/var/cache/r10k'
 git:
   provider: '#{git_provider}'
   repositories:
-    - remote: 'https://fake_git_source.git'
+    - remote: 'https://example.com/fake_git_source.git'
       proxy: 'https://ilovecatvideos.com:3128'
 sources:
   control:
     basedir: "#{env_path}"
-    remote: "https://fake_git_source.git"
+    remote: "https://example.com/fake_git_source.git"
 CONF
 
 teardown do
@@ -64,7 +64,7 @@ git_add_commit_push(master, 'production', 'add Puppetfile', git_environments_pat
 
 #test
 on(master, "#{r10k_fqp} deploy environment -p", :accept_all_exit_codes => true) do |r|
-  regex = /Couldn't resolve proxy 'ilovecatvideos\.com'/
+  regex = /(Couldn't|Could not) resolve proxy.*ilovecatvideos\.com/
   assert(r.exit_code == 1, 'expected error code was not observed')
   assert_match(regex, r.stderr, 'The expected error message was not observed' )
 end
