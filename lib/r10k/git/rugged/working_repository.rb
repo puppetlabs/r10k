@@ -60,7 +60,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   #
   # @param ref [String] The git reference to check out
   # @return [void]
-  def checkout(ref)
+  def checkout(ref, opts = {})
     sha = resolve(ref)
 
     if sha
@@ -69,9 +69,12 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
       raise R10K::Git::GitError.new("Unable to check out unresolvable ref '#{ref}'", git_dir: git_dir)
     end
 
+    # :force defaults to true
+    force = !opts.has_key?(:force) || opts[:force]
+
     with_repo do |repo|
       repo.checkout(sha)
-      repo.reset(sha, :hard)
+      repo.reset(sha, :hard) if force
     end
   end
 
@@ -107,6 +110,10 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
 
   def origin
     with_repo { |repo| repo.config['remote.origin.url'] }
+  end
+
+  def dirty?
+    # TODO
   end
 
   private

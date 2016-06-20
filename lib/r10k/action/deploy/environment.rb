@@ -13,9 +13,13 @@ module R10K
 
         include R10K::Action::Deploy::DeployHelpers
 
-        def initialize(opts, argv, settings = {})
-          @purge = true
+        def initialize(opts, argv, settings = nil)
+          settings ||= {}
+          @purge_levels = settings.fetch(:deploy, {}).fetch(:purge_levels, [])
+          @user_purge_whitelist = settings.fetch(:deploy, {}).fetch(:purge_whitelist, [])
+
           super
+
           @argv = @argv.map { |arg| arg.gsub(/\W/,'_') }
         end
 
@@ -50,8 +54,10 @@ module R10K
 
           yield
 
-          deployment.purge! if @purge
-
+          if @purge_levels.include?(:deployment)
+            logger.debug("Purging unmanaged environments for deployment...")
+            deployment.purge!
+          end
         ensure
           if (postcmd = @settings[:postrun])
             subproc = R10K::Util::Subprocess.new(postcmd)
@@ -86,13 +92,27 @@ module R10K
             yield
           end
 
-          write_environment_info!(environment, started_at)
+          if @purge_levels.include?(:environment)
+            if @visit_ok
+              logger.debug("Purging unmanaged content for environment '#{environment.dirname}'...")
+              environment.purge!(:recurse => true, :whitelist => environment.whitelist(@user_purge_whitelist))
+            else
+              logger.debug("Not purging unmanaged content for environment '#{environment.dirname}' due to prior deploy failures.")
+            end
+          end
+
+          write_environment_info!(environment, started_at, @visit_ok)
         end
 
         def visit_puppetfile(puppetfile)
           puppetfile.load
+
           yield
-          puppetfile.purge!
+
+          if @purge_levels.include?(:puppetfile)
+            logger.debug("Purging unmanaged Puppetfile content for environment '#{puppetfile.environment.dirname}'...")
+            puppetfile.purge!
+          end
         end
 
         def visit_module(mod)
@@ -100,11 +120,12 @@ module R10K
           mod.sync
         end
 
-        def write_environment_info!(environment, started_at)
+        def write_environment_info!(environment, started_at, success)
           File.open("#{environment.path}/.r10k-deploy.json", 'w') do |f|
             deploy_info = environment.info.merge({
               :started_at => started_at,
               :finished_at => Time.new,
+              :deploy_success => success,
             })
 
             f.puts(JSON.pretty_generate(deploy_info))
@@ -121,7 +142,7 @@ module R10K
         end
 
         def allowed_initialize_opts
-          super.merge(puppetfile: :self, cachedir: :self, purge: true)
+          super.merge(puppetfile: :self, cachedir: :self)
         end
       end
     end

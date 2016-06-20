@@ -39,7 +39,9 @@ class R10K::Environment::Base
 
     @full_path = File.join(@basedir, @dirname)
     @path = Pathname.new(File.join(@basedir, @dirname))
+
     @puppetfile  = R10K::Puppetfile.new(@full_path)
+    @puppetfile.environment = self
   end
 
   # Synchronize the given environment.
@@ -97,5 +99,24 @@ class R10K::Environment::Base
     visitor.visit(:environment, self) do
       puppetfile.accept(visitor)
     end
+  end
+
+  def whitelist(user_whitelist = [])
+    list = [File.join(@full_path, '.r10k-deploy.json')].to_set
+
+    list += user_whitelist.collect { |pattern| File.join(@full_path, pattern) }
+
+    list += @puppetfile.desired_contents.flat_map do |item|
+      desired_tree = [ File.join(item, '**', '*') ]
+
+      Pathname.new(item).ascend do |path|
+        break if path.to_s == @full_path
+        desired_tree << path.to_s
+      end
+
+      desired_tree
+    end
+
+    list.to_a
   end
 end

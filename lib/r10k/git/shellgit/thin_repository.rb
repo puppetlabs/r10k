@@ -39,6 +39,10 @@ class R10K::Git::ShellGit::ThinRepository < R10K::Git::ShellGit::WorkingReposito
     git(['config', '--get', 'remote.cache.url'], :path => @path.to_s, :raise_on_fail => false).stdout
   end
 
+  def tracked_paths(ref="HEAD")
+    git(['ls-tree', '-t', '-r', '--name-only', ref], :path => @path.to_s).stdout.split("\n")
+  end
+
   private
 
   def setup_cache_remote

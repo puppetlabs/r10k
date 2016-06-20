@@ -28,7 +28,7 @@ class R10K::Source::Base
   #   Defaults to false for no environment prefix.
   def initialize(name, basedir, options = {})
     @name    = name
-    @basedir = basedir
+    @basedir = Pathname.new(basedir).cleanpath.to_s
     @prefix  = options.delete(:prefix)
     @options = options
   end

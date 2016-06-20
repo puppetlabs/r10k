@@ -24,6 +24,10 @@ module R10K
       def settings
         @hash
       end
+
+      def merge(other)
+        hash.merge(other)
+      end
     end
   end
 end
