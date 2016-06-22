@@ -15,6 +15,20 @@ describe R10K::Puppetfile do
     end
   end
 
+  describe "the default puppetfile" do
+    it "is the basedir joined with '/Puppetfile' path" do
+      expect(subject.puppetfile_path).to eq '/some/nonexistent/basedir/Puppetfile'
+    end
+  end
+
+  describe "a custom puppetfile Puppetfile.r10k" do
+    before { R10K::Puppetfile.settings[:puppetfile] = "Puppetfile.r10k" }
+    after { R10K::Puppetfile.settings.reset! }
+    it "is the basedir joined with '/Puppetfile.r10k' path" do
+      expect(subject.puppetfile_path).to eq '/some/nonexistent/basedir/Puppetfile.r10k'
+    end
+  end
+
   describe "setting moduledir" do
     it "changes to given moduledir if it is an absolute path" do
       subject.set_moduledir('/absolute/path/moduledir')
