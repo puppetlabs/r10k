@@ -1,5 +1,6 @@
 require 'pathname'
 require 'r10k/module'
+require 'r10k/settings'
 require 'r10k/util/purgeable'
 require 'r10k/errors'
 
@@ -8,6 +9,9 @@ class Puppetfile
   # Defines the data members of a Puppetfile
 
   include R10K::Logging
+  include R10K::Settings::Mixin
+
+  def_setting_attr :puppetfile, 'Puppetfile'
 
   # @!attribute [r] forge
   #   @return [String] The URL to use for the Puppet Forge
@@ -38,7 +42,7 @@ class Puppetfile
   def initialize(basedir, moduledir = nil, puppetfile = nil)
     @basedir         = basedir
     @moduledir       = moduledir  || File.join(basedir, 'modules')
-    @puppetfile_path = puppetfile || File.join(basedir, 'Puppetfile')
+    @puppetfile_path = puppetfile || File.join(basedir, settings[:puppetfile])
 
     @modules = []
     @managed_content = {}
