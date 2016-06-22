@@ -122,6 +122,11 @@ module R10K
           :desc => "Where r10k should store cached Git repositories.",
         }),
 
+        Definition.new(:puppetfile, {
+          :desc => "The relative name of the Puppetfile to use (default 'Puppetfile').",
+          :default => 'Puppetfile',
+        }),
+
         Definition.new(:postrun, {
           :desc => "The command r10k should run after deploying environments.",
           :validate => lambda do |value|
