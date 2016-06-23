@@ -9,7 +9,7 @@ module R10K
           begin
             URI.parse(@value)
           rescue URI::Error
-            raise ArgumentError, "Setting #{@name} requires a URL but '#{@value}' could not be parsed as a URL"
+            raise ArgumentError, _("Setting %{name} requires a URL but '%{value}' could not be parsed as a URL") % {name: @name, value: @value}
           end
         end
         super

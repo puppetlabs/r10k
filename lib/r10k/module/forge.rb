@@ -62,7 +62,7 @@ class R10K::Module::Forge < R10K::Module::Base
       begin
         @expected_version = @v3_module.current_release.version
       rescue Faraday::ResourceNotFound => e
-        raise PuppetForge::ReleaseNotFound, "The module #{@title} does not exist on #{PuppetForge::V3::Release.conn.url_prefix}.", e.backtrace
+        raise PuppetForge::ReleaseNotFound, _("The module %{title} does not exist on %{url}.") % {title: @title, url: PuppetForge::V3::Release.conn.url_prefix}, e.backtrace
       end
     end
     @expected_version
@@ -150,7 +150,7 @@ class R10K::Module::Forge < R10K::Module::Base
     if (match = title.match(/\A(\w+)[-\/](\w+)\Z/))
       [match[1], match[2]]
     else
-      raise ArgumentError, "Forge module names must match 'owner/modulename'"
+      raise ArgumentError, _("Forge module names must match 'owner/modulename'")
     end
   end
 end

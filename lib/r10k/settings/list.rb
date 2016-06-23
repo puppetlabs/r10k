@@ -63,7 +63,7 @@ module R10K
         end
 
         if !errors.empty?
-          raise ValidationError.new("Validation failed for '#{@name}' settings list", :errors => errors)
+          raise ValidationError.new(_("Validation failed for '%{name}' settings list") % {name: @name}, :errors => errors)
         end
       end
 

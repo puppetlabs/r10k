@@ -25,7 +25,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   #
   # @return [void]
   def clone(remote, opts = {})
-    logger.debug1 { "Cloning '#{remote}' into #{@path}" }
+    logger.debug1 { _("Cloning '%{remote}' into %{path}") % {remote: remote, path: @path } }
 
     # libgit2/rugged doesn't support cloning a repository and providing an
     # alternate object database, making the handling of :alternates a noop.
@@ -64,7 +64,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
     sha = resolve(ref)
 
     if sha
-      logger.debug2 { "Checking out ref '#{ref}' (resolved to SHA '#{sha}') in repository #{@path}" }
+      logger.debug2 { _("Checking out ref '%{ref}' (resolved to SHA '%{sha}') in repository %{path}") % {ref: ref, sha: sha, path: @path} }
     else
       raise R10K::Git::GitError.new("Unable to check out unresolvable ref '#{ref}'", git_dir: git_dir)
     end
@@ -79,7 +79,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   end
 
   def fetch(remote_name = 'origin')
-    logger.debug1 { "Fetching remote '#{remote_name}' at #{@path}" }
+    logger.debug1 { _("Fetching remote '%{remote}' at %{path}") % {remote: remote_name, path: @path} }
     options = {:credentials => credentials}
     refspecs = ["+refs/heads/*:refs/remotes/#{remote_name}/*"]
 

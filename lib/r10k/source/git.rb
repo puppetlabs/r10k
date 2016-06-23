@@ -63,10 +63,10 @@ class R10K::Source::Git < R10K::Source::Base
   #
   # @return [void]
   def preload!
-    logger.debug "Fetching '#{@remote}' to determine current branches."
+    logger.debug _("Fetching '%{remote}' to determine current branches.") % {remote: @remote}
     @cache.sync
   rescue => e
-    raise R10K::Error.wrap(e, "Unable to determine current branches for Git source '#{@name}' (#{@basedir})")
+    raise R10K::Error.wrap(e, _("Unable to determine current branches for Git source '%{name}' (%{basedir})") % {name: @name, basedir: @basedir})
   end
   alias fetch_remote preload!
 
@@ -91,11 +91,11 @@ class R10K::Source::Git < R10K::Source::Base
         envs << R10K::Environment::Git.new(bn.name, @basedir, bn.dirname,
                                        {:remote => remote, :ref => bn.name})
       elsif bn.correct?
-       logger.warn "Environment #{bn.name.inspect} contained non-word characters, correcting name to #{bn.dirname}"
+       logger.warn _("Environment %{env_name} contained non-word characters, correcting name to %{corrected_env_name}") % {env_name: bn.name.inspect, corrected_env_name: bn.dirname}
         envs << R10K::Environment::Git.new(bn.name, @basedir, bn.dirname,
                                        {:remote => remote, :ref => bn.name})
       elsif bn.validate?
-       logger.error "Environment #{bn.name.inspect} contained non-word characters, ignoring it."
+       logger.error _("Environment %{env_name} contained non-word characters, ignoring it.") % {env_name: bn.name.inspect}
       end
     end
 

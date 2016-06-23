@@ -40,7 +40,7 @@ module R10K
         setopts(opts, {:username => :self, :password => :self})
 
         if !!(@username) ^ !!(@password)
-          raise ArgumentError, "Both username and password must be specified"
+          raise ArgumentError, _("Both username and password must be specified")
         end
       end
 

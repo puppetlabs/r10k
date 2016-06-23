@@ -39,7 +39,7 @@ class Config
     hash = loader.read(@configfile)
 
     with_overrides = hash.merge(@overrides) do |key, oldval, newval|
-      logger.debug2 "Overriding config file setting '#{key}': '#{oldval}' -> '#{newval}'"
+      logger.debug2 _("Overriding config file setting '%{key}': '%{old_val}' -> '%{new_val}'") % {key: key, old_val: oldval, new_val: newval}
       newval
     end
 

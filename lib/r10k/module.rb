@@ -25,7 +25,7 @@ module R10K::Module
       obj = implementation.new(name, basedir, args)
       obj
     else
-      raise "Module #{name} with args #{args.inspect} doesn't have an implementation. (Are you using the right arguments?)"
+      raise _("Module %{name} with args %{args} doesn't have an implementation. (Are you using the right arguments?)") % {name: name, args: args.inspect}
     end
   end
 

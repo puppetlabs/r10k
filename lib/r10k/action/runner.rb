@@ -46,7 +46,7 @@ module R10K
         overrides.delete_if { |_, val| val.nil? }
 
         with_overrides = config_settings.merge(overrides) do |key, oldval, newval|
-          logger.debug2 "Overriding config file setting '#{key}': '#{oldval}' -> '#{newval}'"
+          logger.debug2 _("Overriding config file setting '%{key}': '%{old_val}' -> '%{new_val}'") % {key: key, old_val: oldval, new_val: newval}
           newval
         end
 
@@ -79,10 +79,10 @@ module R10K
 
         if path
           @opts[:config] = path
-          logger.debug2 "Reading configuration from #{path.inspect}"
+          logger.debug2 _("Reading configuration from %{config_path}") % {config_path: path.inspect}
           results = loader.read(path)
         else
-          logger.debug2 "No config file explicitly given and no default config file could be found, default settings will be used."
+          logger.debug2 _("No config file explicitly given and no default config file could be found, default settings will be used.")
         end
 
         results

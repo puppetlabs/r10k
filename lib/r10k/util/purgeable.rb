@@ -62,17 +62,17 @@ module R10K
         stale = stale_contents(recurse, whitelist)
 
         if stale.empty?
-          logger.debug1 "No unmanaged contents in #{managed_directories.join(', ')}, nothing to purge"
+          logger.debug1 _("No unmanaged contents in %{managed_dirs}, nothing to purge") % {managed_dirs: managed_directories.join(', ')}
         else
           stale.each do |fpath|
             begin
               FileUtils.rm_r(fpath, :secure => true)
-              logger.info "Removed unmanaged path: #{fpath}"
+              logger.info _("Removing unmanaged path %{path}") % {path: fpath}
             rescue Errno::ENOENT
               # Don't log on ENOENT since we may encounter that from recursively deleting
               # this item's parent earlier in the purge.
             rescue
-              logger.debug1 "Unable to remove unmanaged path: #{fpath}"
+              logger.debug1 _("Unable to remove unmanaged path: %{path}") % {path: fpath}
             end
           end
         end

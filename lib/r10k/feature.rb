@@ -24,29 +24,29 @@ module R10K
 
     # @return [true, false] Is this feature available?
     def available?
-      logger.debug1 { "Testing to see if feature #{@name} is available." }
+      logger.debug1 { _("Testing to see if feature %{name} is available.") % {name: @name} }
       rv = @libraries.all? { |lib| library_available?(lib) } && proc_available?
       msg = rv ? "is" : "is not"
-      logger.debug1 { "Feature #{@name} #{msg} available." }
+      logger.debug1 { _("Feature %{name} %{message} available.") % {name: @name, message: msg} }
       rv
     end
 
     private
 
     def library_available?(lib)
-      logger.debug2 { "Attempting to load library '#{lib}' for feature #{@name}" }
+      logger.debug2 { _("Attempting to load library '%{lib}' for feature %{name}") % {lib: lib, name: @name} }
       require lib
       true
     rescue ScriptError => e
-      logger.debug2 { "Error while loading library #{lib} for feature #{@name}: #{e.message}" }
+      logger.debug2 { _("Error while loading library %{lib} for feature %{name}: %{error_msg}") % {lib: lib, name: @name, error_msg: e.message} }
       false
     end
 
     def proc_available?
       if @block
-        logger.debug2 { "Evaluating proc #{@block.inspect} to test for feature #{@name}" }
+        logger.debug2 { _("Evaluating proc %{block} to test for feature %{name}") % {block: @block.inspect, name: @name} }
         output = @block.call
-        logger.debug2 { "Proc #{@block.inspect} for feature #{@name} returned #{output.inspect}" }
+        logger.debug2 { _("Proc %{block} for feature %{name} returned %{output}") % {block: @block.inspect, name: @name, output: output.inspect } }
         !!output
       else
         true

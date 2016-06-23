@@ -51,7 +51,7 @@ class Puppetfile
     if File.readable? @puppetfile_path
       self.load!
     else
-      logger.debug "Puppetfile #{@puppetfile_path.inspect} missing or unreadable"
+      logger.debug _("Puppetfile %{path} missing or unreadable") % {path: @puppetfile_path.inspect}
     end
   end
 
@@ -60,7 +60,7 @@ class Puppetfile
     dsl.instance_eval(puppetfile_contents, @puppetfile_path)
     @loaded = true
   rescue SyntaxError, LoadError, ArgumentError => e
-    raise R10K::Error.wrap(e, "Failed to evaluate #{@puppetfile_path}")
+    raise R10K::Error.wrap(e, _("Failed to evaluate %{path}") % {path: @puppetfile_path})
   end
 
   # @param [String] forge
@@ -174,7 +174,7 @@ class Puppetfile
     end
 
     def method_missing(method, *args)
-      raise NoMethodError, "unrecognized declaration '#{method}'"
+      raise NoMethodError, _("unrecognized declaration '%{method}'") % {method: method}
     end
   end
 end

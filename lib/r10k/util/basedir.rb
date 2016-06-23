@@ -31,7 +31,7 @@ module R10K
       # @param sources [Array<#desired_contents>] A list of objects that may create filesystem entries
       def initialize(path, sources)
         if sources.is_a? R10K::Deployment
-          raise ArgumentError, "Expected Array<#desired_contents>, got R10K::Deployment"
+          raise ArgumentError, _("Expected Array<#desired_contents>, got R10K::Deployment")
         end
         @path    = path
         @sources = sources
@@ -55,7 +55,7 @@ module R10K
 
       def purge!
         @sources.each do |source|
-          logger.debug1 "Source '#{source.name}' in #{@path} manages contents #{source.desired_contents.inspect}"
+          logger.debug1 _("Source %{source_name} in %{path} manages contents %{contents}") % {source_name: source.name, path: @path, contents: source.desired_contents.inspect}
         end
 
         super

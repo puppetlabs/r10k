@@ -85,6 +85,22 @@ information see the topic specific documentation:
 
 For more general questions, see the [FAQ](doc/faq.mkd).
 
+Development
+-----------
+
+### i18n
+
+R10k has now had all user-facing strings in error messages and log messages
+externalized. When adding new error or log messages please follow the
+instructions for [writing translatable code](https://github.com/puppetlabs/gettext-setup-gem#writing-translatable-code).
+
+### l10n
+
+When localizing the strings found in R10k, follow the prescribed
+[translation workflow](https://github.com/puppetlabs/gettext-setup-gem#translation-workflow).
+The workflow describes the rake tasks provided to generate the .po files for
+each locale.
+
 Getting help
 ------------
 

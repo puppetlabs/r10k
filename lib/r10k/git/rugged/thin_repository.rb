@@ -82,7 +82,7 @@ class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
   def setup_rugged_repo
     entry_added = alternates.add?(@cache_repo.objects_dir.to_s)
     if entry_added
-      logger.debug2 { "Updated repo #{@path} to include alternate object db path #{@cache_repo.objects_dir}" }
+      logger.debug2 { _("Updated repo %{path} to include alternate object db path %{objects_dir}") % {path: @path, objects_dir: @cache_repo.objects_dir} }
     end
     super
   end

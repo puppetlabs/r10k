@@ -49,7 +49,7 @@ module R10K
           undeployable = undeployable_environment_names(deployment.environments, @argv)
           if !undeployable.empty?
             @visit_ok = false
-            logger.error "Environment(s) \'#{undeployable.join(", ")}\' cannot be found in any source and will not be deployed."
+            logger.error _("Environment(s) \'%{environments}\' cannot be found in any source and will not be deployed.") % {environments: undeployable.join(", ")}
           end
 
           yield
@@ -72,21 +72,21 @@ module R10K
 
         def visit_environment(environment)
           if !(@argv.empty? || @argv.any? { |name| environment.dirname == name })
-            logger.debug1("Environment #{environment.dirname} does not match environment name filter, skipping")
+            logger.debug1(_("Environment %{env_dir} does not match environment name filter, skipping") % {env_dir: environment.dirname})
             return
           end
 
           started_at = Time.new
 
           status = environment.status
-          logger.info "Deploying environment #{environment.path}"
+          logger.info _("Deploying environment %{env_path}") % {env_path: environment.path}
 
           environment.sync
-          logger.info "Environment #{environment.dirname} is now at #{environment.signature}"
+          logger.info _("Environment %{env_dir} is now at %{env_signature}") % {env_dir: environment.dirname, env_signature: environment.signature}
 
           if status == :absent || @puppetfile
             if status == :absent
-              logger.debug("Environment #{environment.dirname} is new, updating all modules")
+              logger.debug(_("Environment %{env_dir} is new, updating all modules") % {env_dir: environment.dirname})
             end
 
             yield
@@ -116,7 +116,7 @@ module R10K
         end
 
         def visit_module(mod)
-          logger.info "Deploying module #{mod.path}"
+          logger.info _("Deploying module %{mod_path}") % {mod_path: mod.path}
           mod.sync
         end
 
