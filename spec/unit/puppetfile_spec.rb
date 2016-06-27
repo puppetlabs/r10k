@@ -144,6 +144,20 @@ describe R10K::Puppetfile do
         expect_wrapped_error(e, pf_path, ArgumentError)
       end
     end
+
+    it "accepts a forge module with a version" do
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
+      pf_path = File.join(path, 'Puppetfile')
+      subject = described_class.new(path)
+      expect { subject.load! }.not_to raise_error
+    end
+
+    it "accepts a forge module without a version" do
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-without-version')
+      pf_path = File.join(path, 'Puppetfile')
+      subject = described_class.new(path)
+      expect { subject.load! }.not_to raise_error
+    end
   end
 
   describe "accepting a visitor" do
