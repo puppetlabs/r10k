@@ -17,7 +17,7 @@ class R10K::Module::Forge < R10K::Module::Base
   end
 
   def self.valid_version?(expected_version)
-    expected_version == :latest || expected_version.empty? || SemanticPuppet::Version.valid?(expected_version)
+    expected_version == :latest || expected_version.nil? || SemanticPuppet::Version.valid?(expected_version)
   end
 
   # @!attribute [r] metadata
