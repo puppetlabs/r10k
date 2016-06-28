@@ -44,22 +44,26 @@ module R10K
       end
 
       # @return [Array<String>] Directory contents that are present but not expected
-      # TODO: consider splitting whitelist into "exclude" and "whitelist" to differentiate
-      # between built-in and user-supplied whitelist items
-      def stale_contents(recurse, whitelist)
+      def stale_contents(recurse, exclusions, whitelist)
         (current_contents(recurse) - desired_contents).reject do |item|
-          exempt = whitelist.any? { |whitelist_item| File.fnmatch?(whitelist_item, item, File::FNM_PATHNAME | File::FNM_DOTMATCH) }
-          #logger.debug "Did not purge #{item} due to whitelist match" if exempt
-          exempt
+          if exclusion_match = exclusions.find { |ex_item| File.fnmatch?(ex_item, item, File::FNM_PATHNAME | File::FNM_DOTMATCH) }
+            logger.debug2 "Not purging #{item} due to internal exclusion match: #{exclusion_match}"
+          elsif whitelist_match = whitelist.find { |wl_item| File.fnmatch?(wl_item, item, File::FNM_PATHNAME | File::FNM_DOTMATCH) }
+            logger.debug "Not purging #{item} due to whitelist match: #{whitelist_match}"
+          end
+
+          !!exclusion_match || !!whitelist_match
         end
       end
 
       # Forcibly remove all unmanaged content in `self.managed_directories`
       def purge!(opts={})
-        whitelist = opts[:whitelist] || []
         recurse = opts[:recurse] || false
+        whitelist = opts[:whitelist] || []
 
-        stale = stale_contents(recurse, whitelist)
+        exclusions = self.respond_to?(:purge_exclusions) ? purge_exclusions : []
+
+        stale = stale_contents(recurse, exclusions, whitelist)
 
         if stale.empty?
           logger.debug1 _("No unmanaged contents in %{managed_dirs}, nothing to purge") % {managed_dirs: managed_directories.join(', ')}

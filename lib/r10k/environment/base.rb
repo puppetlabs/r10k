@@ -101,13 +101,21 @@ class R10K::Environment::Base
     end
   end
 
-  def whitelist(user_whitelist = [])
+  def whitelist(user_whitelist=[])
+    user_whitelist.collect { |pattern| File.join(@full_path, pattern) }
+  end
+
+  def purge_exclusions
     list = [File.join(@full_path, '.r10k-deploy.json')].to_set
 
-    list += user_whitelist.collect { |pattern| File.join(@full_path, pattern) }
+    list += @puppetfile.managed_directories
 
     list += @puppetfile.desired_contents.flat_map do |item|
-      desired_tree = [ File.join(item, '**', '*') ]
+      desired_tree = []
+
+      if File.directory?(item)
+        desired_tree << File.join(item, '**', '*')
+      end
 
       Pathname.new(item).ascend do |path|
         break if path.to_s == @full_path

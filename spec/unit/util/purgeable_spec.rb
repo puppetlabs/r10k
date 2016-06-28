@@ -46,16 +46,18 @@ RSpec.describe R10K::Util::Purgeable do
     end
 
     describe '#stale_contents' do
-      context 'with no whitelist' do
+      context 'with no whitelist or exclusions' do
+        let(:exclusions) { [] }
         let(:whitelist) { [] }
 
         it 'collects current_contents that should not exist' do
-          expect(subject.stale_contents(recurse, whitelist)).to contain_exactly(/\/unmanaged_1/, /\/unmanaged_2/)
+          expect(subject.stale_contents(recurse, exclusions, whitelist)).to contain_exactly(/\/unmanaged_1/, /\/unmanaged_2/)
         end
       end
     end
 
     describe '#purge!' do
+      let(:exclusions) { [] }
       let(:whitelist) { [] }
       let(:purge_opts) { { recurse: recurse, whitelist: whitelist } }
 
@@ -68,7 +70,7 @@ RSpec.describe R10K::Util::Purgeable do
       end
 
       it 'recursively deletes all stale_contents' do
-        subject.stale_contents(recurse, whitelist).each do |stale|
+        subject.stale_contents(recurse, exclusions, whitelist).each do |stale|
           expect(FileUtils).to receive(:rm_r).with(stale, hash_including(secure: true))
         end
 
@@ -93,16 +95,18 @@ RSpec.describe R10K::Util::Purgeable do
     end
 
     describe '#stale_contents' do
-      context 'with no whitelist' do
+      context 'with no whitelist or exclusions' do
+        let(:exclusions) { [] }
         let(:whitelist) { [] }
 
         it 'collects current_contents that should not exist recursively' do
-          expect(subject.stale_contents(recurse, whitelist)).to contain_exactly(/\/unmanaged_1/, /\/unmanaged_2/, /\/subdir_unmanaged_1/)
+          expect(subject.stale_contents(recurse, exclusions, whitelist)).to contain_exactly(/\/unmanaged_1/, /\/unmanaged_2/, /\/subdir_unmanaged_1/)
         end
       end
     end
 
     describe '#purge!' do
+      let(:exclusions) { [] }
       let(:whitelist) { [] }
       let(:purge_opts) { { recurse: recurse, whitelist: whitelist } }
 
@@ -115,7 +119,7 @@ RSpec.describe R10K::Util::Purgeable do
       end
 
       it 'recursively deletes all stale_contents' do
-        subject.stale_contents(recurse, whitelist).each do |stale|
+        subject.stale_contents(recurse, exclusions, whitelist).each do |stale|
           expect(FileUtils).to receive(:rm_r).with(stale, hash_including(secure: true))
         end
 

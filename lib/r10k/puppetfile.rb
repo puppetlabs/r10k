@@ -115,6 +115,16 @@ class Puppetfile
     end
   end
 
+  def purge_exclusions
+    exclusions = managed_directories
+
+    if environment && environment.respond_to?(:desired_contents)
+      exclusions += environment.desired_contents
+    end
+
+    exclusions
+  end
+
   def accept(visitor)
     visitor.visit(:puppetfile, self) do
       modules.each do |mod|
