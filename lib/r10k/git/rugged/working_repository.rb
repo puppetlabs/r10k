@@ -113,7 +113,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   end
 
   def dirty?
-    # TODO
+    with_repo { |repo| repo.diff_workdir('HEAD').size > 0 }
   end
 
   private

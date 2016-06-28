@@ -91,6 +91,7 @@ class R10K::Git::ShellGit::WorkingRepository < R10K::Git::ShellGit::BaseReposito
 
   # does the working tree have local modifications to tracked files?
   def dirty?
-    # TODO
+    result = git(['diff-index', '--quiet','HEAD', '--'], :path => @path.to_s, :raise_on_fail => false)
+    result.exit_code != 0
   end
 end
