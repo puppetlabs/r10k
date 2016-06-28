@@ -36,12 +36,13 @@ class R10K::Module::Base
   # @param title [String]
   # @param dirname [String]
   # @param args [Array]
-  def initialize(title, dirname, args)
+  def initialize(title, dirname, args, environment=nil)
     @title   = PuppetForge::V3.normalize_name(title)
     @dirname = dirname
     @args    = args
     @owner, @name = parse_title(@title)
     @path = Pathname.new(File.join(@dirname, @name))
+    @environment = environment
   end
 
   # @deprecated

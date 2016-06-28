@@ -17,44 +17,52 @@ class R10K::Git::StatefulRepository
 
   # Create a new shallow git working directory
   #
-  # @param ref     [String] The git ref to check out
   # @param remote  [String] The git remote to use for the repo
   # @param basedir [String] The path containing the Git repo
   # @param dirname [String] The directory name of the Git repo
-  def initialize(ref, remote, basedir, dirname)
-    @ref = ref
+  def initialize(remote, basedir, dirname)
     @remote = remote
-
-    @cache = R10K::Git.cache.generate(remote)
+    @cache = R10K::Git.cache.generate(@remote)
     @repo = R10K::Git.thin_repository.new(basedir, dirname, @cache)
   end
 
-  def sync
-    @cache.sync if sync_cache?
+  def resolve(ref)
+    @cache.sync if sync_cache?(ref)
+    @cache.resolve(ref)
+  end
 
-    sha = @cache.resolve(@ref)
+  def sync(ref)
+    @cache.sync if sync_cache?(ref)
+
+    sha = @cache.resolve(ref)
 
     if sha.nil?
-      raise R10K::Git::UnresolvableRefError.new(_("Unable to sync repo to unresolvable ref '%{ref}'") % {ref: @ref}, :git_dir => @repo.git_dir)
+      raise R10K::Git::UnresolvableRefError.new(_("Unable to sync repo to unresolvable ref '%{ref}'") % {ref: ref}, :git_dir => @repo.git_dir)
     end
 
-    case status
+    workdir_status = status(ref)
+
+    case workdir_status
     when :absent
-      logger.debug { _("Cloning %{repo_path} and checking out %{ref}") % {repo_path: @repo.path, ref: @ref } }
+      logger.debug { _("Cloning %{repo_path} and checking out %{ref}") % {repo_path: @repo.path, ref: ref } }
       @repo.clone(@remote, {:ref => sha})
     when :mismatched
-      logger.debug { _("Replacing %{repo_path} and checking out %{ref}") % {repo_path: @repo.path, ref: @ref } }
+      logger.debug { _("Replacing %{repo_path} and checking out %{ref}") % {repo_path: @repo.path, ref: ref } }
       @repo.path.rmtree
       @repo.clone(@remote, {:ref => sha})
-    when :outdated
-      logger.debug { _("Updating %{repo_path} to %{ref}") % {repo_path: @repo.path, ref: @ref } }
+    when :outdated, :dirty
+      if workdir_status == :dirty
+        logger.warn { _("#{repo_path} has local modifications which will be overwritten") % {repo_path: @repo.path} }
+      end
+
+      logger.debug { _("Updating %{repo_path} to %{ref}") % {repo_path: @repo.path, ref: ref } }
       @repo.checkout(sha, {:force => true})
     else
-      logger.debug { _("%{repo_path} is already at Git ref %{ref}") % {repo_path: @repo.path, ref: @ref } }
+      logger.debug { _("%{repo_path} is already at Git ref %{ref}") % {repo_path: @repo.path, ref: ref } }
     end
   end
 
-  def status
+  def status(ref)
     if !@repo.exist?
       :absent
     elsif !@repo.git_dir.exist?
@@ -63,22 +71,22 @@ class R10K::Git::StatefulRepository
       :mismatched
     elsif !(@repo.origin == @remote)
       :mismatched
-    elsif !(@repo.head == @cache.resolve(@ref))
+    elsif !(@repo.head == @cache.resolve(ref))
       :outdated
-    elsif @cache.ref_type(@ref) == :branch && !@cache.synced?
+    elsif @cache.ref_type(ref) == :branch && !@cache.synced?
       :outdated
     elsif @repo.dirty?
-      :outdated
+      :dirty
     else
       :insync
     end
   end
 
   # @api private
-  def sync_cache?
+  def sync_cache?(ref)
     return true if !@cache.exist?
-    return true if !@cache.resolve(@ref)
-    return true if !([:commit, :tag].include? @cache.ref_type(@ref))
+    return true if !@cache.resolve(ref)
+    return true if !([:commit, :tag].include? @cache.ref_type(ref))
     return false
   end
 end

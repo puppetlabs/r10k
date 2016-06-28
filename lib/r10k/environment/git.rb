@@ -23,7 +23,7 @@ class R10K::Environment::Git < R10K::Environment::Base
   #   @return [R10K::Git::StatefulRepository] The git repo backing this environment
   attr_reader :repo
 
-  # Initialize the given SVN environment.
+  # Initialize the given Git environment.
   #
   # @param name [String] The unique name describing this environment.
   # @param basedir [String] The base directory where this environment will be created.
@@ -37,7 +37,7 @@ class R10K::Environment::Git < R10K::Environment::Base
     @remote = options[:remote]
     @ref    = options[:ref]
 
-    @repo = R10K::Git::StatefulRepository.new(@ref, @remote, @basedir, @dirname)
+    @repo = R10K::Git::StatefulRepository.new(@remote, @basedir, @dirname)
   end
 
   # Clone or update the given Git environment.
@@ -48,8 +48,11 @@ class R10K::Environment::Git < R10K::Environment::Base
   # @api public
   # @return [void]
   def sync
-    @repo.sync
-    @synced = true
+    @repo.sync(@ref)
+  end
+
+  def status
+    @repo.status(@ref)
   end
 
   # Return a sting which uniquely identifies (per source) the current state of the
@@ -74,8 +77,4 @@ class R10K::Environment::Git < R10K::Environment::Base
     desired = [File.join(@full_path, '.git')]
     desired += @repo.tracked_paths.map { |entry| File.join(@full_path, entry) }
   end
-
-  extend Forwardable
-
-  def_delegators :@repo, :status
 end

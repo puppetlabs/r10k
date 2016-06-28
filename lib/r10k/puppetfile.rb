@@ -34,11 +34,12 @@ class Puppetfile
   attr_accessor :environment
 
   # @param [String] basedir
-  # @param [String] puppetfile The path to the Puppetfile, default to #{basedir}/Puppetfile
-  def initialize(basedir, moduledir = nil, puppetfile = nil)
+  # @param [String] moduledir The directory to install the modules, default to #{basedir}/modules
+  # @param [String] puppetfile_path The path to the Puppetfile, default to #{basedir}/Puppetfile
+  def initialize(basedir, moduledir = nil, puppetfile_path = nil)
     @basedir         = basedir
     @moduledir       = moduledir  || File.join(basedir, 'modules')
-    @puppetfile_path = puppetfile || File.join(basedir, 'Puppetfile')
+    @puppetfile_path = puppetfile_path || File.join(basedir, 'Puppetfile')
 
     @modules = []
     @managed_content = {}
@@ -90,7 +91,7 @@ class Puppetfile
     # Keep track of all the content this Puppetfile is managing to enable purging.
     @managed_content[install_path] = Array.new unless @managed_content.has_key?(install_path)
 
-    mod = R10K::Module.new(name, install_path, args)
+    mod = R10K::Module.new(name, install_path, args, @environment)
 
     @managed_content[install_path] << mod.name
     @modules << mod

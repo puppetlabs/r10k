@@ -18,11 +18,12 @@ module R10K::Module
   # @param [String] name The unique name of the module
   # @param [String] basedir The root to install the module in
   # @param [Object] args An arbitary value or set of values that specifies the implementation
+  # @param [R10K::Environment] environment Optional environment that this module is a part of
   #
   # @return [Object < R10K::Module] A member of the implementing subclass
-  def self.new(name, basedir, args)
+  def self.new(name, basedir, args, environment=nil)
     if implementation = @klasses.find { |klass| klass.implement?(name, args) }
-      obj = implementation.new(name, basedir, args)
+      obj = implementation.new(name, basedir, args, environment)
       obj
     else
       raise _("Module %{name} with args %{args} doesn't have an implementation. (Are you using the right arguments?)") % {name: name, args: args.inspect}
