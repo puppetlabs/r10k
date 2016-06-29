@@ -52,7 +52,7 @@ describe R10K::Git::StatefulRepository do
 
     describe "when the ref is a branch and the cache is not synced" do
       it "is outdated" do
-        thinrepo.clone(remote, {:ref => '0.9.x'})
+        thinrepo.clone(remote, {:ref => ref})
         cacherepo.reset!
         expect(subject.status(ref)).to eq :outdated
       end
@@ -67,9 +67,18 @@ describe R10K::Git::StatefulRepository do
       end
     end
 
+    describe "when the workdir has local modifications" do
+      it "is dirty" do
+        thinrepo.clone(remote, {:ref => ref})
+        File.open(File.join(thinrepo.path, 'README.markdown'), 'a') { |f| f.write('local modifications!') }
+
+        expect(subject.status(ref)).to eq :dirty
+      end
+    end
+
     describe "if the right ref is checked out" do
       it "is insync" do
-        thinrepo.clone(remote, {:ref => '0.9.x'})
+        thinrepo.clone(remote, {:ref => ref})
         expect(subject.status(ref)).to eq :insync
       end
     end
@@ -104,6 +113,15 @@ describe R10K::Git::StatefulRepository do
     describe "when the repo is out of date" do
       it "updates the repository" do
         thinrepo.clone(remote, {:ref => '1.0.0'})
+        subject.sync(ref)
+        expect(subject.status(ref)).to eq :insync
+      end
+    end
+
+    describe "when the workdir is dirty" do
+      it "overwrites local modificatios" do
+        thinrepo.clone(remote, {:ref => ref})
+        File.open(File.join(thinrepo.path, 'README.markdown'), 'a') { |f| f.write('local modifications!') }
         subject.sync(ref)
         expect(subject.status(ref)).to eq :insync
       end
