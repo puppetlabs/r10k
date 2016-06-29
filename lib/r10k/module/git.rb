@@ -55,9 +55,9 @@ class R10K::Module::Git < R10K::Module::Base
       return default
     else
       if default
-        raise ArgumentError, "Unable to deploy Puppetfile content '#{@name}': Could not resolve desired ref '#{desired}' or default ref '#{default}'"
+        raise ArgumentError, "Unable to manage Puppetfile content '#{@name}': Could not resolve desired ref '#{desired}' or default ref '#{default}'"
       else
-        raise ArgumentError, "Unable to deploy Puppetfile content '#{@name}': Could not resolve desired ref '#{desired}' and no default given"
+        raise ArgumentError, "Unable to manage Puppetfile content '#{@name}': Could not resolve desired ref '#{desired}' and no default given"
       end
     end
   end
