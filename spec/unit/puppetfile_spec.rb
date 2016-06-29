@@ -93,6 +93,31 @@ describe R10K::Puppetfile do
     end
   end
 
+  describe "#purge_exclusions" do
+    let(:managed_dirs) { ['dir1', 'dir2'] }
+
+    before(:each) do
+      allow(subject).to receive(:managed_directories).and_return(managed_dirs)
+    end
+
+    it "includes managed_directories" do
+      expect(subject.purge_exclusions).to match_array(managed_dirs)
+    end
+
+    context "when belonging to an environment" do
+      let(:env_contents) { ['env1', 'env2' ] }
+
+      before(:each) do
+        mock_env = double(:environment, desired_contents: env_contents)
+        allow(subject).to receive(:environment).and_return(mock_env)
+      end
+
+      it "includes environment's desired_contents" do
+        expect(subject.purge_exclusions).to match_array(managed_dirs + env_contents)
+      end
+    end
+  end
+
   describe "evaluating a Puppetfile" do
     def expect_wrapped_error(orig, pf_path, wrapped_error)
       expect(orig).to be_a_kind_of(R10K::Error)
