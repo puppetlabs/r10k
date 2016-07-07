@@ -44,7 +44,7 @@ module R10K
               instance_variable_set("@#{rhs}".to_sym, value)
             end
           else
-            raise ArgumentError, "#{self.class.name} cannot handle option '#{key}'"
+            raise ArgumentError, _("%{class_name} cannot handle option '%{key}'") % {class_name: self.class.name, key: key}
           end
         end
       end

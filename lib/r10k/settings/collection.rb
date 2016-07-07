@@ -74,9 +74,9 @@ module R10K
 
         if !errors.empty?
           if @name
-            msg = "Validation failed for '#{@name}' settings group"
+            msg = _("Validation failed for '%{name}' settings group") % {name: @name}
           else
-            msg = "Validation failed for settings group"
+            msg = _("Validation failed for settings group")
           end
 
           raise ValidationError.new(msg, :errors => errors)

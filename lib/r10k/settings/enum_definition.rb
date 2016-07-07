@@ -10,11 +10,11 @@ module R10K
             invalid = @value.select { |val| !@enum.include?(val) }
 
             if invalid.size > 0
-              raise ArgumentError, "Setting #{@name} may only contain #{@enum.inspect}; the disallowed values #{invalid.inspect} were present"
+              raise ArgumentError, _("Setting %{name} may only contain %{enums}; the disallowed values %{invalid} were present") % {name: @name, enums: @enum.inspect, invalid: invalid.inspect}
             end
           else
             if !@enum.include?(@value)
-              raise ArgumentError, "Setting #{@name} should be one of #{@enum.inspect}, not '#{@value}'"
+              raise ArgumentError, _("Setting %{name} should be one of %{enums}, not '%{value}'") % {name: @name, enums: @enum.inspect, value: @value}
             end
           end
         end

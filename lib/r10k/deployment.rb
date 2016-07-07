@@ -87,9 +87,13 @@ module R10K
         source.environments.each do |environment|
           if hash.key?(environment.path)
             osource, oenvironment = hash[environment.path]
-            msg = ""
-            msg << "Environment collision at #{environment.path} between "
-            msg << "#{source.name}:#{environment.name} and #{osource.name}:#{oenvironment.name}"
+            msg = _("Environment collision at %{env_path} between %{source}:%{env_name} and %{osource}:%{oenv_name}") % 
+              {env_path: environment.path,
+               source: source.name,
+               env_name: environment.name,
+               osource: osource.name,
+               oenv_name: oenvironment.name}
+
             raise R10K::Error, msg
           else
             hash[environment.path] = [source, environment]
@@ -111,7 +115,7 @@ module R10K
     def load_sources
       sources = @config[:sources]
       if sources.nil? || sources.empty?
-        raise R10K::Error, "Unable to load sources; the supplied configuration does not define the 'sources' key"
+        raise R10K::Error, _("Unable to load sources; the supplied configuration does not define the 'sources' key")
       end
       @_sources = sources.map do |(name, hash)|
         R10K::Source.from_hash(name, hash)

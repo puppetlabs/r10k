@@ -84,7 +84,7 @@ class R10K::Settings::Container
 
   def validate_key!(key)
     unless valid_key?(key)
-      raise InvalidKey, "Key #{key} is not a valid key"
+      raise InvalidKey, _("Key %{key} is not a valid key") % {key: key}
     end
   end
 

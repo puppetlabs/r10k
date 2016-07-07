@@ -14,7 +14,7 @@ module R10K
         hash.keys.each do |key|
           if key.is_a?(String)
             if hash.key?(key.to_sym)
-              raise TypeError, "An existing interned key for #{key} exists, cannot overwrite"
+              raise TypeError, _("An existing interned key for %{key} exists, cannot overwrite") % {key: key}
             end
             hash[key.to_sym] = hash.delete(key)
             key = key.to_sym

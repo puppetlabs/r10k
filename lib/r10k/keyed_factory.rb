@@ -15,7 +15,7 @@ module R10K
 
     def register(key, klass)
       if @implementations.has_key?(key)
-        raise DuplicateImplementationError, "Class already registered for #{key}"
+        raise DuplicateImplementationError, _("Class already registered for %{key}") % {key: key}
       else
         @implementations[key] = klass
       end
@@ -29,7 +29,7 @@ module R10K
       if (impl = @implementations[key])
         impl.new(*args)
       else
-        raise UnknownImplementationError, "No class registered for #{key}"
+        raise UnknownImplementationError, _("No class registered for %{key}") % {key: key}
       end
     end
 

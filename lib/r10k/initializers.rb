@@ -27,7 +27,7 @@ module R10K
     class GlobalInitializer < BaseInitializer
       def call
         with_setting(:purgedirs) do |_|
-          logger.warn("the purgedirs key in r10k.yaml is deprecated. it is currently ignored.")
+          logger.warn(_("the purgedirs key in r10k.yaml is deprecated. it is currently ignored."))
         end
 
         with_setting(:cachedir) { |value| R10K::Git::Cache.settings[:cache_root] = value }

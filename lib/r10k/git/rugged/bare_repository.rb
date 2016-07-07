@@ -31,7 +31,7 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
   # @param remote [String] The URL of the Git remote to clone.
   # @return [void]
   def clone(remote)
-    logger.debug1 { "Cloning '#{remote}' into #{@path}" }
+    logger.debug1 { _("Cloning '%{remote}' into %{path}") % {remote: remote, path: @path} }
 
     @_rugged_repo = ::Rugged::Repository.init_at(@path.to_s, true).tap do |repo|
       config = repo.config
@@ -50,7 +50,7 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
   # @return [void]
   def fetch(remote_name='origin')
     backup_branches = wipe_branches
-    logger.debug1 { "Fetching remote '#{remote_name}' at #{@path}" }
+    logger.debug1 { _("Fetching remote '%{remote_name}' at %{path}") % {remote_name: remote_name, path: @path } }
     options = {:credentials => credentials}
     refspecs = ['+refs/*:refs/*']
 

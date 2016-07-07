@@ -35,9 +35,9 @@ module R10K
 
         def visit_environment(environment)
           if @opts[:environment] && (@opts[:environment] != environment.dirname)
-            logger.debug1("Only updating modules in environment #{@opts[:environment]}, skipping environment #{environment.path}")
+            logger.debug1(_("Only updating modules in environment %{opt_env} skipping environment %{env_path}") % {opt_env: @opts[:environment], env_path: environment.path})
           else
-            logger.debug1("Updating modules #{@argv.inspect} in environment #{environment.path}")
+            logger.debug1(_("Updating modules %{modules} in environment %{env_path}") % {modules: @argv.inspect, env_path: environment_path})
             yield
           end
         end
@@ -49,10 +49,10 @@ module R10K
 
         def visit_module(mod)
           if @argv.include?(mod.name)
-            logger.info "Deploying module #{mod.path}"
+            logger.info _("Deploying module %{mod_path}") % {mod_path: mod.path}
             mod.sync
           else
-            logger.debug1("Only updating modules #{@argv.inspect}, skipping module #{mod.name}")
+            logger.debug1(_("Only updating modules %{modules}, skipping module %{mod_name}") % {modules: @argv.inspect, mod_name: mod.name})
           end
         end
 

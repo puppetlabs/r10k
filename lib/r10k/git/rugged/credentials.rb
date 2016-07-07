@@ -21,7 +21,7 @@ class R10K::Git::Rugged::Credentials
     # Break out of infinite HTTP auth retry loop introduced in libgit2/rugged 0.24.0, libssh
     # auth seems to already abort after ~50 attempts.
     if @called > 50
-      raise R10K::Git::GitError.new("Authentication failed for Git remote #{url.inspect}.")
+      raise R10K::Git::GitError.new(_("Authentication failed for Git remote %{url}.") % {url: url.inspect} )
     end
 
     if allowed_types.include?(:ssh_key)
@@ -45,16 +45,16 @@ class R10K::Git::Rugged::Credentials
 
     if per_repo_private_key
       private_key = per_repo_private_key
-      logger.debug2 "Using per-repository private key #{private_key} for URL #{url.inspect}"
+      logger.debug2 _("Using per-repository private key %{key} for URL %{url}") % {key: private_key, url: url.inspect}
     elsif global_private_key
       private_key = global_private_key
-      logger.debug2 "URL #{url.inspect} has no per-repository private key using '#{private_key}'."
+      logger.debug2 _("URL %{url} has no per-repository private key using '%{key}'." ) % {key: private_key, url: url.inspect}
     else
-      raise R10K::Git::GitError.new("Git remote #{url.inspect} uses the SSH protocol but no private key was given", :git_dir => @repository.path.to_s)
+      raise R10K::Git::GitError.new(_("Git remote %{url} uses the SSH protocol but no private key was given") % {url: url.inspect}, :git_dir => @repository.path.to_s)
     end
 
     if !File.readable?(private_key)
-      raise R10K::Git::GitError.new("Unable to use SSH key auth for #{url.inspect}: private key #{private_key.inspect} is missing or unreadable", :git_dir => @repository.path.to_s)
+      raise R10K::Git::GitError.new(_("Unable to use SSH key auth for %{url}: private key %{private_key} is missing or unreadable") % {url: url.inspect, private_key: private_key.inspect}, :git_dir => @repository.path.to_s)
     end
 
     Rugged::Credentials::SshKey.new(:username => user, :privatekey => private_key)
@@ -77,13 +77,13 @@ class R10K::Git::Rugged::Credentials
 
     if !username_from_url.nil?
       user = username_from_url
-      logger.debug2 "URL #{url.inspect} includes the username #{username_from_url}, using that user for authentication."
+      logger.debug2 _("URL %{url} includes the username %{username}, using that user for authentication.") % {url: url.inspect, username: username_from_url}
     elsif git_user
       user = git_user
-      logger.debug2 "URL #{url.inspect} did not specify a user, using #{user.inspect} from configuration"
+      logger.debug2 _("URL %{url} did not specify a user, using %{user} from configuration") % {url: url.inspect, user: user.inspect}
     else
       user = Etc.getlogin
-      logger.debug2 "URL #{url.inspect} did not specify a user, using current user #{user.inspect}"
+      logger.debug2 _("URL %{url} did not specify a user, using current user %{user}") % {url: url.inspect, user: user.inspect}
     end
 
     user

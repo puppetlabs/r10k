@@ -16,11 +16,11 @@ module R10K
         # @param new_parent [R10K::Settings::Collection] Parent collection
         def parent=(new_parent)
           unless @parent.nil?
-            raise R10K::Error.new("#{self.class} instances cannot be reassigned to a new parent.")
+            raise R10K::Error.new(_("%{class} instances cannot be reassigned to a new parent.") % {class: self.class} )
           end
 
           unless new_parent.is_a?(R10K::Settings::Collection) || new_parent.is_a?(R10K::Settings::List)
-            raise R10K::Error.new("#{self.class} instances may only belong to a settings collection or list.")
+            raise R10K::Error.new(_("%{class} instances may only belong to a settings collection or list.") % {class: self.class} )
           end
 
           @parent = new_parent

@@ -97,7 +97,7 @@ class R10K::Module::Base
     elsif (match = title.match(/\A(\w+)[-\/](\w+)\Z/))
       [match[1], match[2]]
     else
-      raise ArgumentError, "Module name (#{title}) must match either 'modulename' or 'owner/modulename'"
+      raise ArgumentError, _("Module name (%{title}) must match either 'modulename' or 'owner/modulename'") % {title: title}
     end
   end
 end

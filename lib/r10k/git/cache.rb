@@ -52,7 +52,7 @@ class R10K::Git::Cache
   #   @deprecated
   #   @return [String] The path to the git cache repository
   def path
-    logger.warn "#{self.class}#path is deprecated; use #git_dir"
+    logger.warn _("%{class}#path is deprecated; use #git_dir") % {class: self.class}
     git_dir
   end
 
@@ -81,7 +81,7 @@ class R10K::Git::Cache
     if cached?
       @repo.fetch
     else
-      logger.debug1 "Creating new git cache for #{@remote.inspect}"
+      logger.debug1 _("Creating new git cache for %{remote}") % {remote: @remote.inspect}
 
       # TODO extract this to an initialization step
       if !File.exist?(settings[:cache_root])

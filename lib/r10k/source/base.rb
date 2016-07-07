@@ -55,7 +55,7 @@ class R10K::Source::Base
   # @return [Array<R10K::Environment::Base>] An array of environments created
   #   from this source.
   def environments
-    raise NotImplementedError, "#{self.class} has not implemented method #{__method__}"
+    raise NotImplementedError, _("%{class} has not implemented method %{method}") % {class: self.class, method: __method__}
   end
 
   def accept(visitor)

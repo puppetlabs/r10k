@@ -29,7 +29,7 @@ module R10K
           :on_set  => proc do
             [:ssh, :https].each do |transport|
               if !::Rugged.features.include?(transport)
-                logger.warn "Rugged has been compiled without support for #{transport}; Git repositories will not be reachable via #{transport}."
+                logger.warn _("Rugged has been compiled without support for %{transport}; Git repositories will not be reachable via %{transport}.") % {transport: transport}
               end
             end
           end
@@ -65,7 +65,7 @@ module R10K
     def self.default_name
       name, _ = @providers.find { |(_, hash)| R10K::Features.available?(hash[:feature]) }
       if name.nil?
-        raise R10K::Error, "No Git providers are functional."
+        raise R10K::Error, _("No Git providers are functional.")
       end
       name
     end
@@ -82,18 +82,18 @@ module R10K
       _, attrs = @providers.find { |(providername, _)| name == providername }
       if attrs.nil?
         @provider = NULL_PROVIDER
-        raise R10K::Error, "No Git provider named '#{name}'."
+        raise R10K::Error, _("No Git provider named '%{name}'.") % {name: name}
       end
       if !R10K::Features.available?(attrs[:feature])
         @provider = NULL_PROVIDER
-        raise R10K::Error, "Git provider '#{name}' is not functional."
+        raise R10K::Error, _("Git provider '%{name}' is not functional.") % {name: name}
       end
       if attrs[:on_set]
         attrs[:on_set].call
       end
 
       @provider = attrs[:module]
-      logger.debug1 { "Setting Git provider to #{@provider.name}" }
+      logger.debug1 { _("Setting Git provider to %{provider}") % {provider: @provider.name} }
     end
 
     # @return [Module] The namespace of the first available Git implementation.
@@ -101,10 +101,10 @@ module R10K
     def self.provider
       case @provider
       when NULL_PROVIDER
-        raise R10K::Error, "No Git provider set."
+        raise R10K::Error, _("No Git provider set.")
       when UNSET_PROVIDER
         self.provider = default_name
-        logger.debug1 { "Setting Git provider to default provider #{default_name}" }
+        logger.debug1 { _("Setting Git provider to default provider %{name}") % {name: default_name} }
       end
 
       @provider

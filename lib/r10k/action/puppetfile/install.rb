@@ -26,7 +26,7 @@ module R10K
         end
 
         def visit_module(mod)
-          logger.info "Updating module #{mod.path}"
+          logger.info _("Updating module %{mod_path}") % {mod_path: mod.path}
           mod.sync
         end
 

@@ -57,7 +57,7 @@ module R10K::Logging
     def level=(val)
       level = parse_level(val)
       if level.nil?
-        raise ArgumentError, "Invalid log level '#{val}'. Valid levels are #{LOG_LEVELS.map(&:downcase).inspect}"
+        raise ArgumentError, _("Invalid log level '%{val}'. Valid levels are %{log_levels}") % {val: val, log_levels: LOG_LEVELS.map(&:downcase).inspect}
       end
       outputter.level = level
       @level = level
