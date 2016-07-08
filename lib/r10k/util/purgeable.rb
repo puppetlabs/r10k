@@ -47,9 +47,9 @@ module R10K
       def stale_contents(recurse, exclusions, whitelist)
         (current_contents(recurse) - desired_contents).reject do |item|
           if exclusion_match = exclusions.find { |ex_item| File.fnmatch?(ex_item, item, File::FNM_PATHNAME | File::FNM_DOTMATCH) }
-            logger.debug2 "Not purging #{item} due to internal exclusion match: #{exclusion_match}"
+            logger.debug2 _("Not purging %{item} due to internal exclusion match: %{exclusion_match}") % {item: item, exclusion_match: exclusion_match}
           elsif whitelist_match = whitelist.find { |wl_item| File.fnmatch?(wl_item, item, File::FNM_PATHNAME | File::FNM_DOTMATCH) }
-            logger.debug "Not purging #{item} due to whitelist match: #{whitelist_match}"
+            logger.debug _("Not purging %{item} due to whitelist match: %{whitelist_match}") % {item: item, whitelist_match: whitelist_match}
           end
 
           !!exclusion_match || !!whitelist_match
