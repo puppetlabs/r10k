@@ -116,7 +116,7 @@ module R10K
         end
 
         def visit_module(mod)
-          logger.info _("Deploying module %{mod_path}") % {mod_path: mod.path}
+          logger.info _("Deploying Puppetfile content %{mod_path}") % {mod_path: mod.path}
           mod.sync
         end
 

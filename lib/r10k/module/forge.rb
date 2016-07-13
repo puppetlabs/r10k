@@ -28,8 +28,9 @@ class R10K::Module::Forge < R10K::Module::Base
 
   include R10K::Logging
 
-  def initialize(title, dirname, expected_version)
+  def initialize(title, dirname, expected_version, environment=nil)
     super
+
     @metadata_file = R10K::Module::MetadataFile.new(path + 'metadata.json')
     @metadata = @metadata_file.read
 

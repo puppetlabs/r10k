@@ -29,7 +29,7 @@ describe R10K::Puppetfile do
 
   describe "adding modules" do
     it "should accept Forge modules with a string arg" do
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, '1.2.3').and_call_original
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, '1.2.3', anything).and_call_original
 
       expect { subject.add_module('puppet/test_module', '1.2.3') }.to change { subject.modules }
       expect(subject.modules.collect(&:name)).to include('test_module')
@@ -38,7 +38,7 @@ describe R10K::Puppetfile do
     it "should accept non-Forge modules with a hash arg" do
       module_opts = { git: 'git@example.com:puppet/test_module.git' }
 
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, module_opts).and_call_original
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, module_opts, anything).and_call_original
 
       expect { subject.add_module('puppet/test_module', module_opts) }.to change { subject.modules }
       expect(subject.modules.collect(&:name)).to include('test_module')
@@ -50,7 +50,7 @@ describe R10K::Puppetfile do
         git: 'git@example.com:puppet/test_module.git',
       }
 
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', File.join(subject.basedir, 'vendor'), module_opts).and_call_original
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', File.join(subject.basedir, 'vendor'), module_opts, anything).and_call_original
 
       expect { subject.add_module('puppet/test_module', module_opts) }.to change { subject.modules }
       expect(subject.modules.collect(&:name)).to include('test_module')
@@ -64,7 +64,7 @@ describe R10K::Puppetfile do
         git: 'git@example.com:puppet/test_module.git',
       }
 
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', install_path, module_opts).and_call_original
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', install_path, module_opts, anything).and_call_original
 
       expect { subject.add_module('puppet/test_module', module_opts) }.to change { subject.modules }
       expect(subject.modules.collect(&:name)).to include('test_module')
@@ -76,7 +76,7 @@ describe R10K::Puppetfile do
         git: 'git@example.com:puppet/test_module.git',
       }
 
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', File.join(subject.basedir, 'vendor'), module_opts).and_call_original
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', File.join(subject.basedir, 'vendor'), module_opts, anything).and_call_original
 
       expect { subject.add_module('puppet/test_module', module_opts) }.to raise_error(R10K::Error, /cannot manage content.*is not within/i).and not_change { subject.modules }
     end
@@ -87,9 +87,34 @@ describe R10K::Puppetfile do
         git: 'git@example.com:puppet/test_module.git',
       }
 
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', File.join(subject.basedir, 'vendor'), module_opts).and_call_original
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', File.join(subject.basedir, 'vendor'), module_opts, anything).and_call_original
 
       expect { subject.add_module('puppet/test_module', module_opts) }.to raise_error(R10K::Error, /cannot manage content.*is not within/i).and not_change { subject.modules }
+    end
+  end
+
+  describe "#purge_exclusions" do
+    let(:managed_dirs) { ['dir1', 'dir2'] }
+
+    before(:each) do
+      allow(subject).to receive(:managed_directories).and_return(managed_dirs)
+    end
+
+    it "includes managed_directories" do
+      expect(subject.purge_exclusions).to match_array(managed_dirs)
+    end
+
+    context "when belonging to an environment" do
+      let(:env_contents) { ['env1', 'env2' ] }
+
+      before(:each) do
+        mock_env = double(:environment, desired_contents: env_contents)
+        allow(subject).to receive(:environment).and_return(mock_env)
+      end
+
+      it "includes environment's desired_contents" do
+        expect(subject.purge_exclusions).to match_array(managed_dirs + env_contents)
+      end
     end
   end
 

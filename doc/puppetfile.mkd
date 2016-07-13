@@ -122,34 +122,68 @@ given object is a tag or commit and can do some optimizations around fetching
 the object. If the tag or commit is already available r10k will skip network
 operations when updating the repo, which can speed up install times.
 
-Module versions can also be specified using `:branch`. This behaves similarly to
-`:ref`, and is mainly useful for clarity.
+Module versions can also be specified using `:branch` to track a specific
+branch reference.
 
 #### Examples
 
-    # Install puppetlabs/apache and keep it up to date with 'master'
-    mod 'apache',
-      :git => 'https://github.com/puppetlabs/puppetlabs-apache'
+```ruby
+# Install puppetlabs/apache and keep it up to date with 'master'
+mod 'apache',
+  :git => 'https://github.com/puppetlabs/puppetlabs-apache'
 
-    # Install puppetlabs/apache and track the 'docs_experiment' branch
-    mod 'apache',
-      :git => 'https://github.com/puppetlabs/puppetlabs-apache',
-      :ref => 'docs_experiment'
+# Install puppetlabs/apache and track the 'docs_experiment' branch
+mod 'apache',
+  :git => 'https://github.com/puppetlabs/puppetlabs-apache',
+  :ref => 'docs_experiment'
 
-    # Install puppetlabs/apache and pin to the '0.9.0' tag
-    mod 'apache',
-      :git => 'https://github.com/puppetlabs/puppetlabs-apache',
-      :tag => '0.9.0'
+# Install puppetlabs/apache and pin to the '0.9.0' tag
+mod 'apache',
+  :git => 'https://github.com/puppetlabs/puppetlabs-apache',
+  :tag => '0.9.0'
 
-    # Install puppetlabs/apache and pin to the '83401079' commit
-    mod 'apache',
-      :git    => 'https://github.com/puppetlabs/puppetlabs-apache',
-      :commit => '83401079053dca11d61945bd9beef9ecf7576cbf'
+# Install puppetlabs/apache and pin to the '83401079' commit
+mod 'apache',
+  :git    => 'https://github.com/puppetlabs/puppetlabs-apache',
+  :commit => '83401079053dca11d61945bd9beef9ecf7576cbf'
 
-    # Install puppetlabs/apache and track the 'docs_experiment' branch
-    mod 'apache',
-      :git    => 'https://github.com/puppetlabs/puppetlabs-apache',
-      :branch => 'docs_experiment'
+# Install puppetlabs/apache and track the 'docs_experiment' branch
+mod 'apache',
+  :git    => 'https://github.com/puppetlabs/puppetlabs-apache',
+  :branch => 'docs_experiment'
+```
+
+#### Control Repo Branch Tracking
+
+Since r10k 2.4.0, the `:branch` option can be set to the special value
+`:control_branch` to indicate that the content should track a branch
+reference matching the containing control repo branch. For example, if a
+Puppetfile containing a Git content declaration is in the "testing" branch
+of a control repo, a setting of `:control_branch` will attempt to deploy that
+content from a "testing" branch of the content repo.
+
+Additionally, you can specify a `:default_branch` option which is the branch
+reference that content will be deployed from if the the given `:ref`, `:tag`,
+`:commit`, or `:branch` option cannot be resolved and deployed. If the desired
+content cannot be resolved and no default branch is given, or if the default
+branch can also not be resolved, an error will be logged and the content will
+not be deployed or updated.
+
+#### :control\_branch Examples
+
+```ruby
+# Deploy content from branch matching control repo branch.
+mod 'hieradata',
+  :git => 'git@git.example.com:organization/hieradata.git',
+  :branch => :control_branch
+
+# Track control branch and fall-back to master if no matching branch.
+mod 'hieradata',
+  :git => 'git@git.example.com:organization/hieradata.git',
+  :branch => :control_branch,
+  :default_branch => 'master'
+```
+
 
 ### SVN
 
