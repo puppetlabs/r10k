@@ -98,7 +98,7 @@ module R10K
           logger.debug1 _("These files existed in the module's tar file, but are invalid filetypes and were not unpacked: %{invalid_files}") % {invalid_files: file_lists[:invalid]}
         end
         if !file_lists[:symlinks].empty?
-          raise R10K::Error, _("Symlinks are unsupported and were not unpacked from the module tarball. %{release_slug} contained these ignored symlinks: %{symlinks}") % {release_slug: @forge_release.slug, symlinks: file_lists[:symlinks]}
+          logger.warn _("Symlinks are unsupported and were not unpacked from the module tarball. %{release_slug} contained these ignored symlinks: %{symlinks}") % {release_slug: @forge_release.slug, symlinks: file_lists[:symlinks]}
         end
       end
 
