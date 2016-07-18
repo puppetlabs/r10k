@@ -40,17 +40,14 @@ describe R10K::Forge::ModuleRelease do
       subject.unpack(target_dir)
     end
 
-    it "raises an error if symlinks are present during the unpacking process after unpacking" do
-      logger_dbl = double(Log4r::Logger)
+    it "logs a warning if symlinks are present during the unpacking process" do
+      logger_dbl = double(Log4r::Logger, debug1: true, debug2: true)
       allow(subject).to receive(:logger).and_return(logger_dbl)
-      expect(PuppetForge::Unpacker).to receive(:unpack).with(download_path.to_s, target_dir.to_s, unpack_path.to_s).\
-          and_return(file_lists)
-      expect(logger_dbl).to receive(:debug1)
-      expect(logger_dbl).to receive(:debug2)
-      expect {
-        subject.unpack(target_dir)
-      }.to raise_error(R10K::Error, "Symlinks are unsupported and were not unpacked from the module tarball. " +
-                                    "#{subject.forge_release.slug} contained these ignored symlinks: #{file_lists[:symlinks]}")
+      allow(PuppetForge::Unpacker).to receive(:unpack).and_return(file_lists)
+
+      expect(logger_dbl).to receive(:warn).with(/symlinks are unsupported.*#{Regexp.escape(subject.forge_release.slug)}/i)
+
+      subject.unpack(target_dir)
     end
   end
 
