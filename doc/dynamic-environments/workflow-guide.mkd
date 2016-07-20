@@ -204,22 +204,22 @@ you are satisfied with the results.
 
 ### Merge changes
 
-In each of the changed module repos, checkout the main branch and merge.
+In each of the changed module repos, checkout the main production branch and merge.
 
 ```
 # Module repos
-git checkout master
+git checkout production
 git merge feature
-git push origin master
+git push origin production
 ```
 
-In the Control repo, check out master. Do NOT merge the feature branch as it
+In the Control repo, check out production. Do NOT merge the feature branch as it
 now references the incorrect branch for each git repo, and no other changes
 were made (unlike a new module, where a new repo is referenced).
 
 ```
 # Control repo
-git checkout master
+git checkout production
 ```
 
 ### Cleanup feature branches
