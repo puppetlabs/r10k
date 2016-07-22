@@ -19,7 +19,7 @@ PUPPETFILE
 puppet_file_path = File.join(git_environments_path, 'Puppetfile')
 
 #Verification
-error_message_regex = /ERROR.*Unable to sync repo to unresolvable ref/
+error_message_regex = /ERROR.*Could not resolve desired ref/
 
 #Teardown
 teardown do
