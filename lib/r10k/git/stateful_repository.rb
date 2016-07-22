@@ -52,7 +52,7 @@ class R10K::Git::StatefulRepository
       @repo.clone(@remote, {:ref => sha})
     when :outdated, :dirty
       if workdir_status == :dirty
-        logger.warn { _("#{repo_path} has local modifications which will be overwritten") % {repo_path: @repo.path} }
+        logger.warn { _("%{repo_path} has local modifications which will be overwritten") % {repo_path: @repo.path} }
       end
 
       logger.debug { _("Updating %{repo_path} to %{ref}") % {repo_path: @repo.path, ref: ref } }
