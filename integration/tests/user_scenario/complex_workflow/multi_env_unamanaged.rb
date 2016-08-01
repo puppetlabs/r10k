@@ -21,7 +21,7 @@ site_pp = create_site_pp(master_certname, '  include helloworld')
 #Verification
 notify_message_prod_env_regex = /I am in the production environment/
 notify_message_test_env_regex = /I am in the test environment/
-removal_message_test_env_regex = /Removed unmanaged path.*test/
+removal_message_test_env_regex = /Removing unmanaged path.*test/
 error_message_regex = /Could not retrieve catalog from remote server/
 
 #Teardown
