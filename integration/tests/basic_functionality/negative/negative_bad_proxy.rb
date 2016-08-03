@@ -53,5 +53,6 @@ create_remote_file(master, "Puppetfile", 'mod "puppetlabs/motd"')
 
 step 'Use a r10k puppetfile'
 on(master, "#{r10k_fqp} puppetfile install", {:acceptable_exit_codes => [0,1,2]}) do |result|
+  assert(result.exit_code == 1, 'The expected exit code was not observed.')
   assert_match(error_regex, result.stderr, 'Did not see the expected error')
 end
