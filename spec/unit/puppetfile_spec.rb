@@ -35,6 +35,18 @@ describe R10K::Puppetfile do
       expect(subject.modules.collect(&:name)).to include('test_module')
     end
 
+    it "should not accept Forge modules with a version comparison" do
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, '< 1.2.0').and_call_original
+
+      expect {
+        subject.add_module('puppet/test_module', '< 1.2.0')
+      }.to raise_error(
+        RuntimeError,
+        "Module puppet/test_module with args \"< 1.2.0\" doesn't have an implementation. (Are you using the right arguments?)"
+      )
+      expect(subject.modules.collect(&:name)).not_to include('test_module')
+    end
+
     it "should accept non-Forge modules with a hash arg" do
       module_opts = { git: 'git@example.com:puppet/test_module.git' }
 
@@ -156,6 +168,20 @@ describe R10K::Puppetfile do
       }.to raise_error do |e|
         expect_wrapped_error(e, pf_path, ArgumentError)
       end
+    end
+
+    it "accepts a forge module with a version" do
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
+      pf_path = File.join(path, 'Puppetfile')
+      subject = described_class.new(path)
+      expect { subject.load! }.not_to raise_error
+    end
+
+    it "accepts a forge module without a version" do
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-without-version')
+      pf_path = File.join(path, 'Puppetfile')
+      subject = described_class.new(path)
+      expect { subject.load! }.not_to raise_error
     end
   end
 
