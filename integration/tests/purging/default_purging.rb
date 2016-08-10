@@ -88,23 +88,6 @@ on(master, "mkdir #{fake_dir_c_to_be_purged}")
 step('Deploy r10k')
 on(master, "#{r10k_fqp} deploy environment -p")
 
-step('validate if files/directories were purged/kept')
-
-step('Assert to see if deployment level file and directory were purged')
-on(master, "ls #{fake_environment_path_a} | wc -l") do |result|
-  assert_match(/2/, result.stdout, 'error: purge not successful')
-end
-
-step('Assert to see if environment level file and directory were not purged')
-on(master,"ls #{fake_environment_path_b} | wc -l" ) do |result|
-  assert_match(/7/, result.stdout, 'error: purge not successful')
-end
-
-step('Assert to see if puppetfile level level file and directory were purged')
-on(master,"ls #{fake_environment_path_c} | wc -l" ) do |result|
-  assert_match(/1/, result.stdout, 'error: purge not successful')
-end
-
 step('Assert to see if deployment level file is not there')
 on(master, "test -f #{fake_file_a_to_be_purged}", :accept_all_exit_codes => true) do |result|
   file_a_error = 'Puppet file purging was not observed'
