@@ -213,13 +213,13 @@ git merge feature
 git push origin master
 ```
 
-In the Control repo, check out master. Do NOT merge the feature branch as it
+In the Control repo, check out production. Do NOT merge the feature branch as it
 now references the incorrect branch for each git repo, and no other changes
 were made (unlike a new module, where a new repo is referenced).
 
 ```
 # Control repo
-git checkout master
+git checkout production
 ```
 
 ### Cleanup feature branches
@@ -234,7 +234,7 @@ git branch -D repo
 git push origin :repo
 ```
 
-Redeploy with r10k on the master and ensure there are no errors. The *feature*
+Redeploy with r10k on the production and ensure there are no errors. The *feature*
 dynamic environment should no longer exist at `$environmentpath/feature`.
 
 ```r10k deploy environment -p```
