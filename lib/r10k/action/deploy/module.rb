@@ -37,7 +37,7 @@ module R10K
           if @opts[:environment] && (@opts[:environment] != environment.dirname)
             logger.debug1(_("Only updating modules in environment %{opt_env} skipping environment %{env_path}") % {opt_env: @opts[:environment], env_path: environment.path})
           else
-            logger.debug1(_("Updating modules %{modules} in environment %{env_path}") % {modules: @argv.inspect, env_path: environment_path})
+            logger.debug1(_("Updating modules %{modules} in environment %{env_path}") % {modules: @argv.inspect, env_path: environment.path})
             yield
           end
         end
