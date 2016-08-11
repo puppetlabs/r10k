@@ -1,6 +1,18 @@
 CHANGELOG
 =========
 
+2.4.1
+-----
+
+2016/08/11
+
+### Bug Fixes
+
+(#634) Fix "undefined variable" error in "deploy module" action. (Special thanks
+to Andreas Ntaflos (antaflos) for the fix.)
+
+(#635) Reword some documentation around environment level purging.
+
 2.4.0
 -----
 
