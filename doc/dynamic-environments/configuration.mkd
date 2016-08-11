@@ -243,8 +243,8 @@ Enabling this purge level will cause r10k to load and parse the Puppetfile for
 the environment even without the `--puppetfile` flag being set. However,
 Puppetfile content will still only be deployed if the environment is new or
 the `--puppetfile` flag is set. Additionally, no environment-level content
-will be purged if a Puppetfile content deploy was triggered but an error was
-encountered.
+will be purged if any errors are encountered while evaluating the Puppetfile
+or deploying its contents.
 
 Note that the .r10k-deploy.json file is exempt from this purging.
 
