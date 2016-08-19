@@ -44,25 +44,25 @@ class R10K::Git::StatefulRepository
 
     case workdir_status
     when :absent
-      logger.debug { _("Cloning %{repo_path} and checking out %{ref}") % {repo_path: @repo.path, ref: ref } }
+      logger.debug(_("Cloning %{repo_path} and checking out %{ref}") % {repo_path: @repo.path, ref: ref })
       @repo.clone(@remote, {:ref => sha})
     when :mismatched
-      logger.debug { _("Replacing %{repo_path} and checking out %{ref}") % {repo_path: @repo.path, ref: ref } }
+      logger.debug(_("Replacing %{repo_path} and checking out %{ref}") % {repo_path: @repo.path, ref: ref })
       @repo.path.rmtree
       @repo.clone(@remote, {:ref => sha})
     when :outdated
-      logger.debug { _("Updating %{repo_path} to %{ref}") % {repo_path: @repo.path, ref: ref } }
+      logger.debug(_("Updating %{repo_path} to %{ref}") % {repo_path: @repo.path, ref: ref })
       @repo.checkout(sha, {:force => force})
     when :dirty
       if force
-        logger.warn { _("%{repo_path} has local modifications which will be overwritten") % {repo_path: @repo.path} }
-        logger.debug { _("Updating %{repo_path} to %{ref}") % {repo_path: @repo.path, ref: ref } }
+        logger.warn(_("Overwriting local modifications to %{repo_path}") % {repo_path: @repo.path})
+        logger.debug(_("Updating %{repo_path} to %{ref}") % {repo_path: @repo.path, ref: ref })
         @repo.checkout(sha, {:force => force})
       else
-        logger.warn { _("Not updating %{repo_path} due to local modifications") % {repo_path: @repo.path} }
+        logger.warn(_("Skipping %{repo_path} due to local modifications") % {repo_path: @repo.path})
       end
     else
-      logger.debug { _("%{repo_path} is already at Git ref %{ref}") % {repo_path: @repo.path, ref: ref } }
+      logger.debug(_("%{repo_path} is already at Git ref %{ref}") % {repo_path: @repo.path, ref: ref })
     end
   end
 
