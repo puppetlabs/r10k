@@ -68,8 +68,15 @@ describe R10K::Git::StatefulRepository do
     end
 
     describe "when the workdir has local modifications" do
-      it "is dirty" do
+      it "is dirty when workdir is up to date" do
         thinrepo.clone(remote, {:ref => ref})
+        File.open(File.join(thinrepo.path, 'README.markdown'), 'a') { |f| f.write('local modifications!') }
+
+        expect(subject.status(ref)).to eq :dirty
+      end
+
+      it "is dirty when workdir is not up to date" do
+        thinrepo.clone(remote, {:ref => '1.0.0'})
         File.open(File.join(thinrepo.path, 'README.markdown'), 'a') { |f| f.write('local modifications!') }
 
         expect(subject.status(ref)).to eq :dirty
@@ -119,11 +126,33 @@ describe R10K::Git::StatefulRepository do
     end
 
     describe "when the workdir is dirty" do
-      it "overwrites local modificatios" do
+      before(:each) do
         thinrepo.clone(remote, {:ref => ref})
         File.open(File.join(thinrepo.path, 'README.markdown'), 'a') { |f| f.write('local modifications!') }
-        subject.sync(ref)
-        expect(subject.status(ref)).to eq :insync
+      end
+
+      context "when force == true" do
+        let(:force) { true }
+
+        it "warns and overwrites local modifications" do
+          expect(subject.logger).to receive(:warn).with(/overwriting local modifications/i)
+
+          subject.sync(ref, force)
+
+          expect(subject.status(ref)).to eq :insync
+        end
+      end
+
+      context "when force != true" do
+        let(:force) { false }
+
+        it "warns and does not overwrite local modifications" do
+          expect(subject.logger).to receive(:warn).with(/skipping.*due to local modifications/i)
+
+          subject.sync(ref, force)
+
+          expect(subject.status(ref)).to eq :dirty
+        end
       end
     end
   end

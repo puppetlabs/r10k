@@ -27,7 +27,7 @@ module R10K
 
         def visit_module(mod)
           logger.info _("Updating module %{mod_path}") % {mod_path: mod.path}
-          mod.sync
+          mod.sync(false) # Don't force sync for 'puppetfile install' RK-265
         end
 
         def allowed_initialize_opts

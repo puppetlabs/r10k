@@ -1,6 +1,28 @@
 CHANGELOG
 =========
 
+2.4.2
+-----
+
+2016/08/22
+
+### Bug Fixes
+
+(RK-265) The "puppetfile install" action will no longer overwrite local
+modifications to managed Git content. Instead, a message will be logged at the
+"WARN" level indicating that the content was skipped. Note: The "deploy"
+actions will still overwrite local modications. For more background on this
+change, see below:
+
+In 2.4.0 a change was made to r10k's behavior when it encounters local
+modifications during "deploy" operations. Previously, r10k would log an error
+and skip updating the modified content. As of 2.4.0, local modifications will
+be overwritten and a warning will be logged. This change was considered a bug
+fix but was originally omitted from the changelog for that release. This change
+also inadvertently modified the behavior of the "puppetfile install" action. A
+command line flag to control this behavior more explicitly will likely be added
+in a future version.
+
 2.4.1
 -----
 
@@ -50,6 +72,11 @@ iternationalization (i18n) and localization work.
 (RK-258) Symlinks inside of Forge modules will no longer cause r10k to exit non-zero.
 This situation used to raise an error but will now generate a WARN level log message
 instead.
+
+(#483) Local modifications to managed content will now be overwritten during "deploy"
+actions. (Note: This change inadvertently also affected the "puppetfile install"
+action in 2.4.0 and 2.4.1. This was fixed in 2.4.2. A command line flag to control
+this behavior more explicitly will likely be added in a future version.)
 
 ### Bug Fixes
 

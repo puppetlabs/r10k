@@ -38,8 +38,8 @@ class R10K::Module::Git < R10K::Module::Base
     }
   end
 
-  def sync
-    @repo.sync(version)
+  def sync(force=true)
+    @repo.sync(version, force)
   end
 
   def status
