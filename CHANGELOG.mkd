@@ -1,8 +1,18 @@
 CHANGELOG
 =========
 
-2.4.2
+2.4.3
 -----
+
+2016/08/23
+
+### Bug Fixes
+
+(RK-266) Fixed an issue where the "puppetfile install" action was encountering an
+error when operating on a Puppetfile with "local" content declarations.
+
+2.4.2 (Yanked)
+--------------
 
 2016/08/22
 
