@@ -42,7 +42,7 @@ class R10K::Module::Forge < R10K::Module::Base
     @v3_module = PuppetForge::V3::Module.new(:slug => @title)
   end
 
-  def sync(options = {})
+  def sync(opts={})
     case status
     when :absent
       install

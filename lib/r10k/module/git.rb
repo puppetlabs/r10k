@@ -38,7 +38,8 @@ class R10K::Module::Git < R10K::Module::Base
     }
   end
 
-  def sync(force=true)
+  def sync(opts={})
+    force = opts && opts.fetch(:force, true)
     @repo.sync(version, force)
   end
 

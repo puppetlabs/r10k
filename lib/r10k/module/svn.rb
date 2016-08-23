@@ -66,7 +66,7 @@ class R10K::Module::SVN < R10K::Module::Base
     end
   end
 
-  def sync
+  def sync(opts={})
     case status
     when :absent
       install
