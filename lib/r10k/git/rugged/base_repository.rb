@@ -34,10 +34,13 @@ class R10K::Git::Rugged::BaseRepository
 
   # @return [Symbol] The type of the given ref, one of :branch, :tag, :commit, or :unknown
   def ref_type(pattern)
-    if branches.include? pattern
-      :branch
-    elsif tags.include? pattern
+    # Try to match and resolve SHA refs as quickly as possible.
+    if pattern =~ /^[0-9a-f]{5,40}$/i && @_rugged_repo.include?(pattern)
+      :commit
+    elsif @_rugged_repo.tags[pattern]
       :tag
+    elsif @_rugged_repo.branches[pattern]
+      :branch
     elsif resolve(pattern)
       :commit
     else

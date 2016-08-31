@@ -7,6 +7,7 @@ end
 
 group :development do
   gem 'simplecov', '~> 0.9.1'
+  gem 'ruby-prof', :platforms => :ruby
 end
 
 if File.exists? "#{__FILE__}.local"
