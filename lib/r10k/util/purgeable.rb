@@ -45,10 +45,12 @@ module R10K
 
       # @return [Array<String>] Directory contents that are present but not expected
       def stale_contents(recurse, exclusions, whitelist)
+        fn_match_opts = File::FNM_PATHNAME | File::FNM_DOTMATCH
+
         (current_contents(recurse) - desired_contents).reject do |item|
-          if exclusion_match = exclusions.find { |ex_item| File.fnmatch?(ex_item, item, File::FNM_PATHNAME | File::FNM_DOTMATCH) }
+          if exclusion_match = exclusions.find { |ex_item| (ex_item == item) || File.fnmatch?(ex_item, item, fn_match_opts) }
             logger.debug2 _("Not purging %{item} due to internal exclusion match: %{exclusion_match}") % {item: item, exclusion_match: exclusion_match}
-          elsif whitelist_match = whitelist.find { |wl_item| File.fnmatch?(wl_item, item, File::FNM_PATHNAME | File::FNM_DOTMATCH) }
+          elsif whitelist_match = whitelist.find { |wl_item| (wl_item == item) || File.fnmatch?(wl_item, item, fn_match_opts) }
             logger.debug _("Not purging %{item} due to whitelist match: %{whitelist_match}") % {item: item, whitelist_match: whitelist_match}
           end
 
