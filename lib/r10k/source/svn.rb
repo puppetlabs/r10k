@@ -82,7 +82,8 @@ class R10K::Source::SVN < R10K::Source::Base
       options = {
         :remote   => path,
         :username => @username,
-        :password => @password
+        :password => @password,
+        :puppetfile_name => puppetfile_name
       }
       R10K::Environment::SVN.new(branch.name, @basedir, branch.dirname, options)
     end
