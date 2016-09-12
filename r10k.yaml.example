@@ -37,6 +37,12 @@ sources:
     # for more information about the Puppet 'environmentpath' setting.
     #basedir: '/etc/puppetlabs/puppet/environments'
 
+    # The Puppetfile filename in the repo, defaults to 'Puppetfile'. This
+    # setting can be used, to allow custom Puppetfile names to allow hybrid
+    # use of librarian-puppet (transitive dependency resolution) and r10k
+    # (code management on the server).
+    #puppetfile_name: 'Puppetfile.r10k'
+
   # One or more sources can be specified; each source is simple another entry
   # in the sources map.
   #qa:

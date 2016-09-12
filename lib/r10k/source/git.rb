@@ -89,11 +89,11 @@ class R10K::Source::Git < R10K::Source::Base
     branch_names.each do |bn|
       if bn.valid?
         envs << R10K::Environment::Git.new(bn.name, @basedir, bn.dirname,
-                                       {:remote => remote, :ref => bn.name})
+                                       {:remote => remote, :ref => bn.name, :puppetfile_name => puppetfile_name })
       elsif bn.correct?
        logger.warn _("Environment %{env_name} contained non-word characters, correcting name to %{corrected_env_name}") % {env_name: bn.name.inspect, corrected_env_name: bn.dirname}
         envs << R10K::Environment::Git.new(bn.name, @basedir, bn.dirname,
-                                       {:remote => remote, :ref => bn.name})
+                                       {:remote => remote, :ref => bn.name, :puppetfile_name => puppetfile_name})
       elsif bn.validate?
        logger.error _("Environment %{env_name} contained non-word characters, ignoring it.") % {env_name: bn.name.inspect}
       end
