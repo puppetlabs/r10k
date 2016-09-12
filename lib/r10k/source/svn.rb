@@ -50,10 +50,11 @@ class R10K::Source::SVN < R10K::Source::Base
   # @option options [String] :remote The URL to the base directory of the SVN repository
   # @option options [String] :username The SVN username
   # @option options [String] :password The SVN password
+  # @option options [String] :puppetfile_name The puppetfile name
   def initialize(name, basedir, options = {})
     super
 
-    setopts(options, {:remote => :self, :username => :self, :password => :self})
+    setopts(options, {:remote => :self, :username => :self, :password => :self, :puppetfile_name => :self })
     @environments = []
     @svn_remote = R10K::SVN::Remote.new(@remote, :username => @username, :password => @password)
   end

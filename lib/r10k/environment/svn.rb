@@ -43,7 +43,7 @@ class R10K::Environment::SVN < R10K::Environment::Base
   def initialize(name, basedir, dirname, options = {})
     super
 
-    setopts(options, {:remote => :self, :username => :self, :password => :self})
+    setopts(options, {:remote => :self, :username => :self, :password => :self, :puppetfile_name => :self })
 
     @working_dir = R10K::SVN::WorkingDir.new(Pathname.new(@full_path), :username => @username, :password => @password)
   end

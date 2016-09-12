@@ -24,6 +24,11 @@ class R10K::Environment::Base
   #   @return [R10K::Puppetfile] The puppetfile instance associated with this environment
   attr_reader :puppetfile
 
+  # @!attribute [r] puppetfile_name
+  #   @api public
+  #   @return [String] The puppetfile name (relative)
+  attr_reader :puppetfile_name
+
   # Initialize the given environment.
   #
   # @param name [String] The unique name describing this environment.
