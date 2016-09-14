@@ -122,9 +122,6 @@ Please see the CHANGELOG for a listing of the (very awesome) contributors.
 
 ## Maintenance
 
-Maintainers:
-
-* Jesse Scott, jesse@puppet.com
-* Anderson Mills, anderson@puppet.com
+See [MAINTAINERS](MAINTAINERS) (json file)
 
 Tickets: File at https://tickets.puppet.com/browse/RK
