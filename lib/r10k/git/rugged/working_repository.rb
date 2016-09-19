@@ -118,7 +118,16 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   end
 
   def dirty?
-    with_repo { |repo| repo.diff_workdir('HEAD').size > 0 }
+    with_repo do |repo|
+      diff = repo.diff_workdir('HEAD')
+
+      diff.each_patch do |p|
+        logger.debug(_("Found local modifications in %{file_path}" % {file_path: File.join(@path, p.delta.old_file[:path])}))
+        logger.debug1(p.to_s)
+      end
+
+      return diff.size > 0
+    end
   end
 
   private
