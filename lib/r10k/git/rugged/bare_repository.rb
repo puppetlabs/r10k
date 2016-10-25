@@ -65,7 +65,12 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
     report_transfer(results, remote_name)
   rescue Rugged::SshError, Rugged::NetworkError => e
     restore_branches(backup_branches)
-    raise R10K::Git::GitError.new(e.message, :git_dir => git_dir, :backtrace => e.backtrace)
+    if e.message =~ /Unsupported proxy scheme for/
+      message = e.message + "As of curl ver 7.50.2, unsupported proxy schemes no longer fall back to HTTP."
+    else
+      message = e.message
+    end
+    raise R10K::Git::GitError.new(message, :git_dir => git_dir, :backtrace => e.backtrace)
   rescue
     restore_branches(backup_branches)
     raise
