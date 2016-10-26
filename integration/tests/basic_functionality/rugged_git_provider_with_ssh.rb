@@ -4,6 +4,8 @@ require 'r10k_utils'
 require 'master_manipulator'
 test_name 'CODEMGMT-137 - C64160 - Use "rugged" Git Provider with Authentication'
 
+skip_test 'refactor to use shared private key internal to puppet'
+
 confine(:to, :platform => ['el', 'ubuntu', 'sles'])
 
 if ENV['GIT_PROVIDER'] == 'shellgit'

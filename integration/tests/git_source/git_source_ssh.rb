@@ -3,6 +3,8 @@ require 'r10k_utils'
 require 'master_manipulator'
 test_name 'CODEMGMT-92 - C59234 - Single Git Source Using "SSH" Transport Protocol'
 
+skip_test 'refactor to use shared private key internal to puppet'
+
 #Init
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 git_control_remote = 'git@github.com:puppetlabs/codemgmt-92.git'
