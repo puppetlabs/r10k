@@ -1,7 +1,7 @@
 require 'git_utils'
 require 'r10k_utils'
 require 'master_manipulator'
-test_name 'CODEMGMT-730 - C97982 - HTTPS_PROXY effects git source in puppetfile'
+test_name 'CODEMGMT-730 - C97982 - HTTP_PROXY effects git source in puppetfile'
 
 #Init
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
@@ -22,7 +22,7 @@ mod 'motd',
   :git    => 'https://github.com/puppetlabs/puppetlabs-motd'
 EOS
 
-proxy_env_value = 'https://ferritsarebest.net:3219'
+proxy_env_value = 'http://ferritsarebest.net:3219'
 
 #In-line files
 r10k_conf = <<-CONF
@@ -36,7 +36,7 @@ sources:
 CONF
 
 teardown do
-  master.clear_env_var('HTTPS_PROXY')
+  master.clear_env_var('HTTP_PROXY')
 
   step 'Restore Original "r10k" Config'
   on(master, "mv #{r10k_config_bak_path} #{r10k_config_path}")
@@ -45,7 +45,7 @@ teardown do
   clean_up_r10k(master, last_commit, git_environments_path)
 end
 
-master.add_env_var('HTTPS_PROXY', proxy_env_value)
+master.add_env_var('HTTP_PROXY', proxy_env_value)
 
 step 'Backup Current "r10k" Config'
 on(master, "mv #{r10k_config_path} #{r10k_config_bak_path}")
