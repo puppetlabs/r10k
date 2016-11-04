@@ -73,8 +73,11 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
     force = !opts.has_key?(:force) || opts[:force]
 
     with_repo do |repo|
-      repo.checkout(sha)
-      repo.reset(sha, :hard) if force
+      if force
+        repo.checkout(sha, {:strategy => [:force, :remove_untracked]})
+      else
+        repo.checkout(sha)
+      end
     end
   end
 
@@ -113,7 +116,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   end
 
   def dirty?
-    with_repo { |repo| repo.diff_workdir('HEAD').size > 0 }
+    with_repo { |repo| repo.diff_workdir('HEAD', {:include_untracked => true}).size > 0 }
   end
 
   private

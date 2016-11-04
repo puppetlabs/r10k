@@ -54,6 +54,7 @@ class R10K::Git::ShellGit::WorkingRepository < R10K::Git::ShellGit::BaseReposito
     # :force defaults to true
     if !opts.has_key?(:force) || opts[:force]
       options << '--force'
+      git ['clean', '-f'], :path => @path.to_s
     end
 
     git options, :path => @path.to_s
@@ -91,7 +92,7 @@ class R10K::Git::ShellGit::WorkingRepository < R10K::Git::ShellGit::BaseReposito
 
   # does the working tree have local modifications to tracked files?
   def dirty?
-    result = git(['diff-index', '--quiet','HEAD', '--'], :path => @path.to_s, :raise_on_fail => false)
-    result.exit_code != 0
+    result = git(['status', '--porcelain'], :path => @path.to_s, :raise_on_fail => true)
+    result.stdout != ""
   end
 end

@@ -159,10 +159,31 @@ RSpec.shared_examples "a git working repository" do
     end
   end
 
+  describe "checking the dirty? state" do
+    before(:each) do
+      subject.clone(remote)
+    end
+
+    it "should not show dirty without changes" do
+      expect(subject.dirty?).to eq false
+    end
+
+    it "should show dirty when managed files are changed" do
+      File.open(File.join(subject.path, 'README.markdown'), 'a') { |f| f.write('local modifications!') }
+      expect(subject.dirty?).to eq true
+    end
+
+    it "should show dirty when unmanaged files exist" do
+      File.open(File.join(subject.path, 'unmanaged_file'), 'a') { |f| f.write('local modifications!') }
+      expect(subject.dirty?).to eq true
+    end
+  end
+
   describe "checking out ref" do
     before(:each) do
       subject.clone(remote)
       File.open(File.join(subject.path, 'README.markdown'), 'a') { |f| f.write('local modifications!') }
+      File.open(File.join(subject.path, 'unmanaged_file'), 'a') { |f| f.write('local modifications!') }
     end
 
     context "with force = true" do
@@ -170,12 +191,22 @@ RSpec.shared_examples "a git working repository" do
         subject.checkout(subject.head, {:force => true})
         expect(File.read(File.join(subject.path, 'README.markdown')).include?('local modifications!')).to eq false
       end
+
+      it "should remove untracked files" do
+        subject.checkout(subject.head, {:force => true})
+        expect(File.exist?(File.join(subject.path, 'untracked_file'))).to eq false
+      end
     end
 
     context "with force = false" do
       it "should not revert changes in managed files" do
         subject.checkout(subject.head, {:force => false})
         expect(File.read(File.join(subject.path, 'README.markdown')).include?('local modifications!')).to eq true
+      end
+
+      it "should not remove untracked files" do
+        subject.checkout(subject.head, {:force => false})
+        expect(File.exist?(File.join(subject.path, 'untracked_file'))).to eq false
       end
     end
   end
