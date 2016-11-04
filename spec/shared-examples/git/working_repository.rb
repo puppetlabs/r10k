@@ -158,4 +158,25 @@ RSpec.shared_examples "a git working repository" do
       expect(subject.origin).to eq remote
     end
   end
+
+  describe "checking out ref" do
+    before(:each) do
+      subject.clone(remote)
+      File.open(File.join(subject.path, 'README.markdown'), 'a') { |f| f.write('local modifications!') }
+    end
+
+    context "with force = true" do
+      it "should revert changes in managed files" do
+        subject.checkout(subject.head, {:force => true})
+        expect(File.read(File.join(subject.path, 'README.markdown')).include?('local modifications!')).to eq false
+      end
+    end
+
+    context "with force = false" do
+      it "should not revert changes in managed files" do
+        subject.checkout(subject.head, {:force => false})
+        expect(File.read(File.join(subject.path, 'README.markdown')).include?('local modifications!')).to eq true
+      end
+    end
+  end
 end
