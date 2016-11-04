@@ -49,14 +49,14 @@ class R10K::Git::ShellGit::WorkingRepository < R10K::Git::ShellGit::BaseReposito
   # @param ref [String] The git reference to check out
   # @param opts [Hash] Optional hash of additional options.
   def checkout(ref, opts = {})
+    options = ['checkout', ref]
+
     # :force defaults to true
     if !opts.has_key?(:force) || opts[:force]
-      force_opt = '--force'
-    else
-      force_opt = ''
+      options << '--force'
     end
 
-    git ['checkout', ref, force_opt], :path => @path.to_s
+    git options, :path => @path.to_s
   end
 
   def fetch(remote_name='origin')
