@@ -73,8 +73,11 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
     force = !opts.has_key?(:force) || opts[:force]
 
     with_repo do |repo|
-      repo.checkout(sha)
-      repo.reset(sha, :hard) if force
+      if force
+        repo.reset(sha, :hard)
+      else
+        repo.checkout(sha)
+      end
     end
   end
 
