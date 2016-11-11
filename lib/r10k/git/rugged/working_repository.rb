@@ -73,6 +73,8 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
     force = !opts.has_key?(:force) || opts[:force]
 
     with_repo do |repo|
+      # rugged/libgit2 will not update (at least) the execute bit a file if the SHA is already at
+      # the value being reset to, so this is now changed to an if ... else
       if force
         repo.reset(sha, :hard)
       else
