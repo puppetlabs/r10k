@@ -1,6 +1,23 @@
 CHANGELOG
 =========
 
+2.5.0
+-----
+
+2016/11/15
+
+### Bug Fixes
+
+(#669) Updated the behavior of the rugged based git provider to handle
+unexpected behavior around checkout and resets regarding file permissions,
+specifically, when resetting to an already checked out SHA the executable bit
+on files would not update.
+
+### Changes
+
+(#664) Added to the proxy error message for changes made to libcurl which gave
+new, surprising errors about unsupported proxy schemes.
+
 2.4.3
 -----
 
