@@ -62,7 +62,7 @@ Puppetfile should be installed to. See the [Puppetfile documentation](https://gi
 You can now configure how r10k purges unmanaged content after a deployment. The
 default behavior should be unchanged but there is a new "purge\_levels" configuration
 option that can be used to enable new behavior or de-activate certain existing 
-behaviors. See the relevant [configration documentation](https://github.com/puppetlabs/r10k/blob/master/doc/dynamic-environments/configuration.mkd#purge_levels) for more details.
+behaviors. See the relevant [configuration documentation](https://github.com/puppetlabs/r10k/blob/master/doc/dynamic-environments/configuration.mkd#purge_levels) for more details.
 
 (RK-223) Ability to track control repo branch from content declarations.
 
