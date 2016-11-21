@@ -36,7 +36,11 @@ class R10K::Environment::Base
     @basedir = basedir
     @dirname = dirname
     @options = options
-
+    begin
+      File.directory?(@basedir)
+    rescue
+      logger.fatal("Environment basedir error, can't find puppet environment basedir: '#{@basedir}'")
+    end
     @full_path = File.join(@basedir, @dirname)
     @path = Pathname.new(File.join(@basedir, @dirname))
 
