@@ -49,9 +49,14 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
   #
   # @return [void]
   def fetch(remote_name='origin')
-    backup_branches = wipe_branches
     logger.debug1 { "Fetching remote '#{remote_name}' at #{@path}" }
-    options = {:credentials => credentials}
+
+    # Check to see if we have a version of Rugged that supports "fetch --prune" and warn if not
+    if defined?(Rugged::Version) && !Gem::Dependency.new('rugged', '>= 0.24.0').match?('rugged', Rugged::Version)
+      logger.warn { "Rugged versions prior to 0.24.0 do not support pruning stale branches during fetch, please upgrade your \'rugged\' gem. (Current version is: #{Rugged::Version})" }
+    end
+
+    options = {:credentials => credentials, :prune => true}
     refspecs = ['+refs/*:refs/*']
 
     remote = remotes[remote_name]
@@ -64,37 +69,12 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
 
     report_transfer(results, remote_name)
   rescue Rugged::SshError, Rugged::NetworkError => e
-    restore_branches(backup_branches)
     raise R10K::Git::GitError.new(e.message, :git_dir => git_dir, :backtrace => e.backtrace)
   rescue
-    restore_branches(backup_branches)
     raise
   end
 
   def exist?
     @path.exist?
-  end
-
-  def wipe_branches
-    backup_branches = {}
-    with_repo do |repo|
-      repo.branches.each do |branch|
-        if !branch.head?
-          backup_branches[branch.name] = branch.target_id
-          repo.branches.delete(branch)
-        end
-      end
-    end
-    backup_branches
-  end
-
-  def restore_branches(backup_branches)
-    with_repo do |repo|
-      backup_branches.each_pair do |name, ref|
-        if !repo.branches.exist?(name)
-          repo.create_branch(name, ref)
-        end
-      end
-    end
   end
 end
