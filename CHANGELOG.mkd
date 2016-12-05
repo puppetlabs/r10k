@@ -1,6 +1,25 @@
 CHANGELOG
 =========
 
+2.5.1
+-----
+
+2016/12/05
+
+(RK-78) Use :prune option for #fetch in Rugged::BareRepository
+
+Versions of the "rugged" gem prior to 0.24.0 lacked the ability to automatically
+"prune" branches from a local repo that no longer existed in the matching remote
+repo after a fetch. To work around this issue, r10k included code that would
+manually remove/recreate branches during a fetch. Since "rugged" 0.24.0 is now
+widely available, r10k has been updated to use the built-in "prune" option
+during a fetch and the workaround code has been removed.
+
+NOTE: If you use the "rugged" gem with r10k, you will need to manually upgrade
+it to a version >= 0.24.0 to take advantage of the new functionality. If you
+are using a "rugged" version less than 0.24.0, r10k will now issue a warning
+every time it fetches from a remote git repository.
+
 2.5.0
 -----
 
