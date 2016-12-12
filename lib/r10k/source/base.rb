@@ -16,6 +16,11 @@ class R10K::Source::Base
   #     Defaults to nil.
   attr_reader :prefix
 
+  # @!attribute [r] puppetfile_name
+  #   @return [String, nil] The Name of the puppetfile
+  #     Defaults to nil.
+  attr_reader :puppetfile_name
+
   # Initialize the given source.
   #
   # @param name [String] The identifier for this source.
@@ -30,6 +35,7 @@ class R10K::Source::Base
     @name    = name
     @basedir = Pathname.new(basedir).cleanpath.to_s
     @prefix  = options.delete(:prefix)
+    @puppetfile_name = options.delete(:puppetfile_name)
     @options = options
   end
 
