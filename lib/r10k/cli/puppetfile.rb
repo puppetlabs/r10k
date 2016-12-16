@@ -31,8 +31,8 @@ Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
           usage   'install'
           summary 'Install all modules from a Puppetfile'
 
-          required nil, :moduledir, 'Path to install modules to'
-          required nil, :puppetfile, 'Path to puppetfile'
+          required nil, :moduledir, 'Path to install modules to (can also be set with PUPPETFILE_DIR environment variable)'
+          required nil, :puppetfile, 'Path to Puppetfile (can also be set with PUPPETFILE environment variable)'
           # @todo add --no-purge option
           runner R10K::Action::Puppetfile::CriRunner.wrap(R10K::Action::Puppetfile::Install)
         end
@@ -45,6 +45,8 @@ Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
           name  'check'
           usage 'check'
           summary 'Try and load the Puppetfile to verify the syntax is correct.'
+
+          required nil, :puppetfile, 'Path to Puppetfile (can also be set with PUPPETFILE environment variable)'
           runner R10K::Action::Puppetfile::CriRunner.wrap(R10K::Action::Puppetfile::Check)
         end
       end
@@ -57,6 +59,8 @@ Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
           usage 'purge'
           summary 'Purge unmanaged modules from a Puppetfile managed directory'
 
+          required nil, :moduledir, 'Path to install modules to (can also be set with PUPPETFILE_DIR environment variable)'
+          required nil, :puppetfile, 'Path to Puppetfile (can also be set with PUPPETFILE environment variable)'
           runner R10K::Action::Puppetfile::CriRunner.wrap(R10K::Action::Puppetfile::Purge)
         end
       end
