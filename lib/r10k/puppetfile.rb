@@ -36,10 +36,14 @@ class Puppetfile
   # @param [String] basedir
   # @param [String] moduledir The directory to install the modules, default to #{basedir}/modules
   # @param [String] puppetfile_path The path to the Puppetfile, default to #{basedir}/Puppetfile
-  def initialize(basedir, moduledir = nil, puppetfile_path = nil)
+  # @param [String] puppetfile_name The name of the Puppetfile, default to 'Puppetfile'
+  def initialize(basedir, moduledir = nil, puppetfile_path = nil, puppetfile_name = nil )
     @basedir         = basedir
     @moduledir       = moduledir  || File.join(basedir, 'modules')
-    @puppetfile_path = puppetfile_path || File.join(basedir, 'Puppetfile')
+    @puppetfile_name = puppetfile_name || 'Puppetfile'
+    @puppetfile_path = puppetfile_path || File.join(basedir, @puppetfile_name)
+
+    logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile_path}
 
     @modules = []
     @managed_content = {}
