@@ -30,21 +30,40 @@ class R10K::Git::ShellGit::BaseRepository
     for_each_ref('refs/heads')
   end
 
+  def is_branch?(pattern)
+    result = git ['rev-parse', '-q', '--verify', "refs/heads/#{pattern}"], :git_dir => git_dir.to_s, :raise_on_fail => false
+
+    result.success?
+  end
+
   # @return [Array<String>] All tags in this repository
   def tags
     for_each_ref('refs/tags')
   end
 
+  def is_tag?(pattern)
+    result = git ['rev-parse', '-q', '--verify', "refs/tags/#{pattern}"], :git_dir => git_dir.to_s, :raise_on_fail => false
+
+    result.success?
+  end
+
   # @return [Symbol] The type of the given ref, one of :branch, :tag, :commit, or :unknown
   def ref_type(pattern)
-    if branches.include? pattern
-      :branch
-    elsif tags.include? pattern
-      :tag
-    elsif resolve(pattern)
-      :commit
-    else
-      :unknown
+    @_ref_type_cache ||= {}
+
+    @_ref_type_cache[pattern] ||= begin
+      # Try to match and resolve SHA refs as quickly as possible.
+      if pattern =~ /^[0-9a-f]{5,40}$/i && resolve(pattern)
+        :commit
+      elsif is_tag? pattern
+        :tag
+      elsif is_branch? pattern
+        :branch
+      elsif resolve(pattern)
+        :commit
+      else
+        :unknown
+      end
     end
   end
 

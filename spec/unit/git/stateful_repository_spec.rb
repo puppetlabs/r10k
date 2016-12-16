@@ -21,23 +21,20 @@ describe R10K::Git::StatefulRepository do
 
     it "is true if the ref is unresolvable" do
       expect(cache).to receive(:exist?).and_return true
-      expect(cache).to receive(:resolve).with('0.9.x')
+      expect(cache).to receive(:ref_type).with('0.9.x').and_return(:unknown)
       expect(subject.sync_cache?(ref)).to eq true
     end
 
     it "is true if the ref is not a tag or commit" do
       expect(cache).to receive(:exist?).and_return true
-      expect(cache).to receive(:resolve).with('0.9.x').and_return('93456ec7dc0f6fd3ac193b4df64f6544615dfbc9')
       expect(cache).to receive(:ref_type).with('0.9.x').and_return(:branch)
       expect(subject.sync_cache?(ref)).to eq true
     end
 
     it "is false otherwise" do
       expect(cache).to receive(:exist?).and_return true
-      expect(cache).to receive(:resolve).with('0.9.x').and_return('93456ec7dc0f6fd3ac193b4df64f6544615dfbc9')
       expect(cache).to receive(:ref_type).with('0.9.x').and_return(:tag)
       expect(subject.sync_cache?(ref)).to eq false
     end
-
   end
 end
