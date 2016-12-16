@@ -91,7 +91,21 @@ class R10K::Git::ShellGit::WorkingRepository < R10K::Git::ShellGit::BaseReposito
 
   # does the working tree have local modifications to tracked files?
   def dirty?
-    result = git(['diff-index', '--quiet','HEAD', '--'], :path => @path.to_s, :raise_on_fail => false)
-    result.exit_code != 0
+    result = git(['diff-index', '--exit-code', '--name-only', 'HEAD'], :path => @path.to_s, :raise_on_fail => false)
+
+    if result.exit_code != 0
+      dirty_files = result.stdout.split('\n')
+
+      dirty_files.each do |file|
+        logger.debug(_("Found local modifications in %{file_path}" % {file_path: File.join(@path, file)}))
+
+        # Do this in a block so that the extra subprocess only gets invoked when needed.
+        logger.debug1 { git(['diff-index', '-p', 'HEAD', file], :path => @path.to_s, :raise_on_fail => false).stdout }
+      end
+
+      return true
+    else
+      return false
+    end
   end
 end
