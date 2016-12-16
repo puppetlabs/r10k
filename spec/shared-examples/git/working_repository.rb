@@ -179,4 +179,29 @@ RSpec.shared_examples "a git working repository" do
       end
     end
   end
+
+  describe "checking if worktree is dirty" do
+    before do
+      subject.clone(remote)
+    end
+
+    context "with no local changes" do
+      it "reports worktree as not dirty" do
+        expect(subject.dirty?).to be false
+      end
+    end
+
+    context "with local changes" do
+      before(:each) do
+        File.open(File.join(subject.path, 'README.markdown'), 'a') { |f| f.write('local modifications!') }
+      end
+
+      it "logs and reports worktree as dirty" do
+        expect(subject.logger).to receive(:debug).with(/found local modifications in.*README\.markdown/i)
+        expect(subject.logger).to receive(:debug1)
+
+        expect(subject.dirty?).to be true
+      end
+    end
+  end
 end
