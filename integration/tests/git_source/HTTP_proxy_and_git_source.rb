@@ -66,7 +66,5 @@ git_add_commit_push(master, 'production', 'add Puppetfile', git_environments_pat
 on(master, "#{r10k_fqp} deploy environment -p", :accept_all_exit_codes => true) do |r|
   regex = /proxy.*ilovecatvideos\.com/
   assert(r.exit_code == 1, 'expected error code was not observed')
-  expect_failure('Failure due to RK-262') do
-    assert_match(regex, r.stderr, 'The expected error message was not observed' )
-  end
+  assert_match(regex, r.stderr, 'The expected error message was not observed' )
 end
