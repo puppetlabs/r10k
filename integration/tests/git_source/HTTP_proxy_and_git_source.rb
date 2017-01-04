@@ -28,7 +28,7 @@ git:
   provider: '#{git_provider}'
   repositories:
     - remote: 'http://example.com/fake_git_source.git'
-      proxy: 'http://ilovecatvideos.com:3128'
+      proxy: 'http://foooooooo.unresolvable:3128'
 sources:
   control:
     basedir: "#{env_path}"
@@ -64,7 +64,7 @@ git_add_commit_push(master, 'production', 'add Puppetfile', git_environments_pat
 
 #test
 on(master, "#{r10k_fqp} deploy environment -p", :accept_all_exit_codes => true) do |r|
-  regex = /proxy.*ilovecatvideos\.com/
+  regex = /proxy.*foooooooo\.unresolvable/
   assert(r.exit_code == 1, 'expected error code was not observed')
   assert_match(regex, r.stderr, 'The expected error message was not observed' )
 end
