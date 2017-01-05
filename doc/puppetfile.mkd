@@ -290,6 +290,43 @@ module.
 For more information see the [FAQ entry](faq.mkd#how-do-i-prevent-r10k-from-removing-modules-in-the-modules-directory-of-my-git-repository)
 on managing internal and external modules in the same directory.
 
+### Local directory
+
+In case you have a module in a local directory, e.g. because it is updated via different means (say: a package manager),
+this module allows to copy a module from a local directory.
+
+For instance, if you have a module called foo in /usr/share/puppet/modules.available/foo and would like to have it
+included in the current environment, you could add it as a local_directory:
+
+```
+mod 'foo', :local_directory => '/usr/share/puppet/modules.available/foo'
+
+# Include your other modules as normal
+mod 'branan/eight_hundred'
+mod 'puppetlabs/apache'
+```
+
+If the module is a proper forge module with a metadata file, this will keep the module updated based
+on the version in the metadata file. Otherwise it will *always* replace the module with the latest version.
+
+To prevent the module from being updated after adding it, you can add a :version parameter with a value
+of :keep or :current:
+
+```
+mod 'foo', :local_directory => '/usr/share/puppet/modules.available/foo',
+    :version => :keep
+```
+This allows for a controlled update if the module is about to be updated. If the module is not yet in the environment
+it will install it anyway.
+
+#### Caveats
+
+This module does not do any versioning, so it's not possible to have different versions
+of a module in different environment, except for already deployed environments.
+
+Thus it's recommended to include modules in the control repo or use one of the other types in all
+but very special cases.
+
 ### Per-Item Install Path
 
 Git and SVN content types support installing into an alternate path without changing
