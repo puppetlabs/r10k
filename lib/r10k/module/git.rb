@@ -18,6 +18,11 @@ class R10K::Module::Git < R10K::Module::Base
   #   @return [R10K::Git::StatefulRepository]
   attr_reader :repo
 
+  # @!attribute [r] desired_ref
+  #   @api private
+  #   @return [String]
+  attr_reader :desired_ref
+
   def initialize(title, dirname, args, environment=nil)
     super
 
@@ -50,16 +55,31 @@ class R10K::Module::Git < R10K::Module::Base
   private
 
   def validate_ref(desired, default)
-    if desired && @repo.resolve(desired)
+    if desired && desired != :control_branch && @repo.resolve(desired)
       return desired
     elsif default && @repo.resolve(default)
       return default
     else
-      if default
-        raise ArgumentError, _("Unable to manage Puppetfile content '%{name}': Could not resolve desired ref '%{desired}' or default ref '%{default}'") % {name: @name, desired: desired, default: default}
+      msg = ["Unable to manage Puppetfile content '%{name}':"]
+      vars = {name: @name}
+
+      if desired == :control_branch
+        msg << "Could not resolve control repo branch"
+      elsif desired
+        msg << "Could not resolve desired ref '%{desired}'"
+        vars[:desired] = desired
       else
-        raise ArgumentError, _("Unable to manage Puppetfile content '%{name}': Could not resolve desired ref '%{desired}' and no default given") % {name: @name, desired: desired}
+        msg << "Could not determine desired ref"
       end
+
+      if default
+        msg << "or resolve default ref '%{default}'"
+        vars[:default] = default
+      else
+        msg << "and no default provided"
+      end
+
+      raise ArgumentError, _(msg.join(' ')) % vars
     end
   end
 
@@ -77,12 +97,8 @@ class R10K::Module::Git < R10K::Module::Base
     @desired_ref = ref_opts.find { |key| break options[key] if options.has_key?(key) } || 'master'
     @default_ref = options[:default_branch]
 
-    if @desired_ref == :control_branch
-      if @environment && @environment.respond_to?(:ref)
-        @desired_ref = @environment.ref
-      else
-        raise ArgumentError, _("Cannot track control repo branch from Puppetfile in this context: environment is nil or did not provide a valid ref")
-      end
+    if @desired_ref == :control_branch && @environment && @environment.respond_to?(:ref)
+      @desired_ref = @environment.ref
     end
   end
 end
