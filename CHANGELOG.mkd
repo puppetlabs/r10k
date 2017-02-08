@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+2.5.2
+-----
+
+2017/02/07
+
+(#699) Pin minitar dependency to 0.5.4 to avoid a bug with the 0.6.0 release.
+(Thanks to [Logan Garrett](https://github.com/lngarrett) for the report and fix.)
+
 2.5.1
 -----
 
