@@ -33,12 +33,18 @@ class Puppetfile
   #   @return [R10K::Environment] Optional R10K::Environment that this Puppetfile belongs to.
   attr_accessor :environment
 
+  # @!attribute [rw] update_force
+  #   @return [Boolean] Force update the modules and overwrite the locally made changes
+  attr_accessor :update_force
+
   # @param [String] basedir
   # @param [String] moduledir The directory to install the modules, default to #{basedir}/modules
   # @param [String] puppetfile_path The path to the Puppetfile, default to #{basedir}/Puppetfile
   # @param [String] puppetfile_name The name of the Puppetfile, default to 'Puppetfile'
-  def initialize(basedir, moduledir = nil, puppetfile_path = nil, puppetfile_name = nil )
+  # @param [Boolean] update_force Shall we overwrite locally made changes?
+  def initialize(basedir, moduledir = nil, puppetfile_path = nil, puppetfile_name = nil, update_force = nil )
     @basedir         = basedir
+    @update_force    = update_force || false
     @moduledir       = moduledir  || File.join(basedir, 'modules')
     @puppetfile_name = puppetfile_name || 'Puppetfile'
     @puppetfile_path = puppetfile_path || File.join(basedir, @puppetfile_name)
