@@ -10,7 +10,7 @@ module R10K
 
         def call
           @visit_ok = true
-          pf = R10K::Puppetfile.new(@root, @moduledir, @puppetfile)
+          pf = R10K::Puppetfile.new(@root, @moduledir, @puppetfile, nil , @update_force)
           pf.accept(self)
           @visit_ok
         end
@@ -26,17 +26,18 @@ module R10K
         end
 
         def visit_module(mod)
+          @update_force    = @update_force || false
           logger.info _("Updating module %{mod_path}") % {mod_path: mod.path}
 
           if mod.respond_to?(:desired_ref) && mod.desired_ref == :control_branch
             logger.warn _("Cannot track control repo branch for content '%{name}' when not part of a 'deploy' action, will use default if available." % {name: mod.name})
           end
 
-          mod.sync(force: false) # Don't force sync for 'puppetfile install' RK-265
+          mod.sync(force: @update_force)
         end
 
         def allowed_initialize_opts
-          super.merge(root: :self, puppetfile: :self, moduledir: :self)
+          super.merge(root: :self, puppetfile: :self, moduledir: :self, update_force: :self )
         end
       end
     end

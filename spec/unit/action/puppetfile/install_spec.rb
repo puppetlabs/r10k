@@ -7,11 +7,12 @@ describe R10K::Action::Puppetfile::Install do
 
   let(:puppetfile) { R10K::Puppetfile.new('/some/nonexistent/path', nil, nil) }
 
-  before do
-    allow(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, nil).and_return(puppetfile)
+  before(:each) do
+    allow(puppetfile).to receive(:load!).and_return(nil)
+    allow(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, nil, nil, nil).and_return(puppetfile)
   end
 
-  it_behaves_like "a puppetfile action"
+  it_behaves_like "a puppetfile install action"
 
   describe "installing modules" do
     let(:modules) do
@@ -55,14 +56,27 @@ describe R10K::Action::Puppetfile::Install do
 
     it "can use a custom puppetfile path" do
       subject = described_class.new({root: "/some/nonexistent/path", puppetfile: "/some/other/path/Puppetfile"}, [])
-      expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, "/some/other/path/Puppetfile").and_return(puppetfile)
+      expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, "/some/other/path/Puppetfile", nil, nil).and_return(puppetfile)
       subject.call
     end
 
     it "can use a custom moduledir path" do
       subject = described_class.new({root: "/some/nonexistent/path", moduledir: "/some/other/path/site-modules"}, [])
-      expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", "/some/other/path/site-modules", nil).and_return(puppetfile)
+      expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", "/some/other/path/site-modules", nil, nil, nil).and_return(puppetfile)
       subject.call
     end
+  end
+
+  describe "forcing to overwrite local changes" do
+    before do
+      allow(puppetfile).to receive(:modules).and_return([])
+    end
+
+    it "can use the force overwrite option" do
+      expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, nil, nil, true).and_return(puppetfile)
+
+      installer({update_force: true}).call
+    end
+
   end
 end
