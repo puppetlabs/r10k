@@ -69,8 +69,8 @@ module R10K
           raise ConfigError, _("Couldn't load config file: %{error_msg}") % {error_msg: e.message}
         end
 
-        if ! contents
-          raise ConfigError, _("File exists at #{path} but doesn't contain any YAML") % {path:path}
+        if !contents
+          raise ConfigError, _("File exists at #{path} but doesn't contain any YAML") % {path: path}
         end
         R10K::Util::SymbolizeKeys.symbolize_keys!(contents, true)
         contents
