@@ -43,6 +43,10 @@ class R10K::Module::Forge < R10K::Module::Base
   end
 
   def sync(opts={})
+    if deprecated?
+      logger.warn "Puppet Forge module '#{@v3_module.slug}' has been deprecated, visit https://forge.puppet.com/#{@v3_module.slug.tr('-','/')} for more information."
+    end
+
     case status
     when :absent
       install
@@ -86,6 +90,14 @@ class R10K::Module::Forge < R10K::Module::Base
 
   def insync?
     status == :insync
+  end
+
+  def deprecated?
+    begin
+      !@v3_module.deprecated_at.nil?
+    rescue Faraday::ResourceNotFound => e
+      raise PuppetForge::ReleaseNotFound, _("The module %{title} does not exist on %{url}.") % {title: @title, url: PuppetForge::V3::Release.conn.url_prefix}, e.backtrace
+    end
   end
 
   # Determine the status of the forge module.
