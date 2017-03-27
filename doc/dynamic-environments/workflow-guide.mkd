@@ -6,7 +6,7 @@ be customized easily.
 
 This guide assumes that each of your modules is in a separate repository 
 and that the `Puppetfile` is in its own repo called the
-[Control Repo](http://www.jeffmalnick.com/blog/2014/05/16/r10k-control-repos/).
+[Control Repo](http://technoblogic.io/blog/2014/05/16/r10k-control-repos/).
 All module repos have a primary branch of *master* and the Control's primary
 branch is *production*. All changes are made through r10k and no user makes
 manual changes to the environments under **/etc/puppet**.
