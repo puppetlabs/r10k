@@ -1,6 +1,22 @@
 CHANGELOG
 =========
 
+2.5.3
+-----
+
+2017/03/31
+
+### Bug Fixes
+
+(#645) Fix undefined method error when r10.yaml empty
+
+(#659)(RK-269) Puppetfile actions acknowledge :branch and :default_branch
+(Thanks to [Chris Cowley](https://github.com/chriscowley) for the report.)
+
+### Changes
+
+(PF-1317) Emit a warning when syncing a deprecated Forge module.
+
 2.5.2
 -----
 

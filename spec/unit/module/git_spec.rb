@@ -205,8 +205,35 @@ describe R10K::Module::Git do
         end
 
         context "when module does not belong to an environment" do
-          it "raises appropriate error" do
-            expect { test_module(branch: :control_branch) }.to raise_error(ArgumentError, /cannot track control.*environment is nil/i)
+          it "leaves desired_ref unchanged" do
+            mod = test_module(branch: :control_branch)
+            expect(mod.desired_ref).to eq(:control_branch)
+          end
+
+          context "when default ref is provided and resolvable" do
+            it "uses default ref" do
+              expect(mock_repo).to receive(:resolve).with('default').and_return('abc123')
+              mod = test_module({branch: :control_branch, default_branch: 'default'})
+
+              expect(mod.properties).to include(expected: 'default')
+            end
+          end
+
+          context "when default ref is provided and not resolvable" do
+            it "raises appropriate error" do
+              expect(mock_repo).to receive(:resolve).with('default').and_return(nil)
+              mod = test_module({branch: :control_branch, default_branch: 'default'})
+
+              expect { mod.properties }.to raise_error(ArgumentError, /unable to manage.*could not resolve control repo branch.*or resolve default/i)
+            end
+          end
+
+          context "when default ref is not provided" do
+            it "raises appropriate error" do
+              mod = test_module({branch: :control_branch})
+
+              expect { mod.properties }.to raise_error(ArgumentError, /unable to manage.*could not resolve control repo branch.*no default provided/i)
+            end
           end
         end
 
@@ -229,7 +256,7 @@ describe R10K::Module::Git do
               expect(mock_repo).to receive(:resolve).with('default').and_return(nil)
               mod = test_module({branch: :control_branch, default_branch: 'default'}, mock_env)
 
-              expect { mod.properties }.to raise_error(ArgumentError, /unable to manage.*could not resolve desired.*or default/i)
+              expect { mod.properties }.to raise_error(ArgumentError, /unable to manage.*could not resolve desired.*or resolve default/i)
             end
           end
 
@@ -237,7 +264,7 @@ describe R10K::Module::Git do
             it "raises appropriate error" do
               mod = test_module({branch: :control_branch}, mock_env)
 
-              expect { mod.properties }.to raise_error(ArgumentError, /unable to manage.*no default given/i)
+              expect { mod.properties }.to raise_error(ArgumentError, /unable to manage.*no default provided/i)
             end
           end
         end
