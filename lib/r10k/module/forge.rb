@@ -94,7 +94,7 @@ class R10K::Module::Forge < R10K::Module::Base
 
   def deprecated?
     begin
-      !@v3_module.deprecated_at.nil?
+      @v3_module.fetch && @v3_module.has_attribute?('deprecated_at') && !@v3_module.deprecated_at.nil?
     rescue Faraday::ResourceNotFound => e
       raise PuppetForge::ReleaseNotFound, _("The module %{title} does not exist on %{url}.") % {title: @title, url: PuppetForge::V3::Release.conn.url_prefix}, e.backtrace
     end
