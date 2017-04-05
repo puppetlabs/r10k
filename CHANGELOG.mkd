@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+2.5.4
+-----
+
+2017/04/05
+
+### Bug Fixes
+
+(PF-1317) Only use deprecated attribute when it exists.
+
 2.5.3
 -----
 
