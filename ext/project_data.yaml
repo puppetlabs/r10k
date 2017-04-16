@@ -1,0 +1,9 @@
+---
+project: 'r10k'
+author: 'Puppet Labs'
+email: 'info@puppetlabs.com'
+homepage: 'http://github.com/puppetlabs/r10k'
+summary: 'Puppet environment and module management'
+description: 'Puppet environment and module management'
+version_file: 'lib/r10k/version.rb'
+files: 'bin CHANGELOG.mkd CONTRIBUTING.mkd doc ext Gemfile integration lib LICENSE README.mkd spec'
