@@ -9,7 +9,7 @@ r10k_config_bak_path = "#{r10k_config_path}.bak"
 r10k_fqp = get_r10k_fqp(master)
 
 #Verification
-error_message_regex = /No configuration file given, no config file found in current directory, and no global config present/
+error_message_regex = /the supplied configuration does not define the 'sources' key/
 
 #Teardown
 teardown do
