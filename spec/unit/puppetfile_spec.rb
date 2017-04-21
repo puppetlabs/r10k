@@ -194,6 +194,17 @@ describe R10K::Puppetfile do
       end
     end
 
+    it "wraps and re-raises name errors" do
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'name-error')
+      pf_path = File.join(path, 'Puppetfile')
+      subject = described_class.new(path)
+      expect {
+        subject.load!
+      }.to raise_error do |e|
+        expect_wrapped_error(e, pf_path, NameError)
+      end
+    end
+
     it "accepts a forge module with a version" do
       path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
       pf_path = File.join(path, 'Puppetfile')
