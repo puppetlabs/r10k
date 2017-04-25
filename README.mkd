@@ -17,11 +17,7 @@ implementation of Puppet [dynamic environments][workflow].
 Requirements
 ------------
 
-R10k supports the following Ruby versions:
-
-  - 1.9.3
-  - 2.0.0
-  - 2.1.0
+R10k supports the Ruby versions `>= 2.0.0`.
 
 R10k requires additional components, depending on how you plan on managing
 environments and modules.
