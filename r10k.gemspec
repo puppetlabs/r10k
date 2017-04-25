@@ -30,7 +30,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'puppet_forge', '~> 2.2'
   s.add_dependency 'semantic_puppet', '~> 0.1.0'
-  s.add_dependency 'minitar', '0.5.4'
 
   s.add_dependency 'gettext-setup', '~> 0.5'
 
@@ -39,6 +38,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rake'
 
   s.add_development_dependency 'yard', '~> 0.8.7.3'
+  s.add_development_dependency 'minitar', '~> 0.6.1'
 
   s.files        = %x[git ls-files].split($/)
   s.require_path = 'lib'
