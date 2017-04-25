@@ -59,6 +59,7 @@ class Puppetfile
   def load!
     dsl = R10K::Puppetfile::DSL.new(self)
     dsl.instance_eval(puppetfile_contents, @puppetfile_path)
+    validate_no_duplicate_names(@modules)
     @loaded = true
   rescue SyntaxError, LoadError, ArgumentError => e
     raise R10K::Error.wrap(e, _("Failed to evaluate %{path}") % {path: @puppetfile_path})
@@ -67,6 +68,17 @@ class Puppetfile
   # @param [String] forge
   def set_forge(forge)
     @forge = forge
+  end
+
+  # @param [Array<String>] modules
+  def validate_no_duplicate_names(modules)
+    dupes = modules
+            .group_by { |mod| mod.name }
+            .select { |_, v| v.size > 1 }.map(&:first)
+    unless dupes.empty?
+      logger.warn _('Puppetfiles should not contain duplicate module names and will result in an error in r10k v3.x.')
+      logger.warn _("Remove the duplicates of the following modules: %{dupes}" % {dupes: dupes.join(" ")})
+    end
   end
 
   # @param [String] moduledir
