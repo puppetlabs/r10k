@@ -194,6 +194,15 @@ describe R10K::Puppetfile do
       end
     end
 
+    it "rejects Puppetfiles with duplicate module names" do
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'duplicate-module-error')
+      pf_path = File.join(path, 'Puppetfile')
+      subject = described_class.new(path)
+      expect {
+        subject.load!
+      }.to raise_error(R10K::Error, /Puppetfiles cannot contain duplicate module names/i)
+    end
+
     it "wraps and re-raises name errors" do
       path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'name-error')
       pf_path = File.join(path, 'Puppetfile')
