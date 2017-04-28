@@ -76,7 +76,10 @@ class Puppetfile
             .select { |_, v| v.size > 1 }
             .map(&:first)
     unless dupes.empty?
-      raise R10K::Error.new(_("Puppetfiles cannot contain duplicate module names. Please remove the remove the duplicates of the following modules:\n%{dupes}" % {dupes: dupes.join("\n")}))
+      msg = _('Puppetfiles cannot contain duplicate module names.')
+      msg += ' '
+      msg += _("Remove the duplicates of the following modules: %{dupes}" % { dupes: dupes.join(' ') })
+      raise R10K::Error.new(msg)
     end
   end
 
