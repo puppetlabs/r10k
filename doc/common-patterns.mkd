@@ -13,7 +13,7 @@ to store your `Puppetfile`.
 
 Hiera data should be in the Control repo OR as a separate source in
 `r10k.yaml`. Any `hiera.yaml` in the Control repo will be ignored on a per
-environment basis, locating it at `/etc/puppet/hiera.yaml` is prefered.
+environment basis, locating it at `/etc/puppetlabs/puppet/hiera.yaml` is prefered.
 
 Each puppet module should be contained in its own independent forge module or
 repository.
