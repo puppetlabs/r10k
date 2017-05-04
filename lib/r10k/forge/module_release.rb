@@ -13,6 +13,7 @@ module R10K
 
       def_setting_attr :proxy
       def_setting_attr :baseurl
+      def_setting_attr :cache_root, File.expand_path(ENV['HOME'] ? '~/.r10k/cache': '/root/.r10k/cache')
 
       include R10K::Logging
 
@@ -26,6 +27,14 @@ module R10K
       # @!attribute [rw] download_path
       #   @return [Pathname] Where the module tarball will be downloaded to.
       attr_accessor :download_path
+
+      # @!attribute [rw] tarball_cache_path
+      #   @return [Pathname] Where the module tarball will be cached to.
+      attr_accessor :tarball_cache_path
+
+      # @!attribute [rw] tarball_cache_root
+      #   @return [Pathname] Directory where the module tarball will be cached to.
+      attr_accessor :tarball_cache_root
 
       # @!attribute [rw] unpack_path
       #   @return [Pathname] Where the module will be unpacked to.
@@ -41,9 +50,14 @@ module R10K
         # objects are created in the class instances and thus are not shared with
         # subclasses.
         PuppetForge::V3::Release.conn = PuppetForge::V3::Base.conn
+
         @forge_release = PuppetForge::V3::Release.new({ :name => @full_name, :version => @version, :slug => "#{@full_name}-#{@version}" })
 
-        @download_path = Pathname.new(Dir.mktmpdir) + (@forge_release.slug + '.tar.gz')
+        tarball_name = @forge_release.slug + '.tar.gz'
+        @download_path = Pathname.new(Dir.mktmpdir) + (tarball_name)
+        @tarball_cache_root = Pathname.new(settings[:cache_root]) + (@forge_release.slug + "/tarball/")
+        @tarball_cache_path = @tarball_cache_root + tarball_name
+
         @unpack_path   = Pathname.new(Dir.mktmpdir) + @forge_release.slug
       end
 
@@ -65,34 +79,47 @@ module R10K
         cleanup
       end
 
-      # Download the module release to {#download_path}
+      # Download the module release to {#download_path} and cache to {#tarball_cache_path}
       #
       # @return [void]
       def download
-        logger.debug1 "Downloading #{@forge_release.slug} from #{PuppetForge::Release.conn.url_prefix} to #{@download_path}"
-        @forge_release.download(download_path)
+        if @tarball_cache_path.exist?
+          logger.debug1 "Using cached copy of #{@forge_release.slug} tarball"
+        else
+          logger.debug1 "Downloading #{@forge_release.slug} from #{PuppetForge::Release.conn.url_prefix} to #{@download_path}"
+          @forge_release.download(download_path)
+          FileUtils::mkdir_p(@tarball_cache_root)
+          FileUtils::mv(@download_path, @tarball_cache_path)
+        end
       end
 
-      # Verify the module release downloaded to {#download_path} against the
-      # module release checksum given by the Puppet Forge
+      # Verify the module release cached in {#tarball_cache_path} against the
+      # module release checksum given by the Puppet Forge. On mismatch, remove
+      # the cached copy.
       #
       # @raise [PuppetForge::V3::Release::ChecksumMismatch] The
-      #   downloaded module release checksum doesn't match the expected Forge
+      #   cached module release checksum doesn't match the expected Forge
       #   module release checksum.
       # @return [void]
       def verify
-        logger.debug1 "Verifying that #{download_path} matches checksum #{@forge_release.file_md5}"
-        @forge_release.verify(download_path)
+        logger.debug1 "Verifying that #{@tarball_cache_path} matches checksum #{@forge_release.file_md5}"
+        begin
+          @forge_release.verify(@tarball_cache_path)
+        rescue PuppetForge::V3::Release::ChecksumMismatch => e
+          logger.error "Checksum Mismatch. Not installing #{@forge_release.slug}. Cleaning up #{@tarball_cache_path}."
+          cleanup_cached_tarball_path
+          raise e
+        end
       end
 
-      # Unpack the module release at {#download_path} into the given target_dir
+      # Unpack the module release at {#tarball_cache_path}  into the given target_dir
       #
       # @param target_dir [Pathname] The final path where the module release
       #   should be unpacked/installed into.
       # @return [void]
       def unpack(target_dir)
-        logger.debug1 _("Unpacking %{download_path} to %{target_dir} (with tmpdir %{tmp_path})") % {download_path: download_path, target_dir: target_dir, tmp_path: unpack_path}
-        file_lists = PuppetForge::Unpacker.unpack(download_path.to_s, target_dir.to_s, unpack_path.to_s)
+        logger.debug1 _("Unpacking %{tarball_cache_path} to %{target_dir} (with tmpdir %{tmp_path})") % {tarball_cache_path: tarball_cache_path, target_dir: target_dir, tmp_path: unpack_path}
+        file_lists = PuppetForge::Unpacker.unpack(tarball_cache_path.to_s, target_dir.to_s, unpack_path.to_s)
         logger.debug2 _("Valid files unpacked: %{valid_files}") % {valid_files: file_lists[:valid]}
         if !file_lists[:invalid].empty?
           logger.debug1 _("These files existed in the module's tar file, but are invalid filetypes and were not unpacked: %{invalid_files}") % {invalid_files: file_lists[:invalid]}
@@ -119,6 +146,13 @@ module R10K
       def cleanup_download_path
         if download_path.exist?
           download_path.delete
+        end
+      end
+
+      # Remove the cached module release.
+      def cleanup_cached_tarball_path
+        if tarball_cache_path.exist?
+          tarball_cache_path.delete
         end
       end
     end
