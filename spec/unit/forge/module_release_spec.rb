@@ -9,33 +9,59 @@ describe R10K::Forge::ModuleRelease do
   let(:forge_release_class) { PuppetForge::V3::Release }
 
   let(:download_path) { instance_double('Pathname') }
+  let(:tarball_cache_path) { instance_double('Pathname') }
+  let(:tarball_cache_root) { instance_double('Pathname') }
   let(:unpack_path) { instance_double('Pathname') }
   let(:target_dir) { instance_double('Pathname') }
   let(:file_lists) { {:valid=>['valid_ex'], :invalid=>[], :symlinks=>['symlink_ex']} }
 
   before do
     subject.download_path = download_path
+    subject.tarball_cache_path = tarball_cache_path
+    subject.tarball_cache_root = tarball_cache_root
     subject.unpack_path = unpack_path
   end
 
-  describe '#download' do
-    it "downloads the module from the forge into `download_path`" do
-      expect(subject.forge_release).to receive(:download).with(download_path)
-      subject.download
+  context "no cached tarball" do
+    describe '#download' do
+      it "downloads the module from the forge into `download_path`" do
+        expect(tarball_cache_path).to receive(:exist?).and_return(false)
+        expect(subject.forge_release).to receive(:download).with(download_path)
+        allow(FileUtils).to receive(:mkdir_p).with(tarball_cache_root)
+        expect(FileUtils).to receive(:mv).with(download_path, tarball_cache_path)
+        subject.download
+      end
+    end
+  end
+
+  context "with cached tarball" do
+    describe '#download' do
+      it "does not download a new tarball" do
+        expect(tarball_cache_path).to receive(:exist?).and_return(true)
+        expect(subject.forge_release).not_to receive(:download).with(download_path)
+        subject.download
+      end
     end
   end
 
   describe '#verify' do
     it "verifies the module checksum based on the Forge file checksum" do
       allow(subject.forge_release).to receive(:file_md5).and_return('something')
-      expect(subject.forge_release).to receive(:verify).with(download_path)
+      expect(subject.forge_release).to receive(:verify).with(tarball_cache_path)
       subject.verify
+    end
+
+    it "removes the cached tarball and passes on a checksum error" do
+      allow(subject.forge_release).to receive(:file_md5).and_return('something')
+      expect(subject.forge_release).to receive(:verify).with(tarball_cache_path).and_raise(PuppetForge::V3::Release::ChecksumMismatch)
+      expect(subject).to receive(:cleanup_cached_tarball_path)
+      expect{ subject.verify }.to raise_error(PuppetForge::V3::Release::ChecksumMismatch)
     end
   end
 
   describe '#unpack' do
-    it "unpacks the module tarball in `download_path` into the provided target path" do
-      expect(PuppetForge::Unpacker).to receive(:unpack).with(download_path.to_s, target_dir.to_s, unpack_path.to_s).\
+    it "unpacks the module tarball in `tarball_cache_path` into the provided target path" do
+      expect(PuppetForge::Unpacker).to receive(:unpack).with(tarball_cache_path.to_s, target_dir.to_s, unpack_path.to_s).\
           and_return({:valid=>["extractedmodule/metadata.json"], :invalid=>[], :symlinks=>[]})
       subject.unpack(target_dir)
     end
@@ -52,7 +78,7 @@ describe R10K::Forge::ModuleRelease do
   end
 
   describe "#cleanup" do
-    it "cleans up the download and unpack paths" do
+    it "cleans up the unpack paths" do
       expect(subject).to receive(:cleanup_unpack_path)
       expect(subject).to receive(:cleanup_download_path)
       subject.cleanup
