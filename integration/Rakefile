@@ -59,20 +59,20 @@ end
 
 desc 'Generate a host configuration used by Beaker'
 rototiller_task :beaker_hostgenerator do |t|
+  if ENV['BEAKER_HOST'].nil?
+    t.add_command do |c|
+      c.name = 'beaker-hostgenerator'
+      c.argument = '> configs/generated'
+    end
 
-  t.add_command do |c|
-    c.name = 'beaker-hostgenerator'
-    c.argument = '> configs/generated'
+    # This is a hack :(
+    t.add_flag(:name => '', :default => 'centos6-64mdca-64.fa', :override_env => 'TEST_TARGET')
+
+    t.add_flag(:name => '--global-config', :default => '{forge_host=forge-aio01-petest.puppetlabs.com}', :override_env => 'BHG_GLOBAL_CONFIG')
   end
-
-  #this is a hack :(
-  t.add_flag(:name => '', :default => 'centos6-64mdca-64.fa', :override_env => 'TEST_TARGET')
-
-  t.add_flag(:name => '--global-config', :default => '
-    {forge_host=forge-aio01-petest.puppetlabs.com}', :override_env => 'BHG_GLOBAL_CONFIG')
 end
 
 rototiller_task :check_pe_r10k_env_vars do |t|
-  t.add_env(:name => 'SHA',           :message => 'The sha for pe-r10k')
+  t.add_env(:name => 'SHA', :message => 'The sha for pe-r10k')
 end
 
