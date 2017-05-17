@@ -36,6 +36,10 @@ module R10K
       #   @return [Pathname] Directory where the module tarball will be cached to.
       attr_accessor :tarball_cache_root
 
+      # @!attribute [rw] md5_file_path
+      #   @return [Pathname] Where the md5 of the cached tarball is stored.
+      attr_accessor :md5_file_path
+
       # @!attribute [rw] unpack_path
       #   @return [Pathname] Where the module will be unpacked to.
       attr_accessor :unpack_path
@@ -57,6 +61,9 @@ module R10K
         @download_path = Pathname.new(Dir.mktmpdir) + (tarball_name)
         @tarball_cache_root = Pathname.new(settings[:cache_root]) + (@forge_release.slug + "/tarball/")
         @tarball_cache_path = @tarball_cache_root + tarball_name
+
+        md5_filename = @forge_release.slug + '.md5'
+        @md5_file_path = @tarball_cache_root + md5_filename
 
         @unpack_path   = Pathname.new(Dir.mktmpdir) + @forge_release.slug
       end
@@ -97,18 +104,54 @@ module R10K
       # module release checksum given by the Puppet Forge. On mismatch, remove
       # the cached copy.
       #
-      # @raise [PuppetForge::V3::Release::ChecksumMismatch] The
-      #   cached module release checksum doesn't match the expected Forge
-      #   module release checksum.
       # @return [void]
       def verify
-        logger.debug1 "Verifying that #{@tarball_cache_path} matches checksum #{@forge_release.file_md5}"
-        begin
-          @forge_release.verify(@tarball_cache_path)
-        rescue PuppetForge::V3::Release::ChecksumMismatch => e
-          logger.error "Checksum Mismatch. Not installing #{@forge_release.slug}. Cleaning up #{@tarball_cache_path}."
+        logger.debug1 "Verifying that #{@tarball_cache_path} matches checksum"
+
+        md5_of_tarball = Digest::MD5.hexdigest(File.read(@tarball_cache_path))
+
+        if @md5_file_path.exist?
+          verify_from_md5_file(md5_of_tarball)
+        else
+          verify_from_forge(md5_of_tarball)
+        end
+      end
+
+      # Verify the md5 of the cached tarball against the
+      # module release checksum stored in the cache as well.
+      # On mismatch, remove the cached copy of both files.
+      #
+      # @raise [PuppetForge::V3::Release::ChecksumMismatch] The
+      #   cached module release checksum doesn't match the cached checksum.
+      #
+      # @return [void]
+      def verify_from_md5_file(md5_of_tarball)
+        md5_from_file = File.read(@md5_file_path).strip
+        if md5_of_tarball != md5_from_file
+          logger.error "MD5 of #{@tarball_cache_path} (#{md5_of_tarball}) does not match checksum #{md5_from_file} in #{@md5_file_path}. Removing both files."
           cleanup_cached_tarball_path
-          raise e
+          cleanup_md5_file_path
+          raise PuppetForge::V3::Release::ChecksumMismatch.new
+        end
+      end
+
+      # Verify the md5 of the cached tarball against the
+      # module release checksum from the forge.
+      # On mismatch, remove the cached copy of the tarball.
+      #
+      # @raise [PuppetForge::V3::Release::ChecksumMismatch] The
+      #   cached module release checksum doesn't match the forge checksum.
+      #
+      # @return [void]
+      def verify_from_forge(md5_of_tarball)
+        md5_from_forge = @forge_release.file_md5
+        #compare file_md5 to md5_of_tarball
+        if md5_of_tarball != md5_from_forge
+          logger.debug1 "MD5 of #{@tarball_cache_path} (#{md5_of_tarball}) does not match checksum #{md5_from_forge} found on the forge. Removing tarball."
+          cleanup_cached_tarball_path
+          raise PuppetForge::V3::Release::ChecksumMismatch.new
+        else
+          File.write(@md5_file_path, md5_from_forge)
         end
       end
 
@@ -153,6 +196,13 @@ module R10K
       def cleanup_cached_tarball_path
         if tarball_cache_path.exist?
           tarball_cache_path.delete
+        end
+      end
+
+      # Remove the module release md5.
+      def cleanup_md5_file_path
+        if md5_file_path.exist?
+          md5_file_path.delete
         end
       end
     end
