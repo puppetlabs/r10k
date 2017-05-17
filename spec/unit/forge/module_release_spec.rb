@@ -7,19 +7,28 @@ describe R10K::Forge::ModuleRelease do
   subject { described_class.new('branan-eight_hundred', '8.0.0') }
 
   let(:forge_release_class) { PuppetForge::V3::Release }
+  let(:md5_digest_class) { Digest::MD5 }
 
   let(:download_path) { instance_double('Pathname') }
   let(:tarball_cache_path) { instance_double('Pathname') }
   let(:tarball_cache_root) { instance_double('Pathname') }
   let(:unpack_path) { instance_double('Pathname') }
   let(:target_dir) { instance_double('Pathname') }
+  let(:md5_file_path) { instance_double('Pathname') }
+
   let(:file_lists) { {:valid=>['valid_ex'], :invalid=>[], :symlinks=>['symlink_ex']} }
+
+  let(:file_contents) { "skeletor's closet" }
+  let(:md5_of_tarball) { "something_hexy" }
+  let(:good_md5) { md5_of_tarball }
+  let(:bad_md5) { "different_hexy_thing" }
 
   before do
     subject.download_path = download_path
     subject.tarball_cache_path = tarball_cache_path
     subject.tarball_cache_root = tarball_cache_root
     subject.unpack_path = unpack_path
+    subject.md5_file_path = md5_file_path
   end
 
   context "no cached tarball" do
@@ -45,17 +54,52 @@ describe R10K::Forge::ModuleRelease do
   end
 
   describe '#verify' do
-    it "verifies the module checksum based on the Forge file checksum" do
-      allow(subject.forge_release).to receive(:file_md5).and_return('something')
-      expect(subject.forge_release).to receive(:verify).with(tarball_cache_path)
+
+    it "verifies using the file md5, if that exists" do
+      allow(File).to receive(:read).and_return(file_contents)
+      allow(md5_digest_class).to receive(:hexdigest).and_return(md5_of_tarball)
+      allow(md5_file_path).to receive(:exist?).and_return(true)
+      expect(subject).to receive(:verify_from_md5_file).with(md5_of_tarball)
       subject.verify
     end
 
-    it "removes the cached tarball and passes on a checksum error" do
-      allow(subject.forge_release).to receive(:file_md5).and_return('something')
-      expect(subject.forge_release).to receive(:verify).with(tarball_cache_path).and_raise(PuppetForge::V3::Release::ChecksumMismatch)
+    it "verifies using the forge file_md5, if no md5 file exists" do
+      allow(File).to receive(:read).and_return(file_contents)
+      allow(md5_digest_class).to receive(:hexdigest).and_return(md5_of_tarball)
+      allow(md5_file_path).to receive(:exist?).and_return(false)
+      expect(subject).to receive(:verify_from_forge).with(md5_of_tarball)
+      subject.verify
+    end
+  end
+
+  describe '#verify_from_md5_file' do
+
+    it "does nothing when the checksums match" do
+      expect(File).to receive(:read).with(md5_file_path).and_return(good_md5)
+      expect(subject).not_to receive(:cleanup_cached_tarball_path)
+      subject.verify_from_md5_file(md5_of_tarball)
+    end
+
+    it "raises an error and cleans up when the checksums do not match" do
+      expect(File).to receive(:read).with(md5_file_path).and_return(bad_md5)
       expect(subject).to receive(:cleanup_cached_tarball_path)
-      expect{ subject.verify }.to raise_error(PuppetForge::V3::Release::ChecksumMismatch)
+      expect(subject).to receive(:cleanup_md5_file_path)
+      expect { subject.verify_from_md5_file(md5_of_tarball) }.to raise_error(PuppetForge::V3::Release::ChecksumMismatch)
+    end
+  end
+
+  describe '#verify_from_forge' do
+    it "write the md5 to file when the checksums match" do
+      expect(subject.forge_release).to receive(:file_md5).and_return(good_md5)
+      expect(subject).not_to receive(:cleanup_cached_tarball_path)
+      expect(File).to receive(:write).with(md5_file_path, good_md5)
+      subject.verify_from_forge(md5_of_tarball)
+    end
+
+    it "raises an error and cleans up when the checksums do not match" do
+      expect(subject.forge_release).to receive(:file_md5).and_return(bad_md5)
+      expect(subject).to receive(:cleanup_cached_tarball_path)
+      expect { subject.verify_from_forge(md5_of_tarball) }.to raise_error(PuppetForge::V3::Release::ChecksumMismatch)
     end
   end
 
