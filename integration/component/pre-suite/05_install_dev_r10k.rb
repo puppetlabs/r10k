@@ -1,9 +1,8 @@
 test_name "Install PE r10k" do
 
   step "Install PE r10k" do
-    client = find_only_one('client')
 
-    install_pe_product_on(client, 'pe-r10k', ENV['SHA'])
+    install_pe_product_on(master, 'pe-r10k', ENV['SHA'])
 
   end
 end
