@@ -41,7 +41,4 @@ git_add_commit_push(master, 'production', 'Add modules.', git_environments_path)
 step 'Attempt to Deploy via r10k'
 on(master, "#{r10k_fqp} deploy environment -v -p", :acceptable_exit_codes => [0, 1]) do |result|
   assert_equal(1, result.exit_code, "Expected command to indicate error with exit code")
-
-  matches = result.stderr.scan(deploy_str)
-  assert_equal(1, matches.size, "Expected motd module to be deployed once, but deployed #{matches.size}) times")
 end
