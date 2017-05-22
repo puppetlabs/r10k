@@ -88,6 +88,17 @@ class Puppetfile
     @forge = forge
   end
 
+  # @param [Array<String>] modules
+  def validate_no_duplicate_names(modules)
+    dupes = modules
+            .group_by { |mod| mod.name }
+            .select { |_, v| v.size > 1 }.map(&:first)
+    unless dupes.empty?
+      logger.warn _('Puppetfiles should not contain duplicate module names and will result in an error in r10k v3.x.')
+      logger.warn _("Remove the duplicates of the following modules: %{dupes}" % {dupes: dupes.join(" ")})
+    end
+  end
+
   # @param [String] moduledir
   def set_moduledir(moduledir)
     @moduledir = if Pathname.new(moduledir).absolute?
