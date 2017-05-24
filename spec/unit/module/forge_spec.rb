@@ -63,13 +63,26 @@ describe R10K::Module::Forge do
   context "when a module is deprecated" do
     subject { described_class.new('puppetlabs/corosync', fixture_modulepath, :latest) }
 
-    it "warns on sync" do
-      allow(subject).to receive(:install)
+    it "warns on sync if module is not already insync" do
+      allow(subject).to receive(:status).and_return(:absent)
+
+      allow(R10K::Forge::ModuleRelease).to receive(:new).and_return(double('mod_release', install: true))
 
       logger_dbl = double(Log4r::Logger)
       allow_any_instance_of(described_class).to receive(:logger).and_return(logger_dbl)
 
       expect(logger_dbl).to receive(:warn).with(/puppet forge module.*puppetlabs-corosync.*has been deprecated/i)
+
+      subject.sync
+    end
+
+    it "does not warn on sync if module is already insync" do
+      allow(subject).to receive(:status).and_return(:insync)
+
+      logger_dbl = double(Log4r::Logger)
+      allow_any_instance_of(described_class).to receive(:logger).and_return(logger_dbl)
+
+      expect(logger_dbl).to_not receive(:warn).with(/puppet forge module.*puppetlabs-corosync.*has been deprecated/i)
 
       subject.sync
     end

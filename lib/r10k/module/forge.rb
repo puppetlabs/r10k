@@ -43,10 +43,6 @@ class R10K::Module::Forge < R10K::Module::Base
   end
 
   def sync(opts={})
-    if deprecated?
-      logger.warn "Puppet Forge module '#{@v3_module.slug}' has been deprecated, visit https://forge.puppet.com/#{@v3_module.slug.tr('-','/')} for more information."
-    end
-
     case status
     when :absent
       install
@@ -141,6 +137,10 @@ class R10K::Module::Forge < R10K::Module::Base
   end
 
   def install
+    if deprecated?
+      logger.warn "Puppet Forge module '#{@v3_module.slug}' has been deprecated, visit https://forge.puppet.com/#{@v3_module.slug.tr('-','/')} for more information."
+    end
+
     parent_path = @path.parent
     if !parent_path.exist?
       parent_path.mkpath
