@@ -58,18 +58,4 @@ keys][stash-access-keys].
 Configuration
 -------------
 
-The following configuration options can be specified for Git based environment
-sources.
-
-### invalid_branches:
-
-This setting specifies how Git branch names that cannot be cleanly mapped to
-Puppet environments will be handled.
-
-Valid values:
-
-  * 'correct_and_warn': Non-word characters will be replaced with underscores
-    and a warning will be emitted. (Default)
-  * 'correct': Non-word characters will silently be replaced with underscores.
-  * 'error': Branches with non-word characters will be ignored and an error will
-    be emitted.
+See the [configuration reference](configuration.mkd) for available parameters
