@@ -78,7 +78,7 @@ def r10k_revert_environment(host, commit_sha, git_repo_path)
   git_on(host, 'push origin --mirror --force', git_repo_path)
 
   #Remove r10k cache
-  cachedir = '/var/r10k/cache'
+  cachedir = '/var/cache/r10k'
   on(master, "rm -rf #{cachedir}")
 end
 
