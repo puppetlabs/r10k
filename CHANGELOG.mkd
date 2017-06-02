@@ -1,6 +1,23 @@
 CHANGELOG
 =========
 
+2.5.5
+-----
+
+2017/06/02
+
+### Bug Fixes
+
+(#696) Move deprecated module check to install/reinstall/upgrade rather than
+synchronize. This fixes a major slowdown on redeployment.
+
+### Changes
+
+(RK-290) Add deprecation warning for duplicate module names in Puppetfile. This
+will cause an error in r10k v3.0.0.
+
+(RK-285) Update minitar dependency to 0.6.1
+
 2.5.4
 -----
 
