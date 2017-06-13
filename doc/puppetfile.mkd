@@ -306,7 +306,7 @@ The given 'install\_path' can be an absolute path or a path relative to the base
 the environment. Note that r10k will exit with an error if you attempt to set the
 'path' option to a directory outside of the environment.
 
-## Environment variables
+## Environment variables (**DEPRECATED** as of 2.5.6)
 
 It is possible to set an alternate name/location for your `Puppetfile` and
 `modules` directory. This is useful if you want to control multiple environments
