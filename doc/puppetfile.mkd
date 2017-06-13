@@ -305,21 +305,3 @@ mod 'apache',
 The given 'install\_path' can be an absolute path or a path relative to the base of
 the environment. Note that r10k will exit with an error if you attempt to set the
 'path' option to a directory outside of the environment.
-
-## Environment variables
-
-It is possible to set an alternate name/location for your `Puppetfile` and
-`modules` directory. This is useful if you want to control multiple environments
-and have a single location for your `Puppetfile`.
-
-Example:
-
-    PUPPETFILE=/etc/r10k.d/Puppetfile.production \
-    PUPPETFILE_DIR=/etc/puppet/modules/production \
-    /usr/bin/r10k puppetfile install
-
-NOTE: using these environment variables is not a suggested configuration, and
-have different semantics than librarian-puppet. Specifically, the PUPPETFILE_DIR
-is the environment that r10k will install modules into, and it will take full
-control over that directory and _remove any unmanaged content_. Use these
-variables with caution.
