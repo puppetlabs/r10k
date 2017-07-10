@@ -4,4 +4,3 @@ Gemfile.lock
 .bundle
 bundle
 coverage
-locales/r10k.pot
