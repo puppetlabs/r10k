@@ -1,0 +1,486 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2017 Puppet, Inc.
+# This file is distributed under the same license as the r10k package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: r10k 2.5.4-107-g098b411\n"
+"\n"
+"Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
+"POT-Creation-Date: 2017-07-10 12:40-0500\n"
+"PO-Revision-Date: 2017-07-10 12:40-0500\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: ../lib/r10k/action/deploy/deploy_helpers.rb:12 ../lib/r10k/settings/loader.rb:63
+msgid "No configuration file given, no config file found in current directory, and no global config present"
+msgstr ""
+
+#: ../lib/r10k/action/deploy/deploy_helpers.rb:26
+msgid "Making changes to deployed environments has been administratively disabled."
+msgstr ""
+
+#: ../lib/r10k/action/deploy/deploy_helpers.rb:27
+msgid "Reason: %{write_lock}"
+msgstr ""
+
+#: ../lib/r10k/action/deploy/environment.rb:52
+msgid "Environment(s) '%{environments}' cannot be found in any source and will not be deployed."
+msgstr ""
+
+#: ../lib/r10k/action/deploy/environment.rb:75
+msgid "Environment %{env_dir} does not match environment name filter, skipping"
+msgstr ""
+
+#: ../lib/r10k/action/deploy/environment.rb:82
+msgid "Deploying environment %{env_path}"
+msgstr ""
+
+#: ../lib/r10k/action/deploy/environment.rb:85
+msgid "Environment %{env_dir} is now at %{env_signature}"
+msgstr ""
+
+#: ../lib/r10k/action/deploy/environment.rb:89
+msgid "Environment %{env_dir} is new, updating all modules"
+msgstr ""
+
+#: ../lib/r10k/action/deploy/environment.rb:119
+msgid "Deploying Puppetfile content %{mod_path}"
+msgstr ""
+
+#: ../lib/r10k/action/deploy/module.rb:38
+msgid "Only updating modules in environment %{opt_env} skipping environment %{env_path}"
+msgstr ""
+
+#: ../lib/r10k/action/deploy/module.rb:40
+msgid "Updating modules %{modules} in environment %{env_path}"
+msgstr ""
+
+#: ../lib/r10k/action/deploy/module.rb:52
+msgid "Deploying module %{mod_path}"
+msgstr ""
+
+#: ../lib/r10k/action/deploy/module.rb:55
+msgid "Only updating modules %{modules}, skipping module %{mod_name}"
+msgstr ""
+
+#: ../lib/r10k/action/puppetfile/check.rb:14
+msgid "Syntax OK"
+msgstr ""
+
+#: ../lib/r10k/action/puppetfile/install.rb:29
+msgid "Updating module %{mod_path}"
+msgstr ""
+
+#: ../lib/r10k/action/puppetfile/install.rb:32
+msgid "Cannot track control repo branch for content '%{name}' when not part of a 'deploy' action, will use default if available."
+msgstr ""
+
+#: ../lib/r10k/action/runner.rb:49 ../lib/r10k/deployment/config.rb:42
+msgid "Overriding config file setting '%{key}': '%{old_val}' -> '%{new_val}'"
+msgstr ""
+
+#: ../lib/r10k/action/runner.rb:82
+msgid "Reading configuration from %{config_path}"
+msgstr ""
+
+#: ../lib/r10k/action/runner.rb:85
+msgid "No config file explicitly given and no default config file could be found, default settings will be used."
+msgstr ""
+
+#: ../lib/r10k/deployment.rb:90
+msgid "Environment collision at %{env_path} between %{source}:%{env_name} and %{osource}:%{oenv_name}"
+msgstr ""
+
+#: ../lib/r10k/deployment.rb:118
+msgid "Unable to load sources; the supplied configuration does not define the 'sources' key"
+msgstr ""
+
+#: ../lib/r10k/environment/base.rb:59 ../lib/r10k/environment/base.rb:75 ../lib/r10k/environment/base.rb:84 ../lib/r10k/source/base.rb:64
+msgid "%{class} has not implemented method %{method}"
+msgstr ""
+
+#: ../lib/r10k/feature.rb:27
+msgid "Testing to see if feature %{name} is available."
+msgstr ""
+
+#: ../lib/r10k/feature.rb:30
+msgid "Feature %{name} %{message} available."
+msgstr ""
+
+#: ../lib/r10k/feature.rb:37
+msgid "Attempting to load library '%{lib}' for feature %{name}"
+msgstr ""
+
+#: ../lib/r10k/feature.rb:41
+msgid "Error while loading library %{lib} for feature %{name}: %{error_msg}"
+msgstr ""
+
+#: ../lib/r10k/feature.rb:47
+msgid "Evaluating proc %{block} to test for feature %{name}"
+msgstr ""
+
+#: ../lib/r10k/feature.rb:49
+msgid "Proc %{block} for feature %{name} returned %{output}"
+msgstr ""
+
+#: ../lib/r10k/forge/module_release.rb:164
+msgid "Unpacking %{tarball_cache_path} to %{target_dir} (with tmpdir %{tmp_path})"
+msgstr ""
+
+#: ../lib/r10k/forge/module_release.rb:166
+msgid "Valid files unpacked: %{valid_files}"
+msgstr ""
+
+#: ../lib/r10k/forge/module_release.rb:168
+msgid "These files existed in the module's tar file, but are invalid filetypes and were not unpacked: %{invalid_files}"
+msgstr ""
+
+#: ../lib/r10k/forge/module_release.rb:171
+msgid "Symlinks are unsupported and were not unpacked from the module tarball. %{release_slug} contained these ignored symlinks: %{symlinks}"
+msgstr ""
+
+#: ../lib/r10k/git.rb:32
+msgid "Rugged has been compiled without support for %{transport}; Git repositories will not be reachable via %{transport}."
+msgstr ""
+
+#: ../lib/r10k/git.rb:68
+msgid "No Git providers are functional."
+msgstr ""
+
+#: ../lib/r10k/git.rb:85
+msgid "No Git provider named '%{name}'."
+msgstr ""
+
+#: ../lib/r10k/git.rb:89
+msgid "Git provider '%{name}' is not functional."
+msgstr ""
+
+#: ../lib/r10k/git.rb:96
+msgid "Setting Git provider to %{provider}"
+msgstr ""
+
+#: ../lib/r10k/git.rb:104
+msgid "No Git provider set."
+msgstr ""
+
+#: ../lib/r10k/git.rb:107
+msgid "Setting Git provider to default provider %{name}"
+msgstr ""
+
+#: ../lib/r10k/git/alternates.rb:46
+msgid "Cannot write %{file}; parent directory does not exist"
+msgstr ""
+
+#: ../lib/r10k/git/cache.rb:55
+msgid "%{class}#path is deprecated; use #git_dir"
+msgstr ""
+
+#: ../lib/r10k/git/cache.rb:84
+msgid "Creating new git cache for %{remote}"
+msgstr ""
+
+#: ../lib/r10k/git/rugged/bare_repository.rb:34 ../lib/r10k/git/rugged/working_repository.rb:28
+msgid "Cloning '%{remote}' into %{path}"
+msgstr ""
+
+#: ../lib/r10k/git/rugged/bare_repository.rb:52
+msgid "Fetching remote '%{remote_name}' at %{path}"
+msgstr ""
+
+#: ../lib/r10k/git/rugged/bare_repository.rb:56
+msgid "Rugged versions prior to 0.24.0 do not support pruning stale branches during fetch, please upgrade your 'rugged' gem. (Current version is: %{version})"
+msgstr ""
+
+#: ../lib/r10k/git/rugged/credentials.rb:24
+msgid "Authentication failed for Git remote %{url}."
+msgstr ""
+
+#: ../lib/r10k/git/rugged/credentials.rb:48
+msgid "Using per-repository private key %{key} for URL %{url}"
+msgstr ""
+
+#: ../lib/r10k/git/rugged/credentials.rb:51
+msgid "URL %{url} has no per-repository private key using '%{key}'."
+msgstr ""
+
+#: ../lib/r10k/git/rugged/credentials.rb:53
+msgid "Git remote %{url} uses the SSH protocol but no private key was given"
+msgstr ""
+
+#: ../lib/r10k/git/rugged/credentials.rb:57
+msgid "Unable to use SSH key auth for %{url}: private key %{private_key} is missing or unreadable"
+msgstr ""
+
+#: ../lib/r10k/git/rugged/credentials.rb:80
+msgid "URL %{url} includes the username %{username}, using that user for authentication."
+msgstr ""
+
+#: ../lib/r10k/git/rugged/credentials.rb:83
+msgid "URL %{url} did not specify a user, using %{user} from configuration"
+msgstr ""
+
+#: ../lib/r10k/git/rugged/credentials.rb:86
+msgid "URL %{url} did not specify a user, using current user %{user}"
+msgstr ""
+
+#: ../lib/r10k/git/rugged/thin_repository.rb:85 ../lib/r10k/git/shellgit/thin_repository.rb:65
+msgid "Updated repo %{path} to include alternate object db path %{objects_dir}"
+msgstr ""
+
+#: ../lib/r10k/git/rugged/working_repository.rb:67
+msgid "Checking out ref '%{ref}' (resolved to SHA '%{sha}') in repository %{path}"
+msgstr ""
+
+#: ../lib/r10k/git/rugged/working_repository.rb:87
+msgid "Fetching remote '%{remote}' at %{path}"
+msgstr ""
+
+#: ../lib/r10k/git/rugged/working_repository.rb:125 ../lib/r10k/git/shellgit/working_repository.rb:100
+msgid "Found local modifications in %{file_path}"
+msgstr ""
+
+#: ../lib/r10k/git/stateful_repository.rb:40
+msgid "Unable to sync repo to unresolvable ref '%{ref}'"
+msgstr ""
+
+#: ../lib/r10k/git/stateful_repository.rb:47
+msgid "Cloning %{repo_path} and checking out %{ref}"
+msgstr ""
+
+#: ../lib/r10k/git/stateful_repository.rb:50
+msgid "Replacing %{repo_path} and checking out %{ref}"
+msgstr ""
+
+#: ../lib/r10k/git/stateful_repository.rb:54 ../lib/r10k/git/stateful_repository.rb:59
+msgid "Updating %{repo_path} to %{ref}"
+msgstr ""
+
+#: ../lib/r10k/git/stateful_repository.rb:58
+msgid "Overwriting local modifications to %{repo_path}"
+msgstr ""
+
+#: ../lib/r10k/git/stateful_repository.rb:62
+msgid "Skipping %{repo_path} due to local modifications"
+msgstr ""
+
+#: ../lib/r10k/git/stateful_repository.rb:65
+msgid "%{repo_path} is already at Git ref %{ref}"
+msgstr ""
+
+#: ../lib/r10k/initializers.rb:30
+msgid "the purgedirs key in r10k.yaml is deprecated. it is currently ignored."
+msgstr ""
+
+#: ../lib/r10k/keyed_factory.rb:18
+msgid "Class already registered for %{key}"
+msgstr ""
+
+#: ../lib/r10k/keyed_factory.rb:32
+msgid "No class registered for %{key}"
+msgstr ""
+
+#: ../lib/r10k/logging.rb:60
+msgid "Invalid log level '%{val}'. Valid levels are %{log_levels}"
+msgstr ""
+
+#: ../lib/r10k/module.rb:29
+msgid "Module %{name} with args %{args} doesn't have an implementation. (Are you using the right arguments?)"
+msgstr ""
+
+#: ../lib/r10k/module/base.rb:101
+msgid "Module name (%{title}) must match either 'modulename' or 'owner/modulename'"
+msgstr ""
+
+#: ../lib/r10k/module/forge.rb:70 ../lib/r10k/module/forge.rb:95
+msgid "The module %{title} does not exist on %{url}."
+msgstr ""
+
+#: ../lib/r10k/module/forge.rb:170
+msgid "Forge module names must match 'owner/modulename'"
+msgstr ""
+
+#: ../lib/r10k/module/git.rb:92
+msgid "Unhandled options %{unhandled} specified for %{class}"
+msgstr ""
+
+#: ../lib/r10k/module/local.rb:34
+msgid "Module %{title} is a local module, always indicating synced."
+msgstr ""
+
+#: ../lib/r10k/module/metadata_file.rb:25
+msgid "Could not read metadata.json"
+msgstr ""
+
+#: ../lib/r10k/puppetfile.rb:46
+msgid "Using Puppetfile '%{puppetfile}'"
+msgstr ""
+
+#: ../lib/r10k/puppetfile.rb:59
+msgid "Puppetfile %{path} missing or unreadable"
+msgstr ""
+
+#: ../lib/r10k/puppetfile.rb:69
+msgid "Failed to evaluate %{path}"
+msgstr ""
+
+#: ../lib/r10k/puppetfile.rb:79
+msgid "Puppetfiles cannot contain duplicate module names."
+msgstr ""
+
+#: ../lib/r10k/puppetfile.rb:81
+msgid "Remove the duplicates of the following modules: %{dupes}"
+msgstr ""
+
+#: ../lib/r10k/puppetfile.rb:207
+msgid "unrecognized declaration '%{method}'"
+msgstr ""
+
+#: ../lib/r10k/settings/collection.rb:77
+msgid "Validation failed for '%{name}' settings group"
+msgstr ""
+
+#: ../lib/r10k/settings/collection.rb:79
+msgid "Validation failed for settings group"
+msgstr ""
+
+#: ../lib/r10k/settings/container.rb:87
+msgid "Key %{key} is not a valid key"
+msgstr ""
+
+#: ../lib/r10k/settings/enum_definition.rb:13
+msgid "Setting %{name} may only contain %{enums}; the disallowed values %{invalid} were present"
+msgstr ""
+
+#: ../lib/r10k/settings/enum_definition.rb:17
+msgid "Setting %{name} should be one of %{enums}, not '%{value}'"
+msgstr ""
+
+#: ../lib/r10k/settings/helpers.rb:19
+msgid "%{class} instances cannot be reassigned to a new parent."
+msgstr ""
+
+#: ../lib/r10k/settings/helpers.rb:23
+msgid "%{class} instances may only belong to a settings collection or list."
+msgstr ""
+
+#: ../lib/r10k/settings/list.rb:66
+msgid "Validation failed for '%{name}' settings list"
+msgstr ""
+
+#: ../lib/r10k/settings/loader.rb:45
+msgid "Both %{default_path} and %{old_default_path} configuration files exist."
+msgstr ""
+
+#: ../lib/r10k/settings/loader.rb:46
+msgid "%{default_path} will be used."
+msgstr ""
+
+#: ../lib/r10k/settings/loader.rb:52
+msgid "The r10k configuration file at %{old_default_path} is deprecated."
+msgstr ""
+
+#: ../lib/r10k/settings/loader.rb:53
+msgid "Please move your r10k configuration to %{default_path}."
+msgstr ""
+
+#: ../lib/r10k/settings/loader.rb:69
+msgid "Couldn't load config file: %{error_msg}"
+msgstr ""
+
+#: ../lib/r10k/settings/loader.rb:73
+msgid "\"File exists at #{path} but doesn't contain any YAML\""
+msgstr ""
+
+#: ../lib/r10k/settings/uri_definition.rb:12
+msgid "Setting %{name} requires a URL but '%{value}' could not be parsed as a URL"
+msgstr ""
+
+#: ../lib/r10k/source/git.rb:66
+msgid "Fetching '%{remote}' to determine current branches."
+msgstr ""
+
+#: ../lib/r10k/source/git.rb:69
+msgid "Unable to determine current branches for Git source '%{name}' (%{basedir})"
+msgstr ""
+
+#: ../lib/r10k/source/git.rb:94
+msgid "Environment %{env_name} contained non-word characters, correcting name to %{corrected_env_name}"
+msgstr ""
+
+#: ../lib/r10k/source/git.rb:98
+msgid "Environment %{env_name} contained non-word characters, ignoring it."
+msgstr ""
+
+#: ../lib/r10k/svn/working_dir.rb:43
+msgid "Both username and password must be specified"
+msgstr ""
+
+#: ../lib/r10k/util/basedir.rb:34
+msgid "Expected Array<#desired_contents>, got R10K::Deployment"
+msgstr ""
+
+#: ../lib/r10k/util/basedir.rb:58
+msgid "Source %{source_name} in %{path} manages contents %{contents}"
+msgstr ""
+
+#: ../lib/r10k/util/license.rb:11
+msgid "pe_license feature is available, loading PE license key"
+msgstr ""
+
+#: ../lib/r10k/util/license.rb:15
+msgid "Invalid PE license detected: %{error_msg}"
+msgstr ""
+
+#: ../lib/r10k/util/license.rb:18
+msgid "pe_license feature is not available, PE only Puppet modules will not be downloadable."
+msgstr ""
+
+#: ../lib/r10k/util/purgeable.rb:52
+msgid "Not purging %{item} due to internal exclusion match: %{exclusion_match}"
+msgstr ""
+
+#: ../lib/r10k/util/purgeable.rb:54
+msgid "Not purging %{item} due to whitelist match: %{whitelist_match}"
+msgstr ""
+
+#: ../lib/r10k/util/purgeable.rb:71
+msgid "No unmanaged contents in %{managed_dirs}, nothing to purge"
+msgstr ""
+
+#: ../lib/r10k/util/purgeable.rb:76
+msgid "Removing unmanaged path %{path}"
+msgstr ""
+
+#: ../lib/r10k/util/purgeable.rb:81
+msgid "Unable to remove unmanaged path: %{path}"
+msgstr ""
+
+#: ../lib/r10k/util/setopts.rb:47
+msgid "%{class_name} cannot handle option '%{key}'"
+msgstr ""
+
+#: ../lib/r10k/util/subprocess.rb:69
+msgid "Starting process: %{args}"
+msgstr ""
+
+#: ../lib/r10k/util/subprocess.rb:74
+msgid ""
+"Finished process:\n"
+"%{result}"
+msgstr ""
+
+#: ../lib/r10k/util/subprocess.rb:77
+msgid "Command exited with non-zero exit code"
+msgstr ""
+
+#: ../lib/r10k/util/symbolize_keys.rb:17
+msgid "An existing interned key for %{key} exists, cannot overwrite"
+msgstr ""
