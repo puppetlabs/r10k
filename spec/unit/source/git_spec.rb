@@ -62,6 +62,56 @@ describe R10K::Source::Git do
       expect(master_env.dirname).to eq 'master'
     end
   end
+
+  describe "generating environments with branch filter" do
+    before do
+      allow(subject.cache).to receive(:branches).and_return ['master', 'development', 'production', 'dev-test']
+      subject.instance_variable_set(:@branch_filter, "(dev.*)|(mast.*)")
+    end
+
+    let(:environments) { subject.generate_environments }
+
+    it "creates an environment for each branch that matches the filter" do
+      expect(subject.generate_environments.size).to eq(3)
+    end
+
+    it "copies the source remote to the environment" do
+      expect(environments[0].remote).to eq subject.remote
+      expect(environments[1].remote).to eq subject.remote
+      expect(environments[2].remote).to eq subject.remote
+    end
+
+    it "uses the branch name as the directory by default" do
+      expect(environments[0].dirname).to eq 'master'
+      expect(environments[1].dirname).to eq 'development'
+      expect(environments[2].dirname).to eq 'dev_test'
+    end
+  end
+
+  describe "generating environments with branch filter exclude prefix" do
+    before do
+      allow(subject.cache).to receive(:branches).and_return ['master', 'development', 'production', 'dev-test']
+      subject.instance_variable_set(:@branch_filter, "^(?!dev-)\\w+$")
+    end
+
+    let(:environments) { subject.generate_environments }
+
+    it "creates an environment for each branch that matches the filter" do
+      expect(subject.generate_environments.size).to eq(3)
+    end
+
+    it "copies the source remote to the environment" do
+      expect(environments[0].remote).to eq subject.remote
+      expect(environments[1].remote).to eq subject.remote
+      expect(environments[2].remote).to eq subject.remote
+    end
+
+    it "uses the branch name as the directory by default" do
+      expect(environments[0].dirname).to eq 'master'
+      expect(environments[1].dirname).to eq 'development'
+      expect(environments[2].dirname).to eq 'production'
+    end
+  end
 end
 
 describe R10K::Source::Git, "handling invalid branch names" do

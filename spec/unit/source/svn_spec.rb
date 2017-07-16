@@ -61,6 +61,45 @@ describe R10K::Source::SVN do
       expect(environments[3].dirname).to eq 'robobutler'
     end
   end
+
+  describe "generating environments with branch filter" do
+    before do
+      allow(subject.svn_remote).to receive(:branches).and_return ['test', 'development', 'dev-test']
+      subject.instance_variable_set(:@branch_filter, "(dev.*)")
+    end
+
+    let(:environments) { subject.generate_environments }
+
+    it "creates an environment for each branch that matches the filter" do
+      expect(subject.generate_environments.size).to eq(3)
+    end
+
+    it "uses the branch name as the directory by default" do
+      expect(environments[0].name).to eq 'production'
+      expect(environments[1].name).to eq 'development'
+      expect(environments[2].name).to eq 'dev-test'
+    end
+  end
+
+  describe "generating environments with branch filter exclude prefix" do
+    before do
+      allow(subject.svn_remote).to receive(:branches).and_return ['test', 'development', 'dev-test']
+      subject.instance_variable_set(:@branch_filter, "^(?!dev-)\\w+$")
+    end
+
+    let(:environments) { subject.generate_environments }
+
+    it "creates an environment for each branch that matches the filter" do
+      expect(subject.generate_environments.size).to eq(3)
+    end
+
+    it "uses the branch name as the directory by default" do
+      expect(environments[0].name).to eq 'production'
+      expect(environments[1].name).to eq 'test'
+      expect(environments[2].name).to eq 'development'
+    end
+  end
+
 end
 
 describe R10K::Source::SVN, 'when prefixing is enabled' do
