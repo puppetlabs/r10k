@@ -501,7 +501,7 @@ sources:
   app1_data:
     remote: 'git://git-server.site/my-org/app1-hieradata'
     basedir: '/etc/puppet/hieradata'
-    branch_filter: '^(prod-)\\w+$'
+    branch_filter: '^(prod-)\w+$'
 ```
 
 #### Filter branches - Match branches exactly
