@@ -37,6 +37,11 @@ class R10K::Source::SVN < R10K::Source::Base
   #   @api private
   attr_reader :password
 
+  # @!attribute [r] branch_filter
+  #   @return [String] Regex used to match branches from the repository that
+  #     that will be deployed as environments.
+  attr_reader :branch_filter
+
   include R10K::Util::Setopts
 
   # Initialize the given source.
@@ -56,6 +61,7 @@ class R10K::Source::SVN < R10K::Source::Base
     setopts(options, {:remote => :self, :username => :self, :password => :self})
     @environments = []
     @svn_remote = R10K::SVN::Remote.new(@remote, :username => @username, :password => @password)
+    @branch_filter = options[:branch_filter]
   end
 
   # Enumerate the environments associated with this SVN source.
@@ -106,6 +112,13 @@ class R10K::Source::SVN < R10K::Source::Base
 
     branches << [R10K::Environment::Name.new('production', opts), "#{@remote}/trunk"]
     @svn_remote.branches.each do |branch|
+      if !@branch_filter.nil? && !@branch_filter.empty?
+        result = branch[/#{@branch_filter}/]
+        if result.nil?
+          logger.debug _("Branch %{branch} filtered out by branch_filter regex %{regex}") % {branch: branch, regex: @branch_filter}
+          next
+        end
+      end
       branches << [R10K::Environment::Name.new(branch, opts), "#{@remote}/branches/#{branch}"]
     end
 
