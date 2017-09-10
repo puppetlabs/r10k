@@ -43,7 +43,7 @@ module R10K
         end
 
         def visit_puppetfile(puppetfile)
-          puppetfile.load
+          puppetfile.desired_contents
           yield
         end
 

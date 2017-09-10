@@ -1,0 +1,2 @@
+puppetfile_type 'classic'
+mod 'puppetlabs/apt'

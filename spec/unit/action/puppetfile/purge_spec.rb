@@ -3,7 +3,7 @@ require 'r10k/action/puppetfile/purge'
 
 describe R10K::Action::Puppetfile::Purge do
   let(:default_opts) { {root: "/some/nonexistent/path"} }
-  let(:puppetfile) { instance_double('R10K::Puppetfile', :load! => nil) }
+  let(:puppetfile) { instance_double('R10K::Puppetfile', :desired_contents => nil) }
 
   def purger(opts = {}, argv = [], settings = {})
     opts = default_opts.merge(opts)

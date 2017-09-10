@@ -66,7 +66,6 @@ describe R10K::Environment::SVN do
 
   describe "enumerating modules" do
     it "loads the Puppetfile and returns modules in that puppetfile" do
-      expect(subject.puppetfile).to receive(:load)
       expect(subject.puppetfile).to receive(:modules).and_return [:modules]
       expect(subject.modules).to eq([:modules])
     end

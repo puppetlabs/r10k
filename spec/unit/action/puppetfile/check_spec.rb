@@ -3,7 +3,7 @@ require 'r10k/action/puppetfile/check'
 
 describe R10K::Action::Puppetfile::Check do
   let(:default_opts) { {root: "/some/nonexistent/path"} }
-  let(:puppetfile) { instance_double('R10K::Puppetfile', :load! => true) }
+  let(:puppetfile) { instance_double('R10K::Puppetfile', :desired_contents => true) }
 
   def checker(opts = {}, argv = [], settings = {})
     opts = default_opts.merge(opts)
@@ -23,7 +23,7 @@ describe R10K::Action::Puppetfile::Check do
   end
 
   it "prints an error message when validating the Puppetfile syntax raised an error" do
-    allow(puppetfile).to receive(:load!).and_raise(R10K::Error.new("Boom!"))
+    allow(puppetfile).to receive(:desired_contents).and_raise(R10K::Error.new("Boom!"))
     allow(R10K::Errors::Formatting).to receive(:format_exception).with(instance_of(R10K::Error), anything).and_return("Formatted error message")
 
     expect($stderr).to receive(:puts).with("Formatted error message")

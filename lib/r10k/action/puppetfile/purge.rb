@@ -9,7 +9,7 @@ module R10K
 
         def call
           pf = R10K::Puppetfile.new(@root, @moduledir, @puppetfile)
-          pf.load!
+          pf.desired_contents  # loads the contents
           pf.purge!
           true
         rescue => e

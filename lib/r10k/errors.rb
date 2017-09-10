@@ -2,6 +2,7 @@ require 'r10k'
 
 module R10K
 
+
   # An error class that accepts an optional hash and wrapped error message
   #
   class Error < StandardError
@@ -58,4 +59,8 @@ module R10K
       str.gsub(/^/, prefix)
     end
   end
+
+  class NoFormatterError < Error
+  end
+
 end

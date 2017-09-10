@@ -10,7 +10,7 @@ module R10K
         def call
           pf = R10K::Puppetfile.new(@root, @moduledir, @puppetfile)
           begin
-            pf.load!
+            pf.desired_contents  # loads the contents
             $stderr.puts _("Syntax OK")
             true
           rescue => e

@@ -166,7 +166,7 @@ describe R10K::Puppetfile do
       pf_path = File.join(path, 'Puppetfile')
       subject = described_class.new(path)
       expect {
-        subject.load!
+        subject.desired_contents
       }.to raise_error do |e|
         expect_wrapped_error(e, pf_path, SyntaxError)
       end
@@ -177,7 +177,7 @@ describe R10K::Puppetfile do
       pf_path = File.join(path, 'Puppetfile')
       subject = described_class.new(path)
       expect {
-        subject.load!
+        subject.desired_contents
       }.to raise_error do |e|
         expect_wrapped_error(e, pf_path, LoadError)
       end
@@ -188,7 +188,7 @@ describe R10K::Puppetfile do
       pf_path = File.join(path, 'Puppetfile')
       subject = described_class.new(path)
       expect {
-        subject.load!
+        subject.desired_contents
       }.to raise_error do |e|
         expect_wrapped_error(e, pf_path, ArgumentError)
       end
@@ -199,7 +199,7 @@ describe R10K::Puppetfile do
       pf_path = File.join(path, 'Puppetfile')
       subject = described_class.new(path)
       expect {
-        subject.load!
+        subject.desired_contents
       }.to raise_error(R10K::Error, /Puppetfiles cannot contain duplicate module names/i)
     end
 
@@ -208,7 +208,7 @@ describe R10K::Puppetfile do
       pf_path = File.join(path, 'Puppetfile')
       subject = described_class.new(path)
       expect {
-        subject.load!
+        subject.desired_contents
       }.to raise_error do |e|
         expect_wrapped_error(e, pf_path, NameError)
       end
@@ -218,14 +218,14 @@ describe R10K::Puppetfile do
       path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
       pf_path = File.join(path, 'Puppetfile')
       subject = described_class.new(path)
-      expect { subject.load! }.not_to raise_error
+      expect { subject.desired_contents }.not_to raise_error
     end
 
     it "accepts a forge module without a version" do
       path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-without-version')
       pf_path = File.join(path, 'Puppetfile')
       subject = described_class.new(path)
-      expect { subject.load! }.not_to raise_error
+      expect { subject.desired_contents }.not_to raise_error
     end
   end
 
