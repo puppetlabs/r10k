@@ -8,7 +8,7 @@ specific pattern before implementing it.
 Repository Setup
 ----------------
 
-Use a [Control Repo](http://www.jeffmalnick.com/blog/2014/05/16/r10k-control-repos/)
+Use a [Control Repo](https://docs.puppet.com/pe/latest/cmgmt_control_repo.html)
 to store your `Puppetfile`.
 
 Hiera data should be in the Control repo OR as a separate source in
