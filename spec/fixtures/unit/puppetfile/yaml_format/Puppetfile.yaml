@@ -1,0 +1,20 @@
+puppetfile_type: yaml
+forge:
+  "https://forgeapi.puppetlabs.com":
+    - bmurt/puppet_agent: 0.0.4
+    - camptocamp/augeas: latest
+    - bfraser/grafana
+
+git:
+  "https://github.com":
+    - jenkinsci/puppet-jenkins: v1.5.0
+    - ripienaar/puppet-module-data: 0.0.4
+    - rackerlabs/puppet-repose: 1.6.0
+  "git@github.example.com:ops":
+    - puppet-profile_crm: 0.1.12
+    - puppet-profile_docker: 0.3.1
+    - puppet-profile_java_app_server: 0.1.1
+    - puppet-profile_jenkins: 1.4.0
+    - puppet-repo: 0.3.1
+  "git@github.example.com:config-management-modules":
+    - puppet-passwordsafe: 0.3.5
