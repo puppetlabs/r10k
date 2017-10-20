@@ -5,6 +5,7 @@ script: "bundle exec rspec --color --format documentation spec/unit"
 notifications:
   email: false
 sudo: false
+before_install: gem update bundler
 rvm:
   - "2.3.0"
   - "2.2.0"
