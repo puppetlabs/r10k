@@ -73,9 +73,9 @@ describe R10K::Action::Puppetfile::Install do
     end
 
     it "can use the force overwrite option" do
+      subject = described_class.new({root: "/some/nonexistent/path", update_force: true}, [])
       expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, nil, nil, true).and_return(puppetfile)
-
-      installer({update_force: true}).call
+      subject.call
     end
 
   end
