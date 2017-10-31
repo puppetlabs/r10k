@@ -76,6 +76,10 @@ def r10k_revert_environment(host, commit_sha, git_repo_path)
   #Force push changes to remote.
   git_on(host, 'push origin --mirror --force', git_repo_path)
   git_on(host, 'push origin --mirror --force', git_repo_path)
+
+  #Remove r10k cache
+  cachedir = '/var/cache/r10k'
+  on(master, "rm -rf #{cachedir}")
 end
 
 # Clean-up the r10k environment on the master to bring it back to a known good state.
@@ -101,6 +105,13 @@ def clean_up_r10k(master, commit_sha, git_repo_path)
 
   step 'Reset Git Repo to Known Good State'
   r10k_revert_environment(master, commit_sha, git_repo_path)
+
+  # RK-297 workaround. Without this, tests will fail with an error like the following:
+  # [2017-06-02 11:11:46 - ERROR] Object not found - no match for id (60e4ea82c9fdf86974a13f78b839a497325de04b)
+  # This cleanup should not be necessary when RK-297 has been resolved.
+  #
+  step 'Remove git directories from codedir to prevent cache errors'
+  on(master, "find #{environment_path } -name .git -type d -print0 | xargs -r0 -- rm -r")
 
   step 'Restore Original "production" Environment'
   on(master, "#{r10k_fqp} deploy environment -v")
