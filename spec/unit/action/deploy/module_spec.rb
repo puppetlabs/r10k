@@ -13,5 +13,18 @@ describe R10K::Action::Deploy::Module do
     it "accepts an environment option" do
       described_class.new({environment: "production"}, [])
     end
+
+    it "can accept a no_force option" do
+      described_class.new({no_force: true}, [])
+    end
+  end
+
+  describe "with no_force" do
+
+    subject { described_class.new({ config: "/some/nonexistent/path", no_force: true}, [] )}
+
+    it "tries to preserve local modifications" do
+      expect(subject.no_force).to equal(true)
+    end
   end
 end

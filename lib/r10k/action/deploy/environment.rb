@@ -13,6 +13,8 @@ module R10K
 
         include R10K::Action::Deploy::DeployHelpers
 
+        attr_reader :no_force
+
         def initialize(opts, argv, settings = nil)
           settings ||= {}
           @purge_levels = settings.fetch(:deploy, {}).fetch(:purge_levels, [])
@@ -117,7 +119,8 @@ module R10K
 
         def visit_module(mod)
           logger.info _("Deploying Puppetfile content %{mod_path}") % {mod_path: mod.path}
-          mod.sync
+          # no_force here is the opposite of the expected value of force.
+          mod.sync(force: !@no_force)
         end
 
         def write_environment_info!(environment, started_at, success)
@@ -142,7 +145,7 @@ module R10K
         end
 
         def allowed_initialize_opts
-          super.merge(puppetfile: :self, cachedir: :self)
+          super.merge(puppetfile: :self, cachedir: :self, no_force: :self)
         end
       end
     end

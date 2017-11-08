@@ -10,6 +10,8 @@ module R10K
 
         include R10K::Action::Deploy::DeployHelpers
 
+        attr_reader :no_force
+
         def call
           @visit_ok = true
 
@@ -50,14 +52,15 @@ module R10K
         def visit_module(mod)
           if @argv.include?(mod.name)
             logger.info _("Deploying module %{mod_path}") % {mod_path: mod.path}
-            mod.sync
+            # no_force here is the opposite of the expceted value of force
+            mod.sync(force: !@no_force)
           else
             logger.debug1(_("Only updating modules %{modules}, skipping module %{mod_name}") % {modules: @argv.inspect, mod_name: mod.name})
           end
         end
 
         def allowed_initialize_opts
-          super.merge(environment: true)
+          super.merge(environment: true, no_force: :self)
         end
       end
     end
