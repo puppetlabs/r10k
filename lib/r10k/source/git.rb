@@ -124,7 +124,7 @@ class R10K::Source::Git < R10K::Source::Base
       branches = branches.select do |branch|
         result = branch[/#{@branch_filter}/]
         if result.nil?
-          logger.debug _("Branch %{branch} filtered out by branch_filter regex %{regex}") % {branch: branch, regex: @branch_filter}
+          logger.warn _("Branch %{branch} filtered out by branch_filter regex %{regex}") % {branch: branch, regex: @branch_filter}
         end
         result
       end
