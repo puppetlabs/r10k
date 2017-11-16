@@ -477,6 +477,8 @@ This will create the following directory structure:
 |-- app1_develop     # app1 data repository, develop branch
 ```
 
+### Filtering branches
+
 #### Filtering branches - Exclude branches with a prefix
 
 If you would like to filter out all branches starting with and including "dev-".
