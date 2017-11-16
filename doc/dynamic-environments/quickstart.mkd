@@ -166,8 +166,8 @@ class profile::base {
 ```
 
 Ensure that the user r10k runs as (typically root) can access the git
-repository. See the [git environment guide]
-(git-environments.mkd) for more detail.  You can test
+repository. See the [git environment guide](git-environments.mkd)
+for more detail.  You can test
 the access by using su/sudo to perform `git clone yourrepoURL` as the correct
 user.
 
