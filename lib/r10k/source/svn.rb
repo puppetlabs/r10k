@@ -115,7 +115,7 @@ class R10K::Source::SVN < R10K::Source::Base
       if !@branch_filter.nil? && !@branch_filter.empty?
         result = branch[/#{@branch_filter}/]
         if result.nil?
-          logger.debug _("Branch %{branch} filtered out by branch_filter regex %{regex}") % {branch: branch, regex: @branch_filter}
+          logger.warn _("Branch %{branch} filtered out by branch_filter regex %{regex}") % {branch: branch, regex: @branch_filter}
           next
         end
       end
