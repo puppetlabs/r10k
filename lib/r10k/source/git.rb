@@ -36,6 +36,11 @@ class R10K::Source::Git < R10K::Source::Base
   #     Puppet environments will be handled.
   attr_reader :invalid_branches
 
+  # @!attribute [r] branch_filter
+  #   @return [String] Regex used to match branches from the repository that
+  #     that will be deployed as environments.
+  attr_reader :branch_filter
+  
   # Initialize the given source.
   #
   # @param name [String] The identifier for this source.
@@ -55,6 +60,7 @@ class R10K::Source::Git < R10K::Source::Base
 
     @remote           = options[:remote]
     @invalid_branches = (options[:invalid_branches] || 'correct_and_warn')
+    @branch_filter    = options[:branch_filter]
 
     @cache  = R10K::Git.cache.generate(@remote)
   end
@@ -113,7 +119,17 @@ class R10K::Source::Git < R10K::Source::Base
 
   def branch_names
     opts = {:prefix => @prefix, :invalid => @invalid_branches, :source => @name}
-    @cache.branches.map do |branch|
+    branches = @cache.branches
+    if !@branch_filter.nil? && !@branch_filter.empty?
+      branches = branches.select do |branch|
+        result = branch[/#{@branch_filter}/]
+        if result.nil?
+          logger.warn _("Branch %{branch} filtered out by branch_filter regex %{regex}") % {branch: branch, regex: @branch_filter}
+        end
+        result
+      end
+    end
+    branches.map do |branch|
       R10K::Environment::Name.new(branch, opts)
     end
   end
