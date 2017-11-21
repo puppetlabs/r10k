@@ -117,17 +117,23 @@ class R10K::Source::Git < R10K::Source::Base
 
   private
 
-  def branch_names
-    opts = {:prefix => @prefix, :invalid => @invalid_branches, :source => @name}
-    branches = @cache.branches
-    if !@branch_filter.nil? && !@branch_filter.empty?
+  def filter_branches(branches, filter)
       branches = branches.select do |branch|
-        result = branch[/#{@branch_filter}/]
+        result = filter.match(branch)
         if result.nil?
           logger.warn _("Branch %{branch} filtered out by branch_filter regex %{regex}") % {branch: branch, regex: @branch_filter}
         end
         result
       end
+      branches
+  end
+
+  def branch_names
+    opts = {:prefix => @prefix, :invalid => @invalid_branches, :source => @name}
+    branches = @cache.branches
+    if @branch_filter && !@branch_filter.empty?
+      filter = Regexp.new(@branch_filter)
+      branches = filter_branches(branches, filter)
     end
     branches.map do |branch|
       R10K::Environment::Name.new(branch, opts)
