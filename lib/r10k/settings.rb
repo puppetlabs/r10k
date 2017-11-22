@@ -52,8 +52,8 @@ module R10K
               :default => :inherit,
             }),
             
-            Definition.new(:branch_filter, {
-              :desc => "Regex string used to match branch names that will be deployed as environments.",
+            Definition.new(:ignore_branch_prefixes, {
+              :desc => "Array of strings used to prefix branch names that will not be deployed as environments.",
             }),
           ])
         },

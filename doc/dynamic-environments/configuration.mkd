@@ -356,27 +356,30 @@ sources:
 * if `false` (default) environment folder will not be prefixed
 * if `String` environment folder will be prefixed with the `prefix` value.
 
-### branch_filter
+### ignore_branch_prefixes
 
-The 'branch_filter' setting restricts the environment that are deployed to only
-those that match the given filter. The filter is a regex string. Each branch in
-the 'git' repo will have its named tested against this regex and, if the regex
-matches the branch name, then an environment will be deployed for this branch.
-If no 'branch_filter' is specified, then all branches in the 'git' repo will
+The 'ignore_branch_prefixes' setting causes environments to be ignored which match in part or whole
+to any of the prefixes listed in the setting.
+The setting is a list of strings. Each branch in
+the 'git' repo will have its name tested against all prefixes and, if the prefix
+is found, then an environment will not be deployed for this branch.
+If no 'ignore_branch_prefixes' is specified, then all branches in the 'git' repo will
 be deployed (default behavior).
 
-#### branch_filter behaviour
+#### ignore_branch_prefixes behaviour
 * if empty, deploy environments for all branches
 * for each branch in git repo
-** if `branch.name` matches `branch_filter` regex, then deploy an environment for branch
+** if `branch.name` has a prefix found in `ignore_branch_prefixes`, then do not deploy an environment for branch
 
-Example: only deploy branches named 'prod' or 'qa'
+Example: do not deploy branches with names starting with (or completely named) 'test' or 'dev'.
 ```yaml
 ---
 sources:
   mysource:
     basedir: '/etc/puppet/environments'
-    branch_filter: '^(prod)|(qa)$'
+    ignore_branch_prefixes:
+      - 'test'
+      - 'dev'
 ```
 
 Examples
@@ -477,46 +480,3 @@ This will create the following directory structure:
 |-- app1_production  # app1 data repository, production branch
 |-- app1_develop     # app1 data repository, develop branch
 ```
-
-### Filtering branches
-
-#### Filtering branches - Exclude branches with a prefix
-
-If you would like to filter out all branches starting with and including "dev-".
-
-```yaml
----
-sources:
-  app1_data:
-    remote: 'git://git-server.site/my-org/app1-hieradata'
-    basedir: '/etc/puppet/hieradata'
-    branch_filter: '^(?!dev-).*$'
-```
-
-#### Filter branches - Include branches with a prefix
-
-If you would like to only deploy branches starting with a prefix "prod-" followed by word characters. Note: this does NOT match the "prod-" branch exactly due to the \w+.
-
-```yaml
----
-sources:
-  app1_data:
-    remote: 'git://git-server.site/my-org/app1-hieradata'
-    basedir: '/etc/puppet/hieradata'
-    branch_filter: '^(prod-)\w+$'
-```
-
-#### Filter branches - Match branches exactly
-
-If you would like to only deploy branches whose name matches exactly to 'master', or 'production'.
-
-```yaml
----
-sources:
-  app1_data:
-    remote: 'git://git-server.site/my-org/app1-hieradata'
-    basedir: '/etc/puppet/hieradata'
-    branch_filter: '^(master)|(production)$'
-```
-
-
