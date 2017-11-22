@@ -85,6 +85,15 @@ describe R10K::Source::Git do
       expect(environments[1].dirname).to eq 'production'
     end
   end
+
+  describe "filtering branches with ignore prefixes" do
+    let(:branches) { ['master', 'development', 'production', 'dev-test', 'dev', 'test_2'] }
+    let(:ignore_prefixes) { ['dev', 'test'] }
+
+    it "filters branches" do
+      expect(subject.filter_branches(branches, ignore_prefixes)).to eq(['master', 'production'])
+    end
+  end
 end
 
 describe R10K::Source::Git, "handling invalid branch names" do
