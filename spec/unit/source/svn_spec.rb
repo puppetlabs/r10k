@@ -62,44 +62,32 @@ describe R10K::Source::SVN do
     end
   end
 
-  describe "generating environments with branch filter" do
-    before do
-      allow(subject.svn_remote).to receive(:branches).and_return ['test', 'development', 'dev-test']
-      subject.instance_variable_set(:@branch_filter, "(dev.*)")
-    end
-
-    let(:environments) { subject.generate_environments }
-
-    it "creates an environment for each branch that matches the filter" do
-      expect(subject.generate_environments.size).to eq(3)
-    end
-
-    it "uses the branch name as the directory by default" do
-      expect(environments[0].name).to eq 'production'
-      expect(environments[1].name).to eq 'development'
-      expect(environments[2].name).to eq 'dev-test'
-    end
-  end
-
   describe "generating environments with branch filter exclude prefix" do
     before do
-      allow(subject.svn_remote).to receive(:branches).and_return ['test', 'development', 'dev-test']
-      subject.instance_variable_set(:@branch_filter, "^(?!dev-)\\w+$")
+      allow(subject.svn_remote).to receive(:branches).and_return ['master', 'development', 'dev-test', 'dev', 'test_2']
+      subject.instance_variable_set(:@ignore_branch_prefixes, ['dev', 'test'])
     end
 
     let(:environments) { subject.generate_environments }
 
-    it "creates an environment for each branch that matches the filter" do
-      expect(subject.generate_environments.size).to eq(3)
+    it "creates an environment for each branch not in ignore_branch_prefixes" do
+      expect(subject.generate_environments.size).to eq(2)
     end
 
     it "uses the branch name as the directory by default" do
       expect(environments[0].name).to eq 'production'
-      expect(environments[1].name).to eq 'test'
-      expect(environments[2].name).to eq 'development'
+      expect(environments[1].name).to eq 'master'
     end
   end
 
+  describe "filtering branches with ignore prefixes" do
+    let(:branches) { ['master', 'development', 'production', 'dev-test', 'dev', 'test_2'] }
+    let(:ignore_prefixes) { ['dev', 'test'] }
+
+    it "filters branches" do
+      expect(subject.filter_branches(branches, ignore_prefixes)).to eq(['master', 'production'])
+    end
+  end
 end
 
 describe R10K::Source::SVN, 'when prefixing is enabled' do
