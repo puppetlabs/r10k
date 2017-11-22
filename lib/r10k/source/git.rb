@@ -36,10 +36,10 @@ class R10K::Source::Git < R10K::Source::Base
   #     Puppet environments will be handled.
   attr_reader :invalid_branches
 
-  # @!attribute [r] branch_filter
-  #   @return [String] Regex used to match branches from the repository that
+  # @!attribute [r] ignore_branch_prefixes
+  #   @return [Array<String>] Array of strings used to remove repository branches
   #     that will be deployed as environments.
-  attr_reader :branch_filter
+  attr_reader :ignore_branch_prefixes
   
   # Initialize the given source.
   #
@@ -60,7 +60,7 @@ class R10K::Source::Git < R10K::Source::Base
 
     @remote           = options[:remote]
     @invalid_branches = (options[:invalid_branches] || 'correct_and_warn')
-    @branch_filter    = options[:branch_filter]
+    @ignore_branch_prefixes    = options[:ignore_branch_prefixes]
 
     @cache  = R10K::Git.cache.generate(@remote)
   end
@@ -117,23 +117,23 @@ class R10K::Source::Git < R10K::Source::Base
 
   private
 
-  def filter_branches(branches, filter)
-      branches = branches.select do |branch|
-        result = filter.match(branch)
-        if result.nil?
-          logger.warn _("Branch %{branch} filtered out by branch_filter regex %{regex}") % {branch: branch, regex: @branch_filter}
-        end
-        result
+  def filter_branches(branches, ignore_prefixes)
+    filter = Regexp.new("^(#{ignore_prefixes.join('|')}).?")
+    branches = branches.select do |branch|
+      result = filter.match(branch)
+      if result
+        logger.warn _("Branch %{branch} filtered out by ignore_branch_prefixes %{ibp}") % {branch: branch, ibp: @ignore_branch_prefixes}
       end
-      branches
+      !result
+    end
+    branches
   end
 
   def branch_names
     opts = {:prefix => @prefix, :invalid => @invalid_branches, :source => @name}
     branches = @cache.branches
-    if @branch_filter && !@branch_filter.empty?
-      filter = Regexp.new(@branch_filter)
-      branches = filter_branches(branches, filter)
+    if @ignore_branch_prefixes && !@ignore_branch_prefixes.empty?
+      branches = filter_branches(branches, @ignore_branch_prefixes)
     end
     branches.map do |branch|
       R10K::Environment::Name.new(branch, opts)
