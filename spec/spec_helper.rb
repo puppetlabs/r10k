@@ -1,5 +1,15 @@
 PROJECT_ROOT = File.expand_path('..', File.dirname(__FILE__))
 
+def fixtures
+  @fixtures || begin
+    File.join(File.dirname(__FILE__), 'fixtures')
+  end
+end
+
+def puppetfile_fixtures
+  File.join(fixtures, 'unit', 'puppetfile')
+end
+
 if ENV['COVERAGE']
   require 'simplecov'
   SimpleCov.start do

@@ -16,7 +16,8 @@ class R10K::Module::Forge < R10K::Module::Base
     !!(name.match %r[\w+[/-]\w+]) && valid_version?(args)
   end
 
-  def self.valid_version?(expected_version)
+  def self.valid_version?(version_args)
+    expected_version = version_args.class == Hash ? version_args[:version] : version_args
     expected_version == :latest || expected_version.nil? || SemanticPuppet::Version.valid?(expected_version)
   end
 
@@ -34,11 +35,10 @@ class R10K::Module::Forge < R10K::Module::Base
 
   def initialize(title, dirname, expected_version, environment=nil)
     super
-
     @metadata_file = R10K::Module::MetadataFile.new(path + 'metadata.json')
     @metadata = @metadata_file.read
-
-    @expected_version = expected_version || current_version || :latest
+    version = expected_version.class == Hash ? expected_version[:version] : expected_version
+    @expected_version = version || current_version || :latest
     @v3_module = PuppetForge::V3::Module.new(:slug => @title)
   end
 

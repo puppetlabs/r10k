@@ -20,7 +20,7 @@ module R10K
         include R10K::Action::Visitor
 
         def visit_puppetfile(pf)
-          pf.load!
+          pf.desired_contents
           yield
           pf.purge!
         end

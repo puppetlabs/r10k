@@ -2,12 +2,17 @@ require 'pathname'
 require 'r10k/module'
 require 'r10k/util/purgeable'
 require 'r10k/errors'
+require 'r10k/formatter/base_formatter'
+require 'r10k/formatter/classic_puppetfile'
+
+require 'r10k/plugin_loader'
 
 module R10K
 class Puppetfile
   # Defines the data members of a Puppetfile
 
   include R10K::Logging
+  include R10K::PluginLoader
 
   # @!attribute [r] forge
   #   @return [String] The URL to use for the Puppet Forge
@@ -33,6 +38,9 @@ class Puppetfile
   #   @return [R10K::Environment] Optional R10K::Environment that this Puppetfile belongs to.
   attr_accessor :environment
 
+  attr_accessor :formatter
+
+
   # @param [String] basedir
   # @param [String] moduledir The directory to install the modules, default to #{basedir}/modules
   # @param [String] puppetfile_path The path to the Puppetfile, default to #{basedir}/Puppetfile
@@ -42,45 +50,11 @@ class Puppetfile
     @moduledir       = moduledir  || File.join(basedir, 'modules')
     @puppetfile_name = puppetfile_name || 'Puppetfile'
     @puppetfile_path = puppetfile_path || File.join(basedir, @puppetfile_name)
-
     logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile_path}
 
     @modules = []
     @managed_content = {}
     @forge   = 'forgeapi.puppetlabs.com'
-
-    @loaded = false
-  end
-
-  def load
-    if File.readable? @puppetfile_path
-      self.load!
-    else
-      logger.debug _("Puppetfile %{path} missing or unreadable") % {path: @puppetfile_path.inspect}
-    end
-  end
-
-  def load!
-    dsl = R10K::Puppetfile::DSL.new(self)
-    dsl.instance_eval(puppetfile_contents, @puppetfile_path)
-    validate_no_duplicate_names(@modules)
-    @loaded = true
-  rescue SyntaxError, LoadError, ArgumentError, NameError => e
-    raise R10K::Error.wrap(e, _("Failed to evaluate %{path}") % {path: @puppetfile_path})
-  end
-
-  # @param [Array<String>] modules
-  def validate_no_duplicate_names(modules)
-    dupes = modules
-            .group_by { |mod| mod.name }
-            .select { |_, v| v.size > 1 }
-            .map(&:first)
-    unless dupes.empty?
-      msg = _('Puppetfiles cannot contain duplicate module names.')
-      msg += ' '
-      msg += _("Remove the duplicates of the following modules: %{dupes}" % { dupes: dupes.join(' ') })
-      raise R10K::Error.new(msg)
-    end
   end
 
   # @param [String] forge
@@ -109,30 +83,56 @@ class Puppetfile
 
     # Keep track of all the content this Puppetfile is managing to enable purging.
     @managed_content[install_path] = Array.new unless @managed_content.has_key?(install_path)
-
     mod = R10K::Module.new(name, install_path, args, @environment)
 
     @managed_content[install_path] << mod.name
     @modules << mod
   end
 
+
+  def loaded?
+    ! @managed_content.empty?
+  end
+
   include R10K::Util::Purgeable
 
   def managed_directories
-    self.load unless @loaded
-
+    formatter.load_content unless loaded?
+    # the managed_content is populated during the loading of the content
     @managed_content.keys
+  end
+
+  # @return [R10K::Formatter::BaseFormmater] - the formatter found by cycling through each formatter for a compatible type
+  # @note While we currently load self inside the formatter, we should instead reverse this allow the base formatter
+  # to create a contract for all other formatters in which this class should then utilize
+  # This was done intentionally to not have to perform a major refactor of this class
+  # @note if no formatter was found with the formatter_type specified, we default to the classic format that we all know and love
+  def formatter
+    begin
+      @formatter ||= first_formatter(puppetfile_path).new(puppetfile_path, self)
+    rescue R10K::NoFormatterError => e
+      # no puppetfile found with the format type specified, switching to default
+      @formatter = R10K::Formatter::ClassicPuppetfile.new(puppetfile_path, self)
+    end
   end
 
   # Returns an array of the full paths to all the content being managed.
   # @note This implements a required method for the Purgeable mixin
   # @return [Array<String>]
   def desired_contents
-    self.load unless @loaded
-
+    formatter.load_content unless loaded?
+    # the managed_content is populated during the loading of the content
     @managed_content.flat_map do |install_path, modnames|
       modnames.collect { |name| File.join(install_path, name) }
     end
+  end
+
+  # @return [Array<String>] - loads the contents of the puppet file which produces a list of modules
+  def modules
+    unless @modules.empty?
+      formatter.load_content unless loaded?
+    end
+    @modules
   end
 
   def purge_exclusions
@@ -155,10 +155,6 @@ class Puppetfile
 
   private
 
-  def puppetfile_contents
-    File.read(@puppetfile_path)
-  end
-
   def resolve_install_path(path)
     pn = Pathname.new(path)
 
@@ -180,32 +176,6 @@ class Puppetfile
     end
 
     true
-  end
-
-  class DSL
-    # A barebones implementation of the Puppetfile DSL
-    #
-    # @api private
-
-    def initialize(librarian)
-      @librarian = librarian
-    end
-
-    def mod(name, args = nil)
-      @librarian.add_module(name, args)
-    end
-
-    def forge(location)
-      @librarian.set_forge(location)
-    end
-
-    def moduledir(location)
-      @librarian.set_moduledir(location)
-    end
-
-    def method_missing(method, *args)
-      raise NoMethodError, _("unrecognized declaration '%{method}'") % {method: method}
-    end
   end
 end
 end
