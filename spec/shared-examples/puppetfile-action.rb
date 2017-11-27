@@ -31,8 +31,8 @@ shared_examples_for "a puppetfile install action" do
       described_class.new({moduledir: "/some/nonexistent/path/modules"}, [])
     end
 
-    it "accepts the :update_force option" do
-      described_class.new({update_force: true}, [])
+    it "accepts the :force option" do
+      described_class.new({force: true}, [])
     end
 
   end
