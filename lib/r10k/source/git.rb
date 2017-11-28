@@ -116,7 +116,7 @@ class R10K::Source::Git < R10K::Source::Base
   end
 
   def filter_branches(branches, ignore_prefixes)
-    filter = Regexp.new("^(#{ignore_prefixes.join('|')})")
+    filter = Regexp.new("^#{Regexp.union(ignore_prefixes)}")
     branches = branches.reject do |branch|
       result = filter.match(branch)
       if result

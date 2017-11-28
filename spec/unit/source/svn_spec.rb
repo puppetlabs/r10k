@@ -62,30 +62,31 @@ describe R10K::Source::SVN do
     end
   end
 
-  describe "generating environments with branch filter exclude prefix" do
+  describe "generate_environments respects ignore_branch_prefixes setting" do
     before do
-      allow(subject.svn_remote).to receive(:branches).and_return ['master', 'development', 'dev-test', 'dev', 'test_2']
+      allow(subject.svn_remote).to receive(:branches).and_return ['master', 'development', 'not_dev_test_me', 'dev_test', 'dev', 'test_2']
       subject.instance_variable_set(:@ignore_branch_prefixes, ['dev', 'test'])
     end
 
     let(:environments) { subject.generate_environments }
 
     it "creates an environment for each branch not in ignore_branch_prefixes" do
-      expect(subject.generate_environments.size).to eq(2)
+      expect(subject.generate_environments.size).to eq(3)
     end
 
     it "uses the branch name as the directory by default" do
       expect(environments[0].name).to eq 'production'
       expect(environments[1].name).to eq 'master'
+      expect(environments[2].name).to eq 'not_dev_test_me'
     end
   end
 
   describe "filtering branches with ignore prefixes" do
-    let(:branches) { ['master', 'development', 'production', 'dev-test', 'dev', 'test_2'] }
+    let(:branches) { ['master', 'development', 'production', 'not_dev_test_me', 'dev_test', 'dev', 'test_2'] }
     let(:ignore_prefixes) { ['dev', 'test'] }
 
     it "filters branches" do
-      expect(subject.filter_branches(branches, ignore_prefixes)).to eq(['master', 'production'])
+      expect(subject.filter_branches(branches, ignore_prefixes)).to eq(['master', 'production', 'not_dev_test_me'])
     end
   end
 end
