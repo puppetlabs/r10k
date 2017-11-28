@@ -10,7 +10,16 @@ module R10K
 
         include R10K::Action::Deploy::DeployHelpers
 
-        attr_reader :no_force
+        attr_reader :force
+
+        def initialize(opts, argv, settings = nil)
+          settings ||= {}
+
+          super
+
+          # @force here is used to make it easier to reason about
+          @force = !@no_force
+        end
 
         def call
           @visit_ok = true
@@ -52,8 +61,7 @@ module R10K
         def visit_module(mod)
           if @argv.include?(mod.name)
             logger.info _("Deploying module %{mod_path}") % {mod_path: mod.path}
-            # no_force here is the opposite of the expceted value of force
-            mod.sync(force: !@no_force)
+            mod.sync(force: @force)
           else
             logger.debug1(_("Only updating modules %{modules}, skipping module %{mod_name}") % {modules: @argv.inspect, mod_name: mod.name})
           end

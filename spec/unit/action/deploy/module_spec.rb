@@ -24,7 +24,7 @@ describe R10K::Action::Deploy::Module do
     subject { described_class.new({ config: "/some/nonexistent/path", no_force: true}, [] )}
 
     it "tries to preserve local modifications" do
-      expect(subject.no_force).to equal(true)
+      expect(subject.force).to equal(false)
     end
   end
 end

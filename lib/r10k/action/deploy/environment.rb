@@ -13,7 +13,7 @@ module R10K
 
         include R10K::Action::Deploy::DeployHelpers
 
-        attr_reader :no_force
+        attr_reader :force
 
         def initialize(opts, argv, settings = nil)
           settings ||= {}
@@ -22,6 +22,8 @@ module R10K
 
           super
 
+          # @force here is used to make it easier to reason about
+          @force = !@no_force
           @argv = @argv.map { |arg| arg.gsub(/\W/,'_') }
         end
 
@@ -119,8 +121,7 @@ module R10K
 
         def visit_module(mod)
           logger.info _("Deploying Puppetfile content %{mod_path}") % {mod_path: mod.path}
-          # no_force here is the opposite of the expected value of force.
-          mod.sync(force: !@no_force)
+          mod.sync(force: @force)
         end
 
         def write_environment_info!(environment, started_at, success)
