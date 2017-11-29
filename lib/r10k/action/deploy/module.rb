@@ -68,7 +68,7 @@ module R10K
         end
 
         def allowed_initialize_opts
-          super.merge(environment: true, no_force: :self)
+          super.merge(environment: true, 'no-force': :self)
         end
       end
     end

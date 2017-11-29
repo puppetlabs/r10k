@@ -146,7 +146,7 @@ module R10K
         end
 
         def allowed_initialize_opts
-          super.merge(puppetfile: :self, cachedir: :self, no_force: :self)
+          super.merge(puppetfile: :self, cachedir: :self, 'no-force': :self)
         end
       end
     end

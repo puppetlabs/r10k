@@ -19,8 +19,8 @@ describe R10K::Action::Deploy::Environment do
       described_class.new({puppetfile: true}, [])
     end
 
-    it "can accept a no_force option" do
-      described_class.new({no_force: true}, [])
+    it "can accept a no-force option" do
+      described_class.new({'no-force': true}, [])
     end
 
     it "normalizes environment names in the arg vector"
@@ -57,12 +57,16 @@ describe R10K::Action::Deploy::Environment do
       end
     end
 
-    describe "with no_force" do
+    describe "with no-force" do
 
-      subject { described_class.new({ config: "/some/nonexistent/path", puppetfile: true, no_force: true}, %w[first]) }
+      subject { described_class.new({ config: "/some/nonexistent/path", puppetfile: true, 'no-force': true}, %w[first]) }
 
       it "tries to preserve local modifications" do
         expect(subject.force).to equal(false)
+      end
+
+      it "logs that a modified environment is skipped when 'no-force' is true" do
+          
       end
     end
 
