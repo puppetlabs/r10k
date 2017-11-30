@@ -36,6 +36,11 @@ class R10K::Source::Git < R10K::Source::Base
   #     Puppet environments will be handled.
   attr_reader :invalid_branches
 
+  # @!attribute [r] ignore_branch_prefixes
+  #   @return [Array<String>] Array of strings used to remove repository branches
+  #     that will be deployed as environments.
+  attr_reader :ignore_branch_prefixes
+
   # Initialize the given source.
   #
   # @param name [String] The identifier for this source.
@@ -53,8 +58,9 @@ class R10K::Source::Git < R10K::Source::Base
 
     @environments = []
 
-    @remote           = options[:remote]
+    @remote = options[:remote]
     @invalid_branches = (options[:invalid_branches] || 'correct_and_warn')
+    @ignore_branch_prefixes = options[:ignore_branch_prefixes]
 
     @cache  = R10K::Git.cache.generate(@remote)
   end
@@ -109,11 +115,27 @@ class R10K::Source::Git < R10K::Source::Base
     environments.map {|env| env.dirname }
   end
 
+  def filter_branches(branches, ignore_prefixes)
+    filter = Regexp.new("^#{Regexp.union(ignore_prefixes)}")
+    branches = branches.reject do |branch|
+      result = filter.match(branch)
+      if result
+        logger.warn _("Branch %{branch} filtered out by ignore_branch_prefixes %{ibp}") % {branch: branch, ibp: @ignore_branch_prefixes}
+      end
+      result
+    end
+    branches
+  end
+
   private
 
   def branch_names
     opts = {:prefix => @prefix, :invalid => @invalid_branches, :source => @name}
-    @cache.branches.map do |branch|
+    branches = @cache.branches
+    if @ignore_branch_prefixes && !@ignore_branch_prefixes.empty?
+      branches = filter_branches(branches, @ignore_branch_prefixes)
+    end
+    branches.map do |branch|
       R10K::Environment::Name.new(branch, opts)
     end
   end
