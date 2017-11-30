@@ -15,13 +15,13 @@ describe R10K::Action::Deploy::Module do
     end
 
     it "can accept a no-force option" do
-      described_class.new({'no-force': true}, [])
+      described_class.new({:'no-force' => true}, [])
     end
   end
 
   describe "with no-force" do
 
-    subject { described_class.new({ config: "/some/nonexistent/path", 'no-force': true}, [] )}
+    subject { described_class.new({ config: "/some/nonexistent/path", :'no-force' => true}, [] )}
 
     it "tries to preserve local modifications" do
       expect(subject.force).to equal(false)
