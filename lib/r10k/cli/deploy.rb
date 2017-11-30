@@ -22,6 +22,7 @@ module R10K::CLI
         DESCRIPTION
 
         required nil, :cachedir, 'Specify a cachedir, overriding the value in config'
+        flag nil, :'no-force', 'Prevent the overwriting of local module modifications'
 
         run do |opts, args, cmd|
           puts cmd.help(:verbose => opts[:verbose])
