@@ -33,6 +33,7 @@ Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
           required nil, :moduledir, 'Path to install modules to'
           required nil, :puppetfile, 'Path to puppetfile'
           flag     nil, :force, 'Force locally changed files to be overwritten'
+          flag     nil, :'no-force', 'Don\'t overwrite locally changed files (default)'
           runner R10K::Action::Puppetfile::CriRunner.wrap(R10K::Action::Puppetfile::Install)
         end
       end

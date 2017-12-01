@@ -26,7 +26,7 @@ module R10K
         end
 
         def visit_module(mod)
-          @force ||= false
+          @force = false if @force.nil?
           logger.info _("Updating module %{mod_path}") % {mod_path: mod.path}
 
           if mod.respond_to?(:desired_ref) && mod.desired_ref == :control_branch
@@ -37,7 +37,7 @@ module R10K
         end
 
         def allowed_initialize_opts
-          super.merge(root: :self, puppetfile: :self, moduledir: :self, force: :self )
+          super.merge(root: :self, puppetfile: :self, moduledir: :self, force: :boolean)
         end
       end
     end
