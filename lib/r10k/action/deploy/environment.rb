@@ -22,8 +22,9 @@ module R10K
 
           super
 
-          # @force here is used to make it easier to reason about
-          @force = !@no_force
+          # If neither --force nor --no-force was specified, set a default
+          @force = true if @force.nil?
+
           @argv = @argv.map { |arg| arg.gsub(/\W/,'_') }
         end
 
@@ -146,7 +147,7 @@ module R10K
         end
 
         def allowed_initialize_opts
-          super.merge(puppetfile: :self, cachedir: :self, :'no-force' => :self)
+          super.merge(puppetfile: :self, cachedir: :self, :force => :boolean)
         end
       end
     end

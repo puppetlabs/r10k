@@ -17,8 +17,8 @@ module R10K
 
           super
 
-          # @force here is used to make it easier to reason about
-          @force = !@no_force
+          # If neither --force nor --no-force was specified, set a default
+          @force = true if @force.nil?
         end
 
         def call
@@ -68,7 +68,7 @@ module R10K
         end
 
         def allowed_initialize_opts
-          super.merge(environment: true, :'no-force' => :self)
+          super.merge(environment: true, :force => :boolean)
         end
       end
     end

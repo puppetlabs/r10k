@@ -18,6 +18,15 @@ describe R10K::Util::Setopts do
     end
   end
 
+  let(:normalize_boolean_opts_spec) do
+    Class.new do
+      include R10K::Util::Setopts
+      def test(opts, allowed)
+        normalize_boolean_opts(opts, allowed)
+      end
+    end
+  end
+
   it "can handle an empty hash of options" do
     o = klass.new()
     expect(o.valid).to be_nil
@@ -55,5 +64,26 @@ describe R10K::Util::Setopts do
 
   it "ignores values that are marked as unhandled" do
     klass.new(:ignoreme => "IGNORE ME!")
+  end
+
+  it "normalizes boolean opts" do
+    result = normalize_boolean_opts_spec.new.test(
+      Hash[{
+        :flag1 => true,
+        :'no-flag2' => true,
+        :other => :value,
+      }],
+      Hash[{
+        :flag1 => :boolean,
+        :flag2 => :boolean,
+        :other => :self,
+      }]
+    )
+
+    expect(result).to eq Hash[{
+      :flag1 => true,
+      :flag2 => false,
+      :other => :value,
+    }]
   end
 end
