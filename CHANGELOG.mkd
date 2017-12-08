@@ -1,6 +1,26 @@
 CHANGELOG
 =========
 
+2.6.0
+-----
+
+### New Features
+
+(RK-307) Branches can now be ignored by prefixes during deployment.
+
+(RK-305) Add --no-force to deploy action to avoid overwriting local module changes.
+
+(RK-264) Add --force action to puppetfile install to force overwriting local
+module changes.
+
+(RK-291) (RK-304) Add caching of forge modules.
+
+### Changes
+
+(RK-306) Remove the dependency on semantic_puppet.
+
+(RK-161) Deprecate the usage of PUPPETFILE and PUPPETFILE_DIR environment variables.
+
 2.5.5
 -----
 
