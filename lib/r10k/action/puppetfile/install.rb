@@ -21,8 +21,23 @@ module R10K
 
         def visit_puppetfile(pf)
           pf.load!
+
+          original_forge = PuppetForge.host
+
+          if !pf.forge.nil?
+            if @settings[:forge][:allow_override]
+              logger.notice _("Using 'forge' value of '%{newforge}' declared in '%{puppetfile}'") % {puppetfile: pf.puppetfile_path, newforge: pf.forge}
+              PuppetForge.host = pf.forge
+            else
+              logger.notice _("Ignoring 'forge' value declared in '%{puppetfile}'") % {puppetfile: pf.puppetfile_path}
+            end
+          end
+
           yield
+
           pf.purge!
+        ensure
+          PuppetForge.host = original_forge
         end
 
         def visit_module(mod)

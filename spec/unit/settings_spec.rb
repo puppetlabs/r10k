@@ -90,6 +90,22 @@ describe R10K::Settings do
         end
       end
     end
+    describe "allow_override" do
+      it "defaults to false" do
+        output = subject.evaluate({})
+        expect(output[:allow_override]).to eq false
+      end
+
+      it "recognizes the string 'true' as boolean true" do
+        output = subject.evaluate("allow_override" => "true")
+        expect(output[:allow_override]).to eq true
+      end
+
+      it "treats all values other than 'true' as false" do
+        output = subject.evaluate("allow_override" => "yes")
+        expect(output[:allow_override]).to eq false
+      end
+    end
   end
 
   describe "deploy settings" do
@@ -192,7 +208,7 @@ describe R10K::Settings do
     describe "forge settings" do
       it "passes settings through to the forge settings" do
         output = subject.evaluate("forge" => {"baseurl" => "https://forge.tessier-ashpool.freeside", "proxy" => "https://proxy.tessier-ashpool.freesize:3128"})
-        expect(output[:forge]).to eq(:baseurl => "https://forge.tessier-ashpool.freeside", :proxy => "https://proxy.tessier-ashpool.freesize:3128")
+        expect(output[:forge]).to include(:baseurl => "https://forge.tessier-ashpool.freeside", :proxy => "https://proxy.tessier-ashpool.freesize:3128")
       end
     end
   end

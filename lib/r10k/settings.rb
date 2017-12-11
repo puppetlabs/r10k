@@ -70,6 +70,12 @@ module R10K
         URIDefinition.new(:baseurl, {
           :desc => "The URL to the Puppet Forge to use for downloading modules."
         }),
+
+        Definition.new(:allow_override, {
+          :desc => "Whether or not to allow the Forge URL to be overridden by a 'forge' directive inside an environment Puppetfile.",
+          :default => lambda { false },
+          :normalize => lambda { |v| v.to_s.strip == 'true' },
+        }),
       ])
     end
 

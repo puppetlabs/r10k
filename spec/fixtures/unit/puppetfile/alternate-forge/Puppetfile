@@ -1,0 +1,3 @@
+forge 'http://forge.example.com/'
+
+mod 'puppetlabs/stdlib'

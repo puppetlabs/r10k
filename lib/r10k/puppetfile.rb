@@ -50,7 +50,6 @@ class Puppetfile
 
     @modules = []
     @managed_content = {}
-    @forge   = 'forgeapi.puppetlabs.com'
 
     @loaded = false
   end
@@ -74,6 +73,9 @@ class Puppetfile
 
   # @param [String] forge
   def set_forge(forge)
+    unless @forge.nil?
+      raise R10K::Error.new(_('You cannot declare multiple \'forge\' settings in the same Puppetfile'))
+    end
     @forge = forge
   end
 

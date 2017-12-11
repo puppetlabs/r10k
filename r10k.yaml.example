@@ -104,3 +104,8 @@ forge:
   # The 'baseurl' setting indicates where Forge modules should be installed
   # from. This defaults to 'https://forgeapi.puppetlabs.com'
   #baseurl: 'https://forgemirror.example.com'
+
+  # The 'allow_override' setting controls whether or not to allow the Forge
+  # 'baseurl' to be overridden by a 'forge' directive inside a Puppetfile.
+  # This defaults to 'false'.
+  #allow_override: true

@@ -9,6 +9,7 @@ describe R10K::Action::Puppetfile::Install do
 
   before(:each) do
     allow(puppetfile).to receive(:load!).and_return(nil)
+    allow(puppetfile).to receive(:forge).and_return(nil)
     allow(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, nil, nil, nil).and_return(puppetfile)
   end
 

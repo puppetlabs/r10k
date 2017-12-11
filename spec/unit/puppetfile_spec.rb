@@ -181,6 +181,14 @@ describe R10K::Puppetfile do
       subject = described_class.new(path)
       expect { subject.load! }.not_to raise_error
     end
+
+    it "accepts alternate forge" do
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'alternate-forge')
+      pf_path = File.join(path, 'Puppetfile')
+      subject = described_class.new(path)
+      expect { subject.load! }.not_to raise_error
+      expect(subject).to have_attributes(:forge => 'http://forge.example.com/')
+    end
   end
 
   describe "accepting a visitor" do
