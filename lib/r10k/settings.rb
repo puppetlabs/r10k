@@ -128,7 +128,12 @@ module R10K
         }),
         Definition.new(:authorization_token, {
           :desc => "The token for Puppet Forge authorization. Leave blank for unauthorized or license-based connections."
-        })
+        }),
+        Definition.new(:allow_override, {
+          :desc => "Whether or not to allow the Forge URL to be overridden by a 'forge' directive inside an environment Puppetfile.",
+          :default => lambda { false },
+          :normalize => lambda { |v| v.to_s.strip == 'true' },
+        }),
       ])
     end
 

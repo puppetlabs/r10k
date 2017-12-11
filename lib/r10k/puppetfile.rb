@@ -134,6 +134,28 @@ class Puppetfile
     @loaded_content[:modules]
   end
 
+  # @param [String] forge
+  def set_forge(forge)
+    unless @forge.nil?
+      raise R10K::Error.new(_('You cannot declare multiple \'forge\' settings in the same Puppetfile'))
+    end
+    @forge = forge
+  end
+
+  # @param [Array<String>] modules
+  def validate_no_duplicate_names(modules)
+    dupes = modules
+            .group_by { |mod| mod.name }
+            .select { |_, v| v.size > 1 }
+            .map(&:first)
+    unless dupes.empty?
+      msg = _('Puppetfiles cannot contain duplicate module names.')
+      msg += ' '
+      msg += _("Remove the duplicates of the following modules: %{dupes}" % { dupes: dupes.join(' ') })
+      raise R10K::Error.new(msg)
+    end
+  end
+
   # @see R10K::ModuleLoader::Puppetfile#add_module for upcoming signature changes
   def add_module(name, args)
     @loader.add_module(name, args)
