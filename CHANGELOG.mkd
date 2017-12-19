@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+2.6.1
+-----
+
+### Bug Fixes
+
+(RK-310) Fix ChecksumMismatch error on Windows for forge caching.
+
 2.6.0
 -----
 
