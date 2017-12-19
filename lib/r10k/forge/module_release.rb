@@ -108,7 +108,7 @@ module R10K
       def verify
         logger.debug1 "Verifying that #{@tarball_cache_path} matches checksum"
 
-        md5_of_tarball = Digest::MD5.hexdigest(File.read(@tarball_cache_path))
+        md5_of_tarball = Digest::MD5.hexdigest(File.read(@tarball_cache_path, mode: 'rb'))
 
         if @md5_file_path.exist?
           verify_from_md5_file(md5_of_tarball)
