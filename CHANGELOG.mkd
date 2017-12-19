@@ -1,6 +1,9 @@
 CHANGELOG
 =========
 
+**NOTE** - CHANGELOG is only assured to be up to date for a particular branch
+when a release is made on that branch.
+
 2.5.5
 -----
 
