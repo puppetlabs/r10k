@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+2.6.2
+-----
+### Changes
+
+(RK-311) Yard dependency updated for security fix.
+
 2.6.1
 -----
 
