@@ -8,9 +8,9 @@ require 'r10k/git/shellgit/working_repository'
 # making new clones very lightweight.
 class R10K::Git::ShellGit::ThinRepository < R10K::Git::ShellGit::WorkingRepository
 
-  def initialize(basedir, dirname, cache_repo)
+  def initialize(basedir, dirname, gitdirname, cache_repo)
     @cache_repo = cache_repo
-    super(basedir, dirname)
+    super(basedir, dirname, gitdirname)
   end
 
   # Clone this git repository
@@ -36,11 +36,11 @@ class R10K::Git::ShellGit::ThinRepository < R10K::Git::ShellGit::WorkingReposito
 
   # @return [String] The origin remote URL
   def cache
-    git(['config', '--get', 'remote.cache.url'], :path => @path.to_s, :raise_on_fail => false).stdout
+    git(['config', '--get', 'remote.cache.url'], :raise_on_fail => false).stdout
   end
 
   def tracked_paths(ref="HEAD")
-    git(['ls-tree', '-t', '-r', '--name-only', ref], :path => @path.to_s).stdout.split("\n")
+    git(['ls-tree', '-t', '-r', '--name-only', ref]).stdout.split("\n")
   end
 
   private
