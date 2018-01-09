@@ -51,6 +51,10 @@ module R10K
               :desc => "An optional proxy server to use when interacting with Git sources via HTTP(S).",
               :default => :inherit,
             }),
+            
+            Definition.new(:ignore_branch_prefixes, {
+              :desc => "Array of strings used to prefix branch names that will not be deployed as environments.",
+            }),
           ])
         },
         {

@@ -7,6 +7,9 @@ module R10K
       #
       # @api private
       class CriRunner < R10K::Action::CriRunner
+
+        include R10K::Logging
+
         def handle_opts(opts)
           opts[:root]       ||= wd
           super(opts)

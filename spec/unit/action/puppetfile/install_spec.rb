@@ -12,10 +12,10 @@ describe R10K::Action::Puppetfile::Install do
 
   before(:each) do
     allow(puppetfile).to receive(:load!).and_return(nil)
-    allow(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, nil).and_return(puppetfile)
+    allow(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, nil, nil, nil).and_return(puppetfile)
   end
 
-  it_behaves_like "a puppetfile action"
+  it_behaves_like "a puppetfile install action"
 
   describe "installing modules" do
     let(:modules) do
@@ -55,15 +55,28 @@ describe R10K::Action::Puppetfile::Install do
 
   describe "using custom paths" do
     it "can use a custom puppetfile path" do
-      expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, "/some/other/path/Puppetfile").and_return(puppetfile)
+      expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, "/some/other/path/Puppetfile", nil, nil).and_return(puppetfile)
 
       installer({puppetfile: "/some/other/path/Puppetfile"}).call
     end
 
     it "can use a custom moduledir path" do
-      expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", "/some/other/path/site-modules", nil).and_return(puppetfile)
+      expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", "/some/other/path/site-modules", nil, nil, nil).and_return(puppetfile)
 
       installer({moduledir: "/some/other/path/site-modules"}).call
     end
+  end
+
+  describe "forcing to overwrite local changes" do
+    before do
+      allow(puppetfile).to receive(:modules).and_return([])
+    end
+
+    it "can use the force overwrite option" do
+      subject = described_class.new({root: "/some/nonexistent/path", force: true}, [])
+      expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, nil, nil, true).and_return(puppetfile)
+      subject.call
+    end
+
   end
 end

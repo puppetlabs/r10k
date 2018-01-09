@@ -6,7 +6,7 @@ require 'r10k/forge/module_release'
 
 require 'pathname'
 require 'fileutils'
-require 'puppet_forge'
+require 'puppet_forge/util'
 
 class R10K::Module::Forge < R10K::Module::Base
 
@@ -17,7 +17,7 @@ class R10K::Module::Forge < R10K::Module::Base
   end
 
   def self.valid_version?(expected_version)
-    expected_version == :latest || expected_version.nil? || SemanticPuppet::Version.valid?(expected_version)
+    expected_version == :latest || expected_version.nil? || PuppetForge::Util.version_valid?(expected_version)
   end
 
   # @!attribute [r] metadata

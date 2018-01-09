@@ -39,9 +39,11 @@ module R10K
             when NilClass, FalseClass
               # Ignore nil options
             when :self, TrueClass
-              instance_variable_set("@#{key}".to_sym, value)
+              # tr here is because instance variables cannot have hyphens in their names.
+              instance_variable_set("@#{key}".tr('-','_').to_sym, value)
             else
-              instance_variable_set("@#{rhs}".to_sym, value)
+              # tr here same as previous
+              instance_variable_set("@#{rhs}".tr('-','_').to_sym, value)
             end
           else
             raise ArgumentError, _("%{class_name} cannot handle option '%{key}'") % {class_name: self.class.name, key: key}

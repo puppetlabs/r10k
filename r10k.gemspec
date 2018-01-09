@@ -28,8 +28,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'log4r',     '1.1.10'
   s.add_dependency 'multi_json', '~> 1.10'
 
-  s.add_dependency 'puppet_forge', '~> 2.2'
-  s.add_dependency 'semantic_puppet', '~> 0.1.0'
+  s.add_dependency 'puppet_forge', '~> 2.2.8'
 
   s.add_dependency 'gettext-setup', '~>0.24'
 
@@ -37,7 +36,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'rake'
 
-  s.add_development_dependency 'yard', '~> 0.8.7.3'
+  s.add_development_dependency 'yard', '~> 0.9.11'
   s.add_development_dependency 'minitar', '~> 0.6.1'
 
   s.files        = %x[git ls-files].split($/)
