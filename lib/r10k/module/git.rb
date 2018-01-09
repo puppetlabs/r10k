@@ -28,7 +28,7 @@ class R10K::Module::Git < R10K::Module::Base
 
     parse_options(@args)
 
-    @repo = R10K::Git::StatefulRepository.new(@remote, @dirname, @name)
+    @repo = R10K::Git::StatefulRepository.new(@remote, @dirname, @name, @gitdirname)
   end
 
   def version
@@ -85,7 +85,7 @@ class R10K::Module::Git < R10K::Module::Base
 
   def parse_options(options)
     ref_opts = [:branch, :tag, :commit, :ref]
-    known_opts = [:git, :default_branch] + ref_opts
+    known_opts = [:git, :gitdirname, :default_branch] + ref_opts
 
     unhandled = options.keys - known_opts
     unless unhandled.empty?
@@ -100,5 +100,7 @@ class R10K::Module::Git < R10K::Module::Base
     if @desired_ref == :control_branch && @environment && @environment.respond_to?(:ref)
       @desired_ref = @environment.ref
     end
+
+    @gitdirname = options[:gitdirname] || '.git'
   end
 end
