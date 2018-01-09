@@ -62,6 +62,40 @@ describe R10K::Source::Git do
       expect(master_env.dirname).to eq 'master'
     end
   end
+
+  describe "generate_environments respects ignore_branch_prefixes setting" do
+    before do
+      allow(subject.cache).to receive(:branches).and_return ['master', 'development', 'production', 'not_dev_test_me', 'dev_test', 'dev', 'test_2']
+      subject.instance_variable_set(:@ignore_branch_prefixes, ['dev', 'test'])
+    end
+
+    let(:environments) { subject.generate_environments }
+
+    it "creates an environment for each branch not in ignore_branch_prefixes" do
+      expect(subject.generate_environments.size).to eq(3)
+    end
+
+    it "copies the source remote to the environment" do
+      expect(environments[0].remote).to eq subject.remote
+      expect(environments[1].remote).to eq subject.remote
+      expect(environments[2].remote).to eq subject.remote
+    end
+
+    it "uses the branch name as the directory by default" do
+      expect(environments[0].dirname).to eq 'master'
+      expect(environments[1].dirname).to eq 'production'
+      expect(environments[2].dirname).to eq 'not_dev_test_me'
+    end
+  end
+
+  describe "filtering branches with ignore prefixes" do
+    let(:branches) { ['master', 'development', 'production', 'not_dev_test_me', 'dev_test', 'dev', 'test_2'] }
+    let(:ignore_prefixes) { ['dev', 'test'] }
+
+    it "filters branches" do
+      expect(subject.filter_branches(branches, ignore_prefixes)).to eq(['master', 'production', 'not_dev_test_me'])
+    end
+  end
 end
 
 describe R10K::Source::Git, "handling invalid branch names" do

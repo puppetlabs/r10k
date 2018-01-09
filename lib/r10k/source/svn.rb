@@ -37,6 +37,11 @@ class R10K::Source::SVN < R10K::Source::Base
   #   @api private
   attr_reader :password
 
+  # @!attribute [r] ignore_branch_prefixes
+  #   @return [Array<String>] Array of strings used to remove repository branches
+  #     that will be deployed as environments.
+  attr_reader :ignore_branch_prefixes
+
   include R10K::Util::Setopts
 
   # Initialize the given source.
@@ -57,6 +62,7 @@ class R10K::Source::SVN < R10K::Source::Base
     setopts(options, {:remote => :self, :username => :self, :password => :self, :puppetfile_name => :self })
     @environments = []
     @svn_remote = R10K::SVN::Remote.new(@remote, :username => @username, :password => @password)
+    @ignore_branch_prefixes = options[:ignore_branch_prefixes]
   end
 
   # Enumerate the environments associated with this SVN source.
@@ -99,18 +105,32 @@ class R10K::Source::SVN < R10K::Source::Base
 
   include R10K::Logging
 
+  def filter_branches(branches, ignore_prefixes)
+    filter = Regexp.new("^(#{ignore_prefixes.join('|')})")
+    branches = branches.reject do |branch|
+      result = filter.match(branch)
+      if result
+        logger.warn _("Branch %{branch} filtered out by ignore_branch_prefixes %{ibp}") % {branch: branch, ibp: @ignore_branch_prefixes}
+      end
+      result
+    end
+    branches
+  end
+
   private
 
   def names_and_paths
     branches = []
-
     opts = {:prefix => @prefix, :correct => false, :validate => false, :source => @name}
-
     branches << [R10K::Environment::Name.new('production', opts), "#{@remote}/trunk"]
-    @svn_remote.branches.each do |branch|
-      branches << [R10K::Environment::Name.new(branch, opts), "#{@remote}/branches/#{branch}"]
+    additional_branch_names = @svn_remote.branches
+    if @ignore_branch_prefixes && !@ignore_branch_prefixes.empty?
+      additional_branch_names = filter_branches(additional_branch_names, @ignore_branch_prefixes)
     end
 
+    additional_branch_names.each do |branch|
+      branches << [R10K::Environment::Name.new(branch, opts), "#{@remote}/branches/#{branch}"]
+    end
     branches
   end
 end
