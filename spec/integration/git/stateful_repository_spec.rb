@@ -6,9 +6,10 @@ describe R10K::Git::StatefulRepository do
   include_context 'Git integration'
 
   let(:dirname) { 'working-repo' }
+  let(:gitdirname) { '.git' }
 
   let(:cacherepo) { R10K::Git.cache.generate(remote) }
-  let(:thinrepo) { R10K::Git.thin_repository.new(basedir, dirname, cacherepo) }
+  let(:thinrepo) { R10K::Git.thin_repository.new(basedir, dirname, gitdirname, cacherepo) }
   let(:ref) { '0.9.x' }
 
   subject { described_class.new(remote, basedir, dirname) }
@@ -21,16 +22,16 @@ describe R10K::Git::StatefulRepository do
     end
 
     describe "when the directory is not a git repository" do
-      it "is mismatched" do
+      it "is uninitialized" do
         thinrepo.path.mkdir
-        expect(subject.status(ref)).to eq :mismatched
+        expect(subject.status(ref)).to eq :uninitialized
       end
     end
 
     describe "when the directory has a .git file" do
       it "is mismatched" do
         thinrepo.path.mkdir
-        File.open("#{thinrepo.path}/.git", "w") {}
+        File.open("#{thinrepo.path}/#{gitdirname}", "w") {}
         expect(subject.status(ref)).to eq :mismatched
       end
     end

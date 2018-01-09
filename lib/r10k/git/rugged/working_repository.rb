@@ -4,15 +4,16 @@ require 'r10k/git/errors'
 
 class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
 
-  # @return [Pathname] The path to the Git repository inside of this directory
-  def git_dir
-    @path + '.git'
-  end
+  # @attribute [r] git_dir
+  #   @return [Pathname]
+  attr_reader :git_dir
 
   # @param basedir [String] The base directory of the Git repository
   # @param dirname [String] The directory name of the Git repository
-  def initialize(basedir, dirname)
-    @path = Pathname.new(File.join(basedir, dirname))
+  # @param gitdirname [String] The relative name of the gitdir
+  def initialize(basedir, dirname, gitdirname = '.git')
+    @path = Pathname.new(File.join(basedir, dirname)).cleanpath
+    @git_dir = Pathname.new(File.join(basedir, dirname, gitdirname)).cleanpath
   end
 
   # Clone this git repository
@@ -34,13 +35,15 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
     # repository. However alternate databases can be handled when an existing
     # repository is loaded, so loading a cloned repo will correctly use
     # alternate object database.
-    options = {:credentials => credentials}
+    options = {:credentials => credentials, :bare => true}
     options.merge!(:alternates => [File.join(opts[:reference], 'objects')]) if opts[:reference]
 
     proxy = R10K::Git.get_proxy_for_remote(remote)
 
     R10K::Git.with_proxy(proxy) do
-      @_rugged_repo = ::Rugged::Repository.clone_at(remote, @path.to_s, options)
+      @_rugged_repo = ::Rugged::Repository.clone_at(remote, @git_dir.to_s, options)
+      @_rugged_repo.workdir = @path.to_s
+      @_rugged_repo.checkout(@_rugged_repo.head.canonical_name)
     end
 
     if opts[:reference]
@@ -53,7 +56,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
       checkout(opts[:ref])
     end
   rescue Rugged::SshError, Rugged::NetworkError => e
-    raise R10K::Git::GitError.new(e.message, :git_dir => git_dir, :backtrace => e.backtrace)
+    raise R10K::Git::GitError.new(e.message, :git_dir => @git_dir, :backtrace => e.backtrace)
   end
 
   # Check out the given Git ref
@@ -66,7 +69,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
     if sha
       logger.debug2 { _("Checking out ref '%{ref}' (resolved to SHA '%{sha}') in repository %{path}") % {ref: ref, sha: sha, path: @path} }
     else
-      raise R10K::Git::GitError.new("Unable to check out unresolvable ref '#{ref}'", git_dir: git_dir)
+      raise R10K::Git::GitError.new("Unable to check out unresolvable ref '#{ref}'", git_dir: @git_dir)
     end
 
     # :force defaults to true
@@ -98,7 +101,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
 
     report_transfer(results, remote)
   rescue Rugged::SshError, Rugged::NetworkError => e
-    raise R10K::Git::GitError.new(e.message, :git_dir => git_dir, :backtrace => e.backtrace)
+    raise R10K::Git::GitError.new(e.message, :git_dir => @git_dir, :backtrace => e.backtrace)
   end
 
   def exist?
@@ -110,7 +113,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   end
 
   def alternates
-    R10K::Git::Alternates.new(git_dir)
+    R10K::Git::Alternates.new(@git_dir)
   end
 
   def origin
@@ -133,13 +136,15 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   private
 
   def with_repo
-    if @_rugged_repo.nil? && git_dir.exist?
+    if @_rugged_repo.nil? && @git_dir.exist?
       setup_rugged_repo
     end
     super
   end
 
   def setup_rugged_repo
-    @_rugged_repo = ::Rugged::Repository.new(@path.to_s, :alternates => alternates.to_a)
+    @_rugged_repo = ::Rugged::Repository.new(@git_dir.to_s, :alternates => alternates.to_a)
+    @_rugged_repo.workdir = @path.to_s
+    @_rugged_repo
   end
 end
