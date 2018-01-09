@@ -305,3 +305,36 @@ mod 'apache',
 The given 'install\_path' can be an absolute path or a path relative to the base of
 the environment. Note that r10k will exit with an error if you attempt to set the
 'path' option to a directory outside of the environment.
+
+### Basemod
+
+The special directive `basemod` can be used to deploy the contents of a Git
+repository to the directory containing the Puppetfile, rather than to a
+`modules/` (or `modulepath`) subdirectory. Using basemod allows the contents of
+the control repo to be reduced to _only_ the Puppetfile, and for all other
+content (environment.conf, hiera.yaml, site-modules) to be versioned and
+developed in a separate repo as if they too were just another module.
+
+#### Example
+
+```
+##
+# SITE-SPECIFIC CONTENT
+#
+# Main environment content, like hiera.yaml and environment.conf.
+# Should be assigned a specific version; tag or commit (except when developing)
+#
+basemod 'site',
+  :git => 'https://github.com/reidmv/puppet-site-code.git',
+  :ref => '1.0'
+
+##
+# MODULES
+#
+# Each module here should be assigned a specific version; tag or commit (except
+# when developing)
+#
+mod 'puppetlabs/stdlib',
+  :git => 'https://github.com/puppetlabs/puppetlabs-stdlib.git',
+  :ref => '4.20.0'
+```

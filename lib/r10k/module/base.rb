@@ -27,6 +27,10 @@ class R10K::Module::Base
   #   @return [Pathname] The full path of the module
   attr_reader :path
 
+  # @!attribute [r] is_basemod
+  #   @return [Boolean] Whether or not this module is a basemod-type module
+  attr_reader :is_basemod
+
   # There's been some churn over `author` vs `owner` and `full_name` over
   # `title`, so in the short run it's easier to support both and deprecate one
   # later.
@@ -41,6 +45,10 @@ class R10K::Module::Base
     @dirname = dirname
     @args    = args
     @owner, @name = parse_title(@title)
+
+    @is_basemod = !!(args.is_a?(Hash) && args[:is_basemod])
+    @name = "[#{@name}]" if @is_basemod
+
     @path = Pathname.new(File.join(@dirname, @name))
     @environment = environment
   end

@@ -122,6 +122,27 @@ class Puppetfile
     @modules << mod
   end
 
+  # @param [String] name
+  # @param [*Object] args
+  def add_base_module(name, args)
+    validate_basemod(name, args)
+
+    basemod_args = {:gitdirname => ".git-#{name}", :is_basemod => true}
+
+    # Keep track of all the content this Puppetfile is managing to enable purging.
+    @managed_content[@basedir] = Array.new unless @managed_content.has_key?(@basedir)
+
+    mod = R10K::Module.new(name, @basedir, args.merge(basemod_args), @environment)
+
+    @modules << mod
+  end
+
+  def validate_basemod(name, args)
+    unless args[:git]
+      raise R10K::Error.new("basemod must be a git module; got '#{name}' with '#{args}'")
+    end
+  end
+
   include R10K::Util::Purgeable
 
   def managed_directories
@@ -130,19 +151,42 @@ class Puppetfile
     @managed_content.keys
   end
 
+  def basemod_contents
+    basemods = @modules.select do |mod|
+      mod.is_basemod
+    end
+
+    tracked_paths = basemods.map do |mod|
+      mod.repo.tracked_paths.map do |path|
+        File.join(@basedir, path)
+      end
+    end.flatten
+
+    other_paths = basemods.map do |mod|
+      if mod.is_a?(R10K::Module::Git)
+        mod.repo.repo.git_dir.to_s
+      end
+    end.compact
+
+    tracked_paths + other_paths
+  end
+
   # Returns an array of the full paths to all the content being managed.
   # @note This implements a required method for the Purgeable mixin
   # @return [Array<String>]
   def desired_contents
     self.load unless @loaded
 
-    @managed_content.flat_map do |install_path, modnames|
+    mod_contents = @managed_content.flat_map do |install_path, modnames|
       modnames.collect { |name| File.join(install_path, name) }
     end
+
+    mod_contents + basemod_contents
   end
 
   def purge_exclusions
     exclusions = managed_directories
+    exclusions << @puppetfile_path
 
     if environment && environment.respond_to?(:desired_contents)
       exclusions += environment.desired_contents
@@ -199,6 +243,10 @@ class Puppetfile
 
     def mod(name, args = nil)
       @librarian.add_module(name, args)
+    end
+
+    def basemod(name, args = nil)
+      @librarian.add_base_module(name, args)
     end
 
     def forge(location)
