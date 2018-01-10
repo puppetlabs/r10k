@@ -11,6 +11,7 @@ class R10K::Git::StatefulRepository
   # @!attribute [r] repo
   #   @api private
   attr_reader :repo
+  attr_accessor :expect_dirty
 
   extend Forwardable
   def_delegators :@repo, :head, :tracked_paths
@@ -54,12 +55,15 @@ class R10K::Git::StatefulRepository
       logger.debug(_("Updating %{repo_path} to %{ref}") % {repo_path: @repo.path, ref: ref })
       @repo.checkout(sha, {:force => force})
     when :dirty
-      if force
-        logger.warn(_("Overwriting local modifications to %{repo_path}") % {repo_path: @repo.path})
-        logger.debug(_("Updating %{repo_path} to %{ref}") % {repo_path: @repo.path, ref: ref })
-        @repo.checkout(sha, {:force => force})
-      else
+      if (!force && !expect_dirty)
         logger.warn(_("Skipping %{repo_path} due to local modifications") % {repo_path: @repo.path})
+      elsif (force && !expect_dirty)
+        logger.warn(_("Overwriting local modifications to %{repo_path}") % {repo_path: @repo.path})
+      end
+
+      if (force || expect_dirty)
+        logger.debug(_("Updating %{repo_path} to %{ref}") % {repo_path: @repo.path, ref: ref })
+        @repo.checkout(sha, {:force => true})
       end
     else
       logger.debug(_("%{repo_path} is already at Git ref %{ref}") % {repo_path: @repo.path, ref: ref })
