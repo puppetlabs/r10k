@@ -59,6 +59,7 @@ class Puppetfile
   end
 
   def load
+    return true if @loaded
     if File.readable? @puppetfile_path
       self.load!
     else

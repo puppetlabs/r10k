@@ -29,6 +29,10 @@ class R10K::Module::Git < R10K::Module::Base
     parse_options(@args)
 
     @repo = R10K::Git::StatefulRepository.new(@remote, @dirname, @worktreename, @gitdirname)
+
+    if args[:is_basemod]
+      repo.expect_dirty = true
+    end
   end
 
   def version

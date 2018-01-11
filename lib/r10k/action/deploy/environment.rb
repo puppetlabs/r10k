@@ -85,6 +85,14 @@ module R10K
           status = environment.status
           logger.info _("Deploying environment %{env_path}") % {env_path: environment.path}
 
+          # Suppress normal dirty/force warnings if a basemod is in use. A
+          # basemod is expected to "dirty" the environment.
+          if (@puppetfile &&
+              environment.puppetfile.load &&
+              environment.puppetfile.modules.find { |mod| mod.is_basemod })
+            environment.repo.expect_dirty = true
+          end
+
           environment.sync
           logger.info _("Environment %{env_dir} is now at %{env_signature}") % {env_dir: environment.dirname, env_signature: environment.signature}
 
