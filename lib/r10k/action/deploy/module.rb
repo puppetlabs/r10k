@@ -60,7 +60,7 @@ module R10K
 
         def visit_module(mod)
           if @argv.include?(mod.name)
-            logger.info _("Deploying module %{mod_path}") % {mod_path: mod.path}
+            logger.info _("Deploying module %{mod_path}") % {mod_path: mod.printpath}
             mod.sync(force: @force)
           else
             logger.debug1(_("Only updating modules %{modules}, skipping module %{mod_name}") % {modules: @argv.inspect, mod_name: mod.name})

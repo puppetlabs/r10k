@@ -3,10 +3,10 @@ require 'r10k/git/rugged/working_repository'
 require 'r10k/git/rugged/cache'
 
 class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
-  def initialize(basedir, dirname, cache_repo)
+  def initialize(basedir, dirname, gitdirname, cache_repo)
     @cache_repo = cache_repo
 
-    super(basedir, dirname)
+    super(basedir, dirname, gitdirname)
   end
 
   # Clone this git repository
@@ -29,8 +29,9 @@ class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
     # update 'objects/info/alternates' with the path. We don't actually
     # fetch any objects because we don't need them, and we don't actually
     # use any refs in this repository so we skip all those steps.
-    ::Rugged::Repository.init_at(@path.to_s, false)
-    @_rugged_repo = ::Rugged::Repository.new(@path.to_s, :alternates => [cache_objects_dir])
+    ::Rugged::Repository.init_at(@git_dir.to_s, true)
+    @_rugged_repo = ::Rugged::Repository.new(@git_dir.to_s, :alternates => [cache_objects_dir])
+    @_rugged_repo.workdir = @path.to_s
     alternates << cache_objects_dir
 
     with_repo do |repo|

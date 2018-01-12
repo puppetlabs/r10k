@@ -174,7 +174,7 @@ RSpec.shared_examples "a git working repository" do
 
     context "with force = false" do
       it "should not revert changes in managed files" do
-        subject.checkout(subject.head, {:force => false})
+        expect { subject.checkout(subject.head, {:force => false}).to raise_error(Rugged::CheckoutError) }
         expect(File.read(File.join(subject.path, 'README.markdown')).include?('local modifications!')).to eq true
       end
     end

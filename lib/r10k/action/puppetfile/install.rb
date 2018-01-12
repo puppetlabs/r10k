@@ -27,7 +27,7 @@ module R10K
 
         def visit_module(mod)
           @force ||= false
-          logger.info _("Updating module %{mod_path}") % {mod_path: mod.path}
+          logger.info _("Updating module %{mod_path}") % {mod_path: mod.printpath}
 
           if mod.respond_to?(:desired_ref) && mod.desired_ref == :control_branch
             logger.warn _("Cannot track control repo branch for content '%{name}' when not part of a 'deploy' action, will use default if available." % {name: mod.name})
