@@ -40,6 +40,11 @@ class R10K::Environment::Git < R10K::Environment::Base
     @repo = R10K::Git::StatefulRepository.new(@remote, @basedir, @dirname)
   end
 
+  def remote=(addr)
+    @remote = addr
+    @repo = R10K::Git::StatefulRepository.new(@remote, @basedir, @dirname)
+  end
+
   # Clone or update the given Git environment.
   #
   # If the environment is being created for the first time, it will

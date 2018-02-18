@@ -98,7 +98,9 @@ module R10K
             logger.debug(_("Environment %{env_dir} is new, updating all modules") % {env_dir: environment.dirname}) if status == :absent
 
             if @puppetfile && yield == :redirect
-              environment.ref = environment.puppetfile.environment_redirect
+              redirect = environment.puppetfile.environment_redirect
+              environment.ref = redirect[:ref]
+              environment.remote = redirect[:git] if redirect[:git]
               i += 1
             else
               break
@@ -121,7 +123,11 @@ module R10K
           puppetfile.load
 
           if puppetfile.environment_redirect?
-            logger.info _('Puppetfile at %{ref} redirects to "%{redirect}"') % {ref: puppetfile.environment.signature, redirect: puppetfile.environment_redirect}
+            signature = puppetfile.environment.signature
+            newremote = puppetfile.environment_redirect[:git]
+            newref    = puppetfile.environment_redirect[:ref]
+            remotestr = newremote ? "#{newremote} " : ''
+            logger.info(%Q{Puppetfile at #{signature} redirects to #{remotestr}"#{newref}"})
             return :redirect
           end
 

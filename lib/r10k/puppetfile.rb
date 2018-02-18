@@ -131,7 +131,10 @@ class Puppetfile
     if @environment_redirect.nil?
       nil
     else
-      @environment_redirect[:ref]
+      {
+        :ref => @environment_redirect[:ref],
+        :git => @environment_redirect[:git],
+      }
     end
   end
 
@@ -169,15 +172,11 @@ class Puppetfile
   end
 
   def set_environment_redirect(name, args)
-    unless @environment
-      raise R10K::Error.new('Puppetfile `environment` method may only be used to deploy environments! Cannot be used with `puppetfile install`')
-    end
-
     unless args[:ref]
       raise R10K::Error.new('Must specify a ref when using `environment`!')
     end
 
-    @environment_redirect = {:name => name, :ref => args[:ref]}
+    @environment_redirect = {:name => name, :ref => args[:ref], :git => args[:git]}
   end
 
   include R10K::Util::Purgeable
