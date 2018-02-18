@@ -16,7 +16,7 @@ class R10K::Environment::Git < R10K::Environment::Base
 
   # @!attribute [r] ref
   #   @return [String] The git reference to use for this environment
-  attr_reader :ref
+  attr_accessor :ref
 
   # @!attribute [r] repo
   #   @api private

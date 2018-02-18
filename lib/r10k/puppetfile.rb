@@ -51,7 +51,12 @@ class Puppetfile
 
     logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile_path}
 
+    clear!
+  end
+
+  def clear!
     @modules = []
+    @environment_redirect = nil
     @managed_content = {}
     @forge   = 'forgeapi.puppetlabs.com'
 
@@ -67,12 +72,40 @@ class Puppetfile
   end
 
   def load!
+    clear!
     dsl = R10K::Puppetfile::DSL.new(self)
     dsl.instance_eval(puppetfile_contents, @puppetfile_path)
+    validate_environment_redirect(@environment_redirect, @modules)
     validate_no_duplicate_names(@modules)
     @loaded = true
   rescue SyntaxError, LoadError, ArgumentError, NameError => e
     raise R10K::Error.wrap(e, _("Failed to evaluate %{path}") % {path: @puppetfile_path})
+  end
+
+  # @param [Hash] environment
+  # @param [Array<String>] modules
+  def validate_environment_redirect(redirect, modules)
+    return if redirect.nil?
+
+    if @environment.nil?
+      raise R10K::Error.new('Puppetfile `environment` method may only be used to deploy environments! Cannot be used with `puppetfile install`')
+    end
+
+    unless @environment.name == redirect[:name]
+      raise R10K::Error.new('The name given to `environment` must match the source branch name! Aborting deployment')
+    end
+
+    unless modules.empty?
+      raise R10K::Error.new('Cannot use `environment` in a Puppetfile that uses `mod`! Aborting deployment')
+    end
+
+    unless @environment.repo.is_a?(R10K::Git::StatefulRepository)
+      raise R10K::Error.new('`environment` can only be used with a Git source. Aborting deployment')
+    end
+
+    unless @environment.repo.tracked_paths == [@puppetfile_name]
+      raise R10K::Error.new('`environment` can only be used when the Puppetfile is the only file in the source tree. Aborting deployment')
+    end
   end
 
   # @param [Array<String>] modules
@@ -86,6 +119,19 @@ class Puppetfile
       msg += ' '
       msg += _("Remove the duplicates of the following modules: %{dupes}" % { dupes: dupes.join(' ') })
       raise R10K::Error.new(msg)
+    end
+  end
+
+  # @return [Boolean] Whether or not the Puppetfile redirects to a new environment
+  def environment_redirect?
+    !@environment_redirect.nil?
+  end
+
+  def environment_redirect
+    if @environment_redirect.nil?
+      nil
+    else
+      @environment_redirect[:ref]
     end
   end
 
@@ -120,6 +166,18 @@ class Puppetfile
 
     @managed_content[install_path] << mod.name
     @modules << mod
+  end
+
+  def set_environment_redirect(name, args)
+    unless @environment
+      raise R10K::Error.new('Puppetfile `environment` method may only be used to deploy environments! Cannot be used with `puppetfile install`')
+    end
+
+    unless args[:ref]
+      raise R10K::Error.new('Must specify a ref when using `environment`!')
+    end
+
+    @environment_redirect = {:name => name, :ref => args[:ref]}
   end
 
   include R10K::Util::Purgeable
@@ -195,6 +253,10 @@ class Puppetfile
 
     def initialize(librarian)
       @librarian = librarian
+    end
+
+    def environment(name, args = nil)
+      @librarian.set_environment_redirect(name, args)
     end
 
     def mod(name, args = nil)

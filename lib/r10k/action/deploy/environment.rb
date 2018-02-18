@@ -82,18 +82,27 @@ module R10K
 
           started_at = Time.new
 
-          status = environment.status
           logger.info _("Deploying environment %{env_path}") % {env_path: environment.path}
 
-          environment.sync
-          logger.info _("Environment %{env_dir} is now at %{env_signature}") % {env_dir: environment.dirname, env_signature: environment.signature}
+          # Puppetfiles may redirect an environment to another repository
+          # reference. Perform the sync in a loop so that redirects may be
+          # followed.
+          i = 0
+          loop do
+            raise R10K::Error.new('Too many Puppetfile redirects! Aborting') if (i >= 3)
 
-          if status == :absent || @puppetfile
-            if status == :absent
-              logger.debug(_("Environment %{env_dir} is new, updating all modules") % {env_dir: environment.dirname})
+            status = environment.status
+            environment.sync
+
+            logger.info _("Environment %{env_dir} is now at %{env_signature}") % {env_dir: environment.dirname, env_signature: environment.signature}
+            logger.debug(_("Environment %{env_dir} is new, updating all modules") % {env_dir: environment.dirname}) if status == :absent
+
+            if @puppetfile && yield == :redirect
+              environment.ref = environment.puppetfile.environment_redirect
+              i += 1
+            else
+              break
             end
-
-            yield
           end
 
           if @purge_levels.include?(:environment)
@@ -110,6 +119,11 @@ module R10K
 
         def visit_puppetfile(puppetfile)
           puppetfile.load
+
+          if puppetfile.environment_redirect?
+            logger.info _('Puppetfile at %{ref} redirects to "%{redirect}"') % {ref: puppetfile.environment.signature, redirect: puppetfile.environment_redirect}
+            return :redirect
+          end
 
           yield
 
