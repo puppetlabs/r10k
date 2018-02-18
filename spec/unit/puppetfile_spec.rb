@@ -129,6 +129,26 @@ describe R10K::Puppetfile do
     end
   end
 
+  describe "using `environment` in the Puppetfile" do
+    it "should accept environment with a ref" do
+      expect { subject.set_environment_redirect('myenv', {ref: '1.2.3'}) }.to change { subject.environment_redirect }
+      expect(subject.environment_redirect[:ref]).to include('1.2.3')
+    end
+
+    it "should accept environment with a ref and a remote" do
+      expect { subject.set_environment_redirect('myenv', {ref: '1.2.3', git: 'git:///new'}) }.to change { subject.environment_redirect }
+      expect(subject.environment_redirect[:git]).to include('git:///new')
+    end
+
+    it "should conflict with modules" do
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'environment-mod-conflict')
+      pf_path = File.join(path, 'Puppetfile')
+      subject = described_class.new(path)
+      subject.environment = 'not nil'
+      expect { subject.load! }.to raise_error(R10K::Error, /cannot use `environment`.* uses `mod`/i)
+    end
+  end
+
   describe "#purge_exclusions" do
     let(:managed_dirs) { ['dir1', 'dir2'] }
 

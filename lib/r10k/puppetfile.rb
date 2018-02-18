@@ -87,24 +87,24 @@ class Puppetfile
   def validate_environment_redirect(redirect, modules)
     return if redirect.nil?
 
-    if @environment.nil?
+    if environment.nil?
       raise R10K::Error.new('Puppetfile `environment` method may only be used to deploy environments! Cannot be used with `puppetfile install`')
     end
 
-    unless @environment.name == redirect[:name]
-      raise R10K::Error.new('The name given to `environment` must match the source branch name! Aborting deployment')
-    end
-
     unless modules.empty?
-      raise R10K::Error.new('Cannot use `environment` in a Puppetfile that uses `mod`! Aborting deployment')
+      raise R10K::Error.new('Cannot use `environment` in a Puppetfile that uses `mod`')
     end
 
-    unless @environment.repo.is_a?(R10K::Git::StatefulRepository)
-      raise R10K::Error.new('`environment` can only be used with a Git source. Aborting deployment')
+    unless environment.name == redirect[:name]
+      raise R10K::Error.new('The name given to `environment` must match the source branch name')
     end
 
-    unless @environment.repo.tracked_paths == [@puppetfile_name]
-      raise R10K::Error.new('`environment` can only be used when the Puppetfile is the only file in the source tree. Aborting deployment')
+    unless environment.repo.is_a?(R10K::Git::StatefulRepository)
+      raise R10K::Error.new('`environment` can only be used with a Git source')
+    end
+
+    unless environment.repo.tracked_paths == [@puppetfile_name]
+      raise R10K::Error.new('`environment` can only be used when the Puppetfile is the only file in the source tree')
     end
   end
 
@@ -131,10 +131,7 @@ class Puppetfile
     if @environment_redirect.nil?
       nil
     else
-      {
-        :ref => @environment_redirect[:ref],
-        :git => @environment_redirect[:git],
-      }
+      @environment_redirect.reject { |key| key == :name }
     end
   end
 
