@@ -305,3 +305,137 @@ mod 'apache',
 The given 'install\_path' can be an absolute path or a path relative to the base of
 the environment. Note that r10k will exit with an error if you attempt to set the
 'path' option to a directory outside of the environment.
+
+## Environment
+
+When using a Git control repo, branches, and a Puppetfile, it is possible to "link" the branch to an environment version, rather than comitting code to the branch. This advanced feature may be used to aid in deployment workflows.
+
+Example: the "production" branch of a control repository should have version 3.2.0 of the puppet environment code deployed. Development of puppet code is happening constantly in the master branch, but when releases are ready they are tagged so that the code may be deployed to upper-tier environments. Ensuring that the version of code checked out to the production branch matches a given tag or commit is a process that requires a high level of Git knowledge. A simpler approach to controlling that deployment may be to make the production branch link to a code version instead.
+
+To link the production environment branch to a code version:
+
+1. The production branch should have one, and only one, file committed. The Puppetfile.
+2. The Puppetfile should have only one content item in it: the environment declaration.
+3. The environment declaration in the Puppetfile must match the git branch name
+
+For example:
+
+```
+[reidmv@halcyon:~/src/control-repo/] % git status
+On branch production
+nothing to commit, working tree clean
+[reidmv@halcyon:~/src/control-repo/] % tree
+.
+└── Puppetfile
+
+0 directories, 1 file
+```
+
+```ruby
+#! Puppetfile
+#=============================================================================
+# ENVIRONMENT: production
+#=============================================================================
+
+environment 'production',
+  :ref => '3.2.0'
+```
+
+When r10k deploys this environment, the output will look something like this:
+
+```
+[root@master:~] # r10k deploy environment production -pv
+INFO     -> Using Puppetfile '/etc/puppetlabs/code-staging/environments/production/Puppetfile'
+INFO     -> Deploying environment /etc/puppetlabs/code-staging/environments/production
+INFO     -> Environment production is now at b8fabbeac16374cfdeb5596c87edcedd144fafb9
+INFO     -> Puppetfile at b8fabbeac16374cfdeb5596c87edcedd144fafb9 redirects to "3.2.0"
+INFO     -> Environment production is now at b05b956a972358a8f649f66f0993c0f0bdce9c5a
+INFO     -> Deploying Puppetfile content /etc/puppetlabs/code-staging/environments/production/modules/stdlib
+INFO     -> Deploying Puppetfile content /etc/puppetlabs/code-staging/environments/production/modules/remote_file
+INFO     -> Deploying Puppetfile content /etc/puppetlabs/code-staging/environments/production/modules/concat
+...
+```
+
+The `environment` directive accepts two arguments.
+
+#### `:ref`
+
+As in a module, `:ref` may refer to a git tag, commit, or branch to deploy.
+
+#### `:git`
+
+By default, `environment` assumes you want to check out a different ref in the control repo. Using the `:git` parameter, it is possible to link to and deploy an environment code version from a separate repository entirely. For example:
+
+```ruby
+#! Puppetfile
+#=============================================================================
+# ENVIRONMENT: production
+#=============================================================================
+
+environment 'production',
+  :git => 'git://github.com/reidmv/puppet-control-repo.git',
+  :ref => 'b05b956'
+```
+
+```
+[root@master:~] # r10k deploy environment production -pv
+INFO     -> Using Puppetfile '/Users/reidmv/tmp/environments/production/Puppetfile'
+INFO     -> Deploying environment /etc/puppetlabs/code-staging/environments/production
+INFO     -> Environment production is now at b8fabbeac16374cfdeb5596c87edcedd144fafb9
+INFO     -> Puppetfile at b8fabbeac16374cfdeb5596c87edcedd144fafb9 redirects to git://github.com/reidmv/puppet-control-repo.git "b05b956"
+INFO     -> Environment production is now at b05b956a972358a8f649f66f0993c0f0bdce9c5a
+INFO     -> Deploying Puppetfile content /etc/puppetlabs/code-staging/environments/production/site
+INFO     -> Deploying Puppetfile content /etc/puppetlabs/code-staging/environments/production/modules/stdlib
+INFO     -> Deploying Puppetfile content /etc/puppetlabs/code-staging/environments/production/modules/remote_file
+INFO     -> Deploying Puppetfile content /etc/puppetlabs/code-staging/environments/production/modules/concat
+...
+```
+
+### Example uses
+
+Users of this feature might implement a clean separation of development and stable deployment using separate r10k sources configured as follows.
+
+```yaml
+---
+cachedir: '/var/cache/r10k'
+
+sources:
+  stable:
+    remote: 'git://github.com/reidmv/control-repo.git'
+    prefix: false
+  development:
+    remote: 'git://github.com/reidmv/puppet-environment.git'
+    prefix: 'git'
+```
+
+The "stable" source above is a typical control repo, where branches correspond to named environments. Every branch in this repo though is a "link" to either a branch or a code version from the puppet-environment.git repo.
+
+the "development" source, puppet-environment.git, has a typical git master branch, and feature branches for work in progress. Every branch in puppet-environment.git is available as a Puppet environment, but has the "git\_\*" prefix. For example, "git\_master".
+
+In the control-repo, an early environment such as development might be pinned to the master branch of puppet-environment.git.
+
+```ruby
+#! Puppetfile
+#=============================================================================
+# ENVIRONMENT: development
+#=============================================================================
+
+environment 'development',
+  :git => 'git://github.com/reidmv/puppet-environment.git',
+  :ref => 'master'
+```
+
+Higher tier environments are defined the same way, but likely pinned to commits or tags. E.g.
+
+```ruby
+#! Puppetfile
+#=============================================================================
+# ENVIRONMENT: staging
+#=============================================================================
+
+environment 'staging',
+  :git => 'git://github.com/reidmv/puppet-environment.git',
+  :ref => '2.1'
+```
+
+This pattern results in named environments without prefixes being defined and controlled in a deployment-centric workflow, while developers working on new features retain the same benefits they're used to; the main difference when compared to traditional development-only workflows is that Puppet environments that are deployed for development use are clearly identifyable by their "git\_\*" prefixes.
