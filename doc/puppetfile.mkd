@@ -315,8 +315,7 @@ Example: the "production" branch of a control repository should have version 3.2
 To link the production environment branch to a code version:
 
 1. The production branch should have one, and only one, file committed. The Puppetfile.
-2. The Puppetfile should have only one content item in it: the environment declaration.
-3. The environment declaration in the Puppetfile must match the git branch name
+2. The environment declaration in the Puppetfile must match the git branch name
 
 For example:
 
@@ -390,6 +389,12 @@ INFO     -> Deploying Puppetfile content /etc/puppetlabs/code-staging/environmen
 INFO     -> Deploying Puppetfile content /etc/puppetlabs/code-staging/environments/production/modules/concat
 ...
 ```
+
+### Combining environment with mod
+
+A Puppetfile containing an environment declaration can also declare modules. The modules declared will be deployed, as well as any moduled declared in the new environment's Puppetfile. It will be as if the two Puppetfiles were concatenated together. Note that this means a module declared in both Puppetfiles will cause an error on deployment (conflicting/duplicate name).
+
+The use case for allowing a Puppetfile that redirects to another environment to also declare modules is to allow independently managed modules to be released and deployed to environments without requiring a shared Puppetfile to be edited.
 
 ### Example uses
 

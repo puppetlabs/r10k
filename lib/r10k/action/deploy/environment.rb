@@ -127,7 +127,11 @@ module R10K
             newremote = puppetfile.environment_redirect[:git]
             newref    = puppetfile.environment_redirect[:ref]
             remotestr = newremote ? "#{newremote} " : ''
-            logger.info(%Q{Puppetfile at #{signature} redirects to #{remotestr}"#{newref}"})
+            logger.info(_('Puppetfile at %{signature} redirects to %{remote}"%{ref}"') % {signature: signature, remote: remotestr, ref: newref})
+            unless puppetfile.modules.empty?
+              names = puppetfile.modules.map{ |m| m.name }.join(',')
+              logger.info(_('Loaded modules from Puppetfile at %{signature}: %{names}') % {signature: signature, names: names})
+            end
             return :redirect
           end
 

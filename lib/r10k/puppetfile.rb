@@ -49,16 +49,12 @@ class Puppetfile
     @puppetfile_name = puppetfile_name || 'Puppetfile'
     @puppetfile_path = puppetfile_path || File.join(basedir, @puppetfile_name)
 
-    logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile_path}
-
-    clear!
-  end
-
-  def clear!
     @modules = []
     @environment_redirect = nil
     @managed_content = {}
     @forge   = 'forgeapi.puppetlabs.com'
+
+    logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile_path}
 
     @loaded = false
   end
@@ -72,7 +68,7 @@ class Puppetfile
   end
 
   def load!
-    clear!
+    @environment_redirect = nil
     dsl = R10K::Puppetfile::DSL.new(self)
     dsl.instance_eval(puppetfile_contents, @puppetfile_path)
     validate_environment_redirect(@environment_redirect, @modules)
@@ -91,10 +87,6 @@ class Puppetfile
       raise R10K::Error.new('Puppetfile `environment` method may only be used to deploy environments! Cannot be used with `puppetfile install`')
     end
 
-    unless modules.empty?
-      raise R10K::Error.new('Cannot use `environment` in a Puppetfile that uses `mod`')
-    end
-
     unless environment.name == redirect[:name]
       raise R10K::Error.new('The name given to `environment` must match the source branch name')
     end
@@ -104,6 +96,7 @@ class Puppetfile
     end
 
     unless environment.repo.tracked_paths == [@puppetfile_name]
+      logger.debug _('Tracked paths: %{paths}') % {paths: environment.repo.tracked_paths}
       raise R10K::Error.new('`environment` can only be used when the Puppetfile is the only file in the source tree')
     end
   end
