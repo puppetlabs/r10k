@@ -84,26 +84,11 @@ module R10K
 
           logger.info _("Deploying environment %{env_path}") % {env_path: environment.path}
 
-          # Puppetfiles may redirect an environment to another repository
-          # reference. Perform the sync in a loop so that redirects may be
-          # followed.
-          i = 0
-          loop do
-            raise R10K::Error.new('Too many Puppetfile redirects! Aborting') if (i >= 3)
-
-            status = environment.status
-            environment.sync
-
-            logger.info _("Environment %{env_dir} is now at %{env_signature}") % {env_dir: environment.dirname, env_signature: environment.signature}
-            logger.debug(_("Environment %{env_dir} is new, updating all modules") % {env_dir: environment.dirname}) if status == :absent
-
-            if @puppetfile && yield == :redirect
-              redirect = environment.puppetfile.environment_redirect
-              environment.ref = redirect[:ref]
-              environment.remote = redirect[:git] if redirect[:git]
-              i += 1
-            else
-              break
+          # Sync the environment and redirect once if necessary. Use &Proc.new
+          # to forward this method's block to the sync_environment! method.
+          if sync_environment!(environment, &Proc.new) == :redirect
+            unless sync_environment!(environment, &Proc.new) == :done
+              raise R10K::Error.new('Redirect can only be performed once per environment, per deploy')
             end
           end
 
@@ -117,6 +102,23 @@ module R10K
           end
 
           write_environment_info!(environment, started_at, @visit_ok)
+        end
+
+        def sync_environment!(environment)
+          status = environment.status
+          environment.sync
+
+          logger.info _("Environment %{env_dir} is now at %{env_signature}") % {env_dir: environment.dirname, env_signature: environment.signature}
+          logger.debug(_("Environment %{env_dir} is new, updating all modules") % {env_dir: environment.dirname}) if status == :absent
+
+          if (@puppetfile || status == :absent) && (yield == :redirect)
+            redirect = environment.puppetfile.environment_redirect
+            environment.ref = redirect[:ref]
+            environment.remote = redirect[:git] if redirect[:git]
+            :redirect
+          else
+            :done
+          end
         end
 
         def visit_puppetfile(puppetfile)
