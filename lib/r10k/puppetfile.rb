@@ -37,12 +37,17 @@ class Puppetfile
   #   @return [Boolean] Overwrite any locally made changes
   attr_accessor :force
 
+  # @!attribute [r] install_module
+  #   @return [String] A specific module to install from the Puppetfile.
+  attr_reader :install_module
+
   # @param [String] basedir
   # @param [String] moduledir The directory to install the modules, default to #{basedir}/modules
   # @param [String] puppetfile_path The path to the Puppetfile, default to #{basedir}/Puppetfile
   # @param [String] puppetfile_name The name of the Puppetfile, default to 'Puppetfile'
   # @param [Boolean] force Shall we overwrite locally made changes?
-  def initialize(basedir, moduledir = nil, puppetfile_path = nil, puppetfile_name = nil, force = nil )
+  # @param [String] install_module A specific module to be installed from the Puppetfile
+  def initialize(basedir, moduledir = nil, puppetfile_path = nil, puppetfile_name = nil, force = nil, install_module = nil)
     @basedir         = basedir
     @force           = force || false
     @moduledir       = moduledir  || File.join(basedir, 'modules')
@@ -51,6 +56,7 @@ class Puppetfile
 
     logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile_path}
 
+    @module = install_module
     @modules = []
     @managed_content = {}
     @forge   = 'forgeapi.puppetlabs.com'
@@ -70,9 +76,17 @@ class Puppetfile
     dsl = R10K::Puppetfile::DSL.new(self)
     dsl.instance_eval(puppetfile_contents, @puppetfile_path)
     validate_no_duplicate_names(@modules)
+    verify_module_in_puppetfile(@module) unless @module.nil?
     @loaded = true
   rescue SyntaxError, LoadError, ArgumentError, NameError => e
     raise R10K::Error.wrap(e, _("Failed to evaluate %{path}") % {path: @puppetfile_path})
+  end
+
+  def mod_exists?(mod)
+    @modules.each do |pfmodule|
+      @exists = true if pfmodule.name == mod
+    end
+    @exists ||= false
   end
 
   # @param [Array<String>] modules
@@ -86,6 +100,16 @@ class Puppetfile
       msg += ' '
       msg += _("Remove the duplicates of the following modules: %{dupes}" % { dupes: dupes.join(' ') })
       raise R10K::Error.new(msg)
+    end
+  end
+
+  # Verify that a module specified on the command line for install exists in
+  # the Puppetfile and raise an error if it isn't found.
+  #
+  # @param [String] mod The module to be installed from the Puppetfile
+  def verify_module_in_puppetfile(mod)
+    unless mod_exists?(mod)
+      raise R10K::Error.new( _("Failed to locate %{module} in %{puppetfile}") % {module: mod, puppetfile: @puppetfile_path})
     end
   end
 

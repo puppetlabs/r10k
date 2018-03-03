@@ -10,7 +10,7 @@ module R10K
 
         def call
           @visit_ok = true
-          pf = R10K::Puppetfile.new(@root, @moduledir, @puppetfile, nil , @force)
+          pf = R10K::Puppetfile.new(@root, @moduledir, @puppetfile, nil, @force, @module)
           pf.accept(self)
           @visit_ok
         end
@@ -26,6 +26,7 @@ module R10K
         end
 
         def visit_module(mod)
+          return if mod.name != @module && !@module.nil?
           @force ||= false
           logger.info _("Updating module %{mod_path}") % {mod_path: mod.path}
 
@@ -37,7 +38,7 @@ module R10K
         end
 
         def allowed_initialize_opts
-          super.merge(root: :self, puppetfile: :self, moduledir: :self, force: :self )
+          super.merge(root: :self, puppetfile: :self, moduledir: :self, force: :self, module: :self)
         end
       end
     end

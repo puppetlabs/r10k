@@ -43,5 +43,12 @@ describe R10K::Action::Puppetfile::CriRunner do
         expect(cri_runner.handle_opts(opts)).to include(:puppetfile => '/some/other/nonexistent/modules')
       end
     end
+
+    describe "for the module" do
+      it "sets the option from the cli option if given" do
+        opts = {:module => 'foo/puppet-baz'}
+        expect(cri_runner.handle_opts(opts)).to include(:module => 'foo/puppet-baz')
+      end
+    end
   end
 end

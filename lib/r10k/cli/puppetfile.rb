@@ -29,9 +29,10 @@ Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
         @cmd ||= Cri::Command.define do
           name    'install'
           usage   'install'
-          summary 'Install all modules from a Puppetfile'
+          summary 'Install modules from a Puppetfile, by default installs all modules'
           required nil, :moduledir, 'Path to install modules to'
           required nil, :puppetfile, 'Path to puppetfile'
+          required nil, :module, 'Specify a module to install from the puppetfile'
           flag     nil, :force, 'Force locally changed files to be overwritten'
           runner R10K::Action::Puppetfile::CriRunner.wrap(R10K::Action::Puppetfile::Install)
         end

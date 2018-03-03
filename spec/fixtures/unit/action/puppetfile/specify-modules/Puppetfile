@@ -1,0 +1,2 @@
+mod 'author/foomodule', :latest
+mod 'author/bazmodule', :latest
