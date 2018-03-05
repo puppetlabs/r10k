@@ -61,6 +61,13 @@ Configure the Puppet master by editing `/etc/puppetlabs/puppet/puppet.conf` and 
     server = $_Insert FQDN of Puppet Master Here_$
 ```
 
+Configure hiera lookup to use the environment path by editing '`/etc/puppetlabs/puppet/hiera.yaml` and ensure the datadir has been set: 
+```
+defaults:
+  data_hash: yaml_data        # Use the YAML backend
+  datadir: "/etc/puppetlabs/code/environments/%{::environment}/hieradata"
+```
+
 Restart the Puppet master service.
 
 ```
