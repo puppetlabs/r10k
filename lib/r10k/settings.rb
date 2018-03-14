@@ -158,6 +158,19 @@ module R10K
           end
         }),
 
+        Definition.new(:pool_size, {
+          :desc => "The amount of threads used to concurrently install modules. The default value is 1: install one module at a time.",
+          :default => 1,
+          :validate => lambda do |value|
+            if !value.is_a?(Integer)
+              raise ArgumentError, "The pool_size setting should be an integer, not a #{value.class}"
+            end
+            if !(value > 0)
+              raise ArgumentError, "The pool_size setting should be greater than zero."
+            end
+          end
+        }),
+
         URIDefinition.new(:proxy, {
           :desc => "Proxy to use for all r10k operations which occur over HTTP(S).",
           :default => lambda {
