@@ -25,9 +25,17 @@ class Puppetfile
   #   @return [String] The directory to install the modules #{basedir}/modules
   attr_reader :moduledir
 
+  # @!attrbute [r] puppetfile_name
+  #   @return [String] The name of the Puppetfile
+  attr_reader :puppetfile_name
+
   # @!attrbute [r] puppetfile_path
   #   @return [String] The path to the Puppetfile
   attr_reader :puppetfile_path
+
+  # @!attrbute [r] puppetfile_paths
+  #   @return [String] An array of Puppetfile paths, including each Puppetfile consulted
+  attr_reader :puppetfile_paths
 
   # @!attribute [rw] environment
   #   @return [R10K::Environment] Optional R10K::Environment that this Puppetfile belongs to.
@@ -46,8 +54,11 @@ class Puppetfile
     @basedir         = basedir
     @force           = force || false
     @moduledir       = moduledir  || File.join(basedir, 'modules')
-    @puppetfile_name = puppetfile_name || 'Puppetfile'
-    @puppetfile_path = puppetfile_path || File.join(basedir, @puppetfile_name)
+    @input_pf_name   = puppetfile_name || 'Puppetfile'
+
+    @puppetfile_name  = @input_pf_name
+    @puppetfile_path  = puppetfile_path || File.join(basedir, @input_pf_name)
+    @puppetfile_paths = []
 
     @modules = []
     @environment_redirect = nil
@@ -60,7 +71,26 @@ class Puppetfile
   end
 
   def load
+    # Calculate the environment-specific Puppetfile paths; e.g.
+    # "Puppetfile.PRODUCTION"
+    env_pf_name = @environment ? [@input_pf_name, @environment.name.upcase].join('.') : nil
+    env_pf_path = @environment ? File.join(basedir, env_pf_name) : nil
+
+    # If environment-specific Puppetfile paths apply, consult the
+    # environment-specific Puppetfile. Otherwise consult the standard
+    # Puppetfile.
+    name_and_path = if ( env_pf_path &&
+                         environment.repo.tracked_paths == [env_pf_name] )
+                      [env_pf_name, env_pf_path]
+                    else
+                      [@input_pf_name, File.join(basedir, @input_pf_name)]
+                    end
+
+    @puppetfile_name, @puppetfile_path = name_and_path
+
+    # Now that the appropriate paths have been set, try to load the file
     if File.readable? @puppetfile_path
+      @puppetfile_paths << @puppetfile_path unless @puppetfile_paths.include?(@pupetfile_path)
       self.load!
     else
       logger.debug _("Puppetfile %{path} missing or unreadable") % {path: @puppetfile_path.inspect}
@@ -69,6 +99,7 @@ class Puppetfile
 
   def load!
     @environment_redirect = nil
+    logger.debug _("Reading Puppetfile from %{path}") % {path: @puppetfile_path.inspect}
     dsl = R10K::Puppetfile::DSL.new(self)
     dsl.instance_eval(puppetfile_contents, @puppetfile_path)
     validate_environment_redirect(@environment_redirect, @modules)
@@ -93,11 +124,6 @@ class Puppetfile
 
     unless environment.repo.is_a?(R10K::Git::StatefulRepository)
       raise R10K::Error.new('`environment` can only be used with a Git source')
-    end
-
-    unless environment.repo.tracked_paths == [@puppetfile_name]
-      logger.debug _('Tracked paths: %{paths}') % {paths: environment.repo.tracked_paths}
-      raise R10K::Error.new('`environment` can only be used when the Puppetfile is the only file in the source tree')
     end
   end
 
@@ -162,11 +188,13 @@ class Puppetfile
   end
 
   def set_environment_redirect(name, args)
-    unless args[:ref]
+    unless [args[:ref], args[:tag], args[:branch]].compact.size == 1
       raise R10K::Error.new('Must specify a ref when using `environment`!')
     end
 
-    @environment_redirect = {:name => name, :ref => args[:ref], :git => args[:git]}
+    ref = args[:ref] || args[:tag] || args[:branch]
+
+    @environment_redirect = {:name => name, :ref => ref, :git => args[:git]}
   end
 
   include R10K::Util::Purgeable
@@ -206,11 +234,11 @@ class Puppetfile
     end
   end
 
-  private
-
   def puppetfile_contents
     File.read(@puppetfile_path)
   end
+
+  private
 
   def resolve_install_path(path)
     pn = Pathname.new(path)

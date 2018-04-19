@@ -115,6 +115,7 @@ class R10K::Environment::Base
     list = [File.join(@full_path, '.r10k-deploy.json')].to_set
 
     list += @puppetfile.managed_directories
+    list += @puppetfile.puppetfile_paths
 
     list += @puppetfile.desired_contents.flat_map do |item|
       desired_tree = []

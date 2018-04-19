@@ -87,9 +87,23 @@ module R10K
           # Sync the environment and redirect once if necessary. Use &Proc.new
           # to forward this method's block to the sync_environment! method.
           if sync_environment!(environment, &Proc.new) == :redirect
-            unless sync_environment!(environment, &Proc.new) == :done
+
+            # Preserve the environment Puppetfile, sync the redirected
+            # environment, and restore the environment Puppetfile for
+            # reference.
+            envpf_path = environment.puppetfile.puppetfile_path
+            envpf_name = environment.puppetfile.puppetfile_name
+            envpf_contents = environment.puppetfile.puppetfile_contents
+
+            # Sync to the redirected environment, but don't allow a repeat
+            # redirection
+            if sync_environment!(environment, &Proc.new) != :done
               raise R10K::Error.new('Redirect can only be performed once per environment, per deploy')
             end
+
+            # Restore the environment Puppetfile to disk so that all of the
+            # artifacts that contributed to building an environment are visible
+            File.open(envpf_path, 'w') { |file| file.write(envpf_contents) }
           end
 
           if @purge_levels.include?(:environment)

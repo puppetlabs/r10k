@@ -306,53 +306,159 @@ The given 'install\_path' can be an absolute path or a path relative to the base
 the environment. Note that r10k will exit with an error if you attempt to set the
 'path' option to a directory outside of the environment.
 
-## Environment
+## Puppetfile.\<BRANCH\>
 
-When using a Git control repo, branches, and a Puppetfile, it is possible to "link" the branch to an environment version, rather than comitting code to the branch. This advanced feature may be used to aid in deployment workflows.
+When using r10k, Git branches correspond to Puppet environments. For small teams using trunk-based development, with one or maybe two deployment environments, it's reasonable to incorporate and deploy changes using standard `git merge` workflows.
 
-Example: the "production" branch of a control repository should have version 3.2.0 of the puppet environment code deployed. Development of puppet code is happening constantly in the master branch, but when releases are ready they are tagged so that the code may be deployed to upper-tier environments. Ensuring that the version of code checked out to the production branch matches a given tag or commit is a process that requires a high level of Git knowledge. A simpler approach to controlling that deployment may be to make the production branch link to a code version instead.
+In large enterprise organizations with more complex deployment requirements, however, it may become untenable to try and manage change deployments across more than two environments using only `git merge`. For example, consider the following ordered tasks:
 
-To link the production environment branch to a code version:
+1. Deploy change A to `devint`
+2. Deploy change B to `devint`
+3. Deploy change A to `staging`
+4. Deploy change B to `staging`
+5. Deploy change B to `production`
+6. Deploy change C to `devint`
+7. Deploy change C to `staging`
+8. Deploy change C to `production`
+9. Deploy change A to `production`
 
-1. The production branch should have one, and only one, file committed. The Puppetfile.
-2. The environment declaration in the Puppetfile must match the git branch name
+This example uses only three deployment environments, and three changes. While it's not impossible to manage this kind of change decoulping in Git, it is prohibitively difficult. Furthermore, when this is managed entirely with Git merging, it can become difficult to look at any individual environment and understand which changes have been deployed to it.
 
-For example:
+A trunk-based deployment workflow is considered a better practice and results in a simpler r10k workflow. Sometimes it's not possible to achieve that though, or getting to trunk-based deployment may take some time.
+
+R10k's Puppetfile.\<BRANCH\> feature exists to help address complicated deployment use cases that are prohibitively difficult to manage with Git merging.
+
+### How it works
+
+Consider a use case with three deployment environments:
+
+1. devint
+2. staging
+3. production
+
+Choose a trunk branch. The Puppetfile.\<BRANCH\> pattern extends the normal Git/r10k use case. In this example, we'll use the traditional git "master" branch as our trunk.
+
+Development of features occurs as per normal in the master branch. Its contents look something like this:
 
 ```
-[reidmv@halcyon:~/src/control-repo/] % git status
-On branch production
-nothing to commit, working tree clean
-[reidmv@halcyon:~/src/control-repo/] % tree
-.
-└── Puppetfile
-
-0 directories, 1 file
+(master)
+├── Puppetfile
+├── environment.conf
+├── hiera.yaml
+└── site-modules
+    ├── profile
+    └── role
 ```
 
-```ruby
-#! Puppetfile
-#=============================================================================
-# ENVIRONMENT: production
-#=============================================================================
+Perform normal development against this branch. It does not necessarily represent an important Puppet environment, though of course it is possible to perform canary agent runs against it using `puppet agent -t --environment=master`.
+
+The Puppetfile in this branch should list all of the modules deployed which _do not need_ decoupled change deployment.
+
+Suppose that Team C owns a Puppet module, team\_c, which needs changes deployed at an odd cadence across the three deployment environments. The Puppetfile should list modules such as ntp, stdlib, and so forth, but it **should not** list Team C's module.
+
+For example, the Puppetfile may look something like this:
+
+```
+# Puppetfile
+
+mod 'puppetlabs-ntp', '6.0.0'
+```
+
+In order to enable decoupled change deployment, Team C's module will be defined independently per-environment in the Puppetfile.\<BRANCH\>.
+
+Because Git branches correspond to Puppet environments, there is a Git branch for devint, staging, and production. However, these branches are special. No merging is ever performed on these branches, and they can only contain a single file. Here's what these branches look like:
+
+```
+(devint)
+└── Puppetfile.DEVINT
+```
+
+```
+(staging)
+└── Puppetfile.STAGING
+```
+
+```
+(production)
+└── Puppetfile.PRODUCTION
+```
+
+The Puppetfile.\<BRANCH\> is metadata that tells r10k how to deploy the environment. It configures two things:
+
+1. Which version of Puppet code to deploy from the trunk branch
+2. Which decoupled modules to deploy at which versions
+
+The Puppetfile.DEVINT file may look something like this:
+
+```
+# Puppetfile.DEVINT
+
+environment 'devint',
+  :branch => 'master'
+
+mod 'team_c',
+  :git => 'git:///team_c.git',
+  :ref => 'v22'
+```
+
+The Puppetfile.PRODUCTION may look something like this:
+
+```
+# Puppetfile.PRODUCTION
 
 environment 'production',
-  :ref => '3.2.0'
+  :tag => 'release-302'
+
+mod 'team_c',
+  :git => 'git:///team_c.git',
+  :ref => 'v21'
 ```
 
-When r10k deploys this environment, the output will look something like this:
+When r10k deploys one of these environments, this is what the Puppet environment will look like on the master (using devint as the example):
 
 ```
-[root@master:~] # r10k deploy environment production -pv
-INFO     -> Using Puppetfile '/etc/puppetlabs/code-staging/environments/production/Puppetfile'
-INFO     -> Deploying environment /etc/puppetlabs/code-staging/environments/production
-INFO     -> Environment production is now at b8fabbeac16374cfdeb5596c87edcedd144fafb9
-INFO     -> Puppetfile at b8fabbeac16374cfdeb5596c87edcedd144fafb9 redirects to "3.2.0"
-INFO     -> Environment production is now at b05b956a972358a8f649f66f0993c0f0bdce9c5a
-INFO     -> Deploying Puppetfile content /etc/puppetlabs/code-staging/environments/production/modules/stdlib
-INFO     -> Deploying Puppetfile content /etc/puppetlabs/code-staging/environments/production/modules/remote_file
-INFO     -> Deploying Puppetfile content /etc/puppetlabs/code-staging/environments/production/modules/concat
-...
+/etc/puppetlabs/code/environments/devint
+├── Puppetfile
+├── Puppetfile.DEVINT
+├── environment.conf
+├── hiera.yaml
+├── modules
+│   ├── ntp
+│   └── team_c
+└── site-modules
+    ├── profile
+    └── role
+```
+
+Note that modules from the Puppetfile AND modules from the Puppetfile.\<BRANCH\> are deployed.
+
+### Deployment
+
+To deploy changes to an environment defined using Puppetfile.\<BRANCH\>, edit the Puppetfile.\<BRANCH> file (in its corresponding Git branch).
+
+To deploy a module release, edit the appropriate `mod` directive with the version to deploy.
+
+To deploy an environment code release, edit the `environment` directive with the version to deploy.
+
+A manual deployment of the named environment may be performed at any time in the normal way (e.g. `r10k deploy environment devint`). If any references in the Puppetfile point to a branch this will result in the environment being updated to reflect any changes in referenced branch(es) since the last deploy.
+
+### Requirements
+
+To use the Puppetfile.\<BRANCH\> feature, a Git branch must:
+
+* Contain one, and only one, committed file: Puppetfile.\<BRANCH\>
+* The \<BRANCH\> component of the file name MUST be the upper-case name of the branch it is committed to
+* The name given in the environment directive of Puppetfile.\<BRANCH\> MUST match the name of the branch it is committed to
+
+### Environment directive
+
+The Puppetfile.\<BRANCH\> files should contain a special "environment" directive. This tells r10k which version of code to deploy to the named environment. The environment directive behaves similarly to how the mod directive behaves when using a Git source.
+
+```
+# Puppetfile.PRODUCTION
+
+environment 'production',
+  :ref => '13.0.2'
 ```
 
 The `environment` directive accepts two arguments.
@@ -366,10 +472,7 @@ As in a module, `:ref` may refer to a git tag, commit, or branch to deploy.
 By default, `environment` assumes you want to check out a different ref in the control repo. Using the `:git` parameter, it is possible to link to and deploy an environment code version from a separate repository entirely. For example:
 
 ```ruby
-#! Puppetfile
-#=============================================================================
-# ENVIRONMENT: production
-#=============================================================================
+# Puppetfile.PRODUCTION
 
 environment 'production',
   :git => 'git://github.com/reidmv/puppet-control-repo.git',
@@ -390,13 +493,7 @@ INFO     -> Deploying Puppetfile content /etc/puppetlabs/code-staging/environmen
 ...
 ```
 
-### Combining environment with mod
-
-A Puppetfile containing an environment declaration can also declare modules. The modules declared will be deployed, as well as any moduled declared in the new environment's Puppetfile. It will be as if the two Puppetfiles were concatenated together. Note that this means a module declared in both Puppetfiles will cause an error on deployment (conflicting/duplicate name).
-
-The use case for allowing a Puppetfile that redirects to another environment to also declare modules is to allow independently managed modules to be released and deployed to environments without requiring a shared Puppetfile to be edited.
-
-### Example uses
+#### Example uses
 
 Users of this feature might implement a clean separation of development and stable deployment using separate r10k sources configured as follows.
 
