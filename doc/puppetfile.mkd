@@ -54,6 +54,8 @@ The `forge` setting specifies which server that Forge based modules are fetched
 from. This is currently a noop and is provided for compatibility with
 librarian-puppet.
 
+R10k supports setting the Forge to use _globally_ in `r10k.yaml`. see [Configuration](/doc/dynamic-environments/configuration.mkd#baseurl) for details.
+
 ### moduledir
 
 The `moduledir` setting specifies where modules from the Puppetfile will be
