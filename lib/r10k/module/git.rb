@@ -84,7 +84,7 @@ class R10K::Module::Git < R10K::Module::Base
   end
 
   def parse_options(options)
-    ref_opts = [:branch, :tag, :commit, :ref]
+    ref_opts = [:commit, :tag, :branch, :ref]
     known_opts = [:git, :default_branch] + ref_opts
 
     unhandled = options.keys - known_opts
