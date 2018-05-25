@@ -34,7 +34,7 @@ site_pp_path = File.join(git_environments_path, 'manifests', 'site.pp')
 site_pp = create_site_pp(master_certname, '  include peonly')
 
 # Verification
-error_message_regex = /You must have a valid Puppet Enterprise license on this node in order to download ztr-peonly/
+error_message_regex = /You must have a valid Puppet Enterprise® license on this node in order to download ztr-peonly/
 
 #Teardown
 teardown do
