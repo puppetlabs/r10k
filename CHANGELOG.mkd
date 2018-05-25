@@ -1,5 +1,10 @@
 CHANGELOG
 =========
+2.6.3
+----
+## Changes
+
+Update specs with new error string.
 
 2.6.2
 -----
