@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'puppet_docker_tools/spec_helper'
 
 CURRENT_DIRECTORY = File.dirname(File.dirname(__FILE__))
 
