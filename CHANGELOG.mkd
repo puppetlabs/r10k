@@ -1,5 +1,10 @@
 CHANGELOG
 =========
+2.6.3
+----
+## Changes
+
+Update specs with new error string.
 
 **NOTE** - CHANGELOG is only assured to be up to date for a particular branch
 when a release is made on that branch.
