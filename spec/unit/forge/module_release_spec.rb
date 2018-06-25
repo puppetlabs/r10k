@@ -10,11 +10,9 @@ describe R10K::Forge::ModuleRelease do
   let(:md5_digest_class) { Digest::MD5 }
 
   let(:download_path) { instance_double('Pathname') }
-  let(:download_root) { instance_double('Pathname') }
   let(:tarball_cache_path) { instance_double('Pathname') }
   let(:tarball_cache_root) { instance_double('Pathname') }
   let(:unpack_path) { instance_double('Pathname') }
-  let(:unpack_root) { instance_double('Pathname') }
   let(:target_dir) { instance_double('Pathname') }
   let(:md5_file_path) { instance_double('Pathname') }
 
@@ -27,11 +25,9 @@ describe R10K::Forge::ModuleRelease do
 
   before do
     subject.download_path = download_path
-    subject.download_root = download_root
     subject.tarball_cache_path = tarball_cache_path
     subject.tarball_cache_root = tarball_cache_root
     subject.unpack_path = unpack_path
-    subject.unpack_root = unpack_root
     subject.md5_file_path = md5_file_path
   end
 
@@ -127,37 +123,41 @@ describe R10K::Forge::ModuleRelease do
 
   describe "#cleanup" do
     it "cleans up the unpack paths" do
-      expect(subject).to receive(:cleanup_unpack_root)
-      expect(subject).to receive(:cleanup_download_root)
+      expect(subject).to receive(:cleanup_unpack_path)
+      expect(subject).to receive(:cleanup_download_path)
       subject.cleanup
     end
   end
 
-  describe "#cleanup_unpack_root" do
-    it "ignores the unpack_root if it doesn't exist" do
-      expect(unpack_root).to receive(:exist?).and_return false
-      expect(unpack_root).to_not receive(:rmtree)
-      subject.cleanup_unpack_root
+  describe "#cleanup_unpack_path" do
+    it "ignores the unpack_path if it doesn't exist" do
+      expect(unpack_path).to receive(:exist?).and_return false
+      expect(unpack_path).to_not receive(:parent)
+      subject.cleanup_unpack_path
     end
 
-    it "removes the unpack_root if it exists" do
-      expect(unpack_root).to receive(:exist?).and_return true
-      expect(unpack_root).to receive(:rmtree)
-      subject.cleanup_unpack_root
+    it "removes the containing directory of unpack_path if it exists" do
+      parent = instance_double('Pathname')
+      expect(parent).to receive(:rmtree)
+      expect(unpack_path).to receive(:exist?).and_return true
+      expect(unpack_path).to receive(:parent).and_return(parent)
+      subject.cleanup_unpack_path
     end
   end
 
-  describe "#cleanup_download_root" do
-    it "ignores the download_root if it doesn't exist" do
-      expect(download_root).to receive(:exist?).and_return false
-      expect(download_root).to_not receive(:rmtree)
-      subject.cleanup_download_root
+  describe "#cleanup_download_path" do
+    it "ignores the download_path if it doesn't exist" do
+      expect(download_path).to receive(:exist?).and_return false
+      expect(download_path).to_not receive(:parent)
+      subject.cleanup_download_path
     end
 
-    it "removes the download_root if it exists" do
-      expect(download_root).to receive(:exist?).and_return true
-      expect(download_root).to receive(:rmtree)
-      subject.cleanup_download_root
+    it "removes the containing directory of download_path if it exists" do
+      parent = instance_double('Pathname')
+      expect(parent).to receive(:rmtree)
+      expect(download_path).to receive(:exist?).and_return true
+      expect(download_path).to receive(:parent).and_return(parent)
+      subject.cleanup_download_path
     end
   end
 
