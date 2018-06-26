@@ -28,10 +28,6 @@ module R10K
       #   @return [Pathname] Where the module tarball will be downloaded to.
       attr_accessor :download_path
 
-      # @!attribute [rw] download_root
-      #   @return [Pathname] Directory where the module tarball will be downloaded to.
-      attr_accessor :download_root
-
       # @!attribute [rw] tarball_cache_path
       #   @return [Pathname] Where the module tarball will be cached to.
       attr_accessor :tarball_cache_path
@@ -48,10 +44,6 @@ module R10K
       #   @return [Pathname] Where the module will be unpacked to.
       attr_accessor :unpack_path
 
-      # @!attribute [rw] unpack_root
-      #   @return [Pathname] Directory where the module will be unpacked to.
-      attr_accessor :unpack_root
-
       # @param full_name [String] The hyphen separated name of the module
       # @param version [String] The version of the module
       def initialize(full_name, version)
@@ -66,16 +58,14 @@ module R10K
         @forge_release = PuppetForge::V3::Release.new({ :name => @full_name, :version => @version, :slug => "#{@full_name}-#{@version}" })
 
         tarball_name = @forge_release.slug + '.tar.gz'
-        @download_root = Pathname.new(Dir.mktmpdir)
-        @download_path = @download_root + (tarball_name)
+        @download_path = Pathname.new(Dir.mktmpdir) + (tarball_name)
         @tarball_cache_root = Pathname.new(settings[:cache_root]) + (@forge_release.slug + "/tarball/")
         @tarball_cache_path = @tarball_cache_root + tarball_name
 
         md5_filename = @forge_release.slug + '.md5'
         @md5_file_path = @tarball_cache_root + md5_filename
 
-        @unpack_root   = Pathname.new(Dir.mktmpdir)
-        @unpack_path   = @unpack_root + @forge_release.slug
+        @unpack_path   = Pathname.new(Dir.mktmpdir) + @forge_release.slug
       end
 
       # Download, unpack, and install this module release to the target directory.
@@ -184,21 +174,21 @@ module R10K
 
       # Remove all files created while downloading and unpacking the module.
       def cleanup
-        cleanup_unpack_root
-        cleanup_download_root
+        cleanup_unpack_path
+        cleanup_download_path
       end
 
       # Remove the temporary directory used for unpacking the module.
-      def cleanup_unpack_root
-        if unpack_root.exist?
-          unpack_root.rmtree
+      def cleanup_unpack_path
+        if unpack_path.exist?
+          unpack_path.parent.rmtree
         end
       end
 
       # Remove the downloaded module release.
-      def cleanup_download_root
-        if download_root.exist?
-          download_root.rmtree
+      def cleanup_download_path
+        if download_path.exist?
+          download_path.parent.rmtree
         end
       end
 
