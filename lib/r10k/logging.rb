@@ -28,6 +28,16 @@ module R10K::Logging
 
   class << self
 
+    def setup_formatter()
+      if @syslog
+        @outputter.formatter = syslog_formater
+      elsif level < Log4r::INFO
+        outputter.formatter = debug_formatter
+      else
+        outputter.formatter = default_formatter
+      end
+    end
+
     # Convert the input to a valid Log4r log level
     #
     # @param input [String, TrueClass] The level to parse. If TrueClass then
@@ -62,20 +72,19 @@ module R10K::Logging
       outputter.level = level
       @level = level
 
-      if level < Log4r::INFO
-        outputter.formatter = debug_formatter
-      else
-        outputter.formatter = default_formatter
-      end
+      setup_formatter()
     end
 
     def syslog=(val)
       @syslog = val
+
       if @syslog
         @outputter = R10K::Logging::SyslogOutputter.new('r10k', :facility => 'daemon')
       else
         @outputter = default_outputter
       end
+
+      setup_formatter()
     end
 
     extend Forwardable
@@ -99,6 +108,10 @@ module R10K::Logging
     #   @api private
     #   @return [Log4r::Outputter]
     attr_reader :outputter
+
+    def syslog_formater
+      Log4r::PatternFormatter.new(:pattern => '%m')
+    end
 
     def default_formatter
       Log4r::PatternFormatter.new(:pattern => '%l\t -> %m')
