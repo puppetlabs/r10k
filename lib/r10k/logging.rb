@@ -69,6 +69,15 @@ module R10K::Logging
       end
     end
 
+    def syslog=(val)
+      @syslog = val
+      if @syslog
+        @outputter = R10K::Logging::SyslogOutputter.new('r10k', :facility => 'daemon')
+      else
+        @outputter = default_outputter
+      end
+    end
+
     extend Forwardable
     def_delegators :@outputter, :use_color, :use_color=
 
@@ -76,6 +85,10 @@ module R10K::Logging
     #   @return [Integer] The current log level. Lower numbers correspond
     #     to more verbose log levels.
     attr_reader :level
+
+    # @!attribute [r] syslog
+    #   @return [Boolean]
+    attr_reader :syslog
 
     # @!attribute [r] formatter
     #   @api private

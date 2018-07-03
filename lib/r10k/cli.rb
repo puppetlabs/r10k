@@ -33,6 +33,8 @@ module R10K::CLI
       loglevels = R10K::Logging::LOG_LEVELS.reverse.map(&:downcase).join(", ")
       optional :v, :verbose, "Set log verbosity. Valid values: #{loglevels}"
 
+      flag nil, :syslog, "Send log messages to syslog."
+
       flag nil, :color, 'Enable colored log messages'
 
       required :c, :config, 'Specify a global configuration file'

@@ -1,4 +1,5 @@
 require 'r10k/logging'
+require 'r10k/logging/syslogoutputter'
 require 'r10k/errors'
 require 'r10k/util/license'
 require 'puppet_forge/connection'
@@ -34,6 +35,12 @@ module R10K
       end
 
       def setup_logging
+        syslog = @opts.delete(:syslog)
+
+        if syslog
+          R10K::Logging.syslog = true
+        end
+
         if @opts.key?(:loglevel)
           R10K::Logging.level = @opts[:loglevel]
         end
