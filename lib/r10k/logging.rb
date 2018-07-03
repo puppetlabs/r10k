@@ -79,12 +79,18 @@ module R10K::Logging
       @syslog = val
 
       if @syslog
-        @outputter = R10K::Logging::SyslogOutputter.new('r10k', :facility => 'daemon')
+        @outputter = syslog_outputter
       else
         @outputter = default_outputter
       end
 
       setup_formatter()
+    end
+
+    def syslog_facility=(val)
+      if @syslog
+        @outputter.facility = val
+      end
     end
 
     extend Forwardable
@@ -99,6 +105,10 @@ module R10K::Logging
     #   @return [Boolean]
     attr_reader :syslog
 
+    # @!attribute [r] syslog_facility
+    #   @return [Boolean]
+    attr_reader :syslog_facility
+
     # @!attribute [r] formatter
     #   @api private
     #   @return [Log4r::Formatter]
@@ -109,10 +119,6 @@ module R10K::Logging
     #   @return [Log4r::Outputter]
     attr_reader :outputter
 
-    def syslog_formater
-      Log4r::PatternFormatter.new(:pattern => '%m')
-    end
-
     def default_formatter
       Log4r::PatternFormatter.new(:pattern => '%l\t -> %m')
     end
@@ -121,8 +127,16 @@ module R10K::Logging
       Log4r::PatternFormatter.new(:pattern => '[%d - %l] %m')
     end
 
+    def syslog_formater
+      Log4r::PatternFormatter.new(:pattern => '%m')
+    end
+
     def default_outputter
       R10K::Logging::TerminalOutputter.new('terminal', $stderr, :level => self.level, :formatter => formatter)
+    end
+
+    def syslog_outputter
+      R10K::Logging::SyslogOutputter.new('r10k', :level => self.level, :formatter => syslog_formater)
     end
   end
 

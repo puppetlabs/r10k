@@ -1,6 +1,7 @@
 require 'r10k'
 require 'r10k/version'
 require 'r10k/cli/ext/logging'
+require 'r10k/logging/syslogoutputter'
 
 require 'cri'
 
@@ -34,6 +35,9 @@ module R10K::CLI
       optional :v, :verbose, "Set log verbosity. Valid values: #{loglevels}"
 
       flag nil, :syslog, "Send log messages to syslog."
+
+      syslog_facilities = R10K::Logging::SyslogOutputter::SYSLOG_FACILITY_MAP.keys.map(&:downcase).join(", ")
+      optional nil, :'syslog-facility', "Send log messages to this syslog facility (requires --syslog). Valid values: #{syslog_facilities}"
 
       flag nil, :color, 'Enable colored log messages'
 
