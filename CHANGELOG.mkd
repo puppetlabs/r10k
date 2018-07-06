@@ -1,5 +1,12 @@
 CHANGELOG
 =========
+
+Unreleased
+----------
+## Changes
+
+(#823) Add filter_command configuration option for git repositories
+
 2.6.3
 ----
 ## Changes

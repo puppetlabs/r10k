@@ -381,6 +381,29 @@ sources:
       - 'dev'
 ```
 
+### filter_command
+
+You can filter out any branch based on the result of the command specified as
+'filter_command'. Currently it only works with git repository. Non zero return
+status of the command results in a branch beeing removed. The command is passed
+additional environment variables
+
+* GIT_DIR – path to the cached git repository
+* R10K_BRANCH – branch which is being filtered
+* R10K_NAME – source name from r10k configuration
+
+This can be used for example for filtering out the branches with invalid gpg signature of their latest commit
+
+```yaml
+---
+sources:
+  mysource:
+    basedir: '/etc/puppet/environments'
+    filter_command: 'git verify-commit $R10K_BRANCH 2> /dev/null'
+```
+
+Beware that if the production branch of manifests is filtered out, you will end up with empty environment.
+
 Examples
 --------
 
