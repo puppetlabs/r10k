@@ -49,7 +49,7 @@ version="${git_describe%%-*}"
 : ===
 : === pull updated base images
 : ===
-bundle exec puppet-docker update-base-images puppet/puppet-agent:latest
+bundle exec puppet-docker update-base-images ubuntu:16.04
 
 container_list=(r10k)
 

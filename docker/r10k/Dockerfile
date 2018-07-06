@@ -1,11 +1,10 @@
-ARG namespace="puppet"
-ARG puppet_agent_version="latest"
-FROM "$namespace"/puppet-agent-ubuntu:"$puppet_agent_version"
+FROM ubuntu:16.04
 
 ARG vcs_ref
 ARG build_date
 ARG version="2.5.5"
 ENV R10K_VERSION="$version"
+ENV UBUNTU_CODENAME="xenial"
 
 LABEL org.label-schema.maintainer="Puppet Release Team <release@puppet.com>" \
       org.label-schema.vendor="Puppet" \
@@ -20,11 +19,21 @@ LABEL org.label-schema.maintainer="Puppet Release Team <release@puppet.com>" \
       org.label-schema.dockerfile="/Dockerfile"
 
 RUN apt-get update && \
+    apt-get install --no-install-recommends -y wget ca-certificates lsb-release && \
+    wget https://apt.puppetlabs.com/puppet5-release-"$UBUNTU_CODENAME".deb && \
+    dpkg -i puppet5-release-"$UBUNTU_CODENAME".deb && \
+    rm puppet5-release-"$UBUNTU_CODENAME".deb && \
+    apt-get update && \
+    apt-get install --no-install-recommends -y puppet-agent && \
     apt-get install --no-install-recommends -y git openssh-client && \
+    apt-get remove --purge -y wget && \
+    apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 RUN /opt/puppetlabs/puppet/bin/gem install r10k:"$R10K_VERSION"
+
+ENV PATH=/opt/puppetlabs/server/bin:/opt/puppetlabs/puppet/bin:/opt/puppetlabs/bin:$PATH
 
 ENTRYPOINT ["/opt/puppetlabs/puppet/bin/r10k"]
 CMD ["help"]
