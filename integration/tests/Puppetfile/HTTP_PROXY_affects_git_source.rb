@@ -1,7 +1,7 @@
 require 'git_utils'
 require 'r10k_utils'
 require 'master_manipulator'
-test_name 'CODEMGMT-730 - C97982 - HTTP_PROXY effects git source in puppetfile'
+test_name 'CODEMGMT-730 - C97982 - HTTP_PROXY affects git source in puppetfile'
 
 #Init
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
