@@ -65,7 +65,7 @@ env_structs = {:production => GitEnv.new('/git_repos',
                                          '/git_repos_alt/environments_alt.git',
                                          '/root/environments_alt',
                                          '/root/environments_alt/Puppetfile',
-                                         'mod "puppetlabs/stdlib", :git => "https://github.com/puppetlabs/puppetlabs-stdlib.git"',
+                                         'mod "puppetlabs/stdlib", :git => "git://github.com/puppetlabs/puppetlabs-stdlib.git"',
                                          '/root/environments_alt/manifests/site.pp',
                                          create_site_pp(master_certname, stage_env_manifest)
                                         ),

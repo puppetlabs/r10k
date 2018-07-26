@@ -1,9 +1,19 @@
 source ENV['GEM_SOURCE'] || 'https://artifactory.delivery.puppetlabs.net/artifactory/api/gems/rubygems/'
 
-gem 'beaker', '~> 3.0'
-gem 'beaker-pe'
+def location_for(place, fake_version = nil)
+  if place =~ /^(git:[^#]*)#(.*)/
+    [fake_version, { :git => $1, :branch => $2, :require => false }].compact
+  elsif place =~ /^file:\/\/(.*)/
+    ['>= 0', { :path => File.expand_path($1), :require => false }]
+  else
+    [place, { :require => false }]
+  end
+end
+
+gem 'beaker', *location_for(ENV['BEAKER_VERSION'] || '~> 3.33')
+gem 'beaker-pe', '~> 1.22'
 gem 'beaker-answers'
-gem 'beaker-abs', '~> 0.2'
+gem 'beaker-hostgenerator', *location_for(ENV['BEAKER_HOSTGENERATOR_VERSION'] || '~> 1.1')
+gem 'beaker-abs', *location_for(ENV['BEAKER_ABS_VERSION'] || '~> 0.4')
 gem 'rototiller', '= 0.1.0'
-gem 'beaker-hostgenerator', '~> 0.7.0'
 gem 'beaker-qa-i18n'
