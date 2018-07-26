@@ -11,7 +11,7 @@ SCRIPT
 
 step 'Install "filebucket" File Generator'
 create_remote_file(master, filebucket_script_path, filebucket_script)
-on(master, "git clone https://github.com/cowofevil/filebucket.git #{filebucket_path}")
+on(master, "git clone git://github.com/puppetlabs/filebucket.git #{filebucket_path}")
 
 on(master, "chmod 755 #{filebucket_script_path}")
 on(master, "chmod 755 #{filebucket_path}/filebucketapp.py")
