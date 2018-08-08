@@ -67,7 +67,7 @@ class R10K::Module::Forge < R10K::Module::Base
       begin
         @expected_version = @v3_module.current_release.version
       rescue Faraday::ResourceNotFound => e
-        raise PuppetForge::ReleaseNotFound, _("The module %{title} does not exist on %{url}.") % {title: @title, url: PuppetForge::V3::Release.conn.url_prefix}, e.backtrace
+        raise PuppetForge::ReleaseNotFound, _("%{context}: The module %{title} does not exist on %{url}.") % {context: context, title: @title, url: PuppetForge::V3::Release.conn.url_prefix}, e.backtrace
       end
     end
     @expected_version
@@ -92,7 +92,7 @@ class R10K::Module::Forge < R10K::Module::Base
     begin
       @v3_module.fetch && @v3_module.has_attribute?('deprecated_at') && !@v3_module.deprecated_at.nil?
     rescue Faraday::ResourceNotFound => e
-      raise PuppetForge::ReleaseNotFound, _("The module %{title} does not exist on %{url}.") % {title: @title, url: PuppetForge::V3::Release.conn.url_prefix}, e.backtrace
+      raise PuppetForge::ReleaseNotFound, _("%{context}: The module %{title} does not exist on %{url}.") % {context: context, title: @title, url: PuppetForge::V3::Release.conn.url_prefix}, e.backtrace
     end
   end
 
@@ -138,7 +138,7 @@ class R10K::Module::Forge < R10K::Module::Base
 
   def install
     if deprecated?
-      logger.warn "Puppet Forge module '#{@v3_module.slug}' has been deprecated, visit https://forge.puppet.com/#{@v3_module.slug.tr('-','/')} for more information."
+      logger.warn "#{context}: Puppet Forge module '#{@v3_module.slug}' has been deprecated, visit https://forge.puppet.com/#{@v3_module.slug.tr('-','/')} for more information."
     end
 
     parent_path = @path.parent
@@ -167,7 +167,7 @@ class R10K::Module::Forge < R10K::Module::Base
     if (match = title.match(/\A(\w+)[-\/](\w+)\Z/))
       [match[1], match[2]]
     else
-      raise ArgumentError, _("Forge module names must match 'owner/modulename'")
+      raise ArgumentError, _("%{context}: Forge module names must match 'owner/modulename'" % {context: context })
     end
   end
 end

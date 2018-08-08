@@ -61,7 +61,7 @@ describe R10K::Module::MetadataFile do
 
     it "raises an error" do
       a_metadata_file = R10K::Module::MetadataFile.new(fixture_path)
-      expect {a_metadata_file.read}.to raise_error(R10K::Error, "Could not read metadata.json")
+      expect {a_metadata_file.read}.to raise_error(R10K::Error, "Could not parse metadata file #{fixture_path}")
     end
   end
 

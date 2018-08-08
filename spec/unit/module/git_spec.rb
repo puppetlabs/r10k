@@ -191,7 +191,7 @@ describe R10K::Module::Git do
       end
 
       context "specifying branch to :control_branch" do
-        let(:mock_env) { instance_double("R10K::Environment::Git", ref: 'env_branch') }
+        let(:mock_env) { instance_double("R10K::Environment::Git", ref: 'env_branch', dirname: 'env_name') }
 
         context "when module belongs to an environment and matching branch is resolvable" do
           before(:each) do

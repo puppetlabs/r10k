@@ -60,8 +60,8 @@ class R10K::Module::Git < R10K::Module::Base
     elsif default && @repo.resolve(default)
       return default
     else
-      msg = ["Unable to manage Puppetfile content '%{name}':"]
-      vars = {name: @name}
+      msg = ["%{context}: Unable to manage Puppetfile content '%{name}':"]
+      vars = {context: context, name: @name}
 
       if desired == :control_branch
         msg << "Could not resolve control repo branch"
@@ -89,7 +89,7 @@ class R10K::Module::Git < R10K::Module::Base
 
     unhandled = options.keys - known_opts
     unless unhandled.empty?
-      raise ArgumentError, _("Unhandled options %{unhandled} specified for %{class}") % {unhandled: unhandled, class: self.class}
+      raise ArgumentError, _("%{context}: Unhandled options %{unhandled} specified for %{class}") % {context: context, unhandled: unhandled, class: self.class}
     end
 
     @remote = options[:git]

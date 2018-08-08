@@ -59,7 +59,7 @@ class Puppetfile
     if File.readable? @puppetfile_path
       self.load!
     else
-      logger.debug _("Puppetfile %{path} missing or unreadable") % {path: @puppetfile_path.inspect}
+      logger.debug _("%{dirname}: Puppetfile %{path} missing or unreadable") % {dirname: dirname, path: @puppetfile_path.inspect}
     end
   end
 
@@ -69,7 +69,7 @@ class Puppetfile
     validate_no_duplicate_names(@modules)
     @loaded = true
   rescue SyntaxError, LoadError, ArgumentError => e
-    raise R10K::Error.wrap(e, _("Failed to evaluate %{path}") % {path: @puppetfile_path})
+    raise R10K::Error.wrap(e, _("%{dirname}: Failed to evaluate %{path}") % {dirname: dirname, path: @puppetfile_path})
   end
 
   # @param [String] forge
@@ -83,8 +83,8 @@ class Puppetfile
             .group_by { |mod| mod.name }
             .select { |_, v| v.size > 1 }.map(&:first)
     unless dupes.empty?
-      logger.warn _('Puppetfiles should not contain duplicate module names and will result in an error in r10k v3.x.')
-      logger.warn _("Remove the duplicates of the following modules: %{dupes}" % {dupes: dupes.join(" ")})
+      logger.warn _("%{dirname}: Puppetfiles should not contain duplicate module names and will result in an error in r10k v3.x." % {dirname: dirname})
+      logger.warn _("%{dirname}: Remove the duplicates of the following modules: %{dupes}" % {dirname: dirname, dupes: dupes.join(" ")})
     end
   end
 
@@ -176,10 +176,14 @@ class Puppetfile
     real_basedir = Pathname.new(basedir).cleanpath.to_s
 
     unless /^#{Regexp.escape(real_basedir)}.*/ =~ path
-      raise R10K::Error.new("Puppetfile cannot manage content '#{modname}' outside of containing environment: #{path} is not within #{real_basedir}")
+      raise R10K::Error.new("#{dirname}: Puppetfile cannot manage content '#{modname}' outside of containing environment: #{path} is not within #{real_basedir}")
     end
 
     true
+  end
+
+  def dirname
+    File.basename(@basedir)
   end
 
   class DSL

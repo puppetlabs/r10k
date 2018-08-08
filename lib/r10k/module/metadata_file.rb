@@ -22,7 +22,7 @@ class R10K::Module::MetadataFile
           metadata = PuppetForge::Metadata.new
           metadata.update(JSON.load(f), false)
         rescue JSON::ParserError => e
-          exception = R10K::Error.wrap(e, _("Could not read metadata.json"))
+          exception = R10K::Error.wrap(e, _("Could not parse metadata file %{path}" % { path: @metadata_file_path }))
           raise exception
         end
       end

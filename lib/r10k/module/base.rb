@@ -92,13 +92,17 @@ class R10K::Module::Base
 
   private
 
+  def context
+    @environment.nil? ? dirname : @environment.dirname
+  end
+
   def parse_title(title)
     if (match = title.match(/\A(\w+)\Z/))
       [nil, match[1]]
     elsif (match = title.match(/\A(\w+)[-\/](\w+)\Z/))
       [match[1], match[2]]
     else
-      raise ArgumentError, _("Module name (%{title}) must match either 'modulename' or 'owner/modulename'") % {title: title}
+      raise ArgumentError, _("%{context}: Module name (%{title}) must match either 'modulename' or 'owner/modulename'") % {context: context, title: title}
     end
   end
 end

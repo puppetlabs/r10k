@@ -129,9 +129,9 @@ describe R10K::Puppetfile do
   end
 
   describe "evaluating a Puppetfile" do
-    def expect_wrapped_error(orig, pf_path, wrapped_error)
+    def expect_wrapped_error(orig, pf_path, wrapped_error, pf_dirname)
       expect(orig).to be_a_kind_of(R10K::Error)
-      expect(orig.message).to eq("Failed to evaluate #{pf_path}")
+      expect(orig.message).to eq("#{pf_dirname}: Failed to evaluate #{pf_path}")
       expect(orig.original).to be_a_kind_of(wrapped_error)
     end
 
@@ -142,7 +142,7 @@ describe R10K::Puppetfile do
       expect {
         subject.load!
       }.to raise_error do |e|
-        expect_wrapped_error(e, pf_path, SyntaxError)
+        expect_wrapped_error(e, pf_path, SyntaxError, File.basename(path))
       end
     end
 
@@ -153,7 +153,7 @@ describe R10K::Puppetfile do
       expect {
         subject.load!
       }.to raise_error do |e|
-        expect_wrapped_error(e, pf_path, LoadError)
+        expect_wrapped_error(e, pf_path, LoadError, File.basename(path))
       end
     end
 
@@ -164,7 +164,7 @@ describe R10K::Puppetfile do
       expect {
         subject.load!
       }.to raise_error do |e|
-        expect_wrapped_error(e, pf_path, ArgumentError)
+        expect_wrapped_error(e, pf_path, ArgumentError, File.basename(path))
       end
     end
 

@@ -24,7 +24,7 @@ describe R10K::Module::Base do
     it "raises an error when the title is not correctly formatted" do
       expect {
         described_class.new('branan!eight_hundred', '/moduledir', [])
-      }.to raise_error(ArgumentError, "Module name (branan!eight_hundred) must match either 'modulename' or 'owner/modulename'")
+      }.to raise_error(ArgumentError, "/moduledir: Module name (branan!eight_hundred) must match either 'modulename' or 'owner/modulename'")
     end
   end
 
