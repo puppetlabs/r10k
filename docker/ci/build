@@ -2,37 +2,49 @@
 
 set -eux
 
+PATH=$PATH:/usr/local/bin
 BUNDLER_PATH=.bundle/gems
 
 function build_and_test_image() {
-  container_name=$1
-  git_describe=`git describe`
-  version=${git_describe%%-*}
+  container_name="$1"
 
   : ===
   : === run linter on the docker files
   : ===
-   bundle exec puppet-docker local-lint $container_name
+   bundle exec puppet-docker local-lint "$container_name"
 
   : ===
   : === build and test $container_name
   : ===
-  bundle exec puppet-docker build $container_name --repository pcr-internal.puppet.net/release-engineering
-  bundle exec puppet-docker spec $container_name
+  bundle exec puppet-docker build "$container_name" --no-cache --repository pcr-internal.puppet.net/release-engineering --version "$version"
+  bundle exec puppet-docker spec "$container_name"
 }
 
 function push_image() {
-  container_name=$1
+  container_name="$1"
+  container_version="$2"
   : ===
   : === push $container_name
   : ===
-  bundle exec puppet-docker push $container_name --repository pcr-internal.puppet.net/release-engineering
+  bundle exec puppet-docker push "$container_name" --repository pcr-internal.puppet.net/release-engineering --version "$container_version"
 }
 
 : ===
 : === bundle install to get ready
 : ===
-bundle install --path $BUNDLER_PATH
+bundle install --path "$BUNDLER_PATH"
+
+: ===
+: === If we do not git pull --unshallow we get really weird results with git describe
+: ===
+git pull --unshallow
+
+: ===
+: === make sure we fetch tags for versioning
+: ===
+git fetch origin 'refs/tags/*:refs/tags/*'
+git_describe=`git describe`
+version="${git_describe%%-*}"
 
 : ===
 : === pull updated base images
@@ -44,15 +56,15 @@ container_list=(r10k)
 : ===
 : === build and test all the images before we push anything
 : ===
-for container in ${container_list[@]}; do
-  build_and_test_image $container
+for container in "${container_list[@]}"; do
+  build_and_test_image "$container"
 done
 
 : ===
 : === push all the images
 : ===
-for container in ${container_list[@]}; do
-  push_image $container
+for container in "${container_list[@]}"; do
+  push_image "$container" "$version"
 done
 
 : ===
