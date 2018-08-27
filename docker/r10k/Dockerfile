@@ -2,7 +2,7 @@ FROM ubuntu:16.04
 
 ARG vcs_ref
 ARG build_date
-ARG version="2.5.5"
+ARG version="2.6.4"
 ENV R10K_VERSION="$version"
 ENV UBUNTU_CODENAME="xenial"
 
