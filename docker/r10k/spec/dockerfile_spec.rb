@@ -4,13 +4,17 @@ CURRENT_DIRECTORY = File.dirname(File.dirname(__FILE__))
 
 describe 'Dockerfile' do
   include_context 'with a docker image'
+  include_context 'with a transient docker container'
 
-  describe package('puppet-agent') do
-    it { is_expected.to be_installed }
+  describe 'uses the correct version of Ubuntu' do
+    it_should_behave_like 'a running container', 'cat /etc/lsb-release', nil, 'Ubuntu 16.04'
   end
 
-  describe file('/opt/puppetlabs/puppet/bin/r10k') do
-    it { should exist }
-    it { should be_executable }
+  describe 'has puppet-agent installed' do
+    it_should_behave_like 'a running container', 'dpkg -l puppet-agent', 0
+  end
+
+  describe 'has /opt/puppetlabs/puppet/bin/r10k' do
+    it_should_behave_like 'a running container', 'stat -L /opt/puppetlabs/puppet/bin/r10k', 0, 'Access: \(0755\/\-rwxr\-xr\-x\)'
   end
 end
