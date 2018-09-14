@@ -41,3 +41,8 @@ steps:
     Get-ChildItem Env: | % { Write-Host "$($_.Key): $($_.Value)"  }
   displayName: Diagnostic Host Information
   name: hostinfo
+- powershell: |
+    . ./docker/ci/build.ps1
+    Invoke-ContainerBuildSetup
+  displayName: Prepare Build Environment
+  name: build_prepare

@@ -10,4 +10,4 @@ def location_for(place, fake_version = nil)
   end
 end
 
-gem 'puppet_docker_tools', *location_for(ENV['PUPPET_DOCKER_LOCATION'] || '~> 0.1.5')
+gem 'puppet_docker_tools', *location_for(ENV['PUPPET_DOCKER_LOCATION'] || '~> 0.2.0')
