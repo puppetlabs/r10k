@@ -14,3 +14,11 @@ function Invoke-ContainerBuildSetup
   bundle exec puppet-docker update-base-images ubuntu:16.04
   Pop-Location
 }
+
+function Build-Container($Name, $Repository = '127.0.0.1')
+{
+  Push-Location (Join-Path (Get-CurrentDirectory) '..')
+  bundle exec puppet-docker local-lint $Name
+  bundle exec puppet-docker build $Name --no-cache --repository $Repository --build-arg namespace=$Repository
+  Pop-Location
+}

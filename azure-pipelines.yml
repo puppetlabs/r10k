@@ -4,6 +4,9 @@ pool:
   # includes Ruby 2.5, Go 1.10, Node.js 10.10, hadolint
   name: Default
 
+variables:
+  BUILD_REPOSITORY: 127.0.0.1
+
 steps:
 - powershell: |
     $line = '=' * 80
@@ -46,3 +49,8 @@ steps:
     Invoke-ContainerBuildSetup
   displayName: Prepare Build Environment
   name: build_prepare
+- powershell: |
+    . ./docker/ci/build.ps1
+    Build-Container -Name r10k -Repository $ENV:BUILD_REPOSITORY
+  displayName: Build r10k
+  name: build_r10k
