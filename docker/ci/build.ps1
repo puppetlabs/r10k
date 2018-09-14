@@ -22,3 +22,10 @@ function Build-Container($Name, $Repository = '127.0.0.1')
   bundle exec puppet-docker build $Name --no-cache --repository $Repository --build-arg namespace=$Repository
   Pop-Location
 }
+
+function Invoke-ContainerTest($Name, $Repository = '127.0.0.1')
+{
+  Push-Location (Join-Path (Get-CurrentDirectory) '..')
+  bundle exec puppet-docker spec $Name --image $Repository/$Name
+  Pop-Location
+}

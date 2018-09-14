@@ -54,3 +54,8 @@ steps:
     Build-Container -Name r10k -Repository $ENV:BUILD_REPOSITORY
   displayName: Build r10k
   name: build_r10k
+- powershell: |
+    . ./docker/ci/build.ps1
+    Invoke-ContainerTest -Name r10k -Repository $ENV:BUILD_REPOSITORY
+  displayName: Test r10k
+  name: test_r10k
