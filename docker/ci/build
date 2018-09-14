@@ -17,7 +17,7 @@ function build_and_test_image() {
   : === build and test $container_name
   : ===
   bundle exec puppet-docker build "$container_name" --no-cache --repository puppet --version "$version" --no-latest
-  bundle exec puppet-docker spec "$container_name"
+  bundle exec puppet-docker spec "$container_name" --image "puppet/$container_name:$version"
 }
 
 function push_image() {
