@@ -59,3 +59,8 @@ steps:
     Invoke-ContainerTest -Name r10k -Repository $ENV:BUILD_REPOSITORY
   displayName: Test r10k
   name: test_r10k
+- powershell: |
+    . ./docker/ci/build.ps1
+    Clear-ContainerBuilds
+  displayName: Container Cleanup
+  condition: always()

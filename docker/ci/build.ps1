@@ -29,3 +29,10 @@ function Invoke-ContainerTest($Name, $Repository = '127.0.0.1')
   bundle exec puppet-docker spec $Name --image $Repository/$Name
   Pop-Location
 }
+
+# removes any temporary containers / images used during builds
+function Clear-ContainerBuilds
+{
+  docker container prune --force
+  docker image prune --filter "dangling=true" --force
+}
