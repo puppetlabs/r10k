@@ -59,6 +59,12 @@ steps:
     Invoke-ContainerTest -Name r10k -Repository $ENV:BUILD_REPOSITORY
   displayName: Test r10k
   name: test_r10k
+- task: PublishTestResults@2
+  displayName: Publish r10k test results
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: 'docker/**/TEST-*.xml'
+    testRunTitle: r10k Test Results
 - powershell: |
     . ./docker/ci/build.ps1
     Clear-ContainerBuilds

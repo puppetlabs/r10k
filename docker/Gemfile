@@ -11,3 +11,4 @@ def location_for(place, fake_version = nil)
 end
 
 gem 'puppet_docker_tools', *location_for(ENV['PUPPET_DOCKER_LOCATION'] || '~> 0.2.0')
+gem 'rspec_junit_formatter'
