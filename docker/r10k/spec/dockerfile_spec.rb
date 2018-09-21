@@ -4,7 +4,11 @@ CURRENT_DIRECTORY = File.dirname(File.dirname(__FILE__))
 
 describe 'Dockerfile' do
   include_context 'with a docker image'
-  include_context 'with a transient docker container'
+  include_context 'with a docker container' do
+    def docker_run_options
+      '--entrypoint /bin/bash'
+    end
+  end
 
   describe 'uses the correct version of Ubuntu' do
     it_should_behave_like 'a running container', 'cat /etc/lsb-release', nil, 'Ubuntu 16.04'
