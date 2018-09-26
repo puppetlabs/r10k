@@ -1,6 +1,21 @@
 CHANGELOG
 =========
 
+3.0.1
+----
+
+## Changes
+
+Because of dependency issues R10K 3.0.0 required Ruby >= 2.3
+rather than the reported 2.0. This release makes the requirement of
+Ruby >= 2.3 official and documented.
+
+(#853) ([RK-327](https://tickets.puppetlabs.com/browse/RK-327) Uninitialized Constant Cri::Error
+  When resolving the Cri dependency >= 2.13 R10K would fail with an
+  uninitialized constant error. Thanks to @ostavnaas for the bug report,
+  @ddfreyne for the fix, and @baurmatt for the review.
+
+
 3.0.0
 ----
 
