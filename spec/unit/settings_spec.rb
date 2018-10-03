@@ -165,6 +165,41 @@ describe R10K::Settings do
       end
     end
 
+    describe "pool_size" do
+      it "accepts integers greater than zero" do
+        output = subject.evaluate("pool_size" => 5)
+        expect(output[:pool_size]).to eq 5
+      end
+
+      it "rejects non integer values" do
+        expect {
+          subject.evaluate("pool_size" => "5")
+        }.to raise_error do |err|
+          expect(err.errors.size).to eq 1
+          expect(err.errors[:pool_size]).to be_a_kind_of(ArgumentError)
+          expect(err.errors[:pool_size].message).to match(/The pool_size setting should be an integer/)
+        end
+      end
+
+      it "rejects integers smaller than one" do
+        expect {
+          subject.evaluate("pool_size" => 0)
+        }.to raise_error do |err|
+          expect(err.errors.size).to eq 1
+          expect(err.errors[:pool_size]).to be_a_kind_of(ArgumentError)
+          expect(err.errors[:pool_size].message).to match(/The pool_size setting should be greater than zero/)
+        end
+
+        expect {
+          subject.evaluate("pool_size" => -3)
+        }.to raise_error do |err|
+          expect(err.errors.size).to eq 1
+          expect(err.errors[:pool_size]).to be_a_kind_of(ArgumentError)
+          expect(err.errors[:pool_size].message).to match(/The pool_size setting should be greater than zero/)
+        end
+      end
+    end
+
     describe "proxy" do
       it "accepts valid URIs" do
         output = subject.evaluate("proxy" => "http://proxy.tessier-ashpool.freeside:3128")

@@ -252,5 +252,30 @@ describe R10K::Puppetfile do
       expect(subject).to receive(:modules).and_return([mod1, mod2])
       subject.accept(visitor)
     end
+
+    it "creates a thread pool to visit concurrently if pool_size setting is greater than one" do
+      pool_size = 3
+
+      subject.settings[:pool_size] = pool_size
+
+      visitor = spy('visitor')
+      expect(visitor).to receive(:visit) do |type, other, &block|
+        expect(type).to eq :puppetfile
+        expect(other).to eq subject
+        block.call
+      end
+
+      mod1 = spy('module')
+      expect(mod1).to receive(:accept).with(visitor)
+      mod2 = spy('module')
+      expect(mod2).to receive(:accept).with(visitor)
+
+      expect(subject).to receive(:modules).and_return([mod1, mod2])
+
+      expect(Thread).to receive(:new).exactly(pool_size).and_call_original
+      expect(Queue).to receive(:new).and_call_original
+
+      subject.accept(visitor)
+    end
   end
 end
