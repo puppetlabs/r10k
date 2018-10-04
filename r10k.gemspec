@@ -18,12 +18,12 @@ Gem::Specification.new do |s|
     dynamic environments.
   DESCRIPTION
 
-  s.required_ruby_version = '>= 2.0.0'
+  s.required_ruby_version = '>= 2.3.0'
 
   s.license  = 'Apache-2.0'
 
   s.add_dependency 'colored',   '1.2'
-  s.add_dependency 'cri',       '~> 2.8'
+  s.add_dependency 'cri',       '~> 2.15.1'
 
   s.add_dependency 'log4r',     '1.1.10'
   s.add_dependency 'multi_json', '~> 1.10'
