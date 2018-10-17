@@ -28,15 +28,15 @@ class R10K::Util::Subprocess::Runner::POSIX < R10K::Util::Subprocess::Runner
 
     @stdout_pump = R10K::Util::Subprocess::Runner::Pump.new(@stdout_r)
     @stderr_pump = R10K::Util::Subprocess::Runner::Pump.new(@stderr_r)
-    @stdout_pump.start
-    @stderr_pump.start
-
     pid = fork do
       exec_r.close
       execute_child(exec_w)
     end
 
     exec_w.close
+    @stdout_pump.start
+    @stderr_pump.start
+
     execute_parent(exec_r, pid)
 
     @result
