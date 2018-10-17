@@ -1,6 +1,20 @@
 CHANGELOG
 =========
 
+3.0.3
+----
+
+## Bug Fixes
+
+(RK-324) Fix Ruby pipe bug affecting Ubuntu
+
+3.0.2
+----
+
+## Changes
+
+Minor test fixes.
+
 3.0.1
 ----
 
