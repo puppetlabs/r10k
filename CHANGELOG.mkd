@@ -41,6 +41,12 @@ Ruby >= 2.3 official and documented.
   - Various perfomance improvements
 
 
+2.6.5
+----
+
+## Bug Fix
+
+(RK-324) Fix Ruby pipe bug affecting Ubuntu
 
 2.6.4
 ----
