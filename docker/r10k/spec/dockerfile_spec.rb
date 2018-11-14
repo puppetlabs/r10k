@@ -1,24 +1,39 @@
-require 'puppet_docker_tools/spec_helper'
+require 'rspec/core'
+require 'fileutils'
 
-CURRENT_DIRECTORY = File.dirname(File.dirname(__FILE__))
+SPEC_DIRECTORY = File.dirname(__FILE__)
 
-describe 'Dockerfile' do
-  include_context 'with a docker image'
-  include_context 'with a docker container' do
-    def docker_run_options
-      '--entrypoint /bin/bash'
+describe 'r10k container' do
+  before(:all) do
+    @image = ENV['PUPPET_TEST_DOCKER_IMAGE']
+    if @image.nil?
+      error_message = <<-MSG
+* * * * *
+  PUPPET_TEST_DOCKER_IMAGE environment variable must be set so we
+  know which image to test against!
+* * * * *
+      MSG
+      fail error_message
     end
+    @container = %x(docker run --rm --detach --entrypoint /bin/bash --interactive --volume #{File.join(SPEC_DIRECTORY, 'fixtures')}:/test #{@image}).chomp
+    %x(docker exec #{@container} cp test/Puppetfile /)
   end
 
-  describe 'uses the correct version of Ubuntu' do
-    it_should_behave_like 'a running container', 'cat /etc/lsb-release', nil, 'Ubuntu 16.04'
+  after(:all) do
+    %x(docker container kill #{@container})
+    FileUtils.rm_rf(File.join(SPEC_DIRECTORY, 'fixtures', 'modules'))
   end
 
-  describe 'has puppet-agent installed' do
-    it_should_behave_like 'a running container', 'dpkg -l puppet-agent', 0
+  it 'should validate the Puppetfile' do
+    %x(docker exec #{@container} r10k puppetfile check)
+    status = $?
+    expect(status).to eq(0)
   end
 
-  describe 'has /opt/puppetlabs/puppet/bin/r10k' do
-    it_should_behave_like 'a running container', 'stat -L /opt/puppetlabs/puppet/bin/r10k', 0, 'Access: \(0755\/\-rwxr\-xr\-x\)'
+  it 'should install the Puppetfile' do
+    %x(docker exec #{@container} r10k puppetfile install)
+    status = $?
+    expect(status).to eq(0)
+    expect(Dir.exist?(File.join(SPEC_DIRECTORY, 'fixtures', 'modules', 'ntp'))).to eq(true)
   end
 end
