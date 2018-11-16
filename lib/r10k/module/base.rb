@@ -27,6 +27,10 @@ class R10K::Module::Base
   #   @return [Pathname] The full path of the module
   attr_reader :path
 
+  # @!attribute [r] environment
+  #   @return [R10K::Environment, nil] The parent environment of the module
+  attr_reader :environment
+
   # There's been some churn over `author` vs `owner` and `full_name` over
   # `title`, so in the short run it's easier to support both and deprecate one
   # later.

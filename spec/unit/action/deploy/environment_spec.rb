@@ -24,6 +24,14 @@ describe R10K::Action::Deploy::Environment do
     end
 
     it "normalizes environment names in the arg vector"
+
+    it 'can accept a generate-types option' do
+      described_class.new({ 'generate-types': true }, [])
+    end
+
+    it 'can accept a puppet-path option' do
+      described_class.new({ 'puppet-path': '/nonexistent' }, [])
+    end
   end
 
   describe "when called" do
@@ -120,6 +128,118 @@ describe R10K::Action::Deploy::Environment do
 
           subject.call
         end
+      end
+    end
+    describe "generate-types" do
+      let(:deployment) do
+        R10K::Deployment.new(
+          R10K::Deployment::MockConfig.new(
+            sources: {
+              control: {
+                type: :mock,
+                basedir: '/some/nonexistent/path/control',
+                environments: %w[first second]
+              }
+            }
+          )
+        )
+      end
+
+      before do
+        allow(R10K::Deployment).to receive(:new).and_return(deployment)
+      end
+
+      before(:each) do
+        allow(subject).to receive(:write_environment_info!)
+        expect(subject.logger).not_to receive(:error)
+      end
+
+      context 'with generate-types enabled' do
+        subject do
+          described_class.new(
+            {
+              config: '/some/nonexistent/path',
+              puppetfile: true,
+              'generate-types': true
+            },
+            %w[first second]
+          )
+        end
+
+        it 'generate_types is true' do
+          expect(subject.instance_variable_get(:@generate_types)).to eq(true)
+        end
+
+        it 'only calls puppet generate types on specified environment' do
+          subject.instance_variable_set(:@argv, %w[first])
+          expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
+            if environment.dirname == 'first'
+              expect(environment).to receive(:generate_types!)
+            else
+              expect(environment).not_to receive(:generate_types!)
+            end
+            original.call(environment, &block)
+          end.twice
+          subject.call
+        end
+
+        it 'does not call puppet generate types on puppetfile failure' do
+          allow(subject).to receive(:visit_puppetfile) { subject.instance_variable_set(:@visit_ok, false) }
+          expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
+            expect(environment).not_to receive(:generate_types!)
+            original.call(environment, &block)
+          end.twice
+          subject.call
+        end
+
+        it 'calls puppet generate types on previous puppetfile failure' do
+          allow(subject).to receive(:visit_puppetfile) do |puppetfile|
+            subject.instance_variable_set(:@visit_ok, false) if puppetfile.environment.dirname == 'first'
+          end
+          expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
+            if environment.dirname == 'second'
+              expect(environment).to receive(:generate_types!)
+            else
+              expect(environment).not_to receive(:generate_types!)
+            end
+            original.call(environment, &block)
+          end.twice
+          subject.call
+        end
+      end
+
+      context 'with generate-types disabled' do
+        subject do
+          described_class.new(
+            {
+              config: '/some/nonexistent/path',
+              puppetfile: true,
+              'generate-types': false
+            },
+            %w[first]
+          )
+        end
+
+        it 'generate_types is false' do
+          expect(subject.instance_variable_get(:@generate_types)).to eq(false)
+        end
+
+        it 'does not call puppet generate types' do
+          expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
+            expect(environment).not_to receive(:generate_types!)
+            original.call(environment, &block)
+          end.twice
+          subject.call
+        end
+      end
+    end
+
+    describe 'with puppet-path' do
+
+      subject { described_class.new({ config: '/some/nonexistent/path', 'puppet-path': '/nonexistent' }, []) }
+
+      it 'sets puppet_path' do
+        expect(subject.instance_variable_get(:@puppet_path)).to eq('/nonexistent')
       end
     end
   end

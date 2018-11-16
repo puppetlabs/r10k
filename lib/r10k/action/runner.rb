@@ -42,10 +42,23 @@ module R10K
       def setup_settings
         config_settings = settings_from_config(@opts[:config])
 
-        overrides = {:cachedir => @opts[:cachedir]}
-        overrides.delete_if { |_, val| val.nil? }
+        overrides = {
+          cachedir: @opts[:cachedir],
+          deploy: {
+            puppet_path: @opts[:'puppet-path'],
+            generate_types: @opts[:'generate-types']
+          }
+        }
 
         with_overrides = config_settings.merge(overrides) do |key, oldval, newval|
+          break oldval if newval.nil?
+          if oldval.is_a? Hash
+            newval.merge!(oldval) do |_, subold, subnew|
+              subnew.nil? ?
+                subold :
+                subnew
+            end
+          end
           logger.debug2 _("Overriding config file setting '%{key}': '%{old_val}' -> '%{new_val}'") % {key: key, old_val: oldval, new_val: newval}
           newval
         end

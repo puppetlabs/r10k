@@ -19,6 +19,7 @@ module R10K
           settings ||= {}
           @purge_levels = settings.fetch(:deploy, {}).fetch(:purge_levels, [])
           @user_purge_whitelist = settings.fetch(:deploy, {}).fetch(:purge_whitelist, [])
+          @generate_types = settings.fetch(:deploy, {}).fetch(:generate_types, false)
 
           super
 
@@ -81,6 +82,7 @@ module R10K
           end
 
           started_at = Time.new
+          @environment_ok = true
 
           status = environment.status
           logger.info _("Deploying environment %{env_path}") % {env_path: environment.path}
@@ -93,7 +95,11 @@ module R10K
               logger.debug(_("Environment %{env_dir} is new, updating all modules") % {env_dir: environment.dirname})
             end
 
+            previous_ok = @visit_ok
+            @visit_ok = true
             yield
+            @environment_ok = @visit_ok
+            @visit_ok &&= previous_ok
           end
 
           if @purge_levels.include?(:environment)
@@ -102,6 +108,15 @@ module R10K
               environment.purge!(:recurse => true, :whitelist => environment.whitelist(@user_purge_whitelist))
             else
               logger.debug("Not purging unmanaged content for environment '#{environment.dirname}' due to prior deploy failures.")
+            end
+          end
+
+          if @generate_types
+            if @environment_ok
+              logger.debug("Generating puppet types for environment '#{environment.dirname}'...")
+              environment.generate_types!
+            else
+              logger.debug("Not generating puppet types for environment '#{environment.dirname}' due to puppetfile failures.")
             end
           end
 
@@ -146,7 +161,7 @@ module R10K
         end
 
         def allowed_initialize_opts
-          super.merge(puppetfile: :self, cachedir: :self, :'no-force' => :self)
+          super.merge(puppetfile: :self, cachedir: :self, 'no-force': :self, 'generate-types': :self, 'puppet-path': :self)
         end
       end
     end

@@ -297,6 +297,26 @@ deploy:
   write_lock: "Deploying code is disallowed until the next maintenance window (2038-01-19)"
 ```
 
+#### generate\_types
+
+The `generate_types` setting controls whether r10k should update generated types
+after a successful environment update. See [Environment isolation](https://puppet.com/docs/puppet/latest/environment\_isolation.html)
+for more information on generated types. Defaults to false.
+
+```yaml
+deploy:
+  generate_types: true
+```
+
+#### puppet\_path
+
+The path to the puppet executable used for generating types. Defaults to `/opt/puppetlabs/bin/puppet`.
+
+```yaml
+deploy:
+  puppet_path: '/usr/local/bin/puppet'
+```
+
 Source options
 --------------
 

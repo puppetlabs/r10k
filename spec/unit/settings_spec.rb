@@ -117,6 +117,18 @@ describe R10K::Settings do
         end
       end
     end
+
+    describe 'puppet_path' do
+      it 'when executable raises no error' do
+        expect(File).to receive(:executable?).with('/nonexistent').and_return(true)
+        expect { subject.evaluate('puppet_path' => '/nonexistent') }.not_to raise_error
+      end
+
+      it 'when not executable raises error' do
+        expect(File).to receive(:executable?).with('/nonexistent')
+        expect { subject.evaluate('puppet_path' => '/nonexistent') }.to raise_error(R10K::Settings::Collection::ValidationError)
+      end
+    end
   end
 
   describe "global settings" do
