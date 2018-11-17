@@ -1,4 +1,4 @@
-git_describe := $(shell git describe)
+git_describe = $(shell git describe)
 vcs_ref := $(shell git rev-parse HEAD)
 build_date := $(shell date -u +%FT%T)
 hadolint_available := $(shell hadolint --help > /dev/null 2>&1; echo $$?)
@@ -9,15 +9,15 @@ ifeq ($(IS_NIGHTLY),true)
 	dockerfile := Dockerfile.nightly
 	version := puppet6-nightly
 else
-	version := $(shell echo $(git_describe) | sed 's/-.*//')
+	version = $(shell echo $(git_describe) | sed 's/-.*//')
 	dockerfile := Dockerfile
 endif
 
 
 prep:
 ifneq ($(IS_NIGHTLY),true)
-	@git pull --unshallow > /dev/null 2>&1 ||:
-	@git fetch origin 'refs/tags/*:refs/tags/*' > /dev/null 2>&1
+	@git fetch --unshallow ||:
+	@git fetch origin 'refs/tags/*:refs/tags/*'
 endif
 
 lint:
