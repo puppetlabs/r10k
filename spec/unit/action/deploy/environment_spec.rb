@@ -92,6 +92,61 @@ describe R10K::Action::Deploy::Environment do
           subject.call
         end
       end
+
+      context "supports environments" do
+        context "when one environment" do
+          let(:settings) { { postrun: ["/generate/types/wrapper", "$modifiedenvs"] } }
+          let(:deployment) { R10K::Deployment.new(mock_config.merge(settings)) }
+
+          before do
+            expect(R10K::Deployment).to receive(:new).and_return(deployment)
+          end
+
+          subject do
+            described_class.new( {config: "/some/nonexistent/path" },
+                                 %w[first],
+                                 settings                             )
+          end
+
+          it "properly substitutes the environment" do
+            mock_subprocess = double
+            allow(mock_subprocess).to receive(:logger=)
+            expect(mock_subprocess).to receive(:execute)
+
+            expect(R10K::Util::Subprocess).to receive(:new).
+              with(["/generate/types/wrapper", "first"]).
+              and_return(mock_subprocess)
+
+            subject.call
+          end
+        end
+        context "when many environments" do
+          let(:settings) { { postrun: ["/generate/types/wrapper", "$modifiedenvs"] } }
+          let(:deployment) { R10K::Deployment.new(mock_config.merge(settings)) }
+
+          before do
+            expect(R10K::Deployment).to receive(:new).and_return(deployment)
+          end
+
+          subject do
+            described_class.new( {config: "/some/nonexistent/path" },
+                                 [],
+                                 settings                             )
+          end
+
+          it "properly substitutes the environment" do
+            mock_subprocess = double
+            allow(mock_subprocess).to receive(:logger=)
+            expect(mock_subprocess).to receive(:execute)
+
+            expect(R10K::Util::Subprocess).to receive(:new).
+              with(["/generate/types/wrapper", "first second third"]).
+              and_return(mock_subprocess)
+
+            subject.call
+          end
+        end
+      end
     end
 
     describe "purge_levels" do
