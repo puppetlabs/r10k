@@ -65,6 +65,35 @@ describe R10K::Action::Deploy::Environment do
       end
     end
 
+    describe "postrun" do
+      context "basic postrun hook" do
+        let(:settings) { { postrun: ["/path/to/executable", "arg1", "arg2"] } }
+        let(:deployment) { R10K::Deployment.new(mock_config.merge(settings)) }
+
+        before do
+          expect(R10K::Deployment).to receive(:new).and_return(deployment)
+        end
+
+        subject do
+          described_class.new( {config: "/some/nonexistent/path" },
+                               %w[first],
+                               settings                             )
+        end
+
+        it "is passed to Subprocess" do
+          mock_subprocess = double
+          allow(mock_subprocess).to receive(:logger=)
+          expect(mock_subprocess).to receive(:execute)
+
+          expect(R10K::Util::Subprocess).to receive(:new).
+            with(["/path/to/executable", "arg1", "arg2"]).
+            and_return(mock_subprocess)
+
+          subject.call
+        end
+      end
+    end
+
     describe "purge_levels" do
       let(:settings) { { deploy: { purge_levels: purge_levels } } }
 
