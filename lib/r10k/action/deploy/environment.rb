@@ -64,6 +64,11 @@ module R10K
           end
         ensure
           if (postcmd = @settings[:postrun])
+            if postcmd.grep('$modifiedenvs').any?
+              envs = deployment.environments.map { |e| e.name }
+              envs.reject! { |e| !@argv.include?(e) } if @argv.any?
+              postcmd = postcmd.map { |e| e.gsub('$modifiedenvs', envs.join(' ')) }
+            end
             subproc = R10K::Util::Subprocess.new(postcmd)
             subproc.logger = logger
             subproc.execute
