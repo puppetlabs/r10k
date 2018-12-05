@@ -75,6 +75,10 @@ msgstr ""
 msgid "Syntax OK"
 msgstr ""
 
+#: ../lib/r10k/action/puppetfile/cri_runner.rb:19
+msgid "The use of the PUPPETFILE and PUPPETFILE_DIR environment variables is deprecated."
+msgstr ""
+
 #: ../lib/r10k/action/puppetfile/install.rb:30
 msgid "Updating module %{mod_path}"
 msgstr ""
