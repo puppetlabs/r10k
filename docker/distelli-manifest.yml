@@ -1,4 +1,9 @@
 pe-and-platform/r10k:
+  PreBuild:
+    - make lint
   Build:
+    - make build
+    - make test
+  AfterBuildSuccess:
     - docker login -u "$DISTELLI_DOCKER_USERNAME" -p "$DISTELLI_DOCKER_PW" "$DISTELLI_DOCKER_ENDPOINT"
-    - /bin/bash -x ./ci/build
+    - make publish
