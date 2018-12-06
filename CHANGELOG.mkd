@@ -1,6 +1,26 @@
 CHANGELOG
 =========
 
+3.1.0
+-----
+
+## New Feature
+
+Substitute environments acted on in postrun command.
+
+Now post run commands that contain the string "$modifiedenvs"
+(eg. ["/usr/local/bin/my-postrun-cmd", "--verbose", "$modifiedenvs"])
+will have the string substituted with a space separated list
+of environments acted upon (either a single environment if
+specified on the command line or all environments).
+
+Specifically this should allow users to easily wrap
+`puppet generate types` and matches the terminology used
+in g10k.
+
+Many thanks to @raphink for the contribution.
+
+
 3.0.3
 ----
 
