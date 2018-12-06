@@ -1,6 +1,41 @@
 Frequently Asked Questions
 ==========================
 
+### How can run I `puppet generate types` for each changed environment during deployment?
+
+The command `puppet generate types` creates Puppet signatures for custom
+types circumventing the need to load their Ruby code during compilation.
+This prevents the type definitions from "leaking" across environments.
+
+Best practice currently is to run this command as part of your Puppet
+code deployment pipeline, and r10k's postrun command ability is a natural
+place to do so.
+
+The postrun command will have any occurance of "$modifiedenvs" replaced
+with a space-seperated list of environments the deploy was configured to
+modify. For example creating the script:
+
+```
+$ cat /usr/local/bin/generate-puppet-types.sh
+!#/bin/bash
+
+for environment in $1; do
+  /opt/puppetlabs/bin/puppet generate types --environment $environment
+done
+```
+
+And configuring r10k such:
+```
+$ tail -2 /etc/puppetlabs/r10k/r10k.yaml
+
+postrun: ["/usr/local/bin/generate-puppet-types.sh", "$modifiedenvs"]
+```
+
+Should provide you with the necessary generate type definitions for
+improved environment isolation.
+
+
+
 ### The default Git branch is 'master', while the default Puppet environment is 'production'. How do I reconcile this?
 
 The default Git branch name is 'master', but this is a somewhat arbitrary name
