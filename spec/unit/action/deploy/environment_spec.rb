@@ -369,6 +369,7 @@ describe R10K::Action::Deploy::Environment do
       allow(mock_forge_module_1).to receive(:repo).and_raise(NoMethodError)
 
       fake_env = Fake_Environment.new(@tmp_path, {:name => "my_cool_environment", :signature => "pablo picasso"})
+      allow(fake_env).to receive(:modules).and_return(mock_puppetfile.modules)
       subject.send(:write_environment_info!, fake_env, "2019-01-01 23:23:22 +0000", true)
 
       file_contents = File.read("#{@tmp_path}/.r10k-deploy.json")
