@@ -252,7 +252,13 @@ class Puppetfile
           name = node.children.first
           args = node.children.last.children.map do |item|
             next if item.nil?
-            item.children.first
+
+            case item.type
+            when :HASH
+              Hash[*item.children.first.children.compact.map {|n| n.children.first }]
+            else
+              item.children.first
+            end
           end.compact
 
           case name
