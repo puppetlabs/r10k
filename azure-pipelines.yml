@@ -8,6 +8,8 @@ variables:
   NAMESPACE: puppet
 
 steps:
+- checkout: self
+  clean: true
 - powershell: |
     $line = '=' * 80
     Write-Host "$line`nWindows`n$line`n"
