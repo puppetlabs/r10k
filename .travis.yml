@@ -1,6 +1,7 @@
 ---
 language: ruby
 before_install:
+  -  gem update bundler
   - mkdir -p $USERDIR
   - wget https://download.checkmarx.com/8.8.0/Plugins/CxConsolePlugin-8.80.0.zip -O $USERDIR/CxPlugin.zip
   - unzip $USERDIR/CxPlugin.zip
@@ -11,7 +12,6 @@ script: "$USERDIR/CxConsolePlugin-8.80.0/runCxConsole.sh"
 notifications:
   email: false
 sudo: false
-before_install: gem update bundler
 rvm:
   - "2.5"
   - "2.4"
