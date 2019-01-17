@@ -1,12 +1,13 @@
 ---
 language: ruby
 before_install:
-  - wget https://download.checkmarx.com/8.8.0/Plugins/CxConsolePlugin-8.80.0.zip
-  - unzip CxConsolePlugin-8.80.0.zip
-  - chmod +x ./CxConsolePlugin-8.80.0/runCxConsole.sh
+  - mkdir -p $USERDIR
+  - wget https://download.checkmarx.com/8.8.0/Plugins/CxConsolePlugin-8.80.0.zip -O $USERDIR/CxPlugin.zip
+  - unzip $USERDIR/CxPlugin.zip
+  - chmod +x $USERDIR/CxConsolePlugin-8.80.0/runCxConsole.sh
 bundler_args: "--without system"
 #script: "bundle exec rspec --color --format documentation spec/unit"
-script: "./CxConsolePlugin-8.80.0/runCxConsole.sh"
+script: "$USERDIR/CxConsolePlugin-8.80.0/runCxConsole.sh"
 notifications:
   email: false
 sudo: false
