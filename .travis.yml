@@ -1,12 +1,12 @@
 ---
 language: ruby
 before_install:
-  - sudo apt-get update
-  - sudo apt-get install default-jre
-before_script:
-  - jpath=$(which java) && echo "Java path: $jpath"
+  - wget https://download.checkmarx.com/8.8.0/Plugins/CxConsolePlugin-8.80.0.zip
+  - unzip CxConsolePlugin-8.80.0.zip
+  - chmod +x ./CxConsolePlugin-8.80.0/runCxConsole.sh
 bundler_args: "--without system"
-script: "bundle exec rspec --color --format documentation spec/unit"
+#script: "bundle exec rspec --color --format documentation spec/unit"
+script: "./CxConsolePlugin-8.80.0/runCxConsole.sh"
 notifications:
   email: false
 sudo: false
