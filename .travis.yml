@@ -10,7 +10,7 @@ bundler_args: "--without system"
 #script: "bundle exec rspec --color --format documentation spec/unit"
 script: 
  - "bundle exec rspec --color --format documentation spec/unit"
- - "$SCAN"
+ - "./scripts/run_scan.sh $CHECK"
 notifications:
   email: false
 sudo: false
@@ -22,11 +22,15 @@ rvm:
 jdk:
     - oraclejdk8
 env:
+  - "CHECK=CXSCAN"
+  - "CHECK=DUMMY"
   global:
     - USERDIR=/tmp/userdir
-  - "SCAN=$USERDIR/CxConsolePlugin-8.80.0/runCxConsole.sh"
+#  - "SCAN=$USERDIR/CxConsolePlugin-8.80.0/runCxConsole.sh"
 
 matrix:
   exclude:
+    - rvm: "2.4"
+      env: "CHECK=CXSCAN"
     - rvm: "2.3"
-      env: "SCAN=$USERDIR/CxConsolePlugin-8.80.0/runCxConsole.sh"
+      env: "CHECK=CXSCAN"
