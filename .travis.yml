@@ -1,5 +1,10 @@
 ---
 language: ruby
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install default-jre
+before_script:
+  - jpath=$(which java) && echo "Java path: $jpath"
 bundler_args: "--without system"
 script: "bundle exec rspec --color --format documentation spec/unit"
 notifications:
