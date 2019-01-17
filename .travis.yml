@@ -28,9 +28,5 @@ env:
 
 matrix:
   exclude:
-    - rvm: "2.4"
-      env: "SCAN=$USERDIR/CxConsolePlugin-8.80.0/runCxConsole.sh"
     - rvm: "2.3"
-      env: "SCAN=$USERDIR/CxConsolePlugin-8.80.0/runCxConsole.sh"
-    - rvm: "jruby"
       env: "SCAN=$USERDIR/CxConsolePlugin-8.80.0/runCxConsole.sh"
