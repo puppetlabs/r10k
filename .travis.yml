@@ -19,3 +19,6 @@ rvm:
   - "jruby"
 jdk:
     - oraclejdk8
+env:
+  global:
+    - USERDIR=/tmp/userdir
