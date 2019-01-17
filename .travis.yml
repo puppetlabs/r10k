@@ -7,9 +7,6 @@ before_install:
   - unzip $USERDIR/CxPlugin.zip -d $USERDIR
   - chmod +x $USERDIR/CxConsolePlugin-8.80.0/runCxConsole.sh
 bundler_args: "--without system"
-script: 
- - "bundle exec rspec --color --format documentation spec/unit"
- - "./scripts/run_scan.sh $CHECK"
 notifications:
   email: false
 sudo: false
@@ -33,3 +30,6 @@ matrix:
       env: "CHECK=CXSCAN"
     - rvm: 2.3
       env: "CHECK=CXSCAN"
+script: 
+ - "bundle exec rspec --color --format documentation spec/unit"
+ - "./scripts/run_scan.sh $CHECK"
