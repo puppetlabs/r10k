@@ -15,10 +15,10 @@ notifications:
   email: false
 sudo: false
 rvm:
-  - "2.5"
-  - "2.4"
-  - "2.3"
-  - "jruby"
+  - 2.5
+  - 2.4
+  - 2.3
+  - jruby
 jdk:
     - oraclejdk8
 env:
@@ -30,7 +30,7 @@ env:
 
 matrix:
   exclude:
-    - rvm: "2.4"
+    - rvm: 2.4
       env: "CHECK=CXSCAN"
-    - rvm: "2.3"
+    - rvm: 2.3
       env: "CHECK=CXSCAN"
