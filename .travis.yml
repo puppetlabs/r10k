@@ -21,3 +21,6 @@ jdk:
 env:
   global:
     - USERDIR=/tmp/userdir
+  matrix:
+    - "CHECK=CXSCAN"
+    - "CHECK=DUMMY"
