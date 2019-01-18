@@ -5,11 +5,16 @@ script: "bundle exec rspec --color --format documentation spec/unit"
 notifications:
   email: false
 sudo: false
-before_install: gem update bundler
+before_install:
+  - gem update bundler
+  - mkdir -p $USERDIR
+  - wget https://download.checkmarx.com/8.8.0/Plugins/CxConsolePlugin-8.80.0.zip -O $USERDIR/CxPlugin.zip
+  - unzip $USERDIR/CxPlugin.zip -d $USERDIR
+  - chmod +x $USERDIR/CxConsolePlugin-8.80.0/runCxConsole.sh
 rvm:
-  - "2.5"
-  - "2.4"
-  - "2.3"
-  - "jruby"
+  - 2.5
+  - 2.4
+  - 2.3
+  - jruby
 jdk:
     - oraclejdk8
