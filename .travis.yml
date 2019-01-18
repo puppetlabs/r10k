@@ -1,33 +1,15 @@
 ---
 language: ruby
-before_install:
-  - gem update bundler
-  - mkdir -p $USERDIR
-  - wget https://download.checkmarx.com/8.8.0/Plugins/CxConsolePlugin-8.80.0.zip -O $USERDIR/CxPlugin.zip
-  - unzip $USERDIR/CxPlugin.zip -d $USERDIR
-  - chmod +x $USERDIR/CxConsolePlugin-8.80.0/runCxConsole.sh
 bundler_args: "--without system"
+script: "bundle exec rspec --color --format documentation spec/unit"
 notifications:
   email: false
 sudo: false
+before_install: gem update bundler
+rvm:
+  - "2.5"
+  - "2.4"
+  - "2.3"
+  - "jruby"
 jdk:
     - oraclejdk8
-rvm:
-  - 2.5
-  - 2.4
-  - 2.3
-  - jruby
-
-env:
-  - "CHECK=CXSCAN"
-  - "CHECK=DUMMY"
-  global:
-    - USERDIR=/tmp/userdir
-
-# matrix:
-#   exclude:
-#     - rvm: 2.4
-#       env: "CHECK=CXSCAN"
-#     - rvm: 2.3
-#       env: "CHECK=CXSCAN"
-script: "./scripts/run_scan.sh $CHECK"
