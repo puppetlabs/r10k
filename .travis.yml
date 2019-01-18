@@ -19,7 +19,5 @@ rvm:
 jdk:
     - oraclejdk8
 env:
-  - "CHECK=CXSCAN"
-  - "CHECK=DUMMY"
   global:
     - USERDIR=/tmp/userdir
