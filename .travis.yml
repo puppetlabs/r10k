@@ -30,6 +30,4 @@ env:
 #       env: "CHECK=CXSCAN"
 #     - rvm: 2.3
 #       env: "CHECK=CXSCAN"
-script: 
- - "bundle exec rspec --color --format documentation spec/unit"
- - "./scripts/run_scan.sh $CHECK"
+script: "./scripts/run_scan.sh $CHECK"
