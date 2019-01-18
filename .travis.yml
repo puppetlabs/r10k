@@ -1,7 +1,7 @@
 ---
 language: ruby
 before_install:
-  -  gem update bundler
+  - gem update bundler
   - mkdir -p $USERDIR
   - wget https://download.checkmarx.com/8.8.0/Plugins/CxConsolePlugin-8.80.0.zip -O $USERDIR/CxPlugin.zip
   - unzip $USERDIR/CxPlugin.zip -d $USERDIR
