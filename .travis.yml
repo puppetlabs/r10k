@@ -26,11 +26,11 @@ env:
     - "CHECK=CXSCAN"
     - "CHECK=DUMMY"
 
- matrix:
-   exclude:
-     - rvm: 2.4
-       env: "CHECK=CXSCAN"
-     - rvm: 2.3
-       env: "CHECK=CXSCAN"
-     - rvm: jruby
-       env: "CHECK=CXSCAN"
+matrix:
+  exclude:
+    - rvm: 2.4
+      env: "CHECK=CXSCAN"
+    - rvm: 2.3
+      env: "CHECK=CXSCAN"
+    - rvm: jruby
+      env: "CHECK=CXSCAN"
