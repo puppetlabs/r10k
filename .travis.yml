@@ -3,8 +3,7 @@ language: ruby
 bundler_args: "--without system"
 script:
   - bundle exec rspec --color --format documentation spec/unit
-  - "bundle exec rake $CHECK"
-#  - "./scripts/run_scan.sh $CHECK"
+  - "./scripts/run_scan.sh $CHECK"
 notifications:
   email: false
 sudo: false
@@ -25,15 +24,15 @@ env:
   global:
     - USERDIR=/tmp/userdir
   matrix:
-#    - "CHECK=CXSCAN"
-#    - "CHECK=DUMMY"
+    - "CHECK=CXSCAN"
+    - "CHECK=DUMMY"
     - "CHECK=rubocop"
 
 matrix:
   exclude:
     - rvm: 2.4
-      env: "CHECK=rubocop"
+      env: "CHECK=CXSCAN"
     - rvm: 2.3
-      env: "CHECK=rubocop"
+      env: "CHECK=CXSCAN"
     - rvm: jruby
-      env: "CHECK=rubocop"
+      env: "CHECK=CXSCAN"
