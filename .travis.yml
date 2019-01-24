@@ -25,18 +25,15 @@ env:
   global:
     - USERDIR=/tmp/userdir
   matrix:
-    - "CHECK=CXSCAN"
-    - "CHECK=DUMMY"
+#    - "CHECK=CXSCAN"
+#    - "CHECK=DUMMY"
     - "CHECK=rubocop"
 
 matrix:
   exclude:
     - rvm: 2.4
-      env: "CHECK=CXSCAN"
       env: "CHECK=rubocop"
     - rvm: 2.3
-      env: "CHECK=CXSCAN"
       env: "CHECK=rubocop"
     - rvm: jruby
-      env: "CHECK=CXSCAN"
       env: "CHECK=rubocop"
