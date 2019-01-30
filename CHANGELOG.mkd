@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+3.1.1
+-----
+
+## Bug Fixes
+
+(RK-335) Postrun `modifiedenvs` doesn't include environment prefixes
+
 3.1.0
 -----
 
