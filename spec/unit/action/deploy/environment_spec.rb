@@ -33,7 +33,8 @@ describe R10K::Action::Deploy::Environment do
           :control => {
             :type => :mock,
             :basedir => '/some/nonexistent/path/control',
-            :environments => %w[first second third],
+            :environments => %w[first second third env-that/will-be-corrected],
+            :prefix => 'PREFIX'
           }
         }
       )
@@ -76,7 +77,7 @@ describe R10K::Action::Deploy::Environment do
 
         subject do
           described_class.new( {config: "/some/nonexistent/path" },
-                               %w[first],
+                               %w[PREFIX_first],
                                settings                             )
         end
 
@@ -104,7 +105,7 @@ describe R10K::Action::Deploy::Environment do
 
           subject do
             described_class.new( {config: "/some/nonexistent/path" },
-                                 %w[first],
+                                 %w[PREFIX_first],
                                  settings                             )
           end
 
@@ -114,7 +115,7 @@ describe R10K::Action::Deploy::Environment do
             expect(mock_subprocess).to receive(:execute)
 
             expect(R10K::Util::Subprocess).to receive(:new).
-              with(["/generate/types/wrapper", "first"]).
+              with(["/generate/types/wrapper", "PREFIX_first"]).
               and_return(mock_subprocess)
 
             subject.call
@@ -140,7 +141,7 @@ describe R10K::Action::Deploy::Environment do
             expect(mock_subprocess).to receive(:execute)
 
             expect(R10K::Util::Subprocess).to receive(:new).
-              with(["/generate/types/wrapper", "first second third"]).
+              with(["/generate/types/wrapper", "PREFIX_first PREFIX_second PREFIX_third PREFIX_env_that_will_be_corrected"]).
               and_return(mock_subprocess)
 
             subject.call
@@ -160,7 +161,7 @@ describe R10K::Action::Deploy::Environment do
         expect(R10K::Deployment).to receive(:new).and_return(deployment)
       end
 
-      subject { described_class.new({ config: "/some/nonexistent/path", puppetfile: true }, %w[first], settings) }
+      subject { described_class.new({ config: "/some/nonexistent/path", puppetfile: true }, %w[PREFIX_first], settings) }
 
       describe "deployment purge level" do
         let(:purge_levels) { [:deployment] }

@@ -65,7 +65,7 @@ module R10K
         ensure
           if (postcmd = @settings[:postrun])
             if postcmd.grep('$modifiedenvs').any?
-              envs = deployment.environments.map { |e| e.name }
+              envs = deployment.environments.map { |e| e.dirname }
               envs.reject! { |e| !@argv.include?(e) } if @argv.any?
               postcmd = postcmd.map { |e| e.gsub('$modifiedenvs', envs.join(' ')) }
             end
