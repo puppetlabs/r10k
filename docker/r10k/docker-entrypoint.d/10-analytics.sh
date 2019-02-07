@@ -7,7 +7,7 @@ fi
 
 # See: https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters
 # Tracking ID
-tid=$PUPPERWARE_ANALYTICS_TRACKING_ID
+tid=UA-132486246-5
 # Application Name
 an=r10k
 # Application Version
