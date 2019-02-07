@@ -58,8 +58,8 @@ on(master, "mv #{r10k_config_path} #{r10k_config_bak_path}")
 step 'Update the "r10k" Config'
 create_remote_file(master, r10k_config_path, r10k_conf)
 
-step 'Download license file from int-resources'
-curl_on(master, 'http://int-resources.ops.puppetlabs.net/QA_resources/r10k/license.key -o /etc/puppetlabs/license.key')
+step 'Download license file from artifactory'
+curl_on(master, 'https://artifactory.delivery.puppetlabs.net/artifactory/generic/r10k_test_license.key -o /etc/puppetlabs/license.key')
 
 step 'Inject New "site.pp" to the "production" Environment'
 inject_site_pp(master, site_pp_path, site_pp)
