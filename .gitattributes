@@ -1,1 +1,2 @@
-docker/r10k/*               text  eol=lf
+docker/r10k/*                     text  eol=lf
+docker/r10k/docker-entrypoint.d/* text  eol=lf

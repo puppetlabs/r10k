@@ -33,9 +33,13 @@ RUN apt-get update && \
 
 RUN /opt/puppetlabs/puppet/bin/gem install r10k:"$R10K_VERSION"
 
+COPY docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
+COPY docker-entrypoint.d /docker-entrypoint.d
+
 ENV PATH=/opt/puppetlabs/server/bin:/opt/puppetlabs/puppet/bin:/opt/puppetlabs/bin:$PATH
 
-ENTRYPOINT ["/opt/puppetlabs/puppet/bin/r10k"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["help"]
 
 COPY Dockerfile /
