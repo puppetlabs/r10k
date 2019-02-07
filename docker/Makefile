@@ -1,3 +1,4 @@
+PUPPERWARE_ANALYTICS_STREAM ?= dev
 git_describe = $(shell git describe)
 vcs_ref := $(shell git rev-parse HEAD)
 build_date := $(shell date -u +%FT%T)
@@ -29,7 +30,15 @@ else
 endif
 
 build: prep
-	@docker build --pull --build-arg vcs_ref=$(vcs_ref) --build-arg build_date=$(build_date) --build-arg version=$(version) --file r10k/$(dockerfile) --tag puppet/r10k:$(version) r10k
+	@docker build \
+		--pull \
+		--build-arg vcs_ref=$(vcs_ref) \
+		--build-arg build_date=$(build_date) \
+		--build-arg version=$(version) \
+		--build-arg pupperware_analytics_stream=$(PUPPERWARE_ANALYTICS_STREAM) \
+		--file r10k/$(dockerfile) \
+		--tag puppet/r10k:$(version) \
+		r10k
 ifeq ($(IS_LATEST),true)
 	@docker tag puppet/r10k:$(version) puppet/r10k:latest
 endif
