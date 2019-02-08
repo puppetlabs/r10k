@@ -15,7 +15,13 @@ describe 'r10k container' do
       MSG
       fail error_message
     end
-    @container = %x(docker run --rm --detach --entrypoint /bin/bash --interactive --volume #{File.join(SPEC_DIRECTORY, 'fixtures')}:/test #{@image}).chomp
+    @container = %x(docker run --rm --detach \
+               --env PUPPERWARE_DISABLE_ANALYTICS=true \
+               --entrypoint /bin/bash \
+               --interactive \
+               --volume #{File.join(SPEC_DIRECTORY, 'fixtures')}:/test \
+               #{@image}).chomp
+
     %x(docker exec #{@container} cp test/Puppetfile /)
   end
 

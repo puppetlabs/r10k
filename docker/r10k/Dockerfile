@@ -2,7 +2,12 @@ FROM ubuntu:16.04
 
 ARG vcs_ref
 ARG build_date
-ARG version="2.6.4"
+ARG version="3.1.0"
+# Used by entrypoint to submit metrics to Google Analytics.
+# Published images should use "production" for this build_arg.
+ARG pupperware_analytics_stream="dev"
+ENV PUPPERWARE_ANALYTICS_STREAM="$pupperware_analytics_stream"
+
 ENV R10K_VERSION="$version"
 ENV UBUNTU_CODENAME="xenial"
 
@@ -33,9 +38,13 @@ RUN apt-get update && \
 
 RUN /opt/puppetlabs/puppet/bin/gem install r10k:"$R10K_VERSION"
 
+COPY docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
+COPY docker-entrypoint.d /docker-entrypoint.d
+
 ENV PATH=/opt/puppetlabs/server/bin:/opt/puppetlabs/puppet/bin:/opt/puppetlabs/bin:$PATH
 
-ENTRYPOINT ["/opt/puppetlabs/puppet/bin/r10k"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["help"]
 
 COPY Dockerfile /
