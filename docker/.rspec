@@ -1,3 +1,0 @@
---format RspecJunitFormatter
---out TEST-rspec.xml
---format documentation

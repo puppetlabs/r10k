@@ -5,13 +5,20 @@ script: "bundle exec rspec --color --format documentation spec/unit"
 notifications:
   email: false
 sudo: false
-before_install: gem update bundler
-rvm:
-  - "2.3.0"
-  - "2.2.0"
-  - "2.1.0"
-  - "2.0.0"
-  - "1.9.3"
-  - "jruby-19mode"
 jdk:
-    - oraclejdk8
+  - oraclejdk8
+before_install: gem install bundler -v '< 2' --no-document
+matrix:
+  include:
+    - stage: r10k tests
+      rvm: 2.3.0
+    - stage: r10k tests
+      rvm: 2.2.0
+    - stage: r10k tests
+      rvm: 2.1.0
+    - stage: r10k tests
+      rvm: 2.0.0
+    - stage: r10k tests
+      rvm: 1.9.3
+    - stage: r10k tests
+      rvm: jruby-19mode
