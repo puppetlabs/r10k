@@ -69,6 +69,6 @@ steps:
     testRunTitle: r10k Test Results
 - powershell: |
     . ./docker/ci/build.ps1
-    Clear-ContainerBuilds
+    Clear-ContainerBuilds -Name r10k
   displayName: Container Cleanup
   condition: always()
