@@ -59,9 +59,48 @@ function Invoke-ContainerTest(
   Pop-Location
 }
 
-# removes any temporary containers / images used during builds
-function Clear-ContainerBuilds
+# removes temporary layers / containers / images used during builds
+# removes $Namespace/$Name images > 14 days old by default
+function Clear-ContainerBuilds(
+  $Namespace = 'puppet',
+  $Name,
+  $OlderThan = [DateTime]::Now.Subtract([TimeSpan]::FromDays(14))
+)
 {
+  Write-Output 'Pruning Containers'
   docker container prune --force
+
+  # this provides example data which ConvertFrom-String infers parsing structure with
+  $template = @'
+{Version*:1.2.3} {ID:5b84704c1d01} {[DateTime]Created:2019-02-07 18:24:51} +0000 GMT
+{Version*:latest} {ID:0123456789ab} {[DateTime]Created:2019-01-29 00:05:33} +0000 GMT
+'@
+  $output = docker images --filter=reference="$Namespace/${Name}" --format "{{.Tag}} {{.ID}} {{.CreatedAt}}"
+  Write-Output @"
+
+Found $Namespace/${Name} images:
+$($output | Out-String)
+
+"@
+
+  if ($output -eq $null) { return }
+
+  Write-Output "Filtering removal candidates..."
+  # docker image prune supports filter until= but not repository like 'puppetlabs/foo'
+  # must use label= style filtering which is a bit more inconvenient
+  # that output is also not user-friendly!
+  # engine doesn't maintain "last used" or "last pulled" metadata, which would be more useful
+  # https://github.com/moby/moby/issues/4237
+  $output |
+    ConvertFrom-String -TemplateContent $template |
+    ? { $_.Created -lt $OlderThan } |
+    # ensure 'latest' are listed first
+    Sort-Object -Property Version -Descending |
+    % {
+      Write-Output "Removing Old $Namespace/${Name} Image $($_.Version) ($($_.ID)) Created On $($_.Created)"
+      docker image rm $_.ID
+    }
+
+  Write-Output "`nPruning Dangling Images"
   docker image prune --filter "dangling=true" --force
 }
