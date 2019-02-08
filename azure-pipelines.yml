@@ -5,9 +5,11 @@ pool:
   name: Default
 
 variables:
-  BUILD_REPOSITORY: 127.0.0.1
+  NAMESPACE: puppet
 
 steps:
+- checkout: self
+  clean: true
 - powershell: |
     $line = '=' * 80
     Write-Host "$line`nWindows`n$line`n"
@@ -46,24 +48,24 @@ steps:
   name: hostinfo
 - powershell: |
     . ./docker/ci/build.ps1
-    Invoke-ContainerBuildSetup
-  displayName: Prepare Build Environment
-  name: build_prepare
+    Lint-Dockerfile -Path ./docker/r10k/Dockerfile
+  displayName: Lint r10k Dockerfile
+  name: lint_dockerfile
 - powershell: |
     . ./docker/ci/build.ps1
-    Build-Container -Name r10k -Repository $ENV:BUILD_REPOSITORY
-  displayName: Build r10k
-  name: build_r10k
+    Build-Container -Namespace $ENV:NAMESPACE
+  displayName: Build r10k Container
+  name: build_r10k_container
 - powershell: |
     . ./docker/ci/build.ps1
-    Invoke-ContainerTest -Name r10k -Repository $ENV:BUILD_REPOSITORY
+    Invoke-ContainerTest -Namespace $ENV:NAMESPACE
   displayName: Test r10k
   name: test_r10k
 - task: PublishTestResults@2
   displayName: Publish r10k test results
   inputs:
     testResultsFormat: 'JUnit'
-    testResultsFiles: 'docker/**/TEST-*.xml'
+    testResultsFiles: 'docker/TEST-*.xml'
     testRunTitle: r10k Test Results
 - powershell: |
     . ./docker/ci/build.ps1
