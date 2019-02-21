@@ -1,4 +1,5 @@
 PUPPERWARE_ANALYTICS_STREAM ?= dev
+NAMESPACE ?= puppet
 git_describe = $(shell git describe)
 vcs_ref := $(shell git rev-parse HEAD)
 build_date := $(shell date -u +%FT%T)
@@ -37,20 +38,20 @@ build: prep
 		--build-arg version=$(version) \
 		--build-arg pupperware_analytics_stream=$(PUPPERWARE_ANALYTICS_STREAM) \
 		--file r10k/$(dockerfile) \
-		--tag puppet/r10k:$(version) \
+		--tag $(NAMESPACE)/r10k:$(version) \
 		r10k
 ifeq ($(IS_LATEST),true)
-	@docker tag puppet/r10k:$(version) puppet/r10k:latest
+	@docker tag $(NAMESPACE)/r10k:$(version) puppet/r10k:latest
 endif
 
 test: prep
 	@bundle install --path .bundle/gems
-	@PUPPET_TEST_DOCKER_IMAGE=puppet/r10k:$(version) bundle exec rspec r10k/spec
+	@PUPPET_TEST_DOCKER_IMAGE=$(NAMESPACE)/r10k:$(version) bundle exec rspec r10k/spec
 
 publish: prep
-	@docker push puppet/r10k:$(version)
+	@docker push $(NAMESPACE)/r10k:$(version)
 ifeq ($(IS_LATEST),true)
-	@docker push puppet/r10k:latest
+	@docker push $(NAMESPACE)/r10k:latest
 endif
 
 .PHONY: lint build test publish

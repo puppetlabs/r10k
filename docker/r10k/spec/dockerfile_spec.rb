@@ -17,7 +17,7 @@ describe 'r10k container' do
     end
     @container = %x(docker run --rm --detach \
                --env PUPPERWARE_DISABLE_ANALYTICS=true \
-               --entrypoint /bin/bash \
+               --entrypoint /bin/ash \
                --interactive \
                --volume #{File.join(SPEC_DIRECTORY, 'fixtures')}:/test \
                #{@image}).chomp

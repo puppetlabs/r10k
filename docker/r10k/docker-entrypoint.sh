@@ -8,4 +8,4 @@ for f in /docker-entrypoint.d/*.sh; do
   "$f"
 done
 
-exec /opt/puppetlabs/puppet/bin/r10k "$@"
+exec /usr/bin/r10k "$@"
