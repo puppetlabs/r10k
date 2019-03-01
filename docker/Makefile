@@ -48,10 +48,22 @@ test: prep
 	@bundle install --path .bundle/gems
 	@PUPPET_TEST_DOCKER_IMAGE=$(NAMESPACE)/r10k:$(version) bundle exec rspec r10k/spec
 
-publish: prep
+push-image: prep
 	@docker push $(NAMESPACE)/r10k:$(version)
 ifeq ($(IS_LATEST),true)
 	@docker push $(NAMESPACE)/r10k:latest
 endif
 
-.PHONY: lint build test publish
+push-readme:
+	@docker pull sheogorath/readme-to-dockerhub
+	@docker run --rm \
+		-v $(PWD)/README.md:/data/README.md \
+		-e DOCKERHUB_USERNAME=$(DISTELLI_DOCKER_USERNAME) \
+		-e DOCKERHUB_PASSWORD=$(DISTELLI_DOCKER_PW) \
+		-e DOCKERHUB_REPO_PREFIX=puppet \
+		-e DOCKERHUB_REPO_NAME=r10k \
+		sheogorath/readme-to-dockerhub
+
+publish: push-image push-readme
+
+.PHONY: prep lint build test publish push-image push-readme
