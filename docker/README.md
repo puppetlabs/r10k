@@ -2,6 +2,6 @@
 
 The following environment variables are supported:
 
-- `PUPPERWARE_DISABLE_ANALYTICS`
+- `PUPPERWARE_ANALYTICS_ENABLED`
 
-  Set to `true` to disable Google Analytics metrics.
+  Set to `true` to enable Google Analytics metrics.
