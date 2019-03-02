@@ -20,10 +20,15 @@ steps:
     #
     # Azure
     #
-    Write-Host "`n`n$line`nAzure`n$line`n"
-    Invoke-RestMethod -Headers @{'Metadata'='true'} -URI http://169.254.169.254/metadata/instance?api-version=2017-12-01 -Method Get |
-      ConvertTo-Json -Depth 10 |
-      Write-Host
+    $assetTag = Get-WmiObject -class Win32_SystemEnclosure -namespace root\CIMV2 |
+      Select -ExpandProperty SMBIOSAssetTag
+    if ($assetTag -eq '7783-7084-3265-9085-8269-3286-77')
+    {
+      Write-Host "`n`n$line`nAzure`n$line`n"
+      Invoke-RestMethod -Headers @{'Metadata'='true'} -URI http://169.254.169.254/metadata/instance?api-version=2017-12-01 -Method Get |
+        ConvertTo-Json -Depth 10 |
+        Write-Host
+    }
     #
     # Docker
     #
