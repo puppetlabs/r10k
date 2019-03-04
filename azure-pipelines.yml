@@ -38,6 +38,7 @@ steps:
     Write-Host "`n`n$line`nRuby`n$line`n"
     ruby --version
     gem --version
+    gem env
     bundle --version
     #
     # Environment
