@@ -7,18 +7,22 @@ SPEC_DIRECTORY = File.dirname(__FILE__)
 describe 'r10k container' do
 
   def run_command(command)
+    stdout_string = ''
     status = nil
-    STDOUT.puts "Executing #{command}"
-    Open3.popen2e(command) do |stdin, stdout_stderr, wait_thread|
+
+    Open3.popen3(command) do |stdin, stdout, stderr, wait_thread|
       Thread.new do
-        stdout_stderr.each { |l| STDOUT.puts l }
+        stdout.each { |l| stdout_string << l; STDOUT.puts l }
+      end
+      Thread.new do
+        stderr.each { |l| STDOUT.puts l }
       end
 
       stdin.close
       status = wait_thread.value
     end
 
-    status
+    { status: status, stdout: stdout_string }
   end
 
   before(:all) do
@@ -32,12 +36,13 @@ describe 'r10k container' do
       MSG
       fail error_message
     end
-    @container = %x(docker run --rm --detach \
+    result = run_command("docker run --rm --detach \
                --env PUPPERWARE_DISABLE_ANALYTICS=true \
                --entrypoint /bin/bash \
                --interactive \
                --volume #{File.join(SPEC_DIRECTORY, 'fixtures')}:/test \
-               #{@image}).chomp
+               #{@image}")
+    @container = result[:stdout].chomp
 
     run_command("docker exec #{@container} cp test/Puppetfile /")
   end
@@ -49,14 +54,14 @@ describe 'r10k container' do
 
   it 'should validate the Puppetfile' do
     cmd = "docker exec #{@container} r10k puppetfile check"
-    status = run_command(cmd)
-    expect(status.exitstatus).to eq(0)
+    result = run_command(cmd)
+    expect(result[:status].exitstatus).to eq(0)
   end
 
   it 'should install the Puppetfile' do
     cmd = "docker exec #{@container} r10k puppetfile install"
-    status = run_command(cmd)
-    expect(status.exitstatus).to eq(0)
+    result = run_command(cmd)
+    expect(result[:status].exitstatus).to eq(0)
     expect(Dir.exist?(File.join(SPEC_DIRECTORY, 'fixtures', 'modules', 'ntp'))).to eq(true)
   end
 end
