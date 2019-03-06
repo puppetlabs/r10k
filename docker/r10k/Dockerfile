@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM alpine:3.8
 
 ARG vcs_ref
 ARG build_date
@@ -9,7 +9,6 @@ ARG pupperware_analytics_stream="dev"
 ENV PUPPERWARE_ANALYTICS_STREAM="$pupperware_analytics_stream"
 
 ENV R10K_VERSION="$version"
-ENV UBUNTU_CODENAME="xenial"
 
 LABEL org.label-schema.maintainer="Puppet Release Team <release@puppet.com>" \
       org.label-schema.vendor="Puppet" \
@@ -23,26 +22,13 @@ LABEL org.label-schema.maintainer="Puppet Release Team <release@puppet.com>" \
       org.label-schema.schema-version="1.0" \
       org.label-schema.dockerfile="/Dockerfile"
 
-RUN apt-get update && \
-    apt-get install --no-install-recommends -y wget ca-certificates lsb-release && \
-    wget https://apt.puppetlabs.com/puppet6-release-"$UBUNTU_CODENAME".deb && \
-    dpkg -i puppet6-release-"$UBUNTU_CODENAME".deb && \
-    rm puppet6-release-"$UBUNTU_CODENAME".deb && \
-    apt-get update && \
-    apt-get install --no-install-recommends -y puppet-agent && \
-    apt-get install --no-install-recommends -y git openssh-client && \
-    apt-get remove --purge -y wget && \
-    apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache ruby openssh-client git ruby-rugged curl ruby-dev make gcc musl-dev
 
-RUN /opt/puppetlabs/puppet/bin/gem install r10k:"$R10K_VERSION"
+RUN gem install --no-doc r10k:"$R10K_VERSION" json etc
 
 COPY docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
 COPY docker-entrypoint.d /docker-entrypoint.d
-
-ENV PATH=/opt/puppetlabs/server/bin:/opt/puppetlabs/puppet/bin:/opt/puppetlabs/bin:$PATH
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["help"]
