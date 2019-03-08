@@ -37,7 +37,6 @@ describe 'r10k container' do
       fail error_message
     end
     result = run_command("docker run --rm --detach \
-               --env PUPPERWARE_DISABLE_ANALYTICS=true \
                --entrypoint /bin/ash \
                --interactive \
                --volume #{File.join(SPEC_DIRECTORY, 'fixtures')}:/test \
