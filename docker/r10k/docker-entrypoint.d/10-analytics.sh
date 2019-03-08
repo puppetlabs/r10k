@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ "${PUPPERWARE_ANALYTICS_ENABLED}" != "true" ]; then
-    echo "($0) Pupperware analytics not enabled; skipping metric submission"
+    # Don't print out any messages here since this is a CLI container
     exit 0
 fi
 
@@ -23,6 +23,6 @@ ea=start
 _params="v=1&t=event&tid=${tid}&an=${an}&av=${av}&cid=${cid}&ec=${ec}&ea=${ea}"
 _url="http://www.google-analytics.com/collect?${_params}"
 
-echo "($0) Sending metrics ${_url}"
+# Don't print out any messages here since this is a CLI container
 curl --fail --silent --show-error --output /dev/null \
     -X POST -H "Content-Length: 0" $_url
