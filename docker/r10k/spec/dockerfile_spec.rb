@@ -25,6 +25,13 @@ describe 'r10k container' do
     { status: status, stdout: stdout_string }
   end
 
+  def run_r10k(command)
+    run_command("docker run --rm \
+                   --volume #{File.join(SPEC_DIRECTORY, 'fixtures')}:/test \
+                   #{@image} #{command} \
+                   --puppetfile /test/Puppetfile")
+  end
+
   before(:all) do
     @image = ENV['PUPPET_TEST_DOCKER_IMAGE']
     if @image.nil?
@@ -36,30 +43,19 @@ describe 'r10k container' do
       MSG
       fail error_message
     end
-    result = run_command("docker run --rm --detach \
-               --entrypoint /bin/ash \
-               --interactive \
-               --volume #{File.join(SPEC_DIRECTORY, 'fixtures')}:/test \
-               #{@image}")
-    @container = result[:stdout].chomp
-
-    run_command("docker exec #{@container} cp test/Puppetfile /")
   end
 
   after(:all) do
-    run_command("docker container kill #{@container}")
     FileUtils.rm_rf(File.join(SPEC_DIRECTORY, 'fixtures', 'modules'))
   end
 
   it 'should validate the Puppetfile' do
-    cmd = "docker exec #{@container} r10k puppetfile check"
-    result = run_command(cmd)
+    result = run_r10k('puppetfile check')
     expect(result[:status].exitstatus).to eq(0)
   end
 
   it 'should install the Puppetfile' do
-    cmd = "docker exec #{@container} r10k puppetfile install"
-    result = run_command(cmd)
+    result = run_r10k('puppetfile install')
     expect(result[:status].exitstatus).to eq(0)
     expect(Dir.exist?(File.join(SPEC_DIRECTORY, 'fixtures', 'modules', 'ntp'))).to eq(true)
   end
