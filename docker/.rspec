@@ -1,3 +1,4 @@
+--require ./r10k/spec/spec_helper
 --format RspecJunitFormatter
 --out TEST-rspec.xml
 --format documentation
