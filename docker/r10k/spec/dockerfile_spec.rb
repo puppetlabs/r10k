@@ -5,25 +5,7 @@ require 'open3'
 SPEC_DIRECTORY = File.dirname(__FILE__)
 
 describe 'r10k container' do
-
-  def run_command(command)
-    stdout_string = ''
-    status = nil
-
-    Open3.popen3(command) do |stdin, stdout, stderr, wait_thread|
-      Thread.new do
-        stdout.each { |l| stdout_string << l; STDOUT.puts l }
-      end
-      Thread.new do
-        stderr.each { |l| STDOUT.puts l }
-      end
-
-      stdin.close
-      status = wait_thread.value
-    end
-
-    { status: status, stdout: stdout_string }
-  end
+  include Helpers
 
   def run_r10k(command)
     run_command("docker run --rm \
