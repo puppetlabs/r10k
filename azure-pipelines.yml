@@ -7,6 +7,10 @@ pool:
 variables:
   NAMESPACE: puppet
 
+# completely disables the pipeline
+trigger: none
+pr: none
+
 steps:
 - checkout: self
   clean: true
