@@ -19,8 +19,10 @@ cid=$(cat $_file 2>/dev/null || (cat /proc/sys/kernel/random/uuid | tee $_file))
 ec=${PUPPERWARE_ANALYTICS_STREAM:-dev}
 # Event Action
 ea=start
+# Anonymize ip
+aip=1
 
-_params="v=1&t=event&tid=${tid}&an=${an}&av=${av}&cid=${cid}&ec=${ec}&ea=${ea}"
+_params="v=1&t=event&tid=${tid}&an=${an}&av=${av}&cid=${cid}&ec=${ec}&ea=${ea}&aip=${aip}"
 _url="http://www.google-analytics.com/collect?${_params}"
 
 # Don't print out any messages here since this is a CLI container
