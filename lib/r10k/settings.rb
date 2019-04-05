@@ -9,6 +9,11 @@ module R10K
     require 'r10k/settings/definition'
     require 'r10k/settings/list'
 
+    class << self
+      # Path to puppet executable
+      attr_accessor :puppet_path
+    end
+
     def self.git_settings
       R10K::Settings::Collection.new(:git, [
 
@@ -107,6 +112,24 @@ module R10K
         Definition.new(:purge_whitelist, {
           :desc => "A list of filename patterns to be excluded from any purge operations. Patterns are matched relative to the root of each deployed environment, if you want a pattern to match recursively you need to use the '**' glob in your pattern. Basic shell style globs are supported.",
           :default => [],
+        }),
+
+        Definition.new(:generate_types, {
+          :desc => "Controls whether to generate puppet types after deploying an environment. Defaults to false.",
+          :default => false,
+          :normalize => lambda do |input|
+            input.to_s == 'true'
+          end,
+        }),
+
+        Definition.new(:puppet_path, {
+          :desc => "Path to puppet executable. Defaults to /opt/puppetlabs/bin/puppet.",
+          :default => '/opt/puppetlabs/bin/puppet',
+          :validate => lambda do |value|
+            unless File.executable? value
+              raise ArgumentError, "The specified puppet executable #{value} is not executable"
+            end
+          end
         }),
       ])
     end

@@ -1,3 +1,5 @@
+require 'r10k/util/subprocess'
+
 # This class defines a common interface for environment implementations.
 #
 # @since 1.3.0
@@ -132,5 +134,17 @@ class R10K::Environment::Base
     end
 
     list.to_a
+  end
+
+  def generate_types!
+    argv = [R10K::Settings.puppet_path, 'generate', 'types', '--environment', dirname, '--environmentpath', basedir]
+    subproc = R10K::Util::Subprocess.new(argv)
+    subproc.raise_on_fail = true
+    subproc.logger = logger
+    result = subproc.execute
+    unless result.stderr.empty?
+      logger.warn "There were problems generating types for environment #{dirname}:"
+      result.stderr.split(%r{\n}).map { |msg| logger.warn msg }
+    end
   end
 end

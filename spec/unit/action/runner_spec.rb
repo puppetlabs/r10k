@@ -25,6 +25,10 @@ describe R10K::Action::Runner do
 
   subject(:runner) { described_class.new({:opts => :yep}, %w[args yes], action_class) }
 
+  before(:each) do
+    expect(runner.logger).not_to receive(:error)
+  end
+
   describe "instantiating the wrapped class" do
     it "creates an instance of the class" do
       expect(runner.instance).to be_a_kind_of action_class

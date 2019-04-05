@@ -30,11 +30,19 @@ module R10K
           logger.warn(_("the purgedirs key in r10k.yaml is deprecated. it is currently ignored."))
         end
 
+        with_setting(:deploy) { |value| DeployInitializer.new(value).call }
+
         with_setting(:cachedir) { |value| R10K::Git::Cache.settings[:cache_root] = value }
         with_setting(:cachedir) { |value| R10K::Forge::ModuleRelease.settings[:cache_root] = value }
 
         with_setting(:git) { |value| GitInitializer.new(value).call }
         with_setting(:forge) { |value| ForgeInitializer.new(value).call }
+      end
+    end
+
+    class DeployInitializer < BaseInitializer
+      def call
+        with_setting(:puppet_path) { |value| R10K::Settings.puppet_path = value }
       end
     end
 
