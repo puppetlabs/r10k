@@ -1,0 +1,5 @@
+---
+  cachedir: /config_cachedir
+  deploy:
+    generate_types: /config_generate_types
+    puppet_path: /config_puppet_path

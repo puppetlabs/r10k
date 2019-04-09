@@ -66,6 +66,97 @@ describe R10K::Action::Runner do
     end
   end
 
+  describe "configuring settings" do
+    subject(:runner) { described_class.new(options, %w[args yes], action_class) }
+
+    let(:global_settings) { R10K::Settings.global_settings }
+
+    before(:each) do
+      expect(R10K::Settings).to receive(:global_settings).and_return(global_settings)
+      allow(File).to receive(:executable?).and_return(true)
+    end
+
+    opts = {
+      cachedir:       nil,
+      puppet_path:    :deploy,
+      generate_types: :deploy,
+    }
+
+    opts.each do |opt, conf_path|
+      context "with #{opt} config setting" do
+        let(:options) { { config: "spec/fixtures/unit/action/r10k_#{opt}.yaml" } }
+
+        context "when not overridden" do
+          it "uses the config value" do
+            override = { "#{opt}": "/config_#{opt}" }
+            overrides = if conf_path.nil?
+                          override
+                        else
+                          { "#{conf_path}": override }
+                        end
+            expect(global_settings).to receive(:evaluate).with(overrides).and_call_original
+            runner.call
+          end
+        end
+
+        context "when overridden" do
+          let(:options) { super().merge("#{opt.to_s.sub('_','-')}": "/overridden_#{opt}") }
+
+          it "uses the overridden value" do
+            override = { "#{opt}": "/overridden_#{opt}" }
+            overrides = if conf_path.nil?
+                          override
+                        else
+                          { "#{conf_path}": override }
+                        end
+            expect(global_settings).to receive(:evaluate).with(overrides).and_call_original
+            runner.call
+          end
+        end
+      end
+
+      context "with complete config" do
+        let(:options) { { config: "spec/fixtures/unit/action/r10k.yaml" } }
+        let(:config) do
+          config = {}
+          opts.each do |o, path|
+            if path.nil?
+              config[o] = "/config_#{o}"
+            else
+              config[path] ||= {}
+              config[path][o] = "/config_#{o}"
+            end
+          end
+          config
+        end
+
+        context "when not overridden" do
+          it "uses the config value" do
+            expect(global_settings).to receive(:evaluate).with(config).and_call_original
+            runner.call
+          end
+        end
+
+        context "when overridden" do
+          let(:options) {
+            super().merge("#{opt.to_s.sub('_','-')}": "/overridden_#{opt}")
+          }
+
+          it "uses the overridden value" do
+            with_overrides = config
+            if conf_path.nil?
+              with_overrides[opt] = "/overridden_#{opt}"
+            else
+              with_overrides[conf_path][opt] = "/overridden_#{opt}"
+            end
+            expect(global_settings).to receive(:evaluate).with(with_overrides).and_call_original
+            runner.call
+          end
+        end
+      end
+    end
+  end
+
   describe "configuring logging" do
     it "sets the log level if :loglevel is provided" do
       runner = described_class.new({:opts => :yep, :loglevel => 'FATAL'}, %w[args yes], action_class)
