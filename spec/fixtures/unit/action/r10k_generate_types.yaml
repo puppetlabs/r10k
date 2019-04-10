@@ -1,0 +1,3 @@
+---
+  deploy:
+    generate_types: /config_generate_types

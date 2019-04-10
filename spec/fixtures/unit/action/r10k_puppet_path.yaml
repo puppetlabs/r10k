@@ -1,0 +1,3 @@
+---
+  deploy:
+    puppet_path: /config_puppet_path
