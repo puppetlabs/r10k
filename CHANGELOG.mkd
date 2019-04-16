@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+3.2.0
+-----
+
+## New Feature
+
+Add support for running `puppet generate types`
+
 3.1.1
 -----
 
