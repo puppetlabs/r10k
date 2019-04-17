@@ -15,3 +15,7 @@ on(master, "git clone git://github.com/puppetlabs/filebucket.git #{filebucket_pa
 
 on(master, "chmod 755 #{filebucket_script_path}")
 on(master, "chmod 755 #{filebucket_path}/filebucketapp.py")
+
+if master.platform =~ /el-8/
+  master.install_package("python3")
+end
