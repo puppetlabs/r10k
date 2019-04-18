@@ -73,6 +73,13 @@ proxy: 'http://user:password@proxy.example.com:3128'
 
 The proxy server being used will be logged at the "debug" level when r10k runs.
 
+### pool_size
+
+The pool_size setting is a number to determine how many threads should be spawn
+while updating modules. The default value is 1, which means the default behaviour
+is to update modules in a serial manner. Increasing this number should bring
+some performance gains.
+
 ### git
 
 The 'git' setting is a hash that contains Git specific settings.

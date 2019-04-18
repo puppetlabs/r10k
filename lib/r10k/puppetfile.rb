@@ -1,3 +1,4 @@
+require 'thread'
 require 'pathname'
 require 'r10k/module'
 require 'r10k/util/purgeable'
@@ -6,6 +7,10 @@ require 'r10k/errors'
 module R10K
 class Puppetfile
   # Defines the data members of a Puppetfile
+
+  include R10K::Settings::Mixin
+
+  def_setting_attr :pool_size, 1
 
   include R10K::Logging
 
@@ -152,6 +157,17 @@ class Puppetfile
   end
 
   def accept(visitor)
+    pool_size = self.settings[:pool_size]
+    if pool_size > 1
+      concurrent_accept(visitor, pool_size)
+    else
+      serial_accept(visitor)
+    end
+  end
+
+  private
+
+  def serial_accept(visitor)
     visitor.visit(:puppetfile, self) do
       modules.each do |mod|
         mod.accept(visitor)
@@ -159,7 +175,31 @@ class Puppetfile
     end
   end
 
-  private
+  def concurrent_accept(visitor, pool_size)
+    logger.debug _("Updating modules with %{pool_size} threads") % {pool_size: pool_size}
+    mods_queue = modules_queue(visitor)
+    thread_pool = pool_size.times.map { visitor_thread(visitor, mods_queue) }
+    thread_pool.each(&:join)
+  end
+
+  def modules_queue(visitor)
+    Queue.new.tap do |queue|
+      visitor.visit(:puppetfile, self) do
+        modules.each { |mod| queue << mod }
+      end
+    end
+  end
+
+  def visitor_thread(visitor, mods_queue)
+    Thread.new do
+      begin
+        while mod = mods_queue.pop(true) do mod.accept(visitor) end
+      rescue ThreadError => e
+        logger.error _("Thread error during concurrent module deploy: %{message}") % {message: e.message}
+        Thread.exit
+      end
+    end
+  end
 
   def puppetfile_contents
     File.read(@puppetfile_path)
