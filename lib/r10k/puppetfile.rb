@@ -194,7 +194,8 @@ class Puppetfile
     Thread.new do
       begin
         while mod = mods_queue.pop(true) do mod.accept(visitor) end
-      rescue ThreadError
+      rescue ThreadError => e
+        logger.error _("Thread error during concurrent module deploy: %{message}") % {message: e.message}
         Thread.exit
       end
     end
