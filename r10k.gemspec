@@ -23,7 +23,8 @@ Gem::Specification.new do |s|
   s.license  = 'Apache-2.0'
 
   s.add_dependency 'colored',   '1.2'
-  s.add_dependency 'cri',       '~> 2.15.1'
+  # cri 2.15.4 added dependency on ruby >= 2.4. Unpin when r10k drops ruby 2.3 support.
+  s.add_dependency 'cri',       '>= 2.15.1', '< 2.15.4'
 
   s.add_dependency 'log4r',     '1.1.10'
   s.add_dependency 'multi_json', '~> 1.10'
