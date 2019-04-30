@@ -1,5 +1,11 @@
 CHANGELOG
 =========
+3.0.4
+----
+
+## Changes
+
+(RK-341)The cri gem version 2.15.4 dropped support for Ruby 2.3. In order to maintain Ruby 2.3 compatibility the cri gem dependency must be limited to versions between 2.15.1 and 2.15.3. 
 
 3.0.3
 ----
