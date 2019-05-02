@@ -24,7 +24,6 @@ pre-suite/00_pe_install.rb,
 component/pre-suite/05_install_dev_r10k.rb,
 pre-suite/10_git_config.rb,
 pre-suite/20_pe_r10k.rb,
-pre-suite/30_test_utils.rb,
 EOS
   common_setup.gsub!("\n", '')
 
