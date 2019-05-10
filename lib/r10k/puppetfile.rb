@@ -274,23 +274,38 @@ class Puppetfile
               item.children.first
             end
           end.compact
-
+          
           case name
           when :mod
-            @librarian.add_module(args.shift, *args)
+            mod = args.shift
+            if args.empty? 
+              @librarian.add_module(mod, nil)
+            else
+              @librarian.add_module(mod, *args)
+            end            
           when :forge
             @librarian.set_forge(args.shift)
           when :moduledir
             @librarian.set_moduledir(args.shift)
+          when :incl
+            arg = args.shift
+            
+            if Pathname.new(arg).absolute?
+              path = arg
+            else
+              path = File.join(File.dirname(@librarian.puppetfile_path), arg)
+            end
+
+            parse(File.read(path))
           else
             # Should we log unexpected Ruby code?
           end
+        end
+        
+        node.children.each do |n|
+          next unless n.is_a? RubyVM::AbstractSyntaxTree::Node
 
-          node.children.each do |n|
-            next unless n.is_a? RubyVM::AbstractSyntaxTree::Node
-
-            traverse(n)
-          end
+          traverse(n)
         end
       rescue => e
         puts e.message
