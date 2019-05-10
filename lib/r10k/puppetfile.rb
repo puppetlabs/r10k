@@ -298,7 +298,7 @@ class Puppetfile
 
             parse(File.read(path))
           else
-            # Should we log unexpected Ruby code?
+            raise LoadError, _("unrecognized declaration '%{method}'") % {method: args.shift}
           end
         end
         
