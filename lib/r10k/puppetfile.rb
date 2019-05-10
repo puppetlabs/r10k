@@ -72,8 +72,19 @@ class Puppetfile
   end
 
   def load!
-    dsl = R10K::Puppetfile::DSL.new(self)
-    dsl.instance_eval(puppetfile_contents, @puppetfile_path)
+    begin
+      logger.debug "Attempting to parse the AST directly"
+
+      parser = R10K::Puppetfile::Parser.new(self)
+      parser.parse(puppetfile_contents)
+
+    rescue R10K::Error => e
+      logger.debug "Falling back to eval'ing the Puppetfile"
+
+      dsl = R10K::Puppetfile::DSL.new(self)
+      dsl.instance_eval(puppetfile_contents, @puppetfile_path)
+    end
+    
     validate_no_duplicate_names(@modules)
     @loaded = true
   rescue SyntaxError, LoadError, ArgumentError, NameError => e
@@ -226,6 +237,65 @@ class Puppetfile
     end
 
     true
+  end
+
+  class Parser
+    # A Puppetfile parser that does not require eval'ing Ruby code
+    # 
+    # @api private
+
+    def initialize(librarian)
+      @librarian = librarian
+    end
+
+    def parse(puppetfile)
+      root = nil
+      begin
+        root = RubyVM::AbstractSyntaxTree.parse(puppetfile)
+      rescue NameError => e
+        # When run on Ruby 2.6 or greater, this will parse the Puppefile directly.
+        # See https://docs.ruby-lang.org/en/trunk/RubyVM/AbstractSyntaxTree.html for more information.
+        raise R10K::Error.new("Cannot parse Puppetfile directly on Ruby version #{RUBY_VERSION}")
+      end
+      traverse(root)
+    end
+
+    def traverse(node)
+      begin
+        if node.type == :FCALL
+          name = node.children.first
+          args = node.children.last.children.map do |item|
+            next if item.nil?
+
+            case item.type
+            when :HASH
+              Hash[*item.children.first.children.compact.map {|n| n.children.first }]
+            else
+              item.children.first
+            end
+          end.compact
+
+          case name
+          when :mod
+            @librarian.add_module(args.shift, *args)
+          when :forge
+            @librarian.set_forge(args.shift)
+          when :moduledir
+            @librarian.set_moduledir(args.shift)
+          else
+            # Should we log unexpected Ruby code?
+          end
+
+          node.children.each do |n|
+            next unless n.is_a? RubyVM::AbstractSyntaxTree::Node
+
+            traverse(n)
+          end
+        end
+      rescue => e
+        puts e.message
+      end
+    end
   end
 
   class DSL
