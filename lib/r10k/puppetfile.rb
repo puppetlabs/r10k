@@ -257,6 +257,7 @@ class Puppetfile
         # See https://docs.ruby-lang.org/en/trunk/RubyVM/AbstractSyntaxTree.html for more information.
         raise R10K::Error.new("Cannot parse Puppetfile directly on Ruby version #{RUBY_VERSION}")
       end
+
       traverse(root)
     end
 
@@ -270,6 +271,8 @@ class Puppetfile
             case item.type
             when :HASH
               Hash[*item.children.first.children.compact.map {|n| n.children.first }]
+            when :FCALL
+              raise NameError
             else
               item.children.first
             end
@@ -278,9 +281,15 @@ class Puppetfile
           case name
           when :mod
             mod = args.shift
+
             if args.empty? 
               @librarian.add_module(mod, nil)
             else
+              # Args can be a single string or a hash, but not both.
+              valid = (args.length == 1) && (args.first.is_a?(Hash) || args.first.is_a?(String))
+
+              raise ArgumentError if !valid
+
               @librarian.add_module(mod, *args)
             end            
           when :forge
@@ -309,6 +318,7 @@ class Puppetfile
         end
       rescue => e
         puts e.message
+        raise
       end
     end
   end
