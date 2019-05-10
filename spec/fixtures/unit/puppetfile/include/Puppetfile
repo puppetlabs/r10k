@@ -1,0 +1,7 @@
+incl 'Puppetfile.shared'
+
+mod 'puppetlabs/stdlib'
+
+mod 'puppetlabs-apache',
+  :git => 'git@github.com:puppetlabs/puppetlabs-apache.git',
+  :branch => 'master'
