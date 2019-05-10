@@ -74,7 +74,7 @@ class Puppetfile
   def load!
     begin
       logger.debug "Attempting to parse the AST directly"
-
+      
       parser = R10K::Puppetfile::Parser.new(self)
       parser.parse(puppetfile_contents)
 
@@ -317,7 +317,7 @@ class Puppetfile
     # A barebones implementation of the Puppetfile DSL
     #
     # @api private
-
+    
     def initialize(librarian)
       @librarian = librarian
     end
@@ -332,6 +332,16 @@ class Puppetfile
 
     def moduledir(location)
       @librarian.set_moduledir(location)
+    end
+
+    def incl(librarian)
+      if Pathname.new(librarian).absolute?
+        path = arg
+      else
+        path = File.join(File.dirname(@librarian.puppetfile_path), librarian)
+      end
+
+      instance_eval(File.read(path), @librarian.puppetfile_path)
     end
 
     def method_missing(method, *args)
