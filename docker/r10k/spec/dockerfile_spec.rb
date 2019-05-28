@@ -5,8 +5,7 @@ require 'open3'
 SPEC_DIRECTORY = File.dirname(__FILE__)
 
 describe 'r10k container' do
-  include Helpers
-
+  include Pupperware::SpecHelpers
   def run_r10k(command)
     run_command("docker run --rm \
                    --volume #{File.join(SPEC_DIRECTORY, 'fixtures')}:/test \
