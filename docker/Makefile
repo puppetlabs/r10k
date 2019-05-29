@@ -6,6 +6,10 @@ build_date := $(shell date -u +%FT%T)
 hadolint_available := $(shell hadolint --help > /dev/null 2>&1; echo $$?)
 hadolint_command := hadolint --ignore DL3008 --ignore DL3018 --ignore DL4000 --ignore DL4001
 hadolint_container := hadolint/hadolint:latest
+pwd := $(shell pwd)
+export BUNDLE_PATH = $(pwd)/.bundle/gems
+export BUNDLE_BIN = $(pwd)/.bundle/bin
+export GEMFILE = $(pwd)/Gemfile
 
 ifeq ($(IS_NIGHTLY),true)
 	dockerfile := Dockerfile.nightly
@@ -45,8 +49,10 @@ ifeq ($(IS_LATEST),true)
 endif
 
 test: prep
-	@bundle install --path .bundle/gems
-	@PUPPET_TEST_DOCKER_IMAGE=$(NAMESPACE)/r10k:$(version) bundle exec rspec r10k/spec
+	@bundle install --path $$BUNDLE_PATH --gemfile $$GEMFILE
+	@PUPPET_TEST_DOCKER_IMAGE=$(NAMESPACE)/r10k:$(version) \
+		bundle exec --gemfile $$GEMFILE \
+		rspec r10k/spec
 
 push-image: prep
 	@docker push $(NAMESPACE)/r10k:$(version)
