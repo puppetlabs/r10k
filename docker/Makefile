@@ -11,20 +11,12 @@ export BUNDLE_PATH = $(pwd)/.bundle/gems
 export BUNDLE_BIN = $(pwd)/.bundle/bin
 export GEMFILE = $(pwd)/Gemfile
 
-ifeq ($(IS_NIGHTLY),true)
-	dockerfile := Dockerfile.nightly
-	version := puppet6-nightly
-else
-	version = $(shell echo $(git_describe) | sed 's/-.*//')
-	dockerfile := Dockerfile
-endif
-
+version = $(shell echo $(git_describe) | sed 's/-.*//')
+dockerfile := Dockerfile
 
 prep:
-ifneq ($(IS_NIGHTLY),true)
 	@git fetch --unshallow ||:
 	@git fetch origin 'refs/tags/*:refs/tags/*'
-endif
 
 lint:
 ifeq ($(hadolint_available),0)
