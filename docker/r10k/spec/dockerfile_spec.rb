@@ -7,7 +7,7 @@ SPEC_DIRECTORY = File.dirname(__FILE__)
 describe 'r10k container' do
   include Pupperware::SpecHelpers
   def run_r10k(command)
-    run_command("docker run --rm \
+    run_command("docker run --detach \
                    --volume #{File.join(SPEC_DIRECTORY, 'fixtures')}:/test \
                    #{@image} #{command} \
                    --puppetfile /test/Puppetfile")
@@ -32,12 +32,20 @@ describe 'r10k container' do
 
   it 'should validate the Puppetfile' do
     result = run_r10k('puppetfile check')
-    expect(result[:status].exitstatus).to eq(0)
+    container = result[:stdout].chomp
+    wait_on_container_exit(container)
+    expect(get_container_exit_code(container)).to eq(0)
+    emit_log(container)
+    teardown_container(container)
   end
 
   it 'should install the Puppetfile' do
     result = run_r10k('puppetfile install')
-    expect(result[:status].exitstatus).to eq(0)
+    container = result[:stdout].chomp
+    wait_on_container_exit(container)
+    expect(get_container_exit_code(container)).to eq(0)
     expect(Dir.exist?(File.join(SPEC_DIRECTORY, 'fixtures', 'modules', 'ntp'))).to eq(true)
+    emit_log(container)
+    teardown_container(container)
   end
 end
