@@ -21,6 +21,19 @@ matrix:
     - stage: r10k tests
       rvm: jruby
     - stage: r10k container tests
-      language: generic
+      language: ruby
+      rvm: 2.5.5
+      env:
+        - DOCKER_COMPOSE_VERSION=1.24.0
       script:
-        - cd docker && make lint && make build && make test
+        - |
+          set -ex
+          sudo rm /usr/local/bin/docker-compose
+          curl --location https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname --kernel-name`-`uname --machine` > docker-compose 
+          chmod +x docker-compose
+          sudo mv docker-compose /usr/local/bin
+          cd docker
+          make lint
+          make build
+          make test
+          set +x
