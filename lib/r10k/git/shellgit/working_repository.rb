@@ -28,7 +28,7 @@ class R10K::Git::ShellGit::WorkingRepository < R10K::Git::ShellGit::BaseReposito
   #
   # @return [void]
   def clone(remote, opts = {})
-    argv = ['clone', '--no-hardinks', remote, @path.to_s]
+    argv = ['clone', '--no-hardlinks', remote, @path.to_s]
     if opts[:reference]
       argv += ['--reference', opts[:reference]]
     end
