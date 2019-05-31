@@ -24,6 +24,7 @@ module R10K
         {
           :config => true,
           :trace  => true,
+          :help => true,
         }
       end
     end
