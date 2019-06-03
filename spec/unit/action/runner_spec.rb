@@ -94,7 +94,7 @@ describe R10K::Action::Runner do
                         else
                           { "#{conf_path}": override }
                         end
-            expect(global_settings).to receive(:evaluate).with(overrides).and_call_original
+            expect(global_settings).to receive(:evaluate).with(hash_including(overrides)).and_call_original
             runner.call
           end
         end
@@ -109,7 +109,7 @@ describe R10K::Action::Runner do
                         else
                           { "#{conf_path}": override }
                         end
-            expect(global_settings).to receive(:evaluate).with(overrides).and_call_original
+            expect(global_settings).to receive(:evaluate).with(hash_including(overrides)).and_call_original
             runner.call
           end
         end
