@@ -1,6 +1,18 @@
 CHANGELOG
 =========
 
+3.3.0
+-----
+
+## New Feature
+
+Adds support for installing modules concurrently
+
+## Bug Fixes
+
+(RK-343) Pins CRI dependency to 2.15.6 to resolve regression in options
+parsing.
+
 3.2.0
 -----
 
