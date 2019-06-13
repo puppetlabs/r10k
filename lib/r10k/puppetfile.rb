@@ -193,12 +193,9 @@ class Puppetfile
   def visitor_thread(visitor, mods_queue)
     Thread.new do
       begin
-        until mods_queue.empty?
-          mod = mods_queue.pop(true)
-          mod.accept(visitor)
-        end
+        while mod = mods_queue.pop(true) do mod.accept(visitor) end
       rescue ThreadError => e
-        logger.error _("Thread error during concurrent module deploy: %{message}") % {message: e.message}
+        logger.debug _("Module thread %{id} exiting: %{message}") % {message: e.message, id: Thread.current.object_id}
         Thread.exit
       end
     end
