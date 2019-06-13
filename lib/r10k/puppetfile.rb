@@ -197,6 +197,9 @@ class Puppetfile
       rescue ThreadError => e
         logger.debug _("Module thread %{id} exiting: %{message}") % {message: e.message, id: Thread.current.object_id}
         Thread.exit
+      rescue => e
+        logger.error _("Error during concurrent deploy of module %{name}: %{message}") % {name: mod.name, message: e.message}
+        Thread.exit
       end
     end
   end
