@@ -179,7 +179,21 @@ class Puppetfile
     logger.debug _("Updating modules with %{pool_size} threads") % {pool_size: pool_size}
     mods_queue = modules_queue(visitor)
     thread_pool = pool_size.times.map { visitor_thread(visitor, mods_queue) }
-    thread_pool.each(&:join)
+    thread_exception = nil
+
+    # If any threads raise an exception the deployment is considered a failure.
+    # In that event clear the queue, wait for other threads to finish their
+    # current work, then re-raise the first exception caught.
+    begin
+      thread_pool.each(&:join)
+    rescue => e
+      logger.error _("Error during concurrent deploy of a module: %{message}") % {message: e.message}
+      mods_queue.clear
+      thread_exception ||= e
+      retry
+    ensure
+      raise thread_exception unless thread_exception.nil?
+    end
   end
 
   def modules_queue(visitor)
@@ -195,8 +209,10 @@ class Puppetfile
       begin
         while mod = mods_queue.pop(true) do mod.accept(visitor) end
       rescue ThreadError => e
-        logger.error _("Thread error during concurrent module deploy: %{message}") % {message: e.message}
+        logger.debug _("Module thread %{id} exiting: %{message}") % {message: e.message, id: Thread.current.object_id}
         Thread.exit
+      rescue => e
+        Thread.main.raise(e)
       end
     end
   end
