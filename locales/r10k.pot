@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.2.0-7-g213f14b\n"
+"Project-Id-Version: r10k 3.3.0-7-g6a2159a\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2019-04-18 21:10+0000\n"
-"PO-Revision-Date: 2019-04-18 21:10+0000\n"
+"POT-Creation-Date: 2019-06-14 22:40+0000\n"
+"PO-Revision-Date: 2019-06-14 22:40+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -343,11 +343,15 @@ msgstr ""
 msgid "Updating modules with %{pool_size} threads"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:198
-msgid "Thread error during concurrent module deploy: %{message}"
+#: ../lib/r10k/puppetfile.rb:190
+msgid "Error during concurrent deploy of a module: %{message}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:253
+#: ../lib/r10k/puppetfile.rb:212
+msgid "Module thread %{id} exiting: %{message}"
+msgstr ""
+
+#: ../lib/r10k/puppetfile.rb:269
 msgid "unrecognized declaration '%{method}'"
 msgstr ""
 
