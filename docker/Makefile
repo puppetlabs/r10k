@@ -4,14 +4,14 @@ git_describe = $(shell git describe)
 vcs_ref := $(shell git rev-parse HEAD)
 build_date := $(shell date -u +%FT%T)
 hadolint_available := $(shell hadolint --help > /dev/null 2>&1; echo $$?)
-hadolint_command := hadolint --ignore DL3008 --ignore DL3018 --ignore DL4000 --ignore DL4001
+hadolint_command := hadolint --ignore DL3008 --ignore DL3018 --ignore DL3028 --ignore DL4000 --ignore DL4001
 hadolint_container := hadolint/hadolint:latest
 pwd := $(shell pwd)
 export BUNDLE_PATH = $(pwd)/.bundle/gems
 export BUNDLE_BIN = $(pwd)/.bundle/bin
 export GEMFILE = $(pwd)/Gemfile
 
-version = $(shell echo $(git_describe) | sed 's/-.*//')
+version := $(shell command grep VERSION ../lib/r10k/version.rb | awk '{print $$3}' | sed "s/'//g")
 dockerfile := Dockerfile
 
 prep:
@@ -34,8 +34,7 @@ build: prep
 		--build-arg version=$(version) \
 		--build-arg pupperware_analytics_stream=$(PUPPERWARE_ANALYTICS_STREAM) \
 		--file r10k/$(dockerfile) \
-		--tag $(NAMESPACE)/r10k:$(version) \
-		r10k
+		--tag $(NAMESPACE)/r10k:$(version) $(pwd)/..
 ifeq ($(IS_LATEST),true)
 	@docker tag $(NAMESPACE)/r10k:$(version) puppet/r10k:latest
 endif
@@ -64,4 +63,4 @@ push-readme:
 
 publish: push-image push-readme
 
-.PHONY: prep lint build test publish push-image push-readme
+.PHONY: lint build test prep publish push-image push-readme
