@@ -109,7 +109,7 @@ module R10K
         end
 
         def visit_puppetfile(puppetfile)
-          puppetfile.load
+          puppetfile.load(@opts[:'default-branch-override'])
 
           yield
 
@@ -146,7 +146,7 @@ module R10K
         end
 
         def allowed_initialize_opts
-          super.merge(puppetfile: :self, cachedir: :self, :'no-force' => :self)
+          super.merge(puppetfile: :self, cachedir: :self, :'no-force' => :self, :'default-branch-override' => :self)
         end
       end
     end

@@ -53,6 +53,7 @@ scheduled. On subsequent deployments, Puppetfile deployment will default to off.
           DESCRIPTION
 
           flag :p, :puppetfile, 'Deploy modules from a puppetfile'
+          required nil, :'default-branch-override', 'Specify a branchname to override the default branch in the puppetfile'
 
           runner R10K::Action::CriRunner.wrap(R10K::Action::Deploy::Environment)
         end

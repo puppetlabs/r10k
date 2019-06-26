@@ -181,6 +181,25 @@ describe R10K::Puppetfile do
       subject = described_class.new(path)
       expect { subject.load! }.not_to raise_error
     end
+
+    it "creates a git module and applies the default branch sepcified in the Puppetfile" do
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'default-branch-override')
+      pf_path = File.join(path, 'Puppetfile')
+      subject = described_class.new(path)
+      expect { subject.load! }.not_to raise_error
+      git_module = subject.modules[0]
+      expect(git_module.default_ref).to eq 'here_lies_the_default_branch'
+    end
+
+    it "creates a git module and applies the provided default_branch_override" do
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'default-branch-override')
+      pf_path = File.join(path, 'Puppetfile')
+      subject = described_class.new(path)
+      default_branch_override = 'default_branch_override_name'
+      expect { subject.load!(default_branch_override) }.not_to raise_error
+      git_module = subject.modules[0]
+      expect(git_module.default_ref).to eq default_branch_override
+    end
   end
 
   describe "accepting a visitor" do

@@ -1,0 +1,5 @@
+mod 'cd4pe',
+  :git => 'test@randomurl.com:something/some_module.git',
+  :ref => 'expected_ref',
+  :default_branch => 'here_lies_the_default_branch'
+
