@@ -14,16 +14,7 @@ describe 'r10k container' do
   end
 
   before(:all) do
-    @image = ENV['PUPPET_TEST_DOCKER_IMAGE']
-    if @image.nil?
-      error_message = <<-MSG
-* * * * *
-  PUPPET_TEST_DOCKER_IMAGE environment variable must be set so we
-  know which image to test against!
-* * * * *
-      MSG
-      fail error_message
-    end
+    @image = require_test_image
   end
 
   after(:all) do

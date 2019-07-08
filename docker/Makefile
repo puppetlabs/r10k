@@ -15,7 +15,7 @@ version = $(shell echo $(git_describe) | sed 's/-.*//')
 dockerfile := Dockerfile
 
 prep:
-	@git fetch --unshallow ||:
+	@git fetch --unshallow 2> /dev/null ||:
 	@git fetch origin 'refs/tags/*:refs/tags/*'
 
 lint:
@@ -44,7 +44,7 @@ test: prep
 	@bundle install --path $$BUNDLE_PATH --gemfile $$GEMFILE
 	@PUPPET_TEST_DOCKER_IMAGE=$(NAMESPACE)/r10k:$(version) \
 		bundle exec --gemfile $$GEMFILE \
-		rspec r10k/spec
+		rspec spec
 
 push-image: prep
 	@docker push $(NAMESPACE)/r10k:$(version)

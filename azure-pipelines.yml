@@ -11,60 +11,31 @@ steps:
 - checkout: self
   clean: true
 - powershell: |
-    $line = '=' * 80
-    Write-Host "$line`nWindows`n$line`n"
-    Get-ComputerInfo |
-      select WindowsProductName, WindowsVersion, OsHardwareAbstractionLayer |
-      Out-String |
-      Write-Host
-    #
-    # Azure
-    #
-    $assetTag = Get-WmiObject -class Win32_SystemEnclosure -namespace root\CIMV2 |
-      Select -ExpandProperty SMBIOSAssetTag
-    if ($assetTag -eq '7783-7084-3265-9085-8269-3286-77')
-    {
-      Write-Host "`n`n$line`nAzure`n$line`n"
-      Invoke-RestMethod -Headers @{'Metadata'='true'} -URI http://169.254.169.254/metadata/instance?api-version=2017-12-01 -Method Get |
-        ConvertTo-Json -Depth 10 |
-        Write-Host
-    }
-    #
-    # Docker
-    #
-    Write-Host "`n`n$line`nDocker`n$line`n"
-    docker version
-    docker images
-    docker info
-    sc.exe qc docker
-    #
-    # Ruby
-    #
-    Write-Host "`n`n$line`nRuby`n$line`n"
-    ruby --version
-    gem --version
-    gem env
-    bundle --version
-    #
-    # Environment
-    #
-    Write-Host "`n`n$line`nEnvironment`n$line`n"
-    Get-ChildItem Env: | % { Write-Host "$($_.Key): $($_.Value)"  }
+    $gemfile = Join-Path -Path (Get-Location) -ChildPath 'docker/Gemfile'
+    $gempath = Join-Path -Path (Get-Location) -ChildPath 'docker/.bundle/gems'
+    bundle config --local gemfile $gemfile
+    bundle config --local path $gempath
+    bundle install
+  displayName: Fetch Dependencies
+  name: fetch_deps
+- powershell: |
+    . "$(bundle show pupperware)/ci/build.ps1"
+    Write-HostDiagnostics
   displayName: Diagnostic Host Information
   name: hostinfo
 - powershell: |
-    . ./docker/ci/build.ps1
-    Lint-Dockerfile -Path ./docker/r10k/Dockerfile
+    . "$(bundle show pupperware)/ci/build.ps1"
+    Lint-Dockerfile -Name r10k -Ignore @('DL3028')
   displayName: Lint r10k Dockerfile
   name: lint_dockerfile
 - powershell: |
-    . ./docker/ci/build.ps1
-    Build-Container -Namespace $ENV:NAMESPACE
+    . "$(bundle show pupperware)/ci/build.ps1"
+    Build-Container -Name r10k -Namespace $ENV:NAMESPACE
   displayName: Build r10k Container
   name: build_r10k_container
 - powershell: |
-    . ./docker/ci/build.ps1
-    Invoke-ContainerTest -Namespace $ENV:NAMESPACE
+    . "$(bundle show pupperware)/ci/build.ps1"
+    Invoke-ContainerTest -Name r10k -Namespace $ENV:NAMESPACE
   displayName: Test r10k
   name: test_r10k
 - task: PublishTestResults@2
@@ -74,7 +45,7 @@ steps:
     testResultsFiles: 'docker/TEST-*.xml'
     testRunTitle: r10k Test Results
 - powershell: |
-    . ./docker/ci/build.ps1
-    Clear-ContainerBuilds -Name r10k
+    . "$(bundle show pupperware)/ci/build.ps1"
+    Clear-ContainerBuilds -Name r10k -Namespace $ENV:NAMESPACE
   displayName: Container Cleanup
   condition: always()
