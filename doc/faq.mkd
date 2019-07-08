@@ -153,7 +153,7 @@ modulepath = internal-modules:modules
 
 It’s called R10K because I’m terrible at names. When I started working on R10K
 I couldn’t come up with a decent name. While trying to come up with something
-clever, I recalled that Randall Munroe wrote a bot for controlling IRC chatter,
+clever, I recalled that Randall Munroe wrote a bot for [controlling IRC chatter](http://blog.xkcd.com/2008/01/14/robot9000-and-xkcd-signal-attacking-noise-in-chat/),
 and gave it the most generic name he could think of - Robot 9000. Since I just
 needed a name, any name, I decided to go with an equally generic name by
 incrementing the robot index.
