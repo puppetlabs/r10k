@@ -1,3 +1,12 @@
+# Don't run Azure when a branch is updated, only when a PR is updated.
+# Prevents double builds when a PR is made from the main repo and not a fork.
+trigger: none
+pr:
+  autoCancel: true
+  branches:
+    include:
+    - '*'
+
 pool:
   # self-hosted agent on Windows 10 1709 environment
   # includes newer Docker engine with LCOW enabled, new build of LCOW image
