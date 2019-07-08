@@ -3,7 +3,7 @@ pool:
   # includes newer Docker engine with LCOW enabled, new build of LCOW image
   # includes Ruby 2.5, Go 1.10, Node.js 10.10, hadolint
   name: Default
-
+# test double builds
 variables:
   NAMESPACE: puppet
 
