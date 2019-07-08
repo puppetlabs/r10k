@@ -105,12 +105,6 @@ Getting help
   * Mailing lists: [puppet-users](https://groups.google.com/forum/#!forum/puppet-users)
   * Q&A: [Puppet Ask](https://ask.puppetlabs.com/questions/)
 
-
-More information
-----------------
-
-The original impetus for r10k is explained at http://somethingsinistral.net/blog/rethinking-puppet-deployment/
-
 Contributors
 ------------
 
