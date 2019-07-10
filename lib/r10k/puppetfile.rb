@@ -58,17 +58,20 @@ class Puppetfile
     @loaded = false
   end
 
-  def load
+  def load(default_branch_override = nil)
     if File.readable? @puppetfile_path
-      self.load!
+      self.load!(default_branch_override)
     else
       logger.debug _("Puppetfile %{path} missing or unreadable") % {path: @puppetfile_path.inspect}
     end
   end
 
-  def load!
+  def load!(default_branch_override = nil)
+    @default_branch_override = default_branch_override
+
     dsl = R10K::Puppetfile::DSL.new(self)
     dsl.instance_eval(puppetfile_contents, @puppetfile_path)
+    
     validate_no_duplicate_names(@modules)
     @loaded = true
   rescue SyntaxError, LoadError, ArgumentError, NameError => e
@@ -111,6 +114,10 @@ class Puppetfile
       validate_install_path(install_path, name)
     else
       install_path = @moduledir
+    end
+
+    if args.is_a?(Hash) && @default_branch_override != nil
+      args[:default_branch] = @default_branch_override
     end
 
     # Keep track of all the content this Puppetfile is managing to enable purging.
