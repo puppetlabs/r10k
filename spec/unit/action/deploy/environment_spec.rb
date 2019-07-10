@@ -19,6 +19,10 @@ describe R10K::Action::Deploy::Environment do
       described_class.new({puppetfile: true}, [])
     end
 
+    it "can accept a default_branch_override option" do
+      described_class.new({:'default-branch-override' => 'default_branch_override_name'}, [])
+    end
+
     it "can accept a no-force option" do
       described_class.new({:'no-force' => true}, [])
     end

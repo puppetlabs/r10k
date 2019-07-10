@@ -23,6 +23,11 @@ class R10K::Module::Git < R10K::Module::Base
   #   @return [String]
   attr_reader :desired_ref
 
+  # @!attribute [r] default_ref
+  #   @api private
+  #   @return [String]
+  attr_reader :default_ref
+
   def initialize(title, dirname, args, environment=nil)
     super
 
