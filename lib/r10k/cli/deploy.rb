@@ -21,17 +21,6 @@ module R10K::CLI
 (https://puppetlabs.com/blog/git-workflow-and-puppet-environments/).
         DESCRIPTION
 
-        required nil, :cachedir, 'Specify a cachedir, overriding the value in config'
-        flag nil, :'no-force', 'Prevent the overwriting of local module modifications'
-        flag nil, :'generate-types', 'Run `puppet generate types` after updating an environment'
-        option nil, :'puppet-path', 'Path to puppet executable', argument: :required do |value, cmd|
-          unless File.executable? value
-            $stderr.puts "The specified puppet executable #{value} is not executable."
-            puts cmd.help
-            exit 1
-          end
-        end
-
         run do |opts, args, cmd|
           puts cmd.help(:verbose => opts[:verbose])
           exit 0
@@ -60,8 +49,18 @@ on modules specified in the Puppetfile and an update will be automatically
 scheduled. On subsequent deployments, Puppetfile deployment will default to off.
           DESCRIPTION
 
-          flag :p, :puppetfile, 'Deploy modules from a puppetfile'
+          required nil, :cachedir, 'Specify a cachedir, overriding the value in config'
           required nil, :'default-branch-override', 'Specify a branchname to override the default branch in the puppetfile'
+          flag nil, :'generate-types', 'Run `puppet generate types` after updating an environment'
+          flag nil, :'no-force', 'Prevent the overwriting of local module modifications'
+          option nil, :'puppet-path', 'Path to puppet executable', argument: :required do |value, cmd|
+            unless File.executable? value
+              $stderr.puts "The specified puppet executable #{value} is not executable."
+              puts cmd.help
+              exit 1
+            end
+          end
+          flag :p, :puppetfile, 'Deploy modules from a puppetfile'
 
           runner R10K::Action::CriRunner.wrap(R10K::Action::Deploy::Environment)
         end
@@ -82,6 +81,15 @@ try to deploy the given module names in all environments.
           DESCRIPTION
 
           required :e, :environment, 'Update the modules in the given environment'
+          flag nil, :'generate-types', 'Run `puppet generate types` after updating an environment'
+          flag nil, :'no-force', 'Prevent the overwriting of local module modifications'
+          option nil, :'puppet-path', 'Path to puppet executable', argument: :required do |value, cmd|
+            unless File.executable? value
+              $stderr.puts "The specified puppet executable #{value} is not executable."
+              puts cmd.help
+              exit 1
+            end
+          end
 
           runner R10K::Action::CriRunner.wrap(R10K::Action::Deploy::Module)
         end
