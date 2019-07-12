@@ -6,7 +6,7 @@ notifications:
   email: false
 sudo: false
 jdk:
-  - oraclejdk8
+  - openjdk8
 before_install: gem install bundler -v '< 2' --no-document
 matrix:
   include:
