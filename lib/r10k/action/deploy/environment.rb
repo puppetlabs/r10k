@@ -125,11 +125,22 @@ module R10K
         end
 
         def write_environment_info!(environment, started_at, success)
+          module_deploys = []
+          if environment.puppetfile && environment.puppetfile.modules
+            environment.puppetfile.modules.each do |mod|
+              name = mod.name
+              version = mod.version
+              sha = mod.repo.head rescue nil
+              module_deploys.push({:name => name, :version => version, :sha => sha})
+            end
+          end
+
           File.open("#{environment.path}/.r10k-deploy.json", 'w') do |f|
             deploy_info = environment.info.merge({
               :started_at => started_at,
               :finished_at => Time.new,
               :deploy_success => success,
+              :module_deploys => module_deploys,
             })
 
             f.puts(JSON.pretty_generate(deploy_info))
