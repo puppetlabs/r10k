@@ -39,7 +39,7 @@ steps:
   name: lint_dockerfile
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
-    Build-Container -Name r10k -Namespace $ENV:NAMESPACE
+    Build-Container -Name r10k -Namespace $ENV:NAMESPACE -Context .
   displayName: Build r10k Container
   name: build_r10k_container
 - powershell: |
