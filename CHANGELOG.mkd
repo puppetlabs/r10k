@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+3.0.4
+----
+
+## Changes
+ - Flag for overriding default branch configuration in Puppetfile
+ - Plumbing for internationalization
+ - Numerous test fixes and legacy docker work
+
 3.0.3
 ----
 
