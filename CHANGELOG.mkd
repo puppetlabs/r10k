@@ -16,7 +16,7 @@ CHANGELOG
 Minor test fixes.
 
 3.0.1
-----
+=======
 
 ## Changes
 
@@ -54,6 +54,13 @@ Ruby >= 2.3 official and documented.
     - Unable to parse Puppetfile
   - Various perfomance improvements
 
+2.6.6
+----
+
+## Changes
+ - Flag for overriding default branch configuration in Puppetfile
+ - Plumbing for internationalization
+ - Numerous test fixes and legacy docker work
 
 2.6.5
 ----
