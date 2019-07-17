@@ -1,38 +1,46 @@
 CHANGELOG
 =========
 
+3.2.1
+----
+
+### Changes
+ - Flag for overriding default branch configuration in Puppetfile
+ - Plumbing for internationalization
+ - Numerous test fixes and legacy docker work
+
 3.2.0
 -----
 
-## New Feature
+### Changes
 
-Add support for running `puppet generate types`
+  - Add support for running `puppet generate types`
 
 3.1.1
 -----
 
-## Bug Fixes
+### Changes
 
-(RK-335) Postrun `modifiedenvs` doesn't include environment prefixes
+  - (RK-335) Postrun `modifiedenvs` doesn't include environment prefixes
 
 3.1.0
 -----
 
-## New Feature
+### Changes
 
-Substitute environments acted on in postrun command.
+  - Substitute environments acted on in postrun command.
 
-Now post run commands that contain the string "$modifiedenvs"
-(eg. ["/usr/local/bin/my-postrun-cmd", "--verbose", "$modifiedenvs"])
-will have the string substituted with a space separated list
-of environments acted upon (either a single environment if
-specified on the command line or all environments).
+    Now post run commands that contain the string "$modifiedenvs"
+    (eg. ["/usr/local/bin/my-postrun-cmd", "--verbose", "$modifiedenvs"])
+    will have the string substituted with a space separated list
+    of environments acted upon (either a single environment if
+    specified on the command line or all environments).
 
-Specifically this should allow users to easily wrap
-`puppet generate types` and matches the terminology used
-in g10k.
+    Specifically this should allow users to easily wrap
+    `puppet generate types` and matches the terminology used
+    in g10k.
 
-Many thanks to @raphink for the contribution.
+    Many thanks to @raphink for the contribution.
 
 3.0.4
 ----
