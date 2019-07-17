@@ -1,14 +1,12 @@
 ---
 language: ruby
-services:
-  - docker
 bundler_args: "--without system"
 script: "bundle exec rspec --color --format documentation spec/unit"
 notifications:
   email: false
 sudo: false
 jdk:
-    - oraclejdk8
+  - openjdk8
 before_install: gem install bundler -v '< 2' --no-document
 matrix:
   include:
