@@ -34,53 +34,60 @@ in g10k.
 
 Many thanks to @raphink for the contribution.
 
+3.0.4
+----
+
+### Changes
+ - Flag for overriding default branch configuration in Puppetfile
+ - Plumbing for internationalization
+ - Numerous test fixes and legacy docker work
 
 3.0.3
 ----
 
-## Bug Fixes
+### Changes
 
-(RK-324) Fix Ruby pipe bug affecting Ubuntu
+  - (RK-324) Fix Ruby pipe bug affecting Ubuntu
 
 3.0.2
 ----
 
-## Changes
+### Changes
 
-Minor test fixes.
+  - Minor test fixes.
 
 3.0.1
 ----
 
-## Changes
+### Changes
 
 Because of dependency issues R10K 3.0.0 required Ruby >= 2.3
 rather than the reported 2.0. This release makes the requirement of
 Ruby >= 2.3 official and documented.
 
-(#853) ([RK-327](https://tickets.puppetlabs.com/browse/RK-327) Uninitialized Constant Cri::Error
-  When resolving the Cri dependency >= 2.13 R10K would fail with an
-  uninitialized constant error. Thanks to @ostavnaas for the bug report,
-  @ddfreyne for the fix, and @baurmatt for the review.
+  - (#853) ([RK-327](https://tickets.puppetlabs.com/browse/RK-327) Uninitialized Constant Cri::Error
+    When resolving the Cri dependency >= 2.13 R10K would fail with an
+    uninitialized constant error. Thanks to @ostavnaas for the bug report,
+    @ddfreyne for the fix, and @baurmatt for the review.
 
 
 3.0.0
 ----
 
-## Changes
+### Changes
 
-### Known issues
+#### Known issues
   - Child processes may die unexpectedly when deploying many environments
     on Ubuntu Bionic. See
     [RK-324](https://tickets.puppetlabs.com/browse/RK-324).
 
-### Backwards breaking changes
+#### Backwards breaking changes
   - Drop support for Ruby < 2.0
   - Remove support for PUPPETFILE and PUPPETFILE_DIR environment variables
     when running the `puppetfile` action, please use flags instead.
   - Fail when duplicate module definitions in Puppetfile
 
-### Bug fixes
+#### Bug fixes
   - More reliable pruning of refs on fetch
   - Improved error messaging when:
     - Unable to connect to a proxy
@@ -88,24 +95,32 @@ Ruby >= 2.3 official and documented.
     - Unable to parse Puppetfile
   - Various perfomance improvements
 
+2.6.6
+----
+
+### Changes
+  - Flag for overriding default branch configuration in Puppetfile
+  - Plumbing for internationalization
+  - Numerous test fixes and legacy docker work
 
 2.6.5
 ----
 
-## Bug Fix
+### Bug Fix
 
 (RK-324) Fix Ruby pipe bug affecting Ubuntu
 
 2.6.4
 ----
 
-## Changes
+### Changes
 
 Numerous test fixes.
 
 2.6.3
 ----
-## Changes
+
+### Changes
 
 Update specs with new error string.
 
@@ -114,6 +129,7 @@ when a release is made on that branch.
 
 2.6.2
 -----
+
 ### Changes
 
 (RK-311) Yard dependency updated for security fix.
