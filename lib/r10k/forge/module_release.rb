@@ -40,6 +40,10 @@ module R10K
       #   @return [Pathname] Where the md5 of the cached tarball is stored.
       attr_accessor :md5_file_path
 
+      # @!attribute [rw] sha256_file_path
+      #   @return [Pathname] Where the SHA256 of the cached tarball is stored.
+      attr_accessor :sha256_file_path
+
       # @!attribute [rw] unpack_path
       #   @return [Pathname] Where the module will be unpacked to.
       attr_accessor :unpack_path
@@ -64,6 +68,9 @@ module R10K
 
         md5_filename = @forge_release.slug + '.md5'
         @md5_file_path = @tarball_cache_root + md5_filename
+
+        sha256_filename = @forge_release.slug + '.sha256'
+        @sha256_file_path = @tarball_cache_root + sha256_filename
 
         @unpack_path   = Pathname.new(Dir.mktmpdir) + @forge_release.slug
       end
@@ -108,12 +115,60 @@ module R10K
       def verify
         logger.debug1 "Verifying that #{@tarball_cache_path} matches checksum"
 
-        md5_of_tarball = Digest::MD5.hexdigest(File.read(@tarball_cache_path, mode: 'rb'))
+        contents = File.read(@tarball_cache_path, mode: 'rb')
+        if R10K::Util::Platform.fips?
+          sha256_of_tarball = Digest::SHA256.hexdigest(contents)
 
-        if @md5_file_path.exist?
-          verify_from_md5_file(md5_of_tarball)
+          if @sha256_file_path.exist?
+            verify_from_sha256_file(sha256_of_tarball)
+          else
+            verify_sha256_from_forge(sha256_of_tarball)
+          end
         else
-          verify_from_forge(md5_of_tarball)
+          md5_of_tarball = Digest::MD5.hexdigest(contents)
+
+          if @md5_file_path.exist?
+            verify_from_md5_file(md5_of_tarball)
+          else
+            verify_md5_from_forge(md5_of_tarball)
+          end
+        end
+      end
+
+      # Verify the SHA256 of the cached tarball against the
+      # module release checksum stored in the cache as well.
+      # On mismatch, remove the cached copy of both files.
+      #
+      # @raise [PuppetForge::V3::Release::ChecksumMismatch] The
+      #   cached module release checksum doesn't match the cached checksum.
+      #
+      # @return [void]
+      def verify_from_sha256_file(sha256_of_tarball)
+        sha256_from_file = File.read(@sha256_file_path).strip
+        if sha256_of_tarball != sha256_from_file
+          logger.error "SHA256 of #{@tarball_cache_path} (#{sha256_of_tarball}) does not match checksum #{sha256_from_file} in #{@sha256_file_path}. Removing both files."
+          cleanup_cached_tarball_path
+          cleanup_sha256_file_path
+          raise PuppetForge::V3::Release::ChecksumMismatch.new
+        end
+      end
+
+      # Verify the sha256 of the cached tarball against the
+      # module release checksum from the forge.
+      # On mismatch, remove the cached copy of the tarball.
+      #
+      # @raise [PuppetForge::V3::Release::ChecksumMismatch] The
+      #   cached module release checksum doesn't match the forge checksum.
+      #
+      # @return [void]
+      def verify_sha256_from_forge(sha256_of_tarball)
+        sha256_from_forge = @forge_release.file_sha256
+        if sha256_of_tarball != sha256_from_forge
+          logger.debug1 "SHA256 of #{@tarball_cache_path} (#{sha256_of_tarball}) does not match checksum #{sha256_from_forge} found on the forge. Removing tarball."
+          cleanup_cached_tarball_path
+          raise PuppetForge::V3::Release::ChecksumMismatch.new
+        else
+          File.write(@sha256_file_path, sha256_from_forge)
         end
       end
 
@@ -143,7 +198,7 @@ module R10K
       #   cached module release checksum doesn't match the forge checksum.
       #
       # @return [void]
-      def verify_from_forge(md5_of_tarball)
+      def verify_md5_from_forge(md5_of_tarball)
         md5_from_forge = @forge_release.file_md5
         #compare file_md5 to md5_of_tarball
         if md5_of_tarball != md5_from_forge
@@ -203,6 +258,13 @@ module R10K
       def cleanup_md5_file_path
         if md5_file_path.exist?
           md5_file_path.delete
+        end
+      end
+
+      # Remove the module release sha256.
+      def cleanup_sha256_file_path
+        if sha256_file_path.exist?
+          sha256_file_path.delete
         end
       end
     end
