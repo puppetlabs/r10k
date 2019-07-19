@@ -115,22 +115,27 @@ module R10K
       def verify
         logger.debug1 "Verifying that #{@tarball_cache_path} matches checksum"
 
-        contents = File.read(@tarball_cache_path, mode: 'rb')
-        if R10K::Util::Platform.fips?
-          sha256_of_tarball = Digest::SHA256.hexdigest(contents)
+        sha256_of_tarball = Digest::SHA256.file(@tarball_cache_path).hexdigest
 
-          if @sha256_file_path.exist?
-            verify_from_sha256_file(sha256_of_tarball)
-          else
-            verify_sha256_from_forge(sha256_of_tarball)
-          end
+        if @sha256_file_path.exist?
+          verify_from_sha256_file(sha256_of_tarball)
         else
-          md5_of_tarball = Digest::MD5.hexdigest(contents)
+          begin
+            verify_sha256_from_forge(sha256_of_tarball)
+          rescue R10K::Error
+            if R10K::Util::Platform.fips?
+              raise R10K::Error, "Could not verify module, no SHA256 checksum available, and MD5 checksums not allowed in FIPS mode"
+            end
 
-          if @md5_file_path.exist?
-            verify_from_md5_file(md5_of_tarball)
-          else
-            verify_md5_from_forge(md5_of_tarball)
+            logger.debug1 "No SHA256 checksum available, falling back to MD5"
+
+            md5_of_tarball = Digest::MD5.file(@tarball_cache_path).hexdigest
+
+            if @md5_file_path.exist?
+              verify_from_md5_file(md5_of_tarball)
+            else
+              verify_md5_from_forge(md5_of_tarball)
+            end
           end
         end
       end
@@ -162,7 +167,12 @@ module R10K
       #
       # @return [void]
       def verify_sha256_from_forge(sha256_of_tarball)
-        sha256_from_forge = @forge_release.file_sha256
+        if !@forge_release.file_sha256.nil?
+          sha256_from_forge = @forge_release.file_sha256
+        else
+          raise R10K::Error, "No SHA256 checksum available"
+        end
+
         if sha256_of_tarball != sha256_from_forge
           logger.debug1 "SHA256 of #{@tarball_cache_path} (#{sha256_of_tarball}) does not match checksum #{sha256_from_forge} found on the forge. Removing tarball."
           cleanup_cached_tarball_path
