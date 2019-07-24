@@ -142,11 +142,12 @@ describe R10K::Action::Deploy::Environment do
       end
     end
 
-    let(:mock_stateful_repo) { instance_double("R10K::Git::StatefulRepository", :head => "123456") }
+    let(:mock_stateful_repo_1) { instance_double("R10K::Git::StatefulRepository", :head => "123456") }
     let(:mock_stateful_repo_2) { instance_double("R10K::Git::StatefulRepository", :head => "654321") }
-    let(:mock_module) { instance_double("R10K::Module::Git", :name => "my_cool_module", :version => "1.0", :repo => mock_stateful_repo) }
-    let(:mock_module_2) { instance_double("R10K::Module::Git", :name => "my_lame_module", :version => "0.0.1", :repo => mock_stateful_repo_2) }
-    let(:mock_puppetfile) { instance_double("R10K::Puppetfile", :modules => [mock_module, mock_module_2]) }
+    let(:mock_git_module_1) { instance_double("R10K::Module::Git", :name => "my_cool_module", :version => "1.0", :repo => mock_stateful_repo_1) }
+    let(:mock_git_module_2) { instance_double("R10K::Module::Git", :name => "my_lame_module", :version => "0.0.1", :repo => mock_stateful_repo_2) }
+    let(:mock_forge_module_1) { double(:name => "their_shiny_module", :version => "2.0.0") }
+    let(:mock_puppetfile) { instance_double("R10K::Puppetfile", :modules => [mock_git_module_1, mock_git_module_2, mock_forge_module_1]) }
 
     before(:all) do
       @tmp_path = "./tmp-r10k-test-dir/"
@@ -160,6 +161,7 @@ describe R10K::Action::Deploy::Environment do
 
     it "writes the .r10k-deploy file correctly" do
       allow(R10K::Puppetfile).to receive(:new).and_return(mock_puppetfile)
+      allow(mock_forge_module_1).to receive(:repo).and_raise(NoMethodError)
 
       fake_env = Fake_Environment.new(@tmp_path, {:name => "my_cool_environment", :signature => "pablo picasso"})
       subject.send(:write_environment_info!, fake_env, "2019-01-01 23:23:22 +0000", true)
@@ -171,13 +173,16 @@ describe R10K::Action::Deploy::Environment do
       expect(r10k_deploy['signature']).to eq("pablo picasso")
       expect(r10k_deploy['started_at']).to eq("2019-01-01 23:23:22 +0000")
       expect(r10k_deploy['deploy_success']).to eq(true)
-      expect(r10k_deploy['module_deploys'].length).to eq(2)
+      expect(r10k_deploy['module_deploys'].length).to eq(3)
       expect(r10k_deploy['module_deploys'][0]['name']).to eq("my_cool_module")
       expect(r10k_deploy['module_deploys'][0]['version']).to eq("1.0")
       expect(r10k_deploy['module_deploys'][0]['sha']).to eq("123456")
       expect(r10k_deploy['module_deploys'][1]['name']).to eq("my_lame_module")
       expect(r10k_deploy['module_deploys'][1]['version']).to eq("0.0.1")
       expect(r10k_deploy['module_deploys'][1]['sha']).to eq("654321")
+      expect(r10k_deploy['module_deploys'][2]['name']).to eq("their_shiny_module")
+      expect(r10k_deploy['module_deploys'][2]['version']).to eq("2.0.0")
+      expect(r10k_deploy['module_deploys'][2]['sha']).to eq(nil)
 
     end
   end
