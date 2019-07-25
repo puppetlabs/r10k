@@ -126,13 +126,15 @@ module R10K
 
         def write_environment_info!(environment, started_at, success)
           module_deploys = []
-          if environment.puppetfile && environment.puppetfile.modules
+          begin
             environment.puppetfile.modules.each do |mod|
               name = mod.name
               version = mod.version
               sha = mod.repo.head rescue nil
               module_deploys.push({:name => name, :version => version, :sha => sha})
             end
+          rescue
+            logger.debug("Unable to get environment module deploy data for .r10k-deploy.json at #{environment.path}")
           end
 
           File.open("#{environment.path}/.r10k-deploy.json", 'w') do |f|
