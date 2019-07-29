@@ -4,7 +4,8 @@ RUN apk add --no-cache ruby git
 RUN mkdir /workspace
 WORKDIR /workspace
 COPY . /workspace
-RUN gem build r10k.gemspec
+RUN gem build r10k.gemspec && \
+    mv r10k*.gem r10k.gem
 
 FROM alpine:3.9
 
@@ -31,9 +32,9 @@ LABEL org.label-schema.maintainer="Puppet Release Team <release@puppet.com>" \
       org.label-schema.dockerfile="/Dockerfile"
 
 RUN apk add --no-cache ruby openssh-client git ruby-rugged curl ruby-dev make gcc musl-dev
-COPY --from=build /workspace/r10k-"$R10K_VERSION".gem /
-RUN gem install --no-doc r10k-"$R10K_VERSION".gem json etc && \
-    rm -f r10k-"$R10K_VERSION".gem
+COPY --from=build /workspace/r10k.gem /
+RUN gem install --no-doc r10k.gem json etc && \
+    rm -f r10k.gem
 
 COPY docker/r10k/docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
