@@ -68,7 +68,7 @@ describe R10K::Forge::ModuleRelease do
       allow(sha256_digest_class).to receive(:file).and_return(sha256_digest)
       allow(sha256_digest).to receive(:hexdigest).and_return(sha256_of_tarball)
       allow(sha256_file_path).to receive(:exist?).and_return(true)
-      expect(subject).to receive(:verify_from_sha256_file).with(sha256_of_tarball)
+      expect(subject).to receive(:verify_from_file).with(sha256_of_tarball, sha256_file_path)
       subject.verify
     end
 
@@ -76,7 +76,8 @@ describe R10K::Forge::ModuleRelease do
       allow(sha256_digest_class).to receive(:file).and_return(sha256_digest)
       allow(sha256_digest).to receive(:hexdigest).and_return(sha256_of_tarball)
       allow(sha256_file_path).to receive(:exist?).and_return(false)
-      expect(subject).to receive(:verify_sha256_from_forge).with(sha256_of_tarball)
+      allow(subject.forge_release).to receive(:sha256_file).and_return(sha256_of_tarball)
+      expect(subject).to receive(:verify_from_forge)
       subject.verify
     end
 
@@ -86,80 +87,54 @@ describe R10K::Forge::ModuleRelease do
       allow(sha256_digest_class).to receive(:file).and_return(sha256_digest)
       allow(sha256_digest).to receive(:hexdigest).and_return(sha256_of_tarball)
       allow(sha256_file_path).to receive(:exist?).and_return(false)
-      allow(subject).to receive(:verify_sha256_from_forge).with(sha256_of_tarball).and_raise(R10K::Error.new("no sha256"))
+      allow(subject.forge_release).to receive(:file_sha256).and_return(nil)
+      allow(subject).to receive(:verify_from_forge)
       # md5 verification
       allow(md5_digest_class).to receive(:file).and_return(md5_digest)
       allow(md5_digest).to receive(:hexdigest).and_return(md5_of_tarball)
       allow(md5_file_path).to receive(:exist?).and_return(true)
-      expect(subject).to receive(:verify_from_md5_file)
+      expect(subject).to receive(:verify_from_file)
       subject.verify
+    end
+
+    it "errors when in FIPS mode and no sha256 is available" do
+      expect(R10K::Util::Platform).to receive(:fips?).and_return(true)
+      allow(sha256_digest_class).to receive(:file).and_return(sha256_digest)
+      allow(sha256_digest).to receive(:hexdigest).and_return(sha256_of_tarball)
+      allow(sha256_file_path).to receive(:exist?).and_return(false)
+      allow(subject.forge_release).to receive(:file_sha256).and_return(nil)
+      allow(subject).to receive(:verify_from_forge)
+      expect { subject.verify }.to raise_error(R10K::Error)
     end
   end
 
-  describe '#verify_from_sha256_file' do
+  describe '#verify_from_file' do
 
     it "does nothing when the checksums match" do
       expect(File).to receive(:read).with(sha256_file_path).and_return(good_sha256)
       expect(subject).not_to receive(:cleanup_cached_tarball_path)
-      subject.verify_from_sha256_file(sha256_of_tarball)
+      subject.verify_from_file(sha256_of_tarball, sha256_file_path)
     end
 
     it "raises an error and cleans up when the checksums do not match" do
       expect(File).to receive(:read).with(sha256_file_path).and_return(bad_sha256)
-      expect(subject).to receive(:cleanup_cached_tarball_path)
-      expect(subject).to receive(:cleanup_sha256_file_path)
-      expect { subject.verify_from_sha256_file(sha256_of_tarball) }.to raise_error(PuppetForge::V3::Release::ChecksumMismatch)
+      expect(tarball_cache_path).to receive(:delete)
+      expect(sha256_file_path).to receive(:delete)
+      expect { subject.verify_from_file(sha256_of_tarball, sha256_file_path) }.to raise_error(PuppetForge::V3::Release::ChecksumMismatch)
     end
   end
 
-  describe '#verify_sha256_from_forge' do
-    it "write the sha256 to file when the checksums match" do
-      expect(subject.forge_release).to receive(:file_sha256).twice.and_return(good_sha256)
-      expect(subject).not_to receive(:cleanup_cached_tarball_path)
+  describe '#verify_from_forge' do
+    it "write the checksum to file when the checksums match" do
+      expect(tarball_cache_path).not_to receive(:delete)
       expect(File).to receive(:write).with(sha256_file_path, good_sha256)
-      subject.verify_sha256_from_forge(sha256_of_tarball)
+      subject.verify_from_forge(sha256_of_tarball, good_sha256, sha256_file_path)
     end
 
     it "raises an error and cleans up when the checksums do not match" do
-      expect(subject.forge_release).to receive(:file_sha256).twice.and_return(bad_sha256)
-      expect(subject).to receive(:cleanup_cached_tarball_path)
-      expect { subject.verify_sha256_from_forge(sha256_of_tarball) }.to raise_error(PuppetForge::V3::Release::ChecksumMismatch)
-    end
-
-    it "raises and error when the forge release does contain a SHA256 checksum" do
-      expect(subject.forge_release).to receive(:file_sha256).and_return(nil)
-      expect { subject.verify_sha256_from_forge(sha256_of_tarball) }.to raise_error(R10K::Error)
-    end
-  end
-
-  describe '#verify_from_md5_file' do
-
-    it "does nothing when the checksums match" do
-      expect(File).to receive(:read).with(md5_file_path).and_return(good_md5)
-      expect(subject).not_to receive(:cleanup_cached_tarball_path)
-      subject.verify_from_md5_file(md5_of_tarball)
-    end
-
-    it "raises an error and cleans up when the checksums do not match" do
-      expect(File).to receive(:read).with(md5_file_path).and_return(bad_md5)
-      expect(subject).to receive(:cleanup_cached_tarball_path)
-      expect(subject).to receive(:cleanup_md5_file_path)
-      expect { subject.verify_from_md5_file(md5_of_tarball) }.to raise_error(PuppetForge::V3::Release::ChecksumMismatch)
-    end
-  end
-
-  describe '#verify_md5_from_forge' do
-    it "write the md5 to file when the checksums match" do
-      expect(subject.forge_release).to receive(:file_md5).and_return(good_md5)
-      expect(subject).not_to receive(:cleanup_cached_tarball_path)
-      expect(File).to receive(:write).with(md5_file_path, good_md5)
-      subject.verify_md5_from_forge(md5_of_tarball)
-    end
-
-    it "raises an error and cleans up when the checksums do not match" do
-      expect(subject.forge_release).to receive(:file_md5).and_return(bad_md5)
-      expect(subject).to receive(:cleanup_cached_tarball_path)
-      expect { subject.verify_md5_from_forge(md5_of_tarball) }.to raise_error(PuppetForge::V3::Release::ChecksumMismatch)
+      expect(tarball_cache_path).to receive(:delete)
+      expect { subject.verify_from_forge(sha256_of_tarball, bad_sha256, sha256_file_path) }
+        .to raise_error(PuppetForge::V3::Release::ChecksumMismatch)
     end
   end
 
