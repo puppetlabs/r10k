@@ -55,6 +55,6 @@ steps:
     testRunTitle: r10k Test Results
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
-    Clear-ContainerBuilds -Name r10k -Namespace $ENV:NAMESPACE
+    Clear-BuildState -Name r10k -Namespace $ENV:NAMESPACE
   displayName: Container Cleanup
   condition: always()
