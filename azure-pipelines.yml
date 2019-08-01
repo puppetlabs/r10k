@@ -15,6 +15,7 @@ pool:
 
 variables:
   NAMESPACE: puppet
+  CONTAINER_NAME: r10k
 
 steps:
 - checkout: self
@@ -34,27 +35,27 @@ steps:
   name: hostinfo
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
-    Lint-Dockerfile -Name r10k -Ignore @('DL3028')
-  displayName: Lint r10k Dockerfile
+    Lint-Dockerfile -Name $ENV:CONTAINER_NAME -Ignore @('DL3028')
+  displayName: Lint $(CONTAINER_NAME) Dockerfile
   name: lint_dockerfile
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
-    Build-Container -Name r10k -Namespace $ENV:NAMESPACE -Context .
-  displayName: Build r10k Container
-  name: build_r10k_container
+    Build-Container -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE -Context .
+  displayName: Build $(CONTAINER_NAME) Container
+  name: build_container
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
-    Invoke-ContainerTest -Name r10k -Namespace $ENV:NAMESPACE
-  displayName: Test r10k
-  name: test_r10k
+    Invoke-ContainerTest -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE
+  displayName: Test $(CONTAINER_NAME)
+  name: test_container
 - task: PublishTestResults@2
-  displayName: Publish r10k test results
+  displayName: Publish $(CONTAINER_NAME) test results
   inputs:
     testResultsFormat: 'JUnit'
     testResultsFiles: 'docker/TEST-*.xml'
-    testRunTitle: r10k Test Results
+    testRunTitle: $(CONTAINER_NAME) Test Results
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
-    Clear-BuildState -Name r10k -Namespace $ENV:NAMESPACE
+    Clear-BuildState -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE
   displayName: Container Cleanup
   condition: always()
