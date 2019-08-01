@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'log4r',     '1.1.10'
   s.add_dependency 'multi_json', '~> 1.10'
 
-  s.add_dependency 'puppet_forge', '~> 2.2.8'
+  s.add_dependency 'puppet_forge', '~> 2.3.0'
 
   s.add_dependency 'gettext-setup', '~>0.24'
 
