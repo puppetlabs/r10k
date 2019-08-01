@@ -44,7 +44,7 @@ steps:
 
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
-    Build-Container -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE -Context .
+    Build-Container -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE -PathOrUri .
   displayName: Build $(CONTAINER_NAME) Container
   name: build_container
 
