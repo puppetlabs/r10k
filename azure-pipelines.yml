@@ -8,9 +8,9 @@ pr:
     - '*'
 
 pool:
-  # self-hosted agent on Windows 10 1709 environment
+  # self-hosted agent on Windows 10 1903 environment
   # includes newer Docker engine with LCOW enabled, new build of LCOW image
-  # includes Ruby 2.5, Go 1.10, Node.js 10.10, hadolint
+  # includes Ruby 2.5, Go 1.10, Node.js 10.10
   name: Default
 
 variables:
@@ -18,8 +18,8 @@ variables:
   CONTAINER_NAME: r10k
 
 steps:
-- checkout: self
-  clean: true
+- checkout: self  # self represents the repo where the initial Pipelines YAML file was found
+  clean: true  # whether to fetch clean each time
 
 - powershell: |
     $gemfile = Join-Path -Path (Get-Location) -ChildPath 'docker/Gemfile'
@@ -47,6 +47,12 @@ steps:
     Build-Container -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE -Context .
   displayName: Build $(CONTAINER_NAME) Container
   name: build_container
+
+- powershell: |
+    . "$(bundle show pupperware)/ci/build.ps1"
+    Initialize-TestEnv
+  displayName: Prepare Test Environment
+  name: test_prepare
 
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
