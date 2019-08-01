@@ -20,6 +20,7 @@ variables:
 steps:
 - checkout: self
   clean: true
+
 - powershell: |
     $gemfile = Join-Path -Path (Get-Location) -ChildPath 'docker/Gemfile'
     $gempath = Join-Path -Path (Get-Location) -ChildPath 'docker/.bundle/gems'
@@ -28,32 +29,38 @@ steps:
     bundle install
   displayName: Fetch Dependencies
   name: fetch_deps
+
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
     Write-HostDiagnostics
   displayName: Diagnostic Host Information
   name: hostinfo
+
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
     Lint-Dockerfile -Name $ENV:CONTAINER_NAME -Ignore @('DL3028')
   displayName: Lint $(CONTAINER_NAME) Dockerfile
   name: lint_dockerfile
+
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
     Build-Container -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE -Context .
   displayName: Build $(CONTAINER_NAME) Container
   name: build_container
+
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
     Invoke-ContainerTest -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE
   displayName: Test $(CONTAINER_NAME)
   name: test_container
+
 - task: PublishTestResults@2
   displayName: Publish $(CONTAINER_NAME) test results
   inputs:
     testResultsFormat: 'JUnit'
     testResultsFiles: 'docker/TEST-*.xml'
     testRunTitle: $(CONTAINER_NAME) Test Results
+
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
     Clear-BuildState -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE
