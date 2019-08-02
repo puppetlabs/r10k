@@ -76,6 +76,7 @@ describe R10K::Forge::ModuleRelease do
       allow(sha256_digest_class).to receive(:file).and_return(sha256_digest)
       allow(sha256_digest).to receive(:hexdigest).and_return(sha256_of_tarball)
       allow(sha256_file_path).to receive(:exist?).and_return(false)
+      allow(subject.forge_release).to receive(:respond_to?).and_return(true)
       allow(subject.forge_release).to receive(:sha256_file).and_return(sha256_of_tarball)
       expect(subject).to receive(:verify_from_forge)
       subject.verify
@@ -87,7 +88,7 @@ describe R10K::Forge::ModuleRelease do
       allow(sha256_digest_class).to receive(:file).and_return(sha256_digest)
       allow(sha256_digest).to receive(:hexdigest).and_return(sha256_of_tarball)
       allow(sha256_file_path).to receive(:exist?).and_return(false)
-      allow(subject.forge_release).to receive(:file_sha256).and_return(nil)
+      allow(subject.forge_release).to receive(:respond_to?).and_return(false)
       allow(subject).to receive(:verify_from_forge)
       # md5 verification
       allow(md5_digest_class).to receive(:file).and_return(md5_digest)
@@ -102,7 +103,7 @@ describe R10K::Forge::ModuleRelease do
       allow(sha256_digest_class).to receive(:file).and_return(sha256_digest)
       allow(sha256_digest).to receive(:hexdigest).and_return(sha256_of_tarball)
       allow(sha256_file_path).to receive(:exist?).and_return(false)
-      allow(subject.forge_release).to receive(:file_sha256).and_return(nil)
+      allow(subject.forge_release).to receive(:respond_to?).and_return(false)
       allow(subject).to receive(:verify_from_forge)
       expect { subject.verify }.to raise_error(R10K::Error)
     end

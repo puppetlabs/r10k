@@ -121,8 +121,8 @@ module R10K
         if @sha256_file_path.exist?
           verify_from_file(sha256_of_tarball, @sha256_file_path)
         else
-          forge_256_checksum = @forge_release.file_sha256
-          if forge_256_checksum
+          if @forge_release.respond_to?(:file_sha256) && !@forge_release.file_sha256.nil? && !@forge_release.file_sha256.size.zero?
+            forge_256_checksum = @forge_release.file_sha256
             verify_from_forge(sha256_of_tarball, forge_256_checksum, @sha256_file_path)
           else
             if R10K::Util::Platform.fips?
