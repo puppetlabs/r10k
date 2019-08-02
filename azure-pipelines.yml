@@ -8,17 +8,19 @@ pr:
     - '*'
 
 pool:
-  # self-hosted agent on Windows 10 1709 environment
+  # self-hosted agent on Windows 10 1903 environment
   # includes newer Docker engine with LCOW enabled, new build of LCOW image
-  # includes Ruby 2.5, Go 1.10, Node.js 10.10, hadolint
+  # includes Ruby 2.5, Go 1.10, Node.js 10.10
   name: Default
 
 variables:
   NAMESPACE: puppet
+  CONTAINER_NAME: r10k
 
 steps:
-- checkout: self
-  clean: true
+- checkout: self  # self represents the repo where the initial Pipelines YAML file was found
+  clean: true  # whether to fetch clean each time
+
 - powershell: |
     $gemfile = Join-Path -Path (Get-Location) -ChildPath 'docker/Gemfile'
     $gempath = Join-Path -Path (Get-Location) -ChildPath 'docker/.bundle/gems'
@@ -27,34 +29,46 @@ steps:
     bundle install
   displayName: Fetch Dependencies
   name: fetch_deps
+
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
     Write-HostDiagnostics
   displayName: Diagnostic Host Information
   name: hostinfo
+
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
-    Lint-Dockerfile -Name r10k -Ignore @('DL3028')
-  displayName: Lint r10k Dockerfile
+    Lint-Dockerfile -Name $ENV:CONTAINER_NAME -Ignore @('DL3028')
+  displayName: Lint $(CONTAINER_NAME) Dockerfile
   name: lint_dockerfile
+
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
-    Build-Container -Name r10k -Namespace $ENV:NAMESPACE -Context .
-  displayName: Build r10k Container
-  name: build_r10k_container
+    Build-Container -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE -PathOrUri .
+  displayName: Build $(CONTAINER_NAME) Container
+  name: build_container
+
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
-    Invoke-ContainerTest -Name r10k -Namespace $ENV:NAMESPACE
-  displayName: Test r10k
-  name: test_r10k
+    Initialize-TestEnv
+  displayName: Prepare Test Environment
+  name: test_prepare
+
+- powershell: |
+    . "$(bundle show pupperware)/ci/build.ps1"
+    Invoke-ContainerTest -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE
+  displayName: Test $(CONTAINER_NAME)
+  name: test_container
+
 - task: PublishTestResults@2
-  displayName: Publish r10k test results
+  displayName: Publish $(CONTAINER_NAME) test results
   inputs:
     testResultsFormat: 'JUnit'
     testResultsFiles: 'docker/TEST-*.xml'
-    testRunTitle: r10k Test Results
+    testRunTitle: $(CONTAINER_NAME) Test Results
+
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
-    Clear-ContainerBuilds -Name r10k -Namespace $ENV:NAMESPACE
+    Clear-BuildState -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE
   displayName: Container Cleanup
   condition: always()
