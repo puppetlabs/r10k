@@ -16,6 +16,7 @@ pool:
 variables:
   NAMESPACE: puppet
   CONTAINER_NAME: r10k
+  CONTAINER_BUILD_PATH: .
 
 steps:
 - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
@@ -44,7 +45,7 @@ steps:
 
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
-    Build-Container -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE -PathOrUri .
+    Build-Container -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE -PathOrUri $ENV:CONTAINER_BUILD_PATH
   displayName: Build $(CONTAINER_NAME) Container
   name: build_container
 
