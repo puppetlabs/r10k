@@ -71,4 +71,5 @@ steps:
     . "$(bundle show pupperware)/ci/build.ps1"
     Clear-BuildState -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE
   displayName: Container Cleanup
+  timeoutInMinutes: 3
   condition: always()
