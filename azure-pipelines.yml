@@ -19,6 +19,9 @@ variables:
   CONTAINER_BUILD_PATH: .
   LINT_IGNORES: DL3008 DL3018 DL4000 DL4001 DL3028
 
+workspace:
+  clean: resources
+
 steps:
 - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
   clean: true  # whether to fetch clean each time
