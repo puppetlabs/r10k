@@ -6,13 +6,11 @@ build_date := $(shell date -u +%FT%T)
 hadolint_available := $(shell hadolint --help > /dev/null 2>&1; echo $$?)
 hadolint_command := hadolint --ignore DL3008 --ignore DL3018 --ignore DL3028 --ignore DL4000 --ignore DL4001
 hadolint_container := hadolint/hadolint:latest
-pwd := $(shell pwd)
-export BUNDLE_PATH = $(pwd)/.bundle/gems
-export BUNDLE_BIN = $(pwd)/.bundle/bin
-export GEMFILE = $(pwd)/Gemfile
+export BUNDLE_PATH = $(PWD)/.bundle/gems
+export BUNDLE_BIN = $(PWD)/.bundle/bin
+export GEMFILE = $(PWD)/Gemfile
 
 version := $(shell command grep VERSION ../lib/r10k/version.rb | awk '{print $$3}' | sed "s/'//g")
-dockerfile := Dockerfile
 
 prep:
 	@git fetch --unshallow 2> /dev/null ||:
@@ -20,10 +18,12 @@ prep:
 
 lint:
 ifeq ($(hadolint_available),0)
-	@$(hadolint_command) r10k/$(dockerfile)
+	@$(hadolint_command) r10k/Dockerfile
 else
 	@docker pull $(hadolint_container)
-	@docker run --rm -v $(PWD)/r10k/$(dockerfile):/Dockerfile -i $(hadolint_container) $(hadolint_command) Dockerfile
+	@docker run --rm \
+		-v $(PWD)/r10k/Dockerfile:/Dockerfile \
+		-i $(hadolint_container) $(hadolint_command) Dockerfile
 endif
 
 build: prep
@@ -33,10 +33,11 @@ build: prep
 		--build-arg build_date=$(build_date) \
 		--build-arg version=$(version) \
 		--build-arg pupperware_analytics_stream=$(PUPPERWARE_ANALYTICS_STREAM) \
-		--file r10k/$(dockerfile) \
-		--tag $(NAMESPACE)/r10k:$(version) $(pwd)/..
+		--file r10k/Dockerfile \
+		--tag $(NAMESPACE)/r10k:$(version) \
+		$(PWD)/..
 ifeq ($(IS_LATEST),true)
-	@docker tag $(NAMESPACE)/r10k:$(version) puppet/r10k:latest
+	@docker tag $(NAMESPACE)/r10k:$(version) $(NAMESPACE)/r10k:latest
 endif
 
 test: prep
@@ -63,4 +64,15 @@ push-readme:
 
 publish: push-image push-readme
 
-.PHONY: lint build test prep publish push-image push-readme
+pull:
+	@docker pull $(NAMESPACE)/r10k:$(version)
+
+up:
+	@R10K_IMAGE=$(NAMESPACE)/r10k:$(version) \
+		docker-compose up
+
+down:
+	@R10K_IMAGE=$(NAMESPACE)/r10k:$(version) \
+		docker-compose down --volumes
+
+.PHONY: lint build test prep publish push-image push-readme pull up down

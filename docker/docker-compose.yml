@@ -1,0 +1,10 @@
+version: '3.7'
+services:
+  r10k:
+    image: $R10K_IMAGE
+    volumes:
+      - ./spec/fixtures:/test
+    # Keep the container alive for tests, and we don't
+    # currently have any behavior in the entrypoint
+    # scripts that we need to test
+    entrypoint: tail -f /dev/null
