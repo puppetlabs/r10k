@@ -116,7 +116,7 @@ module R10K
       def verify
         logger.debug1 "Verifying that #{@tarball_cache_path} matches checksum"
 
-        sha256_of_tarball = Digest::SHA256.file(@tarball_cache_path).hexdigest
+        sha256_of_tarball = Digest(:SHA256).file(@tarball_cache_path).hexdigest
 
         if @sha256_file_path.exist?
           verify_from_file(sha256_of_tarball, @sha256_file_path)
@@ -130,7 +130,7 @@ module R10K
             end
 
             logger.debug1 "No SHA256 checksum available, falling back to MD5"
-            md5_of_tarball = Digest::MD5.file(@tarball_cache_path).hexdigest
+            md5_of_tarball = Digest(:MD5).file(@tarball_cache_path).hexdigest
             if @md5_file_path.exist?
               verify_from_file(md5_of_tarball, @md5_file_path)
             else
