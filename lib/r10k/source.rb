@@ -32,6 +32,7 @@ module R10K
     end
 
     require 'r10k/source/base'
+    require 'r10k/source/hash'
     require 'r10k/source/git'
     require 'r10k/source/svn'
   end

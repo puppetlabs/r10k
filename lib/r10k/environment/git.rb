@@ -10,6 +10,10 @@ class R10K::Environment::Git < R10K::Environment::Base
 
   include R10K::Logging
 
+  R10K::Environment.register(:git, self)
+  # Register git as the default environment type
+  R10K::Environment.register(nil, self)
+
   # @!attribute [r] remote
   #   @return [String] The URL to the remote git repository
   attr_reader :remote
