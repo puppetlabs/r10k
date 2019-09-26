@@ -6,7 +6,7 @@ require 'forwardable'
 # This class implements an environment based on a Git branch.
 #
 # @since 1.3.0
-class R10K::Environment::Git < R10K::Environment::Base
+class R10K::Environment::Git < R10K::Environment::WithModules
 
   include R10K::Logging
 
@@ -70,15 +70,12 @@ class R10K::Environment::Git < R10K::Environment::Base
 
   include R10K::Util::Purgeable
 
-  def managed_directories
-    [@full_path]
-  end
-
   # Returns an array of the full paths to all the content being managed.
   # @note This implements a required method for the Purgeable mixin
   # @return [Array<String>]
   def desired_contents
     desired = [File.join(@full_path, '.git')]
     desired += @repo.tracked_paths.map { |entry| File.join(@full_path, entry) }
+    desired += super
   end
 end
