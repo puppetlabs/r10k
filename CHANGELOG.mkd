@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+3.3.2
+-----
+
+### Bug Fixes
+
+  - Switched to thread-safe OpenSSL::Digest creation. [#979](https://github.com/puppetlabs/r10k/issues/979)
+
 3.3.1
 -----
 
