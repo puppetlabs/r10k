@@ -41,6 +41,7 @@ endif
 
 test: prep
 	@bundle install --path $$BUNDLE_PATH --gemfile $$GEMFILE
+	@bundle update
 	@PUPPET_TEST_DOCKER_IMAGE=$(NAMESPACE)/r10k:$(version) \
 		bundle exec --gemfile $$GEMFILE \
 		rspec spec
