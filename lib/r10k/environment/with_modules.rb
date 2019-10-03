@@ -1,3 +1,4 @@
+require 'r10k/logging'
 require 'r10k/util/purgeable'
 
 # This abstract base class implements an environment that can include module
@@ -5,6 +6,8 @@ require 'r10k/util/purgeable'
 #
 # @since 3.4.0
 class R10K::Environment::WithModules < R10K::Environment::Base
+
+  include R10K::Logging
 
   # @!attribute [r] moduledir
   #   @return [String] The directory to install environment-defined modules
@@ -120,8 +123,17 @@ class R10K::Environment::WithModules < R10K::Environment::Base
   # @note This implements a required method for the Purgeable mixin
   # @return [Array<String>]
   def desired_contents
-    @managed_content.flat_map do |install_path, modnames|
+    list = @managed_content.keys
+    list += @managed_content.flat_map do |install_path, modnames|
       modnames.collect { |name| File.join(install_path, name) }
+    end
+  end
+
+  def purge_exclusions
+    super + @managed_content.flat_map do |install_path, modnames|
+      modnames.map do |name|
+        File.join(install_path, name, '**', '*')
+      end
     end
   end
 end
