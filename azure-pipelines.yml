@@ -31,7 +31,7 @@ steps:
     $gempath = Join-Path -Path (Get-Location) -ChildPath 'docker/.bundle/gems'
     bundle config --local gemfile $gemfile
     bundle config --local path $gempath
-    bundle install
+    bundle install --with test
   displayName: Fetch Dependencies
   name: fetch_deps
 
