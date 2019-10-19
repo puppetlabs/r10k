@@ -33,24 +33,28 @@ steps:
     bundle config --local path $gempath
     bundle install --with test
   displayName: Fetch Dependencies
+  timeoutInMinutes: 1
   name: fetch_deps
 
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
     Write-HostDiagnostics
   displayName: Diagnostic Host Information
+  timeoutInMinutes: 2
   name: hostinfo
 
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
     Lint-Dockerfile -Name $ENV:CONTAINER_NAME -Ignore ($ENV:LINT_IGNORES -split ' ')
   displayName: Lint $(CONTAINER_NAME) Dockerfile
+  timeoutInMinutes: 1
   name: lint_dockerfile
 
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
     Build-Container -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE -PathOrUri $ENV:CONTAINER_BUILD_PATH
   displayName: Build $(CONTAINER_NAME) Container
+  timeoutInMinutes: 5
   name: build_container
 
 - powershell: |
@@ -63,6 +67,7 @@ steps:
     . "$(bundle show pupperware)/ci/build.ps1"
     Invoke-ContainerTest -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE
   displayName: Test $(CONTAINER_NAME)
+  timeoutInMinutes: 5
   name: test_container
 
 - task: PublishTestResults@2
@@ -76,5 +81,5 @@ steps:
     . "$(bundle show pupperware)/ci/build.ps1"
     Clear-BuildState -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE
   displayName: Container Cleanup
-  timeoutInMinutes: 3
+  timeoutInMinutes: 4
   condition: always()
