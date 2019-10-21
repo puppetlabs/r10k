@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+3.3.3
+-----
+
+### Changes
+
+  - Update minitar version to 0.9, to match the version installed with puppet-agent
+
 3.3.2
 -----
 
