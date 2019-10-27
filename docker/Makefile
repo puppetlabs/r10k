@@ -27,7 +27,7 @@ else
 endif
 
 build: prep
-	@docker build \
+	docker build \
 		--pull \
 		--build-arg vcs_ref=$(vcs_ref) \
 		--build-arg build_date=$(build_date) \
