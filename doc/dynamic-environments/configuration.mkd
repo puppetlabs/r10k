@@ -327,6 +327,15 @@ deploy:
   puppet_path: '/usr/local/bin/puppet'
 ```
 
+#### puppet\_conf
+
+The path to the puppet.conf file used for generating types. Defaults to `/etc/puppetlabs/puppet/puppet.conf`.
+
+```yaml
+deploy:
+  puppet_conf: '/opt/puppet/conf/puppet.conf'
+```
+
 Source options
 --------------
 

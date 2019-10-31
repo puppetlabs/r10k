@@ -3,6 +3,7 @@ CHANGELOG
 
 Unreleased
 ----------
+- Add support for defining custom puppet.conf when generating types [#993](https://github.com/puppetlabs/r10k/pull/993)
 - Update test cases to account for error message changes in Puppet 7
 
 3.6.0

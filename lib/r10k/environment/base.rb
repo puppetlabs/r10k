@@ -137,7 +137,7 @@ class R10K::Environment::Base
   end
 
   def generate_types!
-    argv = [R10K::Settings.puppet_path, 'generate', 'types', '--environment', dirname, '--environmentpath', basedir]
+    argv = [R10K::Settings.puppet_path, 'generate', 'types', '--environment', dirname, '--environmentpath', basedir, '--config', R10K::Settings.puppet_conf]
     subproc = R10K::Util::Subprocess.new(argv)
     subproc.raise_on_fail = true
     subproc.logger = logger

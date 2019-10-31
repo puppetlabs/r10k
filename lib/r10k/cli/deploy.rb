@@ -31,6 +31,7 @@ module R10K::CLI
             exit 1
           end
         end
+        option nil, :'puppet-conf', 'Path to puppet.conf', argument: :required
 
         run do |opts, args, cmd|
           puts cmd.help(:verbose => opts[:verbose])
