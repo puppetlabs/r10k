@@ -1,2 +1,2 @@
-moduledir 'test/modules'
+moduledir '/test/modules'
 mod 'puppetlabs/ntp'

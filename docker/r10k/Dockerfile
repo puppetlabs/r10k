@@ -31,6 +31,11 @@ LABEL org.label-schema.maintainer="Puppet Release Team <release@puppet.com>" \
       org.label-schema.schema-version="1.0" \
       org.label-schema.dockerfile="/Dockerfile"
 
+# Add a puppet user to run r10k as for consistency with puppetserver
+COPY docker/r10k/adduser.sh /
+RUN chmod a+x /adduser.sh && \
+    /adduser.sh
+
 RUN apk add --no-cache ruby openssh-client git ruby-rugged curl ruby-dev make gcc musl-dev
 COPY --from=build /workspace/r10k.gem /
 RUN gem install --no-doc r10k.gem json etc && \
@@ -39,7 +44,10 @@ RUN gem install --no-doc r10k.gem json etc && \
 COPY docker/r10k/docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
 COPY docker/r10k/docker-entrypoint.d /docker-entrypoint.d
+RUN chown -R puppet: /docker-entrypoint.d /docker-entrypoint.sh
 
+USER puppet
+WORKDIR /home/puppet
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["help"]
 
