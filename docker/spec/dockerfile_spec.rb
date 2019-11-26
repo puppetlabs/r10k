@@ -8,9 +8,11 @@ describe 'r10k container' do
   include Pupperware::SpecHelpers
   def run_r10k(command)
     run_command("docker run --detach \
-                   --volume #{File.join(SPEC_DIRECTORY, 'fixtures')}:/test \
+                   --volume #{File.join(SPEC_DIRECTORY, 'fixtures')}:/home/puppet/test \
                    #{@image} #{command} \
-                   --puppetfile /test/Puppetfile")
+                   --verbose \
+                   --trace \
+                   --puppetfile test/Puppetfile")
   end
 
   before(:all) do
@@ -35,7 +37,6 @@ describe 'r10k container' do
     container = result[:stdout].chomp
     wait_on_container_exit(container)
     expect(get_container_exit_code(container)).to eq(0)
-    expect(Dir.exist?(File.join(SPEC_DIRECTORY, 'fixtures', 'modules', 'ntp'))).to eq(true)
     emit_log(container)
     teardown_container(container)
   end
