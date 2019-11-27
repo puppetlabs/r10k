@@ -6,13 +6,21 @@ build_date := $(shell date -u +%FT%T)
 hadolint_available := $(shell hadolint --help > /dev/null 2>&1; echo $$?)
 hadolint_command := hadolint --ignore DL3008 --ignore DL3018 --ignore DL3028 --ignore DL4000 --ignore DL4001
 hadolint_container := hadolint/hadolint:latest
-pwd := $(shell pwd)
-export BUNDLE_PATH = $(pwd)/.bundle/gems
-export BUNDLE_BIN = $(pwd)/.bundle/bin
-export GEMFILE = $(pwd)/Gemfile
+export BUNDLE_PATH = $(PWD)/.bundle/gems
+export BUNDLE_BIN = $(PWD)/.bundle/bin
+export GEMFILE = $(PWD)/Gemfile
 
-version := $(shell command grep VERSION ../lib/r10k/version.rb | awk '{print $$3}' | sed "s/'//g")
-dockerfile := Dockerfile
+ifeq ($(IS_RELEASE),true)
+	VERSION ?= $(shell echo $(git_describe) | sed 's/-.*//')
+	LATEST_VERSION ?= latest
+	dockerfile := Dockerfile-release
+	dockerfile_context := r10k
+else
+	VERSION ?= edge
+	IS_LATEST := false
+	dockerfile := Dockerfile
+	dockerfile_context := $(PWD)/..
+endif
 
 prep:
 	@git fetch --unshallow 2> /dev/null ||:
@@ -31,25 +39,25 @@ build: prep
 		--pull \
 		--build-arg vcs_ref=$(vcs_ref) \
 		--build-arg build_date=$(build_date) \
-		--build-arg version=$(version) \
+		--build-arg version=$(VERSION) \
 		--build-arg pupperware_analytics_stream=$(PUPPERWARE_ANALYTICS_STREAM) \
 		--file r10k/$(dockerfile) \
-		--tag $(NAMESPACE)/r10k:$(version) $(pwd)/..
+		--tag $(NAMESPACE)/r10k:$(VERSION) $(dockerfile_context)
 ifeq ($(IS_LATEST),true)
-	@docker tag $(NAMESPACE)/r10k:$(version) puppet/r10k:latest
+	@docker tag $(NAMESPACE)/r10k:$(VERSION) puppet/r10k:$(LATEST_VERSION)
 endif
 
 test: prep
 	@bundle install --path $$BUNDLE_PATH --gemfile $$GEMFILE --with test
 	@bundle update
-	@PUPPET_TEST_DOCKER_IMAGE=$(NAMESPACE)/r10k:$(version) \
+	@PUPPET_TEST_DOCKER_IMAGE=$(NAMESPACE)/r10k:$(VERSION) \
 		bundle exec --gemfile $$GEMFILE \
 		rspec spec
 
 push-image: prep
-	@docker push $(NAMESPACE)/r10k:$(version)
+	@docker push $(NAMESPACE)/r10k:$(VERSION)
 ifeq ($(IS_LATEST),true)
-	@docker push $(NAMESPACE)/r10k:latest
+	@docker push $(NAMESPACE)/r10k:$(LATEST_VERSION)
 endif
 
 push-readme:
