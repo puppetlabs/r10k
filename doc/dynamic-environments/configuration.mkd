@@ -263,7 +263,7 @@ After Puppetfile content for a given environment is deployed, r10k will
 recursively remove any content found in a directory managed by the Puppetfile
 which is not also declared in that Puppetfile. Directories considered to be
 managed by a Puppetfile include the configured `moduledir` (which defaults to
-"modules") as well as alternate directories specified as an `install\_path`
+"modules") as well as alternate directories specified as an `install_path`
 option to any Puppetfile content declarations.
 
 #### purge\_whitelist
