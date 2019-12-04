@@ -20,7 +20,7 @@ LABEL org.label-schema.maintainer="Puppet Release Team <release@puppet.com>" \
       org.label-schema.vcs-ref="$vcs_ref" \
       org.label-schema.build-date="$build_date" \
       org.label-schema.schema-version="1.0" \
-      org.label-schema.dockerfile="/Dockerfile-release"
+      org.label-schema.dockerfile="/release.Dockerfile"
 
 RUN apk add --no-cache ruby openssh-client git ruby-rugged curl ruby-dev make gcc musl-dev
 RUN gem install --no-doc r10k:"$version" json etc
@@ -32,4 +32,4 @@ COPY docker-entrypoint.d /docker-entrypoint.d
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["help"]
 
-COPY Dockerfile-release /
+COPY release.Dockerfile /
