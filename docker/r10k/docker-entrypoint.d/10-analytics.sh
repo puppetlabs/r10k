@@ -11,7 +11,7 @@ tid=UA-132486246-5
 # Application Name
 an=r10k
 # Application Version
-av=$R10K_VERSION
+av=$(r10k version | cut -d ' ' -f 2)
 # Anonymous Client ID
 _file=/var/tmp/pwclientid
 cid=$(cat $_file 2>/dev/null || (cat /proc/sys/kernel/random/uuid | tee $_file))
