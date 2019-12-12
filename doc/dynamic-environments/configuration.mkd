@@ -509,3 +509,100 @@ This will create the following directory structure:
 |-- app1_production  # app1 data repository, production branch
 |-- app1_develop     # app1 data repository, develop branch
 ```
+
+Experimental Features
+--------
+
+### YAML Environment Source
+
+Dynamically deploying Puppet content based on the state of version control repositories can be powerful and efficient for development workflows. The linkage however is not advantageous when trying to build precision controls over deployment of previously-developed and tested content.
+
+The YAML environment source type allows for a clear separation of tooling between development workflow, and deployment workflow. Development workflow creates new commits in the version control system. Deployment workflow consumes them.
+
+To use the YAML environment source, configure r10k's sources with at least one entry using the yaml type.
+
+```yaml
+# r10k.yaml
+---
+sources:
+  puppet:
+    type: yaml
+    basedir: /etc/puppetlabs/code/environments
+    config: /etc/puppetlabs/r10k/environments.yaml # default
+
+```
+
+When using the YAML source type, every environment is enumerated in a single yaml file. Each environment specifies a type, source, and version (typically a Git ref) to deploy. In the following example, two environments are defined, which are identical to each other.
+
+```yaml
+---
+production:
+  type: git
+  remote: git@github.com:puppetlabs/control-repo.git
+  ref: 8820892
+
+development:
+  type: git
+  remote: git@github.com:puppetlabs/control-repo.git
+  ref: 8820892
+```
+
+### Environment Modules
+
+The environment modules feature allows module content to be attached to an environment at environment definition time. This happens before modules specified in a Puppetfile are attached to an environment, which does not happen until deploy time. Environment module implementation depends on the environment source type.
+
+For the YAML environment source type, attach modules to an environment by specifying a modules key for the environment, and providing a hash of modules to attach. Each module accepts the same arguments accepted by the `mod` method in a Puppetfile.
+
+The example below includes two Forge modules and one module sourced from a Git repository. The two environments are almost identical. However, a new version of the stdlib module has been deployed in development (6.2.0), that has not yet been deployed to production.
+
+```yaml
+---
+production:
+  type: git
+  remote: git@github.com:puppetlabs/control-repo.git
+  ref: 8820892
+  modules:
+    puppetlabs-stdlib: 6.0.0
+    puppetlabs-concat: 6.1.0
+    reidmv-xampl:
+      git: https://github.com/reidmv/reidmv-xampl.git
+      ref: 62d07f2
+
+development:
+  type: git
+  remote: git@github.com:puppetlabs/control-repo.git
+  ref: 8820892
+  modules:
+    puppetlabs-stdlib: 6.2.0
+    puppetlabs-concat: 6.1.0
+    reidmv-xampl:
+      git: https://github.com/reidmv/reidmv-xampl.git
+      ref: 62d07f2
+```
+
+### Bare Environment Type
+
+A "control repository" typically contains a hiera.yaml, an environment.conf, a manifests/site.pp file, and a few other things. However, none of these are strictly necessary for an environment to be functional if modules can be deployed to it.
+
+The bare environment type allows sources that support environment modules to operate without a control repo being required. Modules can be deployed directly.
+
+```yaml
+---
+production:
+  type: bare
+  modules:
+    puppetlabs-stdlib: 6.0.0
+    puppetlabs-concat: 6.1.0
+    reidmv-xampl:
+      git: https://github.com/reidmv/reidmv-xampl.git
+      ref: 62d07f2
+
+development:
+  type: bare
+  modules:
+    puppetlabs-stdlib: 6.0.0
+    puppetlabs-concat: 6.1.0
+    reidmv-xampl:
+      git: https://github.com/reidmv/reidmv-xampl.git
+      ref: 62d07f2
+```
