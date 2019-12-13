@@ -36,5 +36,6 @@ module R10K
     require 'r10k/source/git'
     require 'r10k/source/svn'
     require 'r10k/source/yaml'
+    require 'r10k/source/yamldir'
   end
 end
