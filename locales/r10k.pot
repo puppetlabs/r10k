@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.3.0-7-g6a2159a\n"
+"Project-Id-Version: r10k 3.3.3-18-g14039f1\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2019-06-14 22:40+0000\n"
-"PO-Revision-Date: 2019-06-14 22:40+0000\n"
+"POT-Creation-Date: 2019-12-13 00:55+0000\n"
+"PO-Revision-Date: 2019-12-13 00:55+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -52,7 +52,7 @@ msgid "Environment %{env_dir} is new, updating all modules"
 msgstr ""
 
 #: ../lib/r10k/action/deploy/environment.rb:143
-msgid "Deploying Puppetfile content %{mod_path}"
+msgid "Deploying %{origin} content %{path}"
 msgstr ""
 
 #: ../lib/r10k/action/deploy/module.rb:49
@@ -107,6 +107,14 @@ msgstr ""
 msgid "%{class} has not implemented method %{method}"
 msgstr ""
 
+#: ../lib/r10k/environment/with_modules.rb:104
+msgid "Puppetfile cannot contain module names defined by environment %{name}"
+msgstr ""
+
+#: ../lib/r10k/environment/with_modules.rb:106
+msgid "Remove the conflicting definitions of the following modules: %{conflicts}"
+msgstr ""
+
 #: ../lib/r10k/feature.rb:27
 msgid "Testing to see if feature %{name} is available."
 msgstr ""
@@ -131,19 +139,19 @@ msgstr ""
 msgid "Proc %{block} for feature %{name} returned %{output}"
 msgstr ""
 
-#: ../lib/r10k/forge/module_release.rb:164
+#: ../lib/r10k/forge/module_release.rb:196
 msgid "Unpacking %{tarball_cache_path} to %{target_dir} (with tmpdir %{tmp_path})"
 msgstr ""
 
-#: ../lib/r10k/forge/module_release.rb:166
+#: ../lib/r10k/forge/module_release.rb:198
 msgid "Valid files unpacked: %{valid_files}"
 msgstr ""
 
-#: ../lib/r10k/forge/module_release.rb:168
+#: ../lib/r10k/forge/module_release.rb:200
 msgid "These files existed in the module's tar file, but are invalid filetypes and were not unpacked: %{invalid_files}"
 msgstr ""
 
-#: ../lib/r10k/forge/module_release.rb:171
+#: ../lib/r10k/forge/module_release.rb:203
 msgid "Symlinks are unsupported and were not unpacked from the module tarball. %{release_slug} contained these ignored symlinks: %{symlinks}"
 msgstr ""
 
@@ -295,19 +303,19 @@ msgstr ""
 msgid "Module %{name} with args %{args} doesn't have an implementation. (Are you using the right arguments?)"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:105
+#: ../lib/r10k/module/base.rb:110
 msgid "Module name (%{title}) must match either 'modulename' or 'owner/modulename'"
 msgstr ""
 
-#: ../lib/r10k/module/forge.rb:70 ../lib/r10k/module/forge.rb:95
+#: ../lib/r10k/module/forge.rb:70 ../lib/r10k/module/forge.rb:99
 msgid "The module %{title} does not exist on %{url}."
 msgstr ""
 
-#: ../lib/r10k/module/forge.rb:170
+#: ../lib/r10k/module/forge.rb:174
 msgid "Forge module names must match 'owner/modulename'"
 msgstr ""
 
-#: ../lib/r10k/module/git.rb:92
+#: ../lib/r10k/module/git.rb:97
 msgid "Unhandled options %{unhandled} specified for %{class}"
 msgstr ""
 
@@ -323,35 +331,35 @@ msgstr ""
 msgid "Using Puppetfile '%{puppetfile}'"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:70
+#: ../lib/r10k/puppetfile.rb:71
 msgid "Puppetfile %{path} missing or unreadable"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:80
+#: ../lib/r10k/puppetfile.rb:84
 msgid "Failed to evaluate %{path}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:90
+#: ../lib/r10k/puppetfile.rb:98
 msgid "Puppetfiles cannot contain duplicate module names."
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:92
+#: ../lib/r10k/puppetfile.rb:100
 msgid "Remove the duplicates of the following modules: %{dupes}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:179
+#: ../lib/r10k/puppetfile.rb:192
 msgid "Updating modules with %{pool_size} threads"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:190
+#: ../lib/r10k/puppetfile.rb:203
 msgid "Error during concurrent deploy of a module: %{message}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:212
+#: ../lib/r10k/puppetfile.rb:225
 msgid "Module thread %{id} exiting: %{message}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:269
+#: ../lib/r10k/puppetfile.rb:282
 msgid "unrecognized declaration '%{method}'"
 msgstr ""
 
@@ -433,6 +441,10 @@ msgstr ""
 
 #: ../lib/r10k/source/git.rb:123 ../lib/r10k/source/svn.rb:113
 msgid "Branch %{branch} filtered out by ignore_branch_prefixes %{ibp}"
+msgstr ""
+
+#: ../lib/r10k/source/yaml.rb:10
+msgid "Couldn't open environments file %{file}: %{err}"
 msgstr ""
 
 #: ../lib/r10k/svn/working_dir.rb:43
