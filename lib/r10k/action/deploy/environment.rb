@@ -140,14 +140,14 @@ module R10K
         end
 
         def visit_module(mod)
-          logger.info _("Deploying Puppetfile content %{mod_path}") % {mod_path: mod.path}
+          logger.info _("Deploying %{origin} content %{path}") % {origin: mod.origin, path: mod.path}
           mod.sync(force: @force)
         end
 
         def write_environment_info!(environment, started_at, success)
           module_deploys = []
           begin
-            environment.puppetfile.modules.each do |mod|
+            environment.modules.each do |mod|
               name = mod.name
               version = mod.version
               sha = mod.repo.head rescue nil

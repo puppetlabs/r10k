@@ -9,6 +9,8 @@ class R10K::Environment::SVN < R10K::Environment::Base
 
   include R10K::Logging
 
+  R10K::Environment.register(:svn, self)
+
   # @!attribute [r] remote
   #   @return [String] The URL to the remote SVN branch to check out
   attr_reader :remote
