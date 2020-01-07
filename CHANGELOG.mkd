@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+3.4.0
+-----
+
+  - Switch to supported `colored2` gem
+  - Add YAML environment source [#983](https://github.com/puppetlabs/r10k/pull/983)
+
 3.3.3
 -----
 
