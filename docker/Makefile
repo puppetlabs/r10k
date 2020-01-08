@@ -64,8 +64,8 @@ push-readme:
 	@docker pull sheogorath/readme-to-dockerhub
 	@docker run --rm \
 		-v $(PWD)/README.md:/data/README.md \
-		-e DOCKERHUB_USERNAME="$(DISTELLI_DOCKER_USERNAME)" \
-		-e DOCKERHUB_PASSWORD="$(DISTELLI_DOCKER_PW)" \
+		-e DOCKERHUB_USERNAME="$(DOCKERHUB_USERNAME)" \
+		-e DOCKERHUB_PASSWORD="$(DOCKERHUB_PASSWORD)" \
 		-e DOCKERHUB_REPO_PREFIX=puppet \
 		-e DOCKERHUB_REPO_NAME=r10k \
 		sheogorath/readme-to-dockerhub
