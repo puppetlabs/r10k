@@ -75,7 +75,11 @@ class R10K::Module::Forge < R10K::Module::Base
 
   # @return [String] The version of the currently installed module
   def current_version
-    @metadata ? @metadata.version : nil
+    if insync?
+      (@metadata ||= @metadata_file.read).nil? ? nil : @metadata.version
+    else
+      nil
+    end
   end
 
   alias version current_version

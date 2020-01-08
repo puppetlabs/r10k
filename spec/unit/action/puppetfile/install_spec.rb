@@ -2,10 +2,13 @@ require 'spec_helper'
 require 'r10k/action/puppetfile/install'
 
 describe R10K::Action::Puppetfile::Install do
-
-  subject { described_class.new({root: "/some/nonexistent/path"}, []) }
-
+  let(:default_opts) { {root: "/some/nonexistent/path"} }
   let(:puppetfile) { R10K::Puppetfile.new('/some/nonexistent/path', nil, nil) }
+
+  def installer(opts = {}, argv = [], settings = {})
+    opts = default_opts.merge(opts)
+    return described_class.new(opts, argv, settings)
+  end
 
   before(:each) do
     allow(puppetfile).to receive(:load!).and_return(nil)
@@ -25,45 +28,42 @@ describe R10K::Action::Puppetfile::Install do
     end
 
     it "syncs each module in the Puppetfile" do
-      expect(puppetfile).to receive(:load!)
       modules.each { |m| expect(m).to receive(:sync) }
-      expect(subject.call).to eq true
+
+      expect(installer.call).to eq true
     end
 
     it "returns false if a module failed to install" do
-      expect(puppetfile).to receive(:load!)
-
       modules[0..2].each { |m| expect(m).to receive(:sync) }
       expect(modules[3]).to receive(:sync).and_raise
-      expect(subject.call).to eq false
+
+      expect(installer.call).to eq false
     end
   end
 
   describe "purging" do
     before do
-      allow(puppetfile).to receive(:load!)
       allow(puppetfile).to receive(:modules).and_return([])
     end
 
     it "purges the moduledir after installation" do
       expect(puppetfile).to receive(:purge!)
-      subject.call
+
+      installer.call
     end
   end
 
   describe "using custom paths" do
-    let(:puppetfile) { instance_double("R10K::Puppetfile", load!: nil, accept: nil, purge!: nil) }
-
     it "can use a custom puppetfile path" do
-      subject = described_class.new({root: "/some/nonexistent/path", puppetfile: "/some/other/path/Puppetfile"}, [])
       expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, "/some/other/path/Puppetfile", nil, nil).and_return(puppetfile)
-      subject.call
+
+      installer({puppetfile: "/some/other/path/Puppetfile"}).call
     end
 
     it "can use a custom moduledir path" do
-      subject = described_class.new({root: "/some/nonexistent/path", moduledir: "/some/other/path/site-modules"}, [])
       expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", "/some/other/path/site-modules", nil, nil, nil).and_return(puppetfile)
-      subject.call
+
+      installer({moduledir: "/some/other/path/site-modules"}).call
     end
   end
 

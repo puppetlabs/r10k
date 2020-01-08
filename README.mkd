@@ -17,17 +17,14 @@ implementation of Puppet [dynamic environments][workflow].
 Requirements
 ------------
 
-R10k supports the following Ruby versions:
-
-  - 1.9.3
-  - 2.0.0
-  - 2.1.0
+R10k supports the Ruby versions `>= 2.3.0`. It's tested on Ruby 2.3.0 up to
+Ruby 2.6.0 + Jruby.
 
 R10k requires additional components, depending on how you plan on managing
 environments and modules.
 
-  - Installing modules from the Puppet Forge requires Puppet 3.0.0+ or later.
-  Puppet 2.7 may work, but is generally not recommended as Puppet 2.7 is EOL.
+  - Installing modules from the Puppet Forge requires Puppet 5.0.0+ or later.
+  Puppet 3 or 4 may work, but is generally not recommended.
   - Git is required for creating environments and modules from Git
   - SVN is required for creating environments and modules from SVN
 
@@ -108,12 +105,6 @@ Getting help
   can be directed. Questions about r10k can frequently be asked in `#puppet` as well.
   * Mailing lists: [puppet-users](https://groups.google.com/forum/#!forum/puppet-users)
   * Q&A: [Puppet Ask](https://ask.puppetlabs.com/questions/)
-
-
-More information
-----------------
-
-The original impetus for r10k is explained at http://somethingsinistral.net/blog/rethinking-puppet-deployment/
 
 Contributors
 ------------

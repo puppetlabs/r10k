@@ -1,5 +1,7 @@
 ---
 language: ruby
+services:
+  - docker
 bundler_args: "--without system"
 script: "bundle exec rspec --color --format documentation spec/unit"
 notifications:
@@ -11,14 +13,20 @@ before_install: gem install bundler -v '< 2' --no-document
 matrix:
   include:
     - stage: r10k tests
+      rvm: 2.6.5
+    - stage: r10k tests
+      rvm: 2.5.0
+    - stage: r10k tests
+      rvm: 2.4.0
+    - stage: r10k tests
       rvm: 2.3.0
     - stage: r10k tests
-      rvm: 2.2.0
-    - stage: r10k tests
-      rvm: 2.1.0
-    - stage: r10k tests
-      rvm: 2.0.0
-    - stage: r10k tests
-      rvm: 1.9.3
-    - stage: r10k tests
-      rvm: jruby-19mode
+      rvm: jruby
+    - stage: r10k container tests
+      language: ruby
+      rvm: 2.5.5
+      script:
+        - |
+          set -ex
+          cd docker && make lint build test
+          set +x

@@ -1,0 +1,2 @@
+moduledir '/tmp/modules'
+mod 'puppetlabs/ntp'

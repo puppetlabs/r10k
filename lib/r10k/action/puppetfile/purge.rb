@@ -8,7 +8,7 @@ module R10K
       class Purge < R10K::Action::Base
 
         def call
-          pf = R10K::Puppetfile.new(@root, @moduledir, @path)
+          pf = R10K::Puppetfile.new(@root, @moduledir, @puppetfile)
           pf.load!
           pf.purge!
           true

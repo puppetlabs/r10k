@@ -89,7 +89,6 @@ class R10K::Git::StatefulRepository
   # @api private
   def sync_cache?(ref)
     return true if !@cache.exist?
-    return true if !@cache.resolve(ref)
     return true if !([:commit, :tag].include? @cache.ref_type(ref))
     return false
   end

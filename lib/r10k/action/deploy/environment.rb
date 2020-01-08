@@ -19,6 +19,7 @@ module R10K
           settings ||= {}
           @purge_levels = settings.fetch(:deploy, {}).fetch(:purge_levels, [])
           @user_purge_whitelist = settings.fetch(:deploy, {}).fetch(:purge_whitelist, [])
+          @generate_types = settings.fetch(:deploy, {}).fetch(:generate_types, false)
 
           super
 
@@ -64,6 +65,11 @@ module R10K
           end
         ensure
           if (postcmd = @settings[:postrun])
+            if postcmd.grep('$modifiedenvs').any?
+              envs = deployment.environments.map { |e| e.dirname }
+              envs.reject! { |e| !@argv.include?(e) } if @argv.any?
+              postcmd = postcmd.map { |e| e.gsub('$modifiedenvs', envs.join(' ')) }
+            end
             subproc = R10K::Util::Subprocess.new(postcmd)
             subproc.logger = logger
             subproc.execute
@@ -81,6 +87,7 @@ module R10K
           end
 
           started_at = Time.new
+          @environment_ok = true
 
           status = environment.status
           logger.info _("Deploying environment %{env_path}") % {env_path: environment.path}
@@ -93,7 +100,11 @@ module R10K
               logger.debug(_("Environment %{env_dir} is new, updating all modules") % {env_dir: environment.dirname})
             end
 
+            previous_ok = @visit_ok
+            @visit_ok = true
             yield
+            @environment_ok = @visit_ok
+            @visit_ok &&= previous_ok
           end
 
           if @purge_levels.include?(:environment)
@@ -102,6 +113,15 @@ module R10K
               environment.purge!(:recurse => true, :whitelist => environment.whitelist(@user_purge_whitelist))
             else
               logger.debug("Not purging unmanaged content for environment '#{environment.dirname}' due to prior deploy failures.")
+            end
+          end
+
+          if @generate_types
+            if @environment_ok
+              logger.debug("Generating puppet types for environment '#{environment.dirname}'...")
+              environment.generate_types!
+            else
+              logger.debug("Not generating puppet types for environment '#{environment.dirname}' due to puppetfile failures.")
             end
           end
 
@@ -120,14 +140,14 @@ module R10K
         end
 
         def visit_module(mod)
-          logger.info _("Deploying Puppetfile content %{mod_path}") % {mod_path: mod.path}
+          logger.info _("Deploying %{origin} content %{path}") % {origin: mod.origin, path: mod.path}
           mod.sync(force: @force)
         end
 
         def write_environment_info!(environment, started_at, success)
           module_deploys = []
           begin
-            environment.puppetfile.modules.each do |mod|
+            environment.modules.each do |mod|
               name = mod.name
               version = mod.version
               sha = mod.repo.head rescue nil
@@ -159,7 +179,12 @@ module R10K
         end
 
         def allowed_initialize_opts
-          super.merge(puppetfile: :self, cachedir: :self, :'no-force' => :self, :'default-branch-override' => :self)
+          super.merge(puppetfile: :self,
+                      cachedir: :self,
+                      'no-force': :self,
+                      'generate-types': :self,
+                      'puppet-path': :self,
+                      'default-branch-override': :self)
         end
       end
     end

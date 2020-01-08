@@ -1,3 +1,5 @@
+require 'r10k/util/subprocess'
+
 # This class defines a common interface for environment implementations.
 #
 # @since 1.3.0
@@ -24,6 +26,11 @@ class R10K::Environment::Base
   #   @return [R10K::Puppetfile] The puppetfile instance associated with this environment
   attr_reader :puppetfile
 
+  # @!attribute [r] puppetfile_name
+  #   @api public
+  #   @return [String] The puppetfile name (relative)
+  attr_reader :puppetfile_name
+
   # Initialize the given environment.
   #
   # @param name [String] The unique name describing this environment.
@@ -36,11 +43,12 @@ class R10K::Environment::Base
     @basedir = basedir
     @dirname = dirname
     @options = options
+    @puppetfile_name = options[:puppetfile_name]
 
     @full_path = File.join(@basedir, @dirname)
     @path = Pathname.new(File.join(@basedir, @dirname))
 
-    @puppetfile  = R10K::Puppetfile.new(@full_path)
+    @puppetfile  = R10K::Puppetfile.new(@full_path, nil, nil, @puppetfile_name)
     @puppetfile.environment = self
   end
 
@@ -126,5 +134,17 @@ class R10K::Environment::Base
     end
 
     list.to_a
+  end
+
+  def generate_types!
+    argv = [R10K::Settings.puppet_path, 'generate', 'types', '--environment', dirname, '--environmentpath', basedir]
+    subproc = R10K::Util::Subprocess.new(argv)
+    subproc.raise_on_fail = true
+    subproc.logger = logger
+    result = subproc.execute
+    unless result.stderr.empty?
+      logger.warn "There were problems generating types for environment #{dirname}:"
+      result.stderr.split(%r{\n}).map { |msg| logger.warn msg }
+    end
   end
 end

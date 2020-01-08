@@ -1,1 +1,2 @@
-* @puppetlabs/puppetserver-maintainers
+*        @puppetlabs/puppetserver-maintainers
+/docker/ @puppetlabs/pupperware

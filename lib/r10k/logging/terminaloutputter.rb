@@ -1,4 +1,4 @@
-require 'colored'
+require 'colored2'
 require 'r10k/logging'
 require 'log4r/outputter/iooutputter'
 

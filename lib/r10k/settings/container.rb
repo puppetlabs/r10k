@@ -32,7 +32,11 @@ class R10K::Settings::Container
     if @settings[key]
       @settings[key]
     elsif @parent && (pkey = @parent[key])
-      @settings[key] = pkey.dup
+      begin
+        @settings[key] = pkey.dup
+      rescue TypeError
+        @settings[key] = pkey
+      end
       @settings[key]
     end
   end

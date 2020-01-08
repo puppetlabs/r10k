@@ -28,6 +28,14 @@ describe R10K::Action::Deploy::Environment do
     end
 
     it "normalizes environment names in the arg vector"
+
+    it 'can accept a generate-types option' do
+      described_class.new({ 'generate-types': true }, [])
+    end
+
+    it 'can accept a puppet-path option' do
+      described_class.new({ 'puppet-path': '/nonexistent' }, [])
+    end
   end
 
   describe "when called" do
@@ -37,7 +45,8 @@ describe R10K::Action::Deploy::Environment do
           :control => {
             :type => :mock,
             :basedir => '/some/nonexistent/path/control',
-            :environments => %w[first second third],
+            :environments => %w[first second third env-that/will-be-corrected],
+            :prefix => 'PREFIX'
           }
         }
       )
@@ -69,6 +78,90 @@ describe R10K::Action::Deploy::Environment do
       end
     end
 
+    describe "postrun" do
+      context "basic postrun hook" do
+        let(:settings) { { postrun: ["/path/to/executable", "arg1", "arg2"] } }
+        let(:deployment) { R10K::Deployment.new(mock_config.merge(settings)) }
+
+        before do
+          expect(R10K::Deployment).to receive(:new).and_return(deployment)
+        end
+
+        subject do
+          described_class.new( {config: "/some/nonexistent/path" },
+                               %w[PREFIX_first],
+                               settings                             )
+        end
+
+        it "is passed to Subprocess" do
+          mock_subprocess = double
+          allow(mock_subprocess).to receive(:logger=)
+          expect(mock_subprocess).to receive(:execute)
+
+          expect(R10K::Util::Subprocess).to receive(:new).
+            with(["/path/to/executable", "arg1", "arg2"]).
+            and_return(mock_subprocess)
+
+          subject.call
+        end
+      end
+
+      context "supports environments" do
+        context "when one environment" do
+          let(:settings) { { postrun: ["/generate/types/wrapper", "$modifiedenvs"] } }
+          let(:deployment) { R10K::Deployment.new(mock_config.merge(settings)) }
+
+          before do
+            expect(R10K::Deployment).to receive(:new).and_return(deployment)
+          end
+
+          subject do
+            described_class.new( {config: "/some/nonexistent/path" },
+                                 %w[PREFIX_first],
+                                 settings                             )
+          end
+
+          it "properly substitutes the environment" do
+            mock_subprocess = double
+            allow(mock_subprocess).to receive(:logger=)
+            expect(mock_subprocess).to receive(:execute)
+
+            expect(R10K::Util::Subprocess).to receive(:new).
+              with(["/generate/types/wrapper", "PREFIX_first"]).
+              and_return(mock_subprocess)
+
+            subject.call
+          end
+        end
+        context "when many environments" do
+          let(:settings) { { postrun: ["/generate/types/wrapper", "$modifiedenvs"] } }
+          let(:deployment) { R10K::Deployment.new(mock_config.merge(settings)) }
+
+          before do
+            expect(R10K::Deployment).to receive(:new).and_return(deployment)
+          end
+
+          subject do
+            described_class.new( {config: "/some/nonexistent/path" },
+                                 [],
+                                 settings                             )
+          end
+
+          it "properly substitutes the environment" do
+            mock_subprocess = double
+            allow(mock_subprocess).to receive(:logger=)
+            expect(mock_subprocess).to receive(:execute)
+
+            expect(R10K::Util::Subprocess).to receive(:new).
+              with(["/generate/types/wrapper", "PREFIX_first PREFIX_second PREFIX_third PREFIX_env_that_will_be_corrected"]).
+              and_return(mock_subprocess)
+
+            subject.call
+          end
+        end
+      end
+    end
+
     describe "purge_levels" do
       let(:settings) { { deploy: { purge_levels: purge_levels } } }
 
@@ -80,7 +173,7 @@ describe R10K::Action::Deploy::Environment do
         expect(R10K::Deployment).to receive(:new).and_return(deployment)
       end
 
-      subject { described_class.new({ config: "/some/nonexistent/path", puppetfile: true }, %w[first], settings) }
+      subject { described_class.new({ config: "/some/nonexistent/path", puppetfile: true }, %w[PREFIX_first], settings) }
 
       describe "deployment purge level" do
         let(:purge_levels) { [:deployment] }
@@ -126,6 +219,118 @@ describe R10K::Action::Deploy::Environment do
         end
       end
     end
+    describe "generate-types" do
+      let(:deployment) do
+        R10K::Deployment.new(
+          R10K::Deployment::MockConfig.new(
+            sources: {
+              control: {
+                type: :mock,
+                basedir: '/some/nonexistent/path/control',
+                environments: %w[first second]
+              }
+            }
+          )
+        )
+      end
+
+      before do
+        allow(R10K::Deployment).to receive(:new).and_return(deployment)
+      end
+
+      before(:each) do
+        allow(subject).to receive(:write_environment_info!)
+        expect(subject.logger).not_to receive(:error)
+      end
+
+      context 'with generate-types enabled' do
+        subject do
+          described_class.new(
+            {
+              config: '/some/nonexistent/path',
+              puppetfile: true,
+              'generate-types': true
+            },
+            %w[first second]
+          )
+        end
+
+        it 'generate_types is true' do
+          expect(subject.instance_variable_get(:@generate_types)).to eq(true)
+        end
+
+        it 'only calls puppet generate types on specified environment' do
+          subject.instance_variable_set(:@argv, %w[first])
+          expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
+            if environment.dirname == 'first'
+              expect(environment).to receive(:generate_types!)
+            else
+              expect(environment).not_to receive(:generate_types!)
+            end
+            original.call(environment, &block)
+          end.twice
+          subject.call
+        end
+
+        it 'does not call puppet generate types on puppetfile failure' do
+          allow(subject).to receive(:visit_puppetfile) { subject.instance_variable_set(:@visit_ok, false) }
+          expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
+            expect(environment).not_to receive(:generate_types!)
+            original.call(environment, &block)
+          end.twice
+          subject.call
+        end
+
+        it 'calls puppet generate types on previous puppetfile failure' do
+          allow(subject).to receive(:visit_puppetfile) do |puppetfile|
+            subject.instance_variable_set(:@visit_ok, false) if puppetfile.environment.dirname == 'first'
+          end
+          expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
+            if environment.dirname == 'second'
+              expect(environment).to receive(:generate_types!)
+            else
+              expect(environment).not_to receive(:generate_types!)
+            end
+            original.call(environment, &block)
+          end.twice
+          subject.call
+        end
+      end
+
+      context 'with generate-types disabled' do
+        subject do
+          described_class.new(
+            {
+              config: '/some/nonexistent/path',
+              puppetfile: true,
+              'generate-types': false
+            },
+            %w[first]
+          )
+        end
+
+        it 'generate_types is false' do
+          expect(subject.instance_variable_get(:@generate_types)).to eq(false)
+        end
+
+        it 'does not call puppet generate types' do
+          expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
+            expect(environment).not_to receive(:generate_types!)
+            original.call(environment, &block)
+          end.twice
+          subject.call
+        end
+      end
+    end
+
+    describe 'with puppet-path' do
+
+      subject { described_class.new({ config: '/some/nonexistent/path', 'puppet-path': '/nonexistent' }, []) }
+
+      it 'sets puppet_path' do
+        expect(subject.instance_variable_get(:@puppet_path)).to eq('/nonexistent')
+      end
+    end
   end
 
   describe "write_environment_info!" do
@@ -164,6 +369,7 @@ describe R10K::Action::Deploy::Environment do
       allow(mock_forge_module_1).to receive(:repo).and_raise(NoMethodError)
 
       fake_env = Fake_Environment.new(@tmp_path, {:name => "my_cool_environment", :signature => "pablo picasso"})
+      allow(fake_env).to receive(:modules).and_return(mock_puppetfile.modules)
       subject.send(:write_environment_info!, fake_env, "2019-01-01 23:23:22 +0000", true)
 
       file_contents = File.read("#{@tmp_path}/.r10k-deploy.json")
