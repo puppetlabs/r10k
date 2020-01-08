@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+3.4.0
+-----
+
+  - Switch to supported `colored2` gem
+  - Add YAML environment source types [#983](https://github.com/puppetlabs/r10k/pull/983), [#1002](https://github.com/puppetlabs/r10k/pull/1002). YAML source types use configuration files to define environments, rather than VCS branches, and support deploying modules to an environment without modifying a control-repo. YAML environment source types are experimental in this release
+
 3.3.3
 -----
 
