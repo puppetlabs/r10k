@@ -31,7 +31,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'puppet_forge', '~> 2.2.8'
 
   s.add_dependency 'gettext-setup', '~> 0.5'
-
+  s.add_dependency 'gettext',       '~> 3.2.0'
+  
   s.add_development_dependency 'rspec', '~> 3.1'
 
   s.add_development_dependency 'rake'
