@@ -1,9 +1,0 @@
-pe-and-platform/r10k:
-  PreBuild:
-    - make lint
-  Build:
-    - make build PUPPERWARE_ANALYTICS_STREAM=production
-    - make test
-  AfterBuildSuccess:
-    - docker login -u "$DISTELLI_DOCKER_USERNAME" -p "$DISTELLI_DOCKER_PW" "$DISTELLI_DOCKER_ENDPOINT"
-    - make publish
