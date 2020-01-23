@@ -31,6 +31,10 @@ Gem::Specification.new do |s|
   s.add_dependency 'puppet_forge', '~> 2.2.8'
 
   s.add_dependency 'gettext-setup', '~>0.24'
+  # These two pins narrow what is allowed by gettext-setup,
+  # to preserver compatability with Ruby 2.4
+  s.add_dependency 'fast_gettext', '~> 1.1.0'
+  s.add_dependency 'gettext', ['>= 3.0.2', '< 3.3.0']
 
   s.add_development_dependency 'rspec', '~> 3.1'
 
