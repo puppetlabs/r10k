@@ -25,6 +25,10 @@ describe R10K::Action::Deploy::Module do
     it 'can accept a puppet-path option' do
       described_class.new({ 'puppet-path': '/nonexistent' }, [])
     end
+
+    it 'can accept a cachedir option' do
+      described_class.new({ cachedir: '/nonexistent' }, [])
+    end
   end
 
   describe "with no-force" do
@@ -121,6 +125,15 @@ describe R10K::Action::Deploy::Module do
 
     it 'sets puppet_path' do
       expect(subject.instance_variable_get(:@puppet_path)).to eq('/nonexistent')
+    end
+  end
+
+  describe 'with cachedir' do
+
+    subject { described_class.new({ config: '/some/nonexistent/path', cachedir: '/nonexistent' }, []) }
+
+    it 'sets puppet_path' do
+      expect(subject.instance_variable_get(:@cachedir)).to eq('/nonexistent')
     end
   end
 end
