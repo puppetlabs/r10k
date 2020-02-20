@@ -40,7 +40,7 @@ use. (But you can if you want.)
 
 ## Puppet >= 3.6.0
 
-[environmentconf]: http://docs.puppetlabs.com/puppet/latest/reference/config_file_environment.html
+[environmentconf]: https://puppet.com/docs/puppet/latest/environments_creating.html#the-environment.conf-file
 
 Puppet 3.6.0 adds more fine grained control over how directory environments are
 configured. Each directory based environment can have an
