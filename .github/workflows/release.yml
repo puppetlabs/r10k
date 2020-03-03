@@ -1,0 +1,24 @@
+name: Gem release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build gem
+        uses: scarhand/actions-ruby@master
+        with:
+          args: build *.gemspec
+      - name: Publish gem
+        uses: scarhand/actions-ruby@master
+        env:
+          RUBYGEMS_AUTH_TOKEN: ${{ secrets.RUBYGEMS_AUTH_TOKEN }}
+        with:
+          args: push *.gem
+
