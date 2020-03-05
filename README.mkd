@@ -8,11 +8,11 @@ Puppet environment and module deployment
 Description
 -----------
 
-[workflow]: http://puppetlabs.com/blog/git-workflow-and-puppet-environments/
+[workflow]: https://puppet.com/docs/puppet/latest/environments_about.html
 
 R10k provides a general purpose toolset for deploying Puppet environments and
 modules. It implements the [Puppetfile](doc/puppetfile.mkd) format and provides a native
-implementation of Puppet [dynamic environments][workflow].
+implementation of Puppet [environments][workflow].
 
 Requirements
 ------------
