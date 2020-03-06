@@ -4,6 +4,14 @@ CHANGELOG
 Unreleased
 ----
 
+3.4.1
+----
+- Add support for Ruby 2.7
+- (RK-357) Restrict gettext and fast_gettext versions for compatibility with Ruby 2.4
+- Bump cri to 2.15.10
+- (RK-360) Allow overriding the cachedir in `deploy module`
+- Bump puppet_forge to 2.3.0
+
 3.4.0
 -----
 
