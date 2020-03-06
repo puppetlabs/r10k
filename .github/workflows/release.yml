@@ -1,0 +1,37 @@
+name: Tag and release
+
+on:
+  push:
+    branches:
+      - master
+      - 2.6.x
+    paths:
+      - 'lib/r10k/version.rb'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@1.17.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.PUPPET_RELEASE_GH_TOKEN }}
+          DEFAULT_BUMP: patch
+          WITH_V: false
+          # Uncomment this if the tag and version file become out-of-sync and
+          # you need to tag at a specific version.
+          # CUSTOM_TAG:
+      - name: Build gem
+        uses: scarhand/actions-ruby@master
+        with:
+          args: build *.gemspec
+      - name: Publish gem
+        uses: scarhand/actions-ruby@master
+        env:
+          RUBYGEMS_AUTH_TOKEN: ${{ secrets.RUBYGEMS_AUTH_TOKEN }}
+        with:
+          args: push *.gem
+

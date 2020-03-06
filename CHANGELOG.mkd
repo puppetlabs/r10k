@@ -1,10 +1,26 @@
 CHANGELOG
 =========
 
+2.6.8
+----
+
+### Changes
+
+(RK-357) Restrict gettext and fast_gettext versions for compatibility with Ruby 2.4.
+(RK-358) Update puppet_forge to ~> 2.3.0.
+
+2.6.7
+----
+
+### Changes
+
+(CDPE-1813) Add module deploy info to .r10k-deploy.json.
+(RK-351) Update minitar to ~> 0.9.0.
+
 2.6.6
 ----
 
-## Changes
+### Changes
 
  - Flag for overriding default branch configuration in Puppetfile
  - Plumbing for internationalization
@@ -13,25 +29,27 @@ CHANGELOG
 2.6.5
 ----
 
-## Bug Fix
+### Bug Fix
 
 (RK-324) Fix Ruby pipe bug affecting Ubuntu
 
 2.6.4
 ----
 
-## Changes
+### Changes
 
 Numerous test fixes.
 
 2.6.3
 ----
-## Changes
+
+### Changes
 
 Update specs with new error string.
 
 2.6.2
 -----
+
 ### Changes
 
 (RK-311) Yard dependency updated for security fix.
