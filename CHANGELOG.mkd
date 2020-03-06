@@ -1,6 +1,9 @@
 CHANGELOG
 =========
 
+Unreleased
+----
+
 3.4.0
 -----
 
@@ -143,6 +146,22 @@ Ruby >= 2.3 official and documented.
     - r10k.yaml file is empty
     - Unable to parse Puppetfile
   - Various perfomance improvements
+
+2.6.8
+----
+
+### Changes
+
+(RK-357) Restrict gettext and fast_gettext versions for compatibility with Ruby 2.4.
+(RK-358) Update puppet_forge to ~> 2.3.0.
+
+2.6.7
+----
+
+### Changes
+
+(CDPE-1813) Add module deploy info to .r10k-deploy.json.
+(RK-351) Update minitar to ~> 0.9.0.
 
 2.6.6
 ----
