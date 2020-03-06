@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - 2.6.x
     paths:
       - 'lib/r10k/version.rb'
 
