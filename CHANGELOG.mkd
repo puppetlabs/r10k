@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+2.6.7
+----
+
+### Changes
+
+(CDPE-1813) Add module deploy info to .r10k-deploy.json.
+(RK-351) Update minitar to ~> 0.9.0.
+
 2.6.6
 ----
 
