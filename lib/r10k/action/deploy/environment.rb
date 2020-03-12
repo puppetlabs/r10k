@@ -157,7 +157,10 @@ module R10K
             logger.debug("Unable to get environment module deploy data for .r10k-deploy.json at #{environment.path}")
           end
 
-          File.open("#{environment.path}/.r10k-deploy.json", 'w') do |f|
+          # make this file write as atomic as possible in pure ruby
+          final   = "#{environment.path}/.r10k-deploy.json"
+          staging = "#{environment.path}/.r10k-deploy.json~"
+          File.open(staging, 'w') do |f|
             deploy_info = environment.info.merge({
               :started_at => started_at,
               :finished_at => Time.new,
@@ -167,6 +170,7 @@ module R10K
 
             f.puts(JSON.pretty_generate(deploy_info))
           end
+          FileUtils.mv(staging, final)
         end
 
         def undeployable_environment_names(environments, expected_names)
