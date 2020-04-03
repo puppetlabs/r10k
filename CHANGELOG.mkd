@@ -3,6 +3,7 @@ CHANGELOG
 
 Unreleased
 ----
+- Add exec environment source type. The exec source type allows for the implementation of external environment sources
 
 3.4.1
 ----
