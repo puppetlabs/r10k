@@ -21,7 +21,7 @@ LABEL org.label-schema.maintainer="Puppet Release Team <release@puppet.com>" \
       org.label-schema.schema-version="1.0" \
       org.label-schema.dockerfile="/release.Dockerfile"
 
-COPY docker-entrypoint.sh /
+COPY adduser.sh docker-entrypoint.sh /
 COPY docker-entrypoint.d /docker-entrypoint.d
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
@@ -35,7 +35,9 @@ LABEL org.label-schema.version="$version" \
       org.label-schema.build-date="$build_date"
 
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
-RUN chmod +x /docker-entrypoint.sh && \
+RUN chmod a+x /adduser.sh /docker-entrypoint.sh && \
+    /adduser.sh && \
+    chown -R puppet: /docker-entrypoint.d /docker-entrypoint.sh && \
     apk add --no-cache ruby openssh-client git ruby-rugged curl ruby-dev make gcc musl-dev && \
     gem install --no-doc r10k:"$version" json etc && \
     curl --fail --silent --show-error --location --remote-name "$supercronic_url" && \
@@ -43,5 +45,8 @@ RUN chmod +x /docker-entrypoint.sh && \
     chmod +x "$supercronic" && \
     mv "$supercronic" "/usr/local/bin/${supercronic}" && \
     ln -s "/usr/local/bin/${supercronic}" /usr/local/bin/supercronic
+
+USER puppet
+WORKDIR /home/puppet
 
 COPY release.Dockerfile /

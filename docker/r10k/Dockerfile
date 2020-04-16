@@ -45,10 +45,9 @@ LABEL org.label-schema.version="$version" \
 
 COPY --from=build /workspace/r10k.gem /
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
-RUN chmod a+x /adduser.sh && \
+RUN chmod a+x /adduser.sh /docker-entrypoint.sh && \
 # Add a puppet user to run r10k as for consistency with puppetserver
     /adduser.sh && \
-    chmod +x /docker-entrypoint.sh && \
     chown -R puppet: /docker-entrypoint.d /docker-entrypoint.sh && \
     apk add --no-cache ruby openssh-client git ruby-rugged curl ruby-dev make gcc musl-dev && \
     gem install --no-doc /r10k.gem json etc && \
