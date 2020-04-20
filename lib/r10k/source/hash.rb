@@ -120,6 +120,16 @@
 #
 class R10K::Source::Hash < R10K::Source::Base
 
+  include R10K::Logging
+
+  # @param hash [Hash] A hash to validate.
+  # @return [Boolean] False if the hash is obviously invalid. A true return
+  #   means _maybe_ it's valid.
+  def self.valid_environments_hash?(hash)
+    # TODO: more robust schema valiation
+    hash.is_a?(Hash)
+  end
+
   # @param name [String] The identifier for this source.
   # @param basedir [String] The base directory where the generated environments will be created.
   # @param options [Hash] An additional set of options for this source. The
@@ -131,18 +141,33 @@ class R10K::Source::Hash < R10K::Source::Base
   # @option options [Hash] :environments The hash definition of environments
   def initialize(name, basedir, options = {})
     super(name, basedir, options)
+  end
 
-    @environments_hash = options.delete(:environments) || {}
-
-    @environments_hash.keys.each do |name|
-      R10K::Util::SymbolizeKeys.symbolize_keys!(@environments_hash[name])
-      @environments_hash[name][:basedir] = basedir
-      @environments_hash[name][:dirname] = R10K::Environment::Name.new(name, {prefix: @prefix, source: @name}).dirname
+  # Set the environment hash for the source. The environment hash is what the
+  # source uses to generate enviroments.
+  # @param hash [Hash] The hash to sanitize and use as the source's environments.
+  #   Should be formatted for use with R10K::Environment#from_hash.
+  def set_environments_hash(hash)
+    @environments_hash = hash.reduce({}) do |memo,(name,opts)|
+      R10K::Util::SymbolizeKeys.symbolize_keys!(opts)
+      memo.merge({ 
+        name => opts.merge({
+          :basedir => @basedir,
+          :dirname => R10K::Environment::Name.new(name, {prefix: @prefix, source: @name}).dirname
+        })
+      })
     end
   end
 
+  # Return the sanitized environments hash for this source. The environments
+  # hash should contain objects formatted for use with R10K::Environment#from_hash.
+  # If the hash does not exist it will be built based on @options.
+  def environments_hash
+    @environments_hash ||= set_environments_hash(@options.fetch(:environments, {}))
+  end
+
   def environments
-    @environments ||= @environments_hash.map do |name, hash|
+    @environments ||= environments_hash.map do |name, hash|
       R10K::Environment.from_hash(name, hash)
     end
   end
