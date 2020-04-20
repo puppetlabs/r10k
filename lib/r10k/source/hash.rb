@@ -135,10 +135,9 @@ class R10K::Source::Hash < R10K::Source::Base
     @environments_hash = options.delete(:environments) || {}
 
     @environments_hash.keys.each do |name|
-      # TODO: deal with names that aren't valid
-      ::R10K::Util::SymbolizeKeys.symbolize_keys!(@environments_hash[name])
+      R10K::Util::SymbolizeKeys.symbolize_keys!(@environments_hash[name])
       @environments_hash[name][:basedir] = basedir
-      @environments_hash[name][:dirname] = name
+      @environments_hash[name][:dirname] = R10K::Environment::Name.new(name, {prefix: @prefix, source: @name}).dirname
     end
   end
 
