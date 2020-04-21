@@ -18,6 +18,7 @@ require 'r10k'
 
 Dir.glob(File.expand_path('spec/shared-examples/**/*.rb', PROJECT_ROOT)).each { |file| require file }
 
+require 'shared-contexts/cli'
 require 'shared-contexts/git-fixtures'
 require 'matchers/exit_with'
 require 'matchers/match_realpath'
