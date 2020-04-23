@@ -80,6 +80,7 @@ It will load the Puppetfile configurations out of all environments, and will
 try to deploy the given module names in all environments.
           DESCRIPTION
 
+          required nil, :cachedir, 'Specify a cachedir, overriding the value in config'
           required :e, :environment, 'Update the modules in the given environment'
           flag nil, :'generate-types', 'Run `puppet generate types` after updating an environment'
           flag nil, :'no-force', 'Prevent the overwriting of local module modifications'

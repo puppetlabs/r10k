@@ -43,6 +43,7 @@ COMMANDS = {
           },
           module: {
             options: {
+              cachedir: { type: :required, value: '/path/to/cachedir' },
               environment: { type: :required, value: 'environment1', short: '-e' },
               'generate-types': { type: :flag },
               'no-force': { type: :flag },
