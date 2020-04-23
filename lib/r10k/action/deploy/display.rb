@@ -81,7 +81,14 @@ module R10K
         end
 
         def allowed_initialize_opts
-          super.merge(puppetfile: :self, detail: :self, format: :self, fetch: :self)
+          super.merge(cachedir: :self,
+                      detail: :self,
+                      fetch: :self,
+                      format: :self,
+                      'generate-types': :self,
+                      'no-force': :self,
+                      puppetfile: :self,
+                      'puppet-path': :self)
         end
       end
     end

@@ -17,7 +17,12 @@ COMMANDS = {
     },
     subcommands: {
       deploy: {
-        options: {},
+        options: {
+          cachedir: { type: :required, value: '/path/to/cachedir' },
+          'generate-types': { type: :flag },
+          'no-force': { type: :flag },
+          'puppet-path': { type: :required, value: '/path/to/puppet' },
+        },
         subcommands: {
           display: {
             options: {
@@ -26,14 +31,11 @@ COMMANDS = {
               format: { type: :required, value: 'yaml' },
               puppetfile: { type: :flag, short: '-p' },
             },
+            included_examples: ['deploy examples'],
           },
           environment: {
             options: {
-              cachedir: { type: :required, value: '/path/to/cachedir' },
               'default-branch-override': { type: :required, value: 'branch-override' },
-              'generate-types': { type: :flag },
-              'no-force': { type: :flag },
-              'puppet-path': { type: :required, value: '/path/to/puppet' },
               puppetfile: { type: :flag, short: '-p' },
             },
             extra_args: {
@@ -43,11 +45,7 @@ COMMANDS = {
           },
           module: {
             options: {
-              cachedir: { type: :required, value: '/path/to/cachedir' },
               environment: { type: :required, value: 'environment1', short: '-e' },
-              'generate-types': { type: :flag },
-              'no-force': { type: :flag },
-              'puppet-path': { type: :required, value: '/path/to/puppet' },
             },
             extra_args: {
               'modules' => %w[module1 module2],
@@ -55,6 +53,7 @@ COMMANDS = {
             included_examples: ['deploy examples'],
           },
         },
+        included_examples: ['deploy examples'],
       },
       help: {
         options: {
