@@ -66,6 +66,15 @@ describe R10K::Source::Exec do
           source = described_class.new('execsource', '/some/nonexistent/dir', command: '/path/to/command')
           expect { source.environments }.to raise_error(/Error parsing command output/)
         end
+
+        it 'raises an error for yaml data that is not a hash' do
+          allow_any_instance_of(R10K::Util::Subprocess)
+            .to receive(:execute)
+            .and_return(double('result', stdout: "[one, two]"))
+
+          source = described_class.new('execsource', '/some/nonexistent/dir', command: '/path/to/command')
+          expect { source.environments }.to raise_error(R10K::Error, /Environment source execsource.*did not return valid environment data.*one.*two.*/m)
+        end
       end
     end
   end

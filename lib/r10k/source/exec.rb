@@ -15,13 +15,11 @@ class R10K::Source::Exec < R10K::Source::Hash
     super(name, basedir, options)
   end
 
-  def environments
-    if @environments.nil?
-      set_environments_hash(run_environments_command)
-      super
-    end
-    @environments
+  def environments_hash
+    @environments_hash ||= set_environments_hash(run_environments_command)
   end
+
+  private
 
   def run_environments_command
     subproc = R10K::Util::Subprocess.new([@command])
@@ -33,7 +31,7 @@ class R10K::Source::Exec < R10K::Source::Hash
       environments = JSON.parse(procresult.stdout)
     rescue JSON::ParserError => json_err
       begin
-        environments = YAML.load(procresult.stdout)
+        environments = YAML.safe_load(procresult.stdout)
       rescue Psych::SyntaxError => yaml_err
         raise R10K::Error, _("Error parsing command output for exec source %{name}:\n" \
                              "Not valid JSON: %{j_msg}\n" \
@@ -43,8 +41,8 @@ class R10K::Source::Exec < R10K::Source::Hash
     end
 
     unless R10K::Source::Hash.valid_environments_hash?(environments)
-      raise R10K::Error, _("Environment source ${name} command %{cmd} did not return valid environment data.\n" \
-                           'Returned: %{data}') % {name: name, cmd: command, data: environments}
+      raise R10K::Error, _("Environment source %{name} command %{cmd} did not return valid environment data.\n" \
+                           'Returned: %{data}') % {name: name, cmd: @command, data: environments}
     end
 
     # Return the resulting environments hash
