@@ -1,14 +1,7 @@
 require 'spec_helper'
 require 'r10k/source'
 
-describe R10K::Source::Hash do
-
-  describe '.valid_environments_hash?' do
-    it "rejects strings" do
-      expect(R10K::Source::Hash.valid_environments_hash?('200 OK'))
-        .to eq false
-    end
-  end
+describe R10K::Source::Yaml do
 
   let(:environments_hash) do
     {
@@ -39,16 +32,11 @@ describe R10K::Source::Hash do
     }
   end
 
-  describe "with a prefix" do
-    subject do
-      described_class.new('hashsource', '/some/nonexistent/dir',
-                          prefix: 'prefixed', environments: environments_hash)
-    end
-
-    it "prepends environment names with a prefix" do
-      environments = subject.environments
-      expect(environments[0].dirname).to eq 'prefixed_production'
-      expect(environments[1].dirname).to eq 'prefixed_development'
+  describe "with valid yaml file" do
+    it "produces environments" do
+      allow(YAML).to receive(:load_file).with('/envs.yaml').and_return(environments_hash)
+      source = described_class.new('yamlsource', '/some/nonexistent/dir', config: '/envs.yaml')
+      expect(source.environments.map(&:name)).to contain_exactly('production', 'development')
     end
   end
 end

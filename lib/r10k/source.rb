@@ -37,5 +37,6 @@ module R10K
     require 'r10k/source/svn'
     require 'r10k/source/yaml'
     require 'r10k/source/yamldir'
+    require 'r10k/source/exec'
   end
 end

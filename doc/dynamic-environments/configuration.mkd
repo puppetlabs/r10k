@@ -578,6 +578,20 @@ remote: git@github.com:puppetlabs/control-repo.git
 ref: 8820892
 ```
 
+### Exec environment Source
+
+The exec environment source runs an external command which is expected to return on stdout content compatible with the YAML environment source data format. The command may return the data in JSON or YAML form. The exec environment source is similar in purpose to Puppet's exec node terminus, used to implement external node classifiers (ENCs). R10k's exec source type allows the the implementation of external environment sources.
+
+```yaml
+# r10k.yaml
+---
+sources:
+  puppet:
+    type: exec
+    basedir: /etc/puppetlabs/code/environments
+    command: /usr/local/bin/r10k-environments.sh
+```
+
 ### Environment Modules
 
 The environment modules feature allows module content to be attached to an environment at environment definition time. This happens before modules specified in a Puppetfile are attached to an environment, which does not happen until deploy time. Environment module implementation depends on the environment source type.
