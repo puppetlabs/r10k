@@ -1,7 +1,5 @@
 ---
 language: ruby
-services:
-  - docker
 bundler_args: "--without system"
 script: "bundle exec rspec --color --format documentation spec/unit"
 notifications:
@@ -25,10 +23,20 @@ matrix:
     - stage: r10k tests
       rvm: jruby
     - stage: r10k container tests
+      dist: bionic
       language: ruby
-      rvm: 2.5.5
+      services:
+        # bionic uses 18.06 but need 19.03+ for buildkit so upgrade later in relevant cell
+        - docker
+      rvm: 2.6.5
+      env:
+        # necessary to prevent overwhelming TravisCI build output limits
+        - DOCKER_BUILD_FLAGS="--progress plain"
       script:
         - |
           set -ex
+          sudo apt update -y && sudo apt install -y docker.io
+          sudo systemctl unmask docker.service
+          sudo systemctl start docker
           cd docker && make lint build test
           set +x

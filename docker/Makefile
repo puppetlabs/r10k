@@ -9,6 +9,7 @@ hadolint_container := hadolint/hadolint:latest
 export BUNDLE_PATH = $(PWD)/.bundle/gems
 export BUNDLE_BIN = $(PWD)/.bundle/bin
 export GEMFILE = $(PWD)/Gemfile
+export DOCKER_BUILDKIT = 1
 
 ifeq ($(IS_RELEASE),true)
 	VERSION ?= $(shell echo $(git_describe) | sed 's/-.*//')
@@ -36,6 +37,7 @@ endif
 
 build: prep
 	docker build \
+		${DOCKER_BUILD_FLAGS} \
 		--pull \
 		--build-arg vcs_ref=$(vcs_ref) \
 		--build-arg build_date=$(build_date) \
