@@ -2,6 +2,7 @@ CHANGELOG
 =========
 
 Unreleased
+ - Increase pool_size default to 4 from 1 [#1044](https://github.com/puppetlabs/r10k/pull/1044)
 ----
 
 3.4.1
