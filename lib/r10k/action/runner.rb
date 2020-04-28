@@ -43,10 +43,10 @@ module R10K
         config_settings = settings_from_config(@opts[:config])
 
         overrides = {}
-        overrides[:cachedir] = @opts[:cachedir] unless @opts[:cachedir].nil?
-        overrides[:deploy] = {} if !@opts[:'puppet-path'].nil? || !@opts[:'generate-types'].nil?
-        overrides[:deploy][:puppet_path] = @opts[:'puppet-path'] unless @opts[:'puppet-path'].nil?
-        overrides[:deploy][:generate_types] = @opts[:'generate-types'] unless @opts[:'generate-types'].nil?
+        overrides[:cachedir] = @opts[:cachedir] if @opts.key?(:cachedir)
+        overrides[:deploy] = {} if @opts.key?(:'puppet-path') || @opts.key?(:'generate-types')
+        overrides[:deploy][:puppet_path] = @opts[:'puppet-path'] if @opts.key?(:'puppet-path')
+        overrides[:deploy][:generate_types] = @opts[:'generate-types'] if @opts.key?(:'generate-types')
 
         with_overrides = config_settings.merge(overrides) do |key, oldval, newval|
           newval = oldval.merge(newval) if oldval.is_a? Hash
