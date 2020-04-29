@@ -1,5 +1,6 @@
 FROM alpine:3.9 as build
 
+# hadolint ignore=DL3018
 RUN apk add --no-cache ruby git && \
     mkdir /workspace
 WORKDIR /workspace
@@ -39,13 +40,15 @@ LABEL org.label-schema.version="$version" \
       org.label-schema.build-date="$build_date"
 
 COPY --from=build /workspace/r10k.gem /
+# ignore apk and gem pinning
+# hadolint ignore=DL3018,DL3028
 RUN chmod a+x /adduser.sh && \
 # Add a puppet user to run r10k as for consistency with puppetserver
     /adduser.sh && \
     chmod +x /docker-entrypoint.sh && \
     chown -R puppet: /docker-entrypoint.d /docker-entrypoint.sh && \
-    apk add --no-cache ruby openssh-client git ruby-rugged curl ruby-dev make gcc musl-dev && \
-    gem install --no-doc /r10k.gem json etc && \
+    apk add --no-cache ruby openssh-client git ruby-rugged curl ruby-json ruby-etc && \
+    gem install --no-doc /r10k.gem && \
     rm -f /r10k.gem
 
 USER puppet
