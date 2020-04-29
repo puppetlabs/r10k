@@ -44,8 +44,8 @@ RUN chmod a+x /adduser.sh && \
     /adduser.sh && \
     chmod +x /docker-entrypoint.sh && \
     chown -R puppet: /docker-entrypoint.d /docker-entrypoint.sh && \
-    apk add --no-cache ruby openssh-client git ruby-rugged curl ruby-dev make gcc musl-dev && \
-    gem install --no-doc /r10k.gem json etc && \
+    apk add --no-cache ruby openssh-client git ruby-rugged curl ruby-json ruby-etc && \
+    gem install --no-doc /r10k.gem && \
     rm -f /r10k.gem
 
 USER puppet
