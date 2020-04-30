@@ -32,11 +32,6 @@ mod 'non_module_object_1',
   :install_path => './',
   :git => 'git://github.com/puppetlabs/control-repo.git',
   :branch => 'production'
-
-mod 'non_module_object_2',
- :install_path => '',
- :git => 'git://github.com/puppetlabs/control-repo.git',
-  :branch => 'production'
 EOS
 
 puppetfile_2 = <<-EOS
@@ -78,12 +73,6 @@ on(master, "#{r10k_fqp} deploy environment -p")
 
 step 'Verify that non-module object 1 has not been purged'
 on(master, "test -d #{code_dir}/non_module_object_1", :accept_all_exit_codes => true) do |result|
-  non_module_error = 'Non-module object was purged; should have been left alone'
-  assert(result.exit_code == 0, non_module_error)
-end
-
-step 'Verify that non-module object 2 has not been purged'
-on(master, "test -d #{code_dir}/non_module_object_2", :accept_all_exit_codes => true) do |result|
   non_module_error = 'Non-module object was purged; should have been left alone'
   assert(result.exit_code == 0, non_module_error)
 end
