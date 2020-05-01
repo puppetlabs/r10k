@@ -127,6 +127,25 @@ describe R10K::Puppetfile do
 
       expect { subject.add_module('puppet/test_module', module_opts) }.to raise_error(R10K::Error, /cannot manage content.*is not within/i).and not_change { subject.modules }
     end
+
+    it "groups modules by vcs cache location" do
+      module_opts = { install_path: File.join(subject.basedir, 'vendor') }
+      opts1 = module_opts.merge(git: 'git@example.com:puppet/test_module.git')
+      opts2 = module_opts.merge(git: 'git@example.com:puppet/test_module_c.git')
+      sanitized_name1 = "git@example.com-puppet-test_module.git"
+      sanitized_name2 = "git@example.com-puppet-test_module_c.git"
+
+      subject.add_module('puppet/test_module_a', opts1)
+      subject.add_module('puppet/test_module_b', opts1)
+      subject.add_module('puppet/test_module_c', opts2)
+      subject.add_module('puppet/test_module_d', '1.2.3')
+
+      mods_by_cachedir = subject.modules_by_vcs_cachedir
+
+      expect(mods_by_cachedir[:none].length).to be 1
+      expect(mods_by_cachedir[sanitized_name1].length).to be 2
+      expect(mods_by_cachedir[sanitized_name2].length).to be 1
+    end
   end
 
   describe "#purge_exclusions" do
@@ -268,7 +287,7 @@ describe R10K::Puppetfile do
       mod2 = spy('module')
       expect(mod2).to receive(:accept).with(visitor)
 
-      expect(subject).to receive(:modules).and_return([mod1, mod2])
+      expect(subject).to receive(:modules_by_vcs_cachedir).and_return({none: [mod1, mod2]})
       subject.accept(visitor)
     end
 
@@ -289,12 +308,38 @@ describe R10K::Puppetfile do
       mod2 = spy('module')
       expect(mod2).to receive(:accept).with(visitor)
 
-      expect(subject).to receive(:modules).and_return([mod1, mod2])
+      expect(subject).to receive(:modules_by_vcs_cachedir).and_return({none: [mod1, mod2]})
 
       expect(Thread).to receive(:new).exactly(pool_size).and_call_original
       expect(Queue).to receive(:new).and_call_original
 
       subject.accept(visitor)
+    end
+
+    it "Creates queues of modules grouped by cachedir" do
+      visitor = spy('visitor')
+      expect(visitor).to receive(:visit) do |type, other, &block|
+        expect(type).to eq :puppetfile
+        expect(other).to eq subject
+        block.call
+      end
+
+      mod1 = spy('module1')
+      mod2 = spy('module2')
+      mod3 = spy('module3')
+      mod4 = spy('module4')
+      mod5 = spy('module4')
+      mod6 = spy('module5')
+
+      expect(subject).to receive(:modules_by_vcs_cachedir)
+        .and_return({:none => [mod1, mod2],
+                     "foo-cachedir" => [mod3, mod4],
+                     "bar-cachedir" => [mod5, mod6]})
+
+      queue = subject.modules_queue(visitor)
+      expect(queue.length).to be 4
+      queue_array = 4.times.map { queue.pop }
+      expect(queue_array).to match_array([[mod1], [mod2], [mod3, mod4], [mod5, mod6]])
     end
   end
 end
