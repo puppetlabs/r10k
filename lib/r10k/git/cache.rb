@@ -99,10 +99,8 @@ class R10K::Git::Cache
 
   alias cached? exist?
 
-  private
-
   # Reformat the remote name into something that can be used as a directory
   def sanitized_dirname
-    @remote.gsub(/[^@\w\.-]/, '-')
+    @sanitized_dirname ||= @remote.gsub(/[^@\w\.-]/, '-')
   end
 end

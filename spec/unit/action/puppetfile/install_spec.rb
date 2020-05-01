@@ -27,6 +27,7 @@ describe R10K::Action::Puppetfile::Install do
     before do
       allow(puppetfile).to receive(:purge!)
       allow(puppetfile).to receive(:modules).and_return(modules)
+      allow(puppetfile).to receive(:modules_by_vcs_cachedir).and_return({none: modules})
     end
 
     it "syncs each module in the Puppetfile" do

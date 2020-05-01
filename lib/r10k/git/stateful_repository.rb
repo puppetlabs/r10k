@@ -12,6 +12,10 @@ class R10K::Git::StatefulRepository
   #   @api private
   attr_reader :repo
 
+  # @!attribute [r] cache
+  #   @api private
+  attr_reader :cache
+
   extend Forwardable
   def_delegators :@repo, :head, :tracked_paths
 
