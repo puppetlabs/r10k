@@ -3,7 +3,6 @@ CHANGELOG
 
 Unreleased
 ----
-- Increase `pool_size` default to 4 from 1 [#1044](https://github.com/puppetlabs/r10k/pull/1044)
 - Add exec environment source type. The exec source type allows for the implementation of external environment sources [#1042](https://github.com/puppetlabs/r10k/pull/1042)
 
 3.4.1
