@@ -3,10 +3,20 @@ CHANGELOG
 
 Unreleased
 ----
-- Add exec environment source type. The exec source type allows for the implementation of external environment sources [#1042](https://github.com/puppetlabs/r10k/pull/1042)
+
+
+3.5.0
+-----
+
+- Add exec environment source type. The exec source type allows for the
+  implementation of external environment sources
+  [#1042](https://github.com/puppetlabs/r10k/pull/1042).
+- Improve atomicity of .r10k-deploy.json writes. Fixes
+  [#813](https://github.com/puppetlabs/r10k/issues/813)
 
 3.4.1
 ----
+
 - Add support for Ruby 2.7
 - (RK-357) Restrict gettext and fast_gettext versions for compatibility with Ruby 2.4
 - Bump cri to 2.15.10
