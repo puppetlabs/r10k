@@ -33,10 +33,11 @@ matrix:
         # necessary to prevent overwhelming TravisCI build output limits
         - DOCKER_BUILD_FLAGS="--progress plain"
       script:
-        - |
-          set -ex
-          sudo apt update -y && sudo apt install -y docker.io
-          sudo systemctl unmask docker.service
-          sudo systemctl start docker
-          cd docker && make lint build test
-          set +x
+        - set -e
+        - sudo apt update -y && sudo apt install -y docker.io
+        - sudo systemctl unmask docker.service
+        - sudo systemctl start docker
+        - cd docker
+        - make lint
+        - make build
+        - make test
