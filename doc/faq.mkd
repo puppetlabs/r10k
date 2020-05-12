@@ -141,13 +141,18 @@ modulepath = modules:external-modules
 
 Lastly, you can simply move your locally versioned modules to a separate
 directory to avoid conflicting over the `/modules` directory entirely. With this
-example as well you can use the `environment.conf file to tell Puppet which
+example as well you can use the `environment.conf` file to tell Puppet which
 directories contain modules.
 
 ```
 # environment.conf
 modulepath = internal-modules:modules
 ```
+
+#### Does R10K support Local/Private Forge?
+
+Yes. Set the Forge to use _globally_ in `r10k.yaml`. see [Configuration](/doc/dynamic-environments/configuration.mkd#baseurl) for details.
+
 
 #### What does the name mean?
 
