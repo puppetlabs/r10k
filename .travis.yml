@@ -29,8 +29,14 @@ matrix:
         - docker
       rvm: 2.6.6
       env:
+        - DOCKER_COMPOSE_VERSION=1.25.5
         # necessary to prevent overwhelming TravisCI build output limits
         - DOCKER_BUILD_FLAGS="--progress plain"
+      before_install:
+        - sudo rm /usr/local/bin/docker-compose
+        - curl --location https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname --kernel-name`-`uname --machine` > docker-compose
+        - chmod +x docker-compose
+        - sudo mv docker-compose /usr/local/bin
       script:
         - set -e
         - cd docker
