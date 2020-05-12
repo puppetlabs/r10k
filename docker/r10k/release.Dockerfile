@@ -35,6 +35,8 @@ LABEL org.label-schema.version="$version" \
       org.label-schema.build-date="$build_date"
 
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
+# ignore apk and gem pinning
+# hadolint ignore=DL3018,DL3028
 RUN chmod a+x /adduser.sh /docker-entrypoint.sh && \
     /adduser.sh && \
     chown -R puppet: /docker-entrypoint.d /docker-entrypoint.sh && \

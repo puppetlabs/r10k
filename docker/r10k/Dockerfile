@@ -45,9 +45,9 @@ LABEL org.label-schema.version="$version" \
       org.label-schema.build-date="$build_date"
 
 COPY --from=build /workspace/r10k.gem /
+SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 # ignore apk and gem pinning
 # hadolint ignore=DL3018,DL3028
-SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 RUN chmod a+x /adduser.sh /docker-entrypoint.sh && \
 # Add a puppet user to run r10k as for consistency with puppetserver
     /adduser.sh && \
