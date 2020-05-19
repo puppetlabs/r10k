@@ -4,6 +4,8 @@ CHANGELOG
 Unreleased
 ----
 
+- Change default API base url to forgeapi.puppet.com
+  [#1066](https://github.com/puppetlabs/r10k/pull/1066)
 
 3.5.0
 -----
