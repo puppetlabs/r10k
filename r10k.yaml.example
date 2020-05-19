@@ -102,5 +102,5 @@ forge:
   #proxy: 'https://proxy.example.com:8888'
 
   # The 'baseurl' setting indicates where Forge modules should be installed
-  # from. This defaults to 'https://forgeapi.puppetlabs.com'
+  # from. This defaults to 'https://forgeapi.puppet.com'
   #baseurl: 'https://forgemirror.example.com'

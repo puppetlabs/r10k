@@ -50,7 +50,7 @@ class Puppetfile
 
     @modules = []
     @managed_content = {}
-    @forge   = 'forgeapi.puppetlabs.com'
+    @forge   = 'forgeapi.puppet.com'
 
     @loaded = false
   end

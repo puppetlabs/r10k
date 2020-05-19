@@ -157,7 +157,7 @@ interactions. See the global proxy setting documentation for more information an
 #### baseurl
 
 The 'baseurl' setting indicates where Forge modules should be installed from.
-This defaults to 'https://forgeapi.puppetlabs.com'
+This defaults to 'https://forgeapi.puppet.com'
 
 ```yaml
 forge:

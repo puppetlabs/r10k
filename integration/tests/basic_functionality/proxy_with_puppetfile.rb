@@ -21,7 +21,7 @@ remove_squid = "#{pkg_manager} remove -y squid"
 squid_log = "/var/log/squid/access.log"
 
 #Verification
-squid_log_regex = /CONNECT forgeapi.puppetlabs.com:443/
+squid_log_regex = /CONNECT forgeapi.puppet.com:443/
 
 #Teardown
 teardown do
