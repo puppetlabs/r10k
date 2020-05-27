@@ -3,6 +3,7 @@ CHANGELOG
 
 Unreleased
 ----
+- Upgrade Rugged Gemfile dependency for local development to ~> 1.0
 
 
 3.5.0
@@ -394,7 +395,7 @@ Puppetfile should be installed to. See the [Puppetfile documentation](https://gi
 
 You can now configure how r10k purges unmanaged content after a deployment. The
 default behavior should be unchanged but there is a new "purge\_levels" configuration
-option that can be used to enable new behavior or de-activate certain existing 
+option that can be used to enable new behavior or de-activate certain existing
 behaviors. See the relevant [configuration documentation](https://github.com/puppetlabs/r10k/blob/master/doc/dynamic-environments/configuration.mkd#purge_levels) for more details.
 
 (RK-223) Ability to track control repo branch from content declarations.
@@ -441,7 +442,7 @@ fix.)
 Previously, r10k only supported the use of HTTP proxies for connecting to the Puppet
 Forge. With these changes, r10k can now be configured to use an HTTP proxy for both
 Forge and Git operations. Configuration can be specified globally, for Forge or Git
-only, or on a per-Git repository basis. See [configuration documentation](https://github.com/puppetlabs/r10k/blob/master/doc/dynamic-environments/configuration.mkd) 
+only, or on a per-Git repository basis. See [configuration documentation](https://github.com/puppetlabs/r10k/blob/master/doc/dynamic-environments/configuration.mkd)
 for more details.
 
 ### Bug Fixes
@@ -462,9 +463,9 @@ for SSH.
 (RK-241) "deploy display" action does not properly format wrapped exceptions
 
 The "deploy display" action was not capturing and logging exceptions in the same way as
-other related actions. This meant that in many cases, when an error occurred, the 
+other related actions. This meant that in many cases, when an error occurred, the
 underlying cause was not being shown. Specifically, the "deploy display" action was
-not benefitting from the improved error messaging for unreadable SSH keys which was 
+not benefitting from the improved error messaging for unreadable SSH keys which was
 added in r10k 2.2.0 as part of RK-220.
 
 2.2.1
