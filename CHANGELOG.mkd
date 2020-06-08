@@ -3,6 +3,10 @@ CHANGELOG
 
 Unreleased
 ----
+
+3.5.1
+-----
+
 - Upgrade Rugged Gemfile dependency for local development to ~> 1.0
 
 
@@ -16,7 +20,7 @@ Unreleased
   [#813](https://github.com/puppetlabs/r10k/issues/813)
 
 3.4.1
-----
+-----
 
 - Add support for Ruby 2.7
 - (RK-357) Restrict gettext and fast_gettext versions for compatibility with Ruby 2.4
