@@ -8,6 +8,7 @@ Unreleased
 -----
 
 - Upgrade Rugged Gemfile dependency for local development to ~> 1.0
+- Clean up tmp directories used for downloading modules
 
 
 3.5.0

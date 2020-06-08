@@ -212,14 +212,14 @@ module R10K
 
       # Remove the temporary directory used for unpacking the module.
       def cleanup_unpack_path
-        if unpack_path.exist?
+        if unpack_path.parent.exist?
           unpack_path.parent.rmtree
         end
       end
 
       # Remove the downloaded module release.
       def cleanup_download_path
-        if download_path.exist?
+        if download_path.parent.exist?
           download_path.parent.rmtree
         end
       end
