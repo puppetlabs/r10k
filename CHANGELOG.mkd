@@ -6,6 +6,7 @@ Unreleased
 ## Changes
 
 (#823) Add filter_command configuration option for git repositories
+(Thanks to [mhumpula](https://github.com/mhumpula) for the [feature](https://github.com/puppetlabs/r10k/pull/823/conflicts).)
 
 2.6.3
 ----
