@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.4.1-20-g8fe925b\n"
+"Project-Id-Version: r10k 3.4.1-57-g2eb088a\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2020-04-28 18:41+0000\n"
-"PO-Revision-Date: 2020-04-28 18:41+0000\n"
+"POT-Creation-Date: 2020-07-22 16:41+0000\n"
+"PO-Revision-Date: 2020-07-22 16:41+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -442,24 +442,28 @@ msgid ""
 "Returned: %{data}"
 msgstr ""
 
-#: ../lib/r10k/source/git.rb:72
+#: ../lib/r10k/source/git.rb:77
 msgid "Fetching '%{remote}' to determine current branches."
 msgstr ""
 
-#: ../lib/r10k/source/git.rb:75
+#: ../lib/r10k/source/git.rb:80
 msgid "Unable to determine current branches for Git source '%{name}' (%{basedir})"
 msgstr ""
 
-#: ../lib/r10k/source/git.rb:100
+#: ../lib/r10k/source/git.rb:105
 msgid "Environment %{env_name} contained non-word characters, correcting name to %{corrected_env_name}"
 msgstr ""
 
-#: ../lib/r10k/source/git.rb:104
+#: ../lib/r10k/source/git.rb:109
 msgid "Environment %{env_name} contained non-word characters, ignoring it."
 msgstr ""
 
-#: ../lib/r10k/source/git.rb:123 ../lib/r10k/source/svn.rb:113
+#: ../lib/r10k/source/git.rb:128 ../lib/r10k/source/svn.rb:113
 msgid "Branch %{branch} filtered out by ignore_branch_prefixes %{ibp}"
+msgstr ""
+
+#: ../lib/r10k/source/git.rb:139
+msgid "Branch `%{name}:%{branch}` filtered out by filter_command %{cmd}"
 msgstr ""
 
 #: ../lib/r10k/source/yaml.rb:10
