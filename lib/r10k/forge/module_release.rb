@@ -40,6 +40,10 @@ module R10K
       #   @return [Pathname] Where the md5 of the cached tarball is stored.
       attr_accessor :md5_file_path
 
+      # @!attribute [rw] sha256_file_path
+      #   @return [Pathname] Where the SHA256 of the cached tarball is stored.
+      attr_accessor :sha256_file_path
+
       # @!attribute [rw] unpack_path
       #   @return [Pathname] Where the module will be unpacked to.
       attr_accessor :unpack_path
@@ -64,6 +68,9 @@ module R10K
 
         md5_filename = @forge_release.slug + '.md5'
         @md5_file_path = @tarball_cache_root + md5_filename
+
+        sha256_filename = @forge_release.slug + '.sha256'
+        @sha256_file_path = @tarball_cache_root + sha256_filename
 
         @unpack_path   = Pathname.new(Dir.mktmpdir) + @forge_release.slug
       end
@@ -104,54 +111,79 @@ module R10K
       # module release checksum given by the Puppet Forge. On mismatch, remove
       # the cached copy.
       #
+      # @raise [R10K::Error] when no SHA256 is available and FIPS mode is on
       # @return [void]
       def verify
         logger.debug1 "Verifying that #{@tarball_cache_path} matches checksum"
 
-        md5_of_tarball = Digest::MD5.hexdigest(File.read(@tarball_cache_path, mode: 'rb'))
+        sha256_of_tarball = Digest(:SHA256).file(@tarball_cache_path).hexdigest
 
-        if @md5_file_path.exist?
-          verify_from_md5_file(md5_of_tarball)
+        if @sha256_file_path.exist?
+          verify_from_file(sha256_of_tarball, @sha256_file_path)
         else
-          verify_from_forge(md5_of_tarball)
+          if @forge_release.respond_to?(:file_sha256) && !@forge_release.file_sha256.nil? && !@forge_release.file_sha256.size.zero?
+            forge_256_checksum = @forge_release.file_sha256
+            verify_from_forge(sha256_of_tarball, forge_256_checksum, @sha256_file_path)
+          else
+            if R10K::Util::Platform.fips?
+              raise R10K::Error, "Could not verify module, no SHA256 checksum available, and MD5 checksums not allowed in FIPS mode"
+            end
+
+            logger.debug1 "No SHA256 checksum available, falling back to MD5"
+            md5_of_tarball = Digest(:MD5).file(@tarball_cache_path).hexdigest
+            if @md5_file_path.exist?
+              verify_from_file(md5_of_tarball, @md5_file_path)
+            else
+              verify_from_forge(md5_of_tarball, @forge_release.file_md5, @md5_file_path)
+            end
+          end
         end
       end
 
-      # Verify the md5 of the cached tarball against the
+      # Verify the checksum of the cached tarball against the
       # module release checksum stored in the cache as well.
       # On mismatch, remove the cached copy of both files.
+      # @param tarball_checksum [String] the checksum (either md5 or SHA256)
+      #                         of the downloaded module tarball
+      # @param file [Pathname] the file containing the checksum as downloaded
+      #             previously from the forge
+      # @param digest_class [Digest::SHA256, Digest::MD5] which checksum type
+      #                     to verify with
       #
       # @raise [PuppetForge::V3::Release::ChecksumMismatch] The
       #   cached module release checksum doesn't match the cached checksum.
       #
       # @return [void]
-      def verify_from_md5_file(md5_of_tarball)
-        md5_from_file = File.read(@md5_file_path).strip
-        if md5_of_tarball != md5_from_file
-          logger.error "MD5 of #{@tarball_cache_path} (#{md5_of_tarball}) does not match checksum #{md5_from_file} in #{@md5_file_path}. Removing both files."
-          cleanup_cached_tarball_path
-          cleanup_md5_file_path
+      def verify_from_file(tarball_checksum, checksum_file_path)
+        checksum_from_file = File.read(checksum_file_path).strip
+        if tarball_checksum != checksum_from_file
+          logger.error "Checksum of #{@tarball_cache_path} (#{tarball_checksum}) does not match checksum #{checksum_from_file} in #{checksum_file_path}. Removing both files."
+          @tarball_cache_path.delete
+          checksum_file_path.delete
           raise PuppetForge::V3::Release::ChecksumMismatch.new
         end
       end
 
-      # Verify the md5 of the cached tarball against the
+      # Verify the checksum of the cached tarball against the
       # module release checksum from the forge.
       # On mismatch, remove the cached copy of the tarball.
+      # @param tarball_checksum [String] the checksum (either md5 or SHA256)
+      #                         of the downloaded module tarball
+      # @param forge_checksum [String] the checksum downloaded from the Forge
+      # @param checksum_file_path [Pathname] the path to write the verified
+      #                            checksum to
       #
       # @raise [PuppetForge::V3::Release::ChecksumMismatch] The
       #   cached module release checksum doesn't match the forge checksum.
       #
       # @return [void]
-      def verify_from_forge(md5_of_tarball)
-        md5_from_forge = @forge_release.file_md5
-        #compare file_md5 to md5_of_tarball
-        if md5_of_tarball != md5_from_forge
-          logger.debug1 "MD5 of #{@tarball_cache_path} (#{md5_of_tarball}) does not match checksum #{md5_from_forge} found on the forge. Removing tarball."
-          cleanup_cached_tarball_path
+      def verify_from_forge(tarball_checksum, forge_checksum, checksum_file_path)
+        if tarball_checksum != forge_checksum
+          logger.debug1 "Checksum of #{@tarball_cache_path} (#{tarball_checksum}) does not match checksum #{forge_checksum} found on the forge. Removing tarball."
+          @tarball_cache_path.delete
           raise PuppetForge::V3::Release::ChecksumMismatch.new
         else
-          File.write(@md5_file_path, md5_from_forge)
+          File.write(checksum_file_path, forge_checksum)
         end
       end
 
@@ -180,29 +212,15 @@ module R10K
 
       # Remove the temporary directory used for unpacking the module.
       def cleanup_unpack_path
-        if unpack_path.exist?
+        if unpack_path.parent.exist?
           unpack_path.parent.rmtree
         end
       end
 
       # Remove the downloaded module release.
       def cleanup_download_path
-        if download_path.exist?
+        if download_path.parent.exist?
           download_path.parent.rmtree
-        end
-      end
-
-      # Remove the cached module release.
-      def cleanup_cached_tarball_path
-        if tarball_cache_path.exist?
-          tarball_cache_path.delete
-        end
-      end
-
-      # Remove the module release md5.
-      def cleanup_md5_file_path
-        if md5_file_path.exist?
-          md5_file_path.delete
         end
       end
     end

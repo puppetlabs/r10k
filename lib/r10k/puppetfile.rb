@@ -1,3 +1,4 @@
+require 'thread'
 require 'pathname'
 require 'r10k/module'
 require 'r10k/util/purgeable'
@@ -6,6 +7,10 @@ require 'r10k/errors'
 module R10K
 class Puppetfile
   # Defines the data members of a Puppetfile
+
+  include R10K::Settings::Mixin
+
+  def_setting_attr :pool_size, 1
 
   include R10K::Logging
 
@@ -58,21 +63,29 @@ class Puppetfile
     @loaded = false
   end
 
-  def load
+  def load(default_branch_override = nil)
+    return true if self.loaded?
     if File.readable? @puppetfile_path
-      self.load!
+      self.load!(default_branch_override)
     else
       logger.debug _("Puppetfile %{path} missing or unreadable") % {path: @puppetfile_path.inspect}
     end
   end
 
-  def load!
+  def load!(default_branch_override = nil)
+    @default_branch_override = default_branch_override
+
     dsl = R10K::Puppetfile::DSL.new(self)
     dsl.instance_eval(puppetfile_contents, @puppetfile_path)
+    
     validate_no_duplicate_names(@modules)
     @loaded = true
   rescue SyntaxError, LoadError, ArgumentError, NameError => e
     raise R10K::Error.wrap(e, _("Failed to evaluate %{path}") % {path: @puppetfile_path})
+  end
+
+  def loaded?
+    @loaded
   end
 
   # @param [Array<String>] modules
@@ -113,10 +126,15 @@ class Puppetfile
       install_path = @moduledir
     end
 
+    if args.is_a?(Hash) && @default_branch_override != nil
+      args[:default_branch] = @default_branch_override
+    end
+
     # Keep track of all the content this Puppetfile is managing to enable purging.
     @managed_content[install_path] = Array.new unless @managed_content.has_key?(install_path)
 
     mod = R10K::Module.new(name, install_path, args, @environment)
+    mod.origin = 'Puppetfile'
 
     @managed_content[install_path] << mod.name
     @modules << mod
@@ -152,6 +170,17 @@ class Puppetfile
   end
 
   def accept(visitor)
+    pool_size = self.settings[:pool_size]
+    if pool_size > 1
+      concurrent_accept(visitor, pool_size)
+    else
+      serial_accept(visitor)
+    end
+  end
+
+  private
+
+  def serial_accept(visitor)
     visitor.visit(:puppetfile, self) do
       modules.each do |mod|
         mod.accept(visitor)
@@ -159,7 +188,47 @@ class Puppetfile
     end
   end
 
-  private
+  def concurrent_accept(visitor, pool_size)
+    logger.debug _("Updating modules with %{pool_size} threads") % {pool_size: pool_size}
+    mods_queue = modules_queue(visitor)
+    thread_pool = pool_size.times.map { visitor_thread(visitor, mods_queue) }
+    thread_exception = nil
+
+    # If any threads raise an exception the deployment is considered a failure.
+    # In that event clear the queue, wait for other threads to finish their
+    # current work, then re-raise the first exception caught.
+    begin
+      thread_pool.each(&:join)
+    rescue => e
+      logger.error _("Error during concurrent deploy of a module: %{message}") % {message: e.message}
+      mods_queue.clear
+      thread_exception ||= e
+      retry
+    ensure
+      raise thread_exception unless thread_exception.nil?
+    end
+  end
+
+  def modules_queue(visitor)
+    Queue.new.tap do |queue|
+      visitor.visit(:puppetfile, self) do
+        modules.each { |mod| queue << mod }
+      end
+    end
+  end
+
+  def visitor_thread(visitor, mods_queue)
+    Thread.new do
+      begin
+        while mod = mods_queue.pop(true) do mod.accept(visitor) end
+      rescue ThreadError => e
+        logger.debug _("Module thread %{id} exiting: %{message}") % {message: e.message, id: Thread.current.object_id}
+        Thread.exit
+      rescue => e
+        Thread.main.raise(e)
+      end
+    end
+  end
 
   def puppetfile_contents
     File.read(@puppetfile_path)

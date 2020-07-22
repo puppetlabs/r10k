@@ -4,3 +4,6 @@ Gemfile.lock
 .bundle
 bundle
 coverage
+integration/log
+integration/junit
+integration/configs

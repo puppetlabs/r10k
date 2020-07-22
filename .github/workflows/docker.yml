@@ -1,0 +1,56 @@
+name: Docker test and publish
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-publish:
+    env:
+      PUPPERWARE_ANALYTICS_STREAM: production
+      IS_LATEST: true
+      # Still need these env vars for README publishing
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@master
+      - uses: azure/docker-login@v1
+        with: # This doesn't seem to work unless we point directly to the secrets
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Set up Ruby 2.6
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 2.6.x
+      - run: gem install bundler
+      - name: Build container
+        working-directory: docker
+        run: make lint build test
+      - name: Publish container
+        working-directory: docker
+        run: |
+          make publish
+      - name: Build release container
+        env:
+          IS_RELEASE: true
+        working-directory: docker
+        run: |
+          if make prep; then
+            make lint build test
+          else
+            echo "Skipping release container building and testing"
+          fi
+      - name: Publish release container
+        env:
+          IS_RELEASE: true
+        working-directory: docker
+        run: |
+          if make prep; then
+            make publish
+          else
+            echo "Skipping release container publishing"
+          fi

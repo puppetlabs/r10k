@@ -227,6 +227,25 @@ describe R10K::Puppetfile do
       subject = described_class.new(path)
       expect { subject.load! }.not_to raise_error
     end
+
+    it "creates a git module and applies the default branch sepcified in the Puppetfile" do
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'default-branch-override')
+      pf_path = File.join(path, 'Puppetfile')
+      subject = described_class.new(path)
+      expect { subject.load! }.not_to raise_error
+      git_module = subject.modules[0]
+      expect(git_module.default_ref).to eq 'here_lies_the_default_branch'
+    end
+
+    it "creates a git module and applies the provided default_branch_override" do
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'default-branch-override')
+      pf_path = File.join(path, 'Puppetfile')
+      subject = described_class.new(path)
+      default_branch_override = 'default_branch_override_name'
+      expect { subject.load!(default_branch_override) }.not_to raise_error
+      git_module = subject.modules[0]
+      expect(git_module.default_ref).to eq default_branch_override
+    end
   end
 
   describe "accepting a visitor" do
@@ -250,6 +269,31 @@ describe R10K::Puppetfile do
       expect(mod2).to receive(:accept).with(visitor)
 
       expect(subject).to receive(:modules).and_return([mod1, mod2])
+      subject.accept(visitor)
+    end
+
+    it "creates a thread pool to visit concurrently if pool_size setting is greater than one" do
+      pool_size = 3
+
+      subject.settings[:pool_size] = pool_size
+
+      visitor = spy('visitor')
+      expect(visitor).to receive(:visit) do |type, other, &block|
+        expect(type).to eq :puppetfile
+        expect(other).to eq subject
+        block.call
+      end
+
+      mod1 = spy('module')
+      expect(mod1).to receive(:accept).with(visitor)
+      mod2 = spy('module')
+      expect(mod2).to receive(:accept).with(visitor)
+
+      expect(subject).to receive(:modules).and_return([mod1, mod2])
+
+      expect(Thread).to receive(:new).exactly(pool_size).and_call_original
+      expect(Queue).to receive(:new).and_call_original
+
       subject.accept(visitor)
     end
   end

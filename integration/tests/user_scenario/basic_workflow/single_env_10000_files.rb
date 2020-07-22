@@ -21,10 +21,6 @@ helloworld_module_path = File.join(local_files_root_path, 'modules', 'helloworld
 test_files = 'test_files'
 test_files_path = File.join(git_environments_path, test_files)
 
-file_bucket_path = '/opt/filebucket'
-file_bucket_command_path = File.join(file_bucket_path, 'filebucketapp.py')
-pattern_file_path = File.join(file_bucket_path, 'psuedo_random_128k.pat')
-
 #Manifest
 site_pp_path = File.join(git_environments_path, 'manifests', 'site.pp')
 site_pp = create_site_pp(master_certname, '  include helloworld')
@@ -54,7 +50,8 @@ inject_site_pp(master, site_pp_path, site_pp)
 step 'Create 10,000 Files'
 create_remote_file(master, File.join(git_environments_path, '.gitattributes'), '*.file binary')
 on(master, "mkdir -p #{test_files_path}")
-on(master, "#{file_bucket_command_path} -k -c 10000 -p #{test_files_path}/test -u .file")
+# create 10000 1k files with random text
+on(master, "for n in {1..10000}; do dd if=/dev/urandom of=#{test_files_path}/test$( printf %03d \"$n\" ).file bs=1024 count=1; done")
 
 step 'Create MD5 Checksum of Files'
 on(master, "cd #{test_files_path};md5sum *.file > #{checksum_file_name}")

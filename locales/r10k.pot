@@ -1,16 +1,16 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2017 Puppet, Inc.
+# Copyright (C) 2020 Puppet, Inc.
 # This file is distributed under the same license as the r10k package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 2.5.4-107-g098b411\n"
+"Project-Id-Version: r10k 3.4.1-20-g8fe925b\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2017-07-10 12:40-0500\n"
-"PO-Revision-Date: 2017-07-10 12:40-0500\n"
+"POT-Creation-Date: 2020-04-28 18:41+0000\n"
+"PO-Revision-Date: 2020-04-28 18:41+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -31,43 +31,43 @@ msgstr ""
 msgid "Reason: %{write_lock}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:52
-msgid "Environment(s) '%{environments}' cannot be found in any source and will not be deployed."
-msgstr ""
-
-#: ../lib/r10k/action/deploy/environment.rb:75
-msgid "Environment %{env_dir} does not match environment name filter, skipping"
-msgstr ""
-
-#: ../lib/r10k/action/deploy/environment.rb:82
-msgid "Deploying environment %{env_path}"
+#: ../lib/r10k/action/deploy/environment.rb:57
+msgid "Environment(s) \\'%{environments}\\' cannot be found in any source and will not be deployed."
 msgstr ""
 
 #: ../lib/r10k/action/deploy/environment.rb:85
+msgid "Environment %{env_dir} does not match environment name filter, skipping"
+msgstr ""
+
+#: ../lib/r10k/action/deploy/environment.rb:93
+msgid "Deploying environment %{env_path}"
+msgstr ""
+
+#: ../lib/r10k/action/deploy/environment.rb:96
 msgid "Environment %{env_dir} is now at %{env_signature}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:89
+#: ../lib/r10k/action/deploy/environment.rb:100
 msgid "Environment %{env_dir} is new, updating all modules"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:119
-msgid "Deploying Puppetfile content %{mod_path}"
+#: ../lib/r10k/action/deploy/environment.rb:143
+msgid "Deploying %{origin} content %{path}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/module.rb:38
+#: ../lib/r10k/action/deploy/module.rb:49
 msgid "Only updating modules in environment %{opt_env} skipping environment %{env_path}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/module.rb:40
+#: ../lib/r10k/action/deploy/module.rb:51
 msgid "Updating modules %{modules} in environment %{env_path}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/module.rb:52
+#: ../lib/r10k/action/deploy/module.rb:63
 msgid "Deploying module %{mod_path}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/module.rb:55
+#: ../lib/r10k/action/deploy/module.rb:70
 msgid "Only updating modules %{modules}, skipping module %{mod_name}"
 msgstr ""
 
@@ -75,23 +75,23 @@ msgstr ""
 msgid "Syntax OK"
 msgstr ""
 
-#: ../lib/r10k/action/puppetfile/install.rb:29
+#: ../lib/r10k/action/puppetfile/install.rb:30
 msgid "Updating module %{mod_path}"
 msgstr ""
 
-#: ../lib/r10k/action/puppetfile/install.rb:32
+#: ../lib/r10k/action/puppetfile/install.rb:33
 msgid "Cannot track control repo branch for content '%{name}' when not part of a 'deploy' action, will use default if available."
 msgstr ""
 
-#: ../lib/r10k/action/runner.rb:49 ../lib/r10k/deployment/config.rb:42
+#: ../lib/r10k/action/runner.rb:53 ../lib/r10k/deployment/config.rb:42
 msgid "Overriding config file setting '%{key}': '%{old_val}' -> '%{new_val}'"
 msgstr ""
 
-#: ../lib/r10k/action/runner.rb:82
+#: ../lib/r10k/action/runner.rb:86
 msgid "Reading configuration from %{config_path}"
 msgstr ""
 
-#: ../lib/r10k/action/runner.rb:85
+#: ../lib/r10k/action/runner.rb:89
 msgid "No config file explicitly given and no default config file could be found, default settings will be used."
 msgstr ""
 
@@ -103,8 +103,16 @@ msgstr ""
 msgid "Unable to load sources; the supplied configuration does not define the 'sources' key"
 msgstr ""
 
-#: ../lib/r10k/environment/base.rb:59 ../lib/r10k/environment/base.rb:75 ../lib/r10k/environment/base.rb:84 ../lib/r10k/source/base.rb:64
+#: ../lib/r10k/environment/base.rb:61 ../lib/r10k/environment/base.rb:77 ../lib/r10k/environment/base.rb:86 ../lib/r10k/source/base.rb:64
 msgid "%{class} has not implemented method %{method}"
+msgstr ""
+
+#: ../lib/r10k/environment/with_modules.rb:104
+msgid "Puppetfile cannot contain module names defined by environment %{name}"
+msgstr ""
+
+#: ../lib/r10k/environment/with_modules.rb:106
+msgid "Remove the conflicting definitions of the following modules: %{conflicts}"
 msgstr ""
 
 #: ../lib/r10k/feature.rb:27
@@ -131,19 +139,19 @@ msgstr ""
 msgid "Proc %{block} for feature %{name} returned %{output}"
 msgstr ""
 
-#: ../lib/r10k/forge/module_release.rb:164
+#: ../lib/r10k/forge/module_release.rb:196
 msgid "Unpacking %{tarball_cache_path} to %{target_dir} (with tmpdir %{tmp_path})"
 msgstr ""
 
-#: ../lib/r10k/forge/module_release.rb:166
+#: ../lib/r10k/forge/module_release.rb:198
 msgid "Valid files unpacked: %{valid_files}"
 msgstr ""
 
-#: ../lib/r10k/forge/module_release.rb:168
+#: ../lib/r10k/forge/module_release.rb:200
 msgid "These files existed in the module's tar file, but are invalid filetypes and were not unpacked: %{invalid_files}"
 msgstr ""
 
-#: ../lib/r10k/forge/module_release.rb:171
+#: ../lib/r10k/forge/module_release.rb:203
 msgid "Symlinks are unsupported and were not unpacked from the module tarball. %{release_slug} contained these ignored symlinks: %{symlinks}"
 msgstr ""
 
@@ -196,7 +204,7 @@ msgid "Fetching remote '%{remote_name}' at %{path}"
 msgstr ""
 
 #: ../lib/r10k/git/rugged/bare_repository.rb:56
-msgid "Rugged versions prior to 0.24.0 do not support pruning stale branches during fetch, please upgrade your 'rugged' gem. (Current version is: %{version})"
+msgid "Rugged versions prior to 0.24.0 do not support pruning stale branches during fetch, please upgrade your \\'rugged\\' gem. (Current version is: %{version})"
 msgstr ""
 
 #: ../lib/r10k/git/rugged/credentials.rb:24
@@ -295,19 +303,19 @@ msgstr ""
 msgid "Module %{name} with args %{args} doesn't have an implementation. (Are you using the right arguments?)"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:101
+#: ../lib/r10k/module/base.rb:110
 msgid "Module name (%{title}) must match either 'modulename' or 'owner/modulename'"
 msgstr ""
 
-#: ../lib/r10k/module/forge.rb:70 ../lib/r10k/module/forge.rb:95
+#: ../lib/r10k/module/forge.rb:70 ../lib/r10k/module/forge.rb:99
 msgid "The module %{title} does not exist on %{url}."
 msgstr ""
 
-#: ../lib/r10k/module/forge.rb:170
+#: ../lib/r10k/module/forge.rb:174
 msgid "Forge module names must match 'owner/modulename'"
 msgstr ""
 
-#: ../lib/r10k/module/git.rb:92
+#: ../lib/r10k/module/git.rb:97
 msgid "Unhandled options %{unhandled} specified for %{class}"
 msgstr ""
 
@@ -319,27 +327,39 @@ msgstr ""
 msgid "Could not read metadata.json"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:46
+#: ../lib/r10k/puppetfile.rb:57
 msgid "Using Puppetfile '%{puppetfile}'"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:59
+#: ../lib/r10k/puppetfile.rb:71
 msgid "Puppetfile %{path} missing or unreadable"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:69
+#: ../lib/r10k/puppetfile.rb:84
 msgid "Failed to evaluate %{path}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:79
+#: ../lib/r10k/puppetfile.rb:98
 msgid "Puppetfiles cannot contain duplicate module names."
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:81
+#: ../lib/r10k/puppetfile.rb:100
 msgid "Remove the duplicates of the following modules: %{dupes}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:207
+#: ../lib/r10k/puppetfile.rb:192
+msgid "Updating modules with %{pool_size} threads"
+msgstr ""
+
+#: ../lib/r10k/puppetfile.rb:203
+msgid "Error during concurrent deploy of a module: %{message}"
+msgstr ""
+
+#: ../lib/r10k/puppetfile.rb:225
+msgid "Module thread %{id} exiting: %{message}"
+msgstr ""
+
+#: ../lib/r10k/puppetfile.rb:282
 msgid "unrecognized declaration '%{method}'"
 msgstr ""
 
@@ -351,7 +371,7 @@ msgstr ""
 msgid "Validation failed for settings group"
 msgstr ""
 
-#: ../lib/r10k/settings/container.rb:87
+#: ../lib/r10k/settings/container.rb:91
 msgid "Key %{key} is not a valid key"
 msgstr ""
 
@@ -396,27 +416,66 @@ msgid "Couldn't load config file: %{error_msg}"
 msgstr ""
 
 #: ../lib/r10k/settings/loader.rb:73
-msgid "\"File exists at #{path} but doesn't contain any YAML\""
+msgid "File exists at #{path} but doesn't contain any YAML"
 msgstr ""
 
 #: ../lib/r10k/settings/uri_definition.rb:12
 msgid "Setting %{name} requires a URL but '%{value}' could not be parsed as a URL"
 msgstr ""
 
-#: ../lib/r10k/source/git.rb:66
+#: ../lib/r10k/source/exec.rb:10
+msgid "Environment source %{name} missing required parameter: command"
+msgstr ""
+
+#: ../lib/r10k/source/exec.rb:36
+msgid ""
+"Error parsing command output for exec source %{name}:\n"
+"Not valid JSON: %{j_msg}\n"
+"Not valid YAML: %{y_msg}\n"
+"Stdout:\n"
+"%{out}"
+msgstr ""
+
+#: ../lib/r10k/source/exec.rb:44
+msgid ""
+"Environment source %{name} command %{cmd} did not return valid environment data.\n"
+"Returned: %{data}"
+msgstr ""
+
+#: ../lib/r10k/source/git.rb:72
 msgid "Fetching '%{remote}' to determine current branches."
 msgstr ""
 
-#: ../lib/r10k/source/git.rb:69
+#: ../lib/r10k/source/git.rb:75
 msgid "Unable to determine current branches for Git source '%{name}' (%{basedir})"
 msgstr ""
 
-#: ../lib/r10k/source/git.rb:94
+#: ../lib/r10k/source/git.rb:100
 msgid "Environment %{env_name} contained non-word characters, correcting name to %{corrected_env_name}"
 msgstr ""
 
-#: ../lib/r10k/source/git.rb:98
+#: ../lib/r10k/source/git.rb:104
 msgid "Environment %{env_name} contained non-word characters, ignoring it."
+msgstr ""
+
+#: ../lib/r10k/source/git.rb:123 ../lib/r10k/source/svn.rb:113
+msgid "Branch %{branch} filtered out by ignore_branch_prefixes %{ibp}"
+msgstr ""
+
+#: ../lib/r10k/source/yaml.rb:10
+msgid "Couldn't open environments file %{file}: %{err}"
+msgstr ""
+
+#: ../lib/r10k/source/yamldir.rb:8
+msgid "Error opening %{dir}: config must be a directory"
+msgstr ""
+
+#: ../lib/r10k/source/yamldir.rb:12
+msgid "Error opening %{dir}: permission denied"
+msgstr ""
+
+#: ../lib/r10k/source/yamldir.rb:20
+msgid "Error loading %{path}: %{err}"
 msgstr ""
 
 #: ../lib/r10k/svn/working_dir.rb:43
@@ -463,7 +522,7 @@ msgstr ""
 msgid "Unable to remove unmanaged path: %{path}"
 msgstr ""
 
-#: ../lib/r10k/util/setopts.rb:47
+#: ../lib/r10k/util/setopts.rb:49
 msgid "%{class_name} cannot handle option '%{key}'"
 msgstr ""
 

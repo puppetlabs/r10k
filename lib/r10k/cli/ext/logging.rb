@@ -1,4 +1,4 @@
-require 'cri/command_dsl'
+require 'cri'
 
 module Cri
   class CommandDSL

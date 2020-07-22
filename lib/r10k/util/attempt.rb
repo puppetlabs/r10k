@@ -1,7 +1,7 @@
 require 'r10k/logging'
 require 'r10k/errors/formatting'
 require 'r10k/util/setopts'
-require 'colored'
+require 'colored2'
 
 module R10K
   module Util

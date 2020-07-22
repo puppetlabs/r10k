@@ -20,10 +20,6 @@ r10k_config_bak_path = "#{r10k_config_path}.bak"
 
 tmpfs_path = '/mnt/tmpfs'
 
-file_bucket_path = '/opt/filebucket'
-file_bucket_command_path = File.join(file_bucket_path, 'filebucketapp.py')
-pattern_file_path = File.join(file_bucket_path, 'psuedo_random_128k.pat')
-
 test_files_path = File.join(git_environments_path, 'test_files')
 
 #In-line files
@@ -66,7 +62,8 @@ on(master, "mount -osize=10m tmpfs #{tmpfs_path} -t tmpfs")
 step 'Create Large Binary File'
 create_remote_file(master, File.join(git_environments_path, '.gitattributes'), '*.file binary')
 on(master, "mkdir -p #{test_files_path}")
-on(master, "#{file_bucket_command_path} -s 11 -f #{test_files_path}/test.file -d #{pattern_file_path}")
+# create a 11 mb file to fill the mount
+on(master, "dd if=/dev/urandom of=#{test_files_path}.test.file bs=1048576 count=11")
 
 step 'Push Changes'
 git_add_commit_push(master, 'production', 'Add large file.', git_environments_path)

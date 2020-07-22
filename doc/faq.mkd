@@ -1,6 +1,41 @@
 Frequently Asked Questions
 ==========================
 
+### How can run I `puppet generate types` for each changed environment during deployment?
+
+The command `puppet generate types` creates Puppet signatures for custom
+types circumventing the need to load their Ruby code during compilation.
+This prevents the type definitions from "leaking" across environments.
+
+Best practice currently is to run this command as part of your Puppet
+code deployment pipeline, and r10k's postrun command ability is a natural
+place to do so.
+
+The postrun command will have any occurance of "$modifiedenvs" replaced
+with a space-seperated list of environments the deploy was configured to
+modify. For example creating the script:
+
+```
+$ cat /usr/local/bin/generate-puppet-types.sh
+!#/bin/bash
+
+for environment in $1; do
+  /opt/puppetlabs/bin/puppet generate types --environment $environment
+done
+```
+
+And configuring r10k such:
+```
+$ tail -2 /etc/puppetlabs/r10k/r10k.yaml
+
+postrun: ["/usr/local/bin/generate-puppet-types.sh", "$modifiedenvs"]
+```
+
+Should provide you with the necessary generate type definitions for
+improved environment isolation.
+
+
+
 ### The default Git branch is 'master', while the default Puppet environment is 'production'. How do I reconcile this?
 
 The default Git branch name is 'master', but this is a somewhat arbitrary name
@@ -106,7 +141,7 @@ modulepath = modules:external-modules
 
 Lastly, you can simply move your locally versioned modules to a separate
 directory to avoid conflicting over the `/modules` directory entirely. With this
-example as well you can use the `environment.conf file to tell Puppet which
+example as well you can use the `environment.conf` file to tell Puppet which
 directories contain modules.
 
 ```
@@ -114,6 +149,16 @@ directories contain modules.
 modulepath = internal-modules:modules
 ```
 
+#### Does R10K support Local/Private Forge?
+
+Yes. Set the Forge to use _globally_ in `r10k.yaml`. see [Configuration](/doc/dynamic-environments/configuration.mkd#baseurl) for details.
+
+
 #### What does the name mean?
 
-It's explained in [this blog post](http://somethingsinistral.net/blog/rethinking-puppet-deployment/#addendum).
+It’s called R10K because I’m terrible at names. When I started working on R10K
+I couldn’t come up with a decent name. While trying to come up with something
+clever, I recalled that Randall Munroe wrote a bot for [controlling IRC chatter](http://blog.xkcd.com/2008/01/14/robot9000-and-xkcd-signal-attacking-noise-in-chat/),
+and gave it the most generic name he could think of - Robot 9000. Since I just
+needed a name, any name, I decided to go with an equally generic name by
+incrementing the robot index.

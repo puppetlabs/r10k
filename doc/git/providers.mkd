@@ -32,12 +32,6 @@ Rugged
 The rugged provider is based on the [libgit2](https://github.com/libgit2/libgit2)
 library and the Ruby [rugged gem](https://github.com/libgit2/rugged).
 
-### Requirements
-
-The rugged provider relies on the rugged Ruby gem. The rugged gem requires Ruby
-1.9 or greater, which in turn means that r10k must be run with Ruby 1.9 or
-greater to use this provider.
-
 ### SSH Configuration
 
 Since the rugged provider does not read ~/.ssh if using SSH based Git

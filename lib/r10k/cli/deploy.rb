@@ -18,11 +18,19 @@ module R10K::CLI
 
         description <<-DESCRIPTION
 `r10k deploy` implements the Git branch to Puppet environment workflow
-(https://puppetlabs.com/blog/git-workflow-and-puppet-environments/).
+(https://puppet.com/docs/puppet/latest/environments_about.html).
         DESCRIPTION
 
         required nil, :cachedir, 'Specify a cachedir, overriding the value in config'
         flag nil, :'no-force', 'Prevent the overwriting of local module modifications'
+        flag nil, :'generate-types', 'Run `puppet generate types` after updating an environment'
+        option nil, :'puppet-path', 'Path to puppet executable', argument: :required do |value, cmd|
+          unless File.executable? value
+            $stderr.puts "The specified puppet executable #{value} is not executable."
+            puts cmd.help
+            exit 1
+          end
+        end
 
         run do |opts, args, cmd|
           puts cmd.help(:verbose => opts[:verbose])
@@ -53,6 +61,7 @@ scheduled. On subsequent deployments, Puppetfile deployment will default to off.
           DESCRIPTION
 
           flag :p, :puppetfile, 'Deploy modules from a puppetfile'
+          required nil, :'default-branch-override', 'Specify a branchname to override the default branch in the puppetfile'
 
           runner R10K::Action::CriRunner.wrap(R10K::Action::Deploy::Environment)
         end

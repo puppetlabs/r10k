@@ -8,9 +8,221 @@ Unreleased
 (#823) Add filter_command configuration option for git repositories
 (Thanks to [mhumpula](https://github.com/mhumpula) for the [feature](https://github.com/puppetlabs/r10k/pull/823/conflicts).)
 
+----
+
+3.5.2
+-----
+
+- (RK-319) Clean up tmp directories used for downloading modules
+
+3.5.1
+-----
+
+- Upgrade Rugged Gemfile dependency for local development to ~> 1.0
+
+3.5.0
+-----
+
+- Add exec environment source type. The exec source type allows for the
+  implementation of external environment sources
+  [#1042](https://github.com/puppetlabs/r10k/pull/1042).
+- Improve atomicity of .r10k-deploy.json writes. Fixes
+  [#813](https://github.com/puppetlabs/r10k/issues/813)
+
+3.4.1
+-----
+
+- Add support for Ruby 2.7
+- (RK-357) Restrict gettext and fast_gettext versions for compatibility with Ruby 2.4
+- Bump cri to 2.15.10
+- (RK-360) Allow overriding the cachedir in `deploy module`
+- Bump puppet_forge to 2.3.0
+
+3.4.0
+-----
+
+  - Switch to supported `colored2` gem
+  - Add YAML environment source types [#983](https://github.com/puppetlabs/r10k/pull/983), [#1002](https://github.com/puppetlabs/r10k/pull/1002). YAML source types use configuration files to define environments, rather than VCS branches, and support deploying modules to an environment without modifying a control-repo. YAML environment source types are experimental in this release
+
+3.3.3
+-----
+
+### Changes
+
+  - Update minitar version to 0.9, to match the version installed with puppet-agent
+
+3.3.2
+-----
+
+### Bug Fixes
+
+  - Switched to thread-safe OpenSSL::Digest creation. [#979](https://github.com/puppetlabs/r10k/issues/979)
+
+3.3.1
+-----
+
+### Changes
+
+  - Updated thread pool error handling and logging
+
+3.3.0
+-----
+
+### New Feature
+
+  - Adds support for installing modules concurrently
+
+### Bug Fixes
+
+  - (RK-343) Pins CRI dependency to 2.15.6 to resolve regression in options
+parsing.
+
+3.2.1
+----
+
+### Changes
+
+  - Flag for overriding default branch configuration in Puppetfile
+  - Plumbing for internationalization
+  - Numerous test fixes and legacy docker work
+
+3.2.0
+-----
+
+### Changes
+
+  - Add support for running `puppet generate types`
+
+3.1.1
+-----
+
+### Changes
+
+  - (RK-335) Postrun `modifiedenvs` doesn't include environment prefixes
+
+3.1.0
+-----
+
+### Changes
+
+  - Substitute environments acted on in postrun command.
+
+    Now post run commands that contain the string "$modifiedenvs"
+    (eg. ["/usr/local/bin/my-postrun-cmd", "--verbose", "$modifiedenvs"])
+    will have the string substituted with a space separated list
+    of environments acted upon (either a single environment if
+    specified on the command line or all environments).
+
+    Specifically this should allow users to easily wrap
+    `puppet generate types` and matches the terminology used
+    in g10k.
+
+    Many thanks to @raphink for the contribution.
+
+3.0.4
+----
+
+### Changes
+
+ - Flag for overriding default branch configuration in Puppetfile
+ - Plumbing for internationalization
+ - Numerous test fixes and legacy docker work
+
+3.0.3
+----
+
+### Changes
+
+  - (RK-324) Fix Ruby pipe bug affecting Ubuntu
+
+3.0.2
+----
+
+### Changes
+
+  - Minor test fixes.
+
+3.0.1
+----
+
+### Changes
+
+Because of dependency issues R10K 3.0.0 required Ruby >= 2.3
+rather than the reported 2.0. This release makes the requirement of
+Ruby >= 2.3 official and documented.
+
+  - (#853) ([RK-327](https://tickets.puppetlabs.com/browse/RK-327) Uninitialized Constant Cri::Error
+    When resolving the Cri dependency >= 2.13 R10K would fail with an
+    uninitialized constant error. Thanks to @ostavnaas for the bug report,
+    @ddfreyne for the fix, and @baurmatt for the review.
+
+
+3.0.0
+----
+
+### Changes
+
+#### Known issues
+  - Child processes may die unexpectedly when deploying many environments
+    on Ubuntu Bionic. See
+    [RK-324](https://tickets.puppetlabs.com/browse/RK-324).
+
+#### Backwards breaking changes
+  - Drop support for Ruby < 2.0
+  - Remove support for PUPPETFILE and PUPPETFILE_DIR environment variables
+    when running the `puppetfile` action, please use flags instead.
+  - Fail when duplicate module definitions in Puppetfile
+
+#### Bug fixes
+  - More reliable pruning of refs on fetch
+  - Improved error messaging when:
+    - Unable to connect to a proxy
+    - r10k.yaml file is empty
+    - Unable to parse Puppetfile
+  - Various perfomance improvements
+
+2.6.8
+----
+
+### Changes
+
+(RK-357) Restrict gettext and fast_gettext versions for compatibility with Ruby 2.4.
+(RK-358) Update puppet_forge to ~> 2.3.0.
+
+2.6.7
+----
+
+### Changes
+
+(CDPE-1813) Add module deploy info to .r10k-deploy.json.
+(RK-351) Update minitar to ~> 0.9.0.
+
+2.6.6
+----
+
+### Changes
+  - Flag for overriding default branch configuration in Puppetfile
+  - Plumbing for internationalization
+  - Numerous test fixes and legacy docker work
+
+2.6.5
+----
+
+### Bug Fix
+
+(RK-324) Fix Ruby pipe bug affecting Ubuntu
+
+2.6.4
+----
+
+### Changes
+
+Numerous test fixes.
+
 2.6.3
 ----
-## Changes
+
+### Changes
 
 Update specs with new error string.
 
@@ -19,6 +231,7 @@ when a release is made on that branch.
 
 2.6.2
 -----
+
 ### Changes
 
 (RK-311) Yard dependency updated for security fix.
@@ -196,7 +409,7 @@ Puppetfile should be installed to. See the [Puppetfile documentation](https://gi
 
 You can now configure how r10k purges unmanaged content after a deployment. The
 default behavior should be unchanged but there is a new "purge\_levels" configuration
-option that can be used to enable new behavior or de-activate certain existing 
+option that can be used to enable new behavior or de-activate certain existing
 behaviors. See the relevant [configuration documentation](https://github.com/puppetlabs/r10k/blob/master/doc/dynamic-environments/configuration.mkd#purge_levels) for more details.
 
 (RK-223) Ability to track control repo branch from content declarations.
@@ -243,7 +456,7 @@ fix.)
 Previously, r10k only supported the use of HTTP proxies for connecting to the Puppet
 Forge. With these changes, r10k can now be configured to use an HTTP proxy for both
 Forge and Git operations. Configuration can be specified globally, for Forge or Git
-only, or on a per-Git repository basis. See [configuration documentation](https://github.com/puppetlabs/r10k/blob/master/doc/dynamic-environments/configuration.mkd) 
+only, or on a per-Git repository basis. See [configuration documentation](https://github.com/puppetlabs/r10k/blob/master/doc/dynamic-environments/configuration.mkd)
 for more details.
 
 ### Bug Fixes
@@ -264,9 +477,9 @@ for SSH.
 (RK-241) "deploy display" action does not properly format wrapped exceptions
 
 The "deploy display" action was not capturing and logging exceptions in the same way as
-other related actions. This meant that in many cases, when an error occurred, the 
+other related actions. This meant that in many cases, when an error occurred, the
 underlying cause was not being shown. Specifically, the "deploy display" action was
-not benefitting from the improved error messaging for unreadable SSH keys which was 
+not benefitting from the improved error messaging for unreadable SSH keys which was
 added in r10k 2.2.0 as part of RK-220.
 
 2.2.1
