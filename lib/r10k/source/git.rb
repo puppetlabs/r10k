@@ -41,6 +41,10 @@ class R10K::Source::Git < R10K::Source::Base
   #     that will be deployed as environments.
   attr_reader :ignore_branch_prefixes
 
+  # @!attribute [r] filter_command
+  #   @return [String] Command to run to filter branches
+  attr_reader :filter_command
+
   # Initialize the given source.
   #
   # @param name [String] The identifier for this source.
@@ -61,6 +65,7 @@ class R10K::Source::Git < R10K::Source::Base
     @remote = options[:remote]
     @invalid_branches = (options[:invalid_branches] || 'correct_and_warn')
     @ignore_branch_prefixes = options[:ignore_branch_prefixes]
+    @filter_command = options[:filter_command]
 
     @cache  = R10K::Git.cache.generate(@remote)
   end
@@ -115,7 +120,7 @@ class R10K::Source::Git < R10K::Source::Base
     environments.map {|env| env.dirname }
   end
 
-  def filter_branches(branches, ignore_prefixes)
+  def filter_branches_by_regexp(branches, ignore_prefixes)
     filter = Regexp.new("^#{Regexp.union(ignore_prefixes)}")
     branches = branches.reject do |branch|
       result = filter.match(branch)
@@ -127,14 +132,29 @@ class R10K::Source::Git < R10K::Source::Base
     branches
   end
 
+  def filter_branches_by_command(branches, command)
+    branches.select do |branch|
+      result = system({'GIT_DIR' => @cache.git_dir.to_s, 'R10K_BRANCH' => branch, 'R10K_NAME' => @name.to_s}, command)
+      unless result
+        logger.warn _("Branch `%{name}:%{branch}` filtered out by filter_command %{cmd}") % {name: @name, branch: branch, cmd: command}
+      end
+      result
+    end
+  end
+
   private
 
   def branch_names
     opts = {:prefix => @prefix, :invalid => @invalid_branches, :source => @name}
     branches = @cache.branches
     if @ignore_branch_prefixes && !@ignore_branch_prefixes.empty?
-      branches = filter_branches(branches, @ignore_branch_prefixes)
+      branches = filter_branches_by_regexp(branches, @ignore_branch_prefixes)
     end
+
+    if @filter_command && !@filter_command.empty?
+      branches = filter_branches_by_command(branches, @filter_command)
+    end
+
     branches.map do |branch|
       R10K::Environment::Name.new(branch, opts)
     end
