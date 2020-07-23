@@ -57,6 +57,10 @@ class R10K::Module::Git < R10K::Module::Base
     @repo.status(version)
   end
 
+  def cachedir
+    @repo.cache.sanitized_dirname
+  end
+
   private
 
   def validate_ref(desired, default)

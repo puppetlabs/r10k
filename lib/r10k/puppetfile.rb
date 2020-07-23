@@ -143,7 +143,7 @@ class Puppetfile
     mod.origin = 'Puppetfile'
 
     @managed_content[install_path] << mod.name
-    cachedir = module_vcs_cachedir(mod)
+    cachedir = mod.cachedir
     @modules_by_vcs_cachedir[cachedir] ||= []
     @modules_by_vcs_cachedir[cachedir] << mod
     @modules << mod
@@ -188,19 +188,6 @@ class Puppetfile
   end
 
   private
-
-  def module_vcs_cachedir(mod)
-    if mod.respond_to? :repo
-      repo = mod.repo
-      if repo.respond_to? :cache
-        cache = repo.cache
-        if cache.respond_to? :sanitized_dirname
-          return cache.sanitized_dirname
-        end
-      end
-    end
-    :none
-  end
 
   def serial_accept(visitor)
     visitor.visit(:puppetfile, self) do
