@@ -10,7 +10,7 @@ class Puppetfile
 
   include R10K::Settings::Mixin
 
-  def_setting_attr :pool_size, 1
+  def_setting_attr :pool_size, 4
 
   include R10K::Logging
 

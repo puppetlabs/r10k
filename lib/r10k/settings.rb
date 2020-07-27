@@ -160,7 +160,7 @@ module R10K
 
         Definition.new(:pool_size, {
           :desc => "The amount of threads used to concurrently install modules. The default value is 1: install one module at a time.",
-          :default => 1,
+          :default => 4,
           :validate => lambda do |value|
             if !value.is_a?(Integer)
               raise ArgumentError, "The pool_size setting should be an integer, not a #{value.class}"
