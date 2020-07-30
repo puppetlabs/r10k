@@ -10,7 +10,7 @@ class Puppetfile
 
   include R10K::Settings::Mixin
 
-  def_setting_attr :pool_size, 1
+  def_setting_attr :pool_size, 4
 
   include R10K::Logging
 
@@ -42,6 +42,11 @@ class Puppetfile
   #   @return [Boolean] Overwrite any locally made changes
   attr_accessor :force
 
+  # @!attribute [r] modules_by_vcs_cachedir
+  #   @api private Only exposed for testing purposes
+  #   @return [Hash{:none, String => Array<R10K::Module>}]
+  attr_reader :modules_by_vcs_cachedir
+
   # @param [String] basedir
   # @param [String] moduledir The directory to install the modules, default to #{basedir}/modules
   # @param [String] puppetfile_path The path to the Puppetfile, default to #{basedir}/Puppetfile
@@ -58,6 +63,7 @@ class Puppetfile
 
     @modules = []
     @managed_content = {}
+    @modules_by_vcs_cachedir = {}
     @forge   = 'forgeapi.puppetlabs.com'
 
     @loaded = false
@@ -137,6 +143,9 @@ class Puppetfile
     mod.origin = 'Puppetfile'
 
     @managed_content[install_path] << mod.name
+    cachedir = mod.cachedir
+    @modules_by_vcs_cachedir[cachedir] ||= []
+    @modules_by_vcs_cachedir[cachedir] << mod
     @modules << mod
   end
 
@@ -212,15 +221,22 @@ class Puppetfile
   def modules_queue(visitor)
     Queue.new.tap do |queue|
       visitor.visit(:puppetfile, self) do
-        modules.each { |mod| queue << mod }
+        modules_by_cachedir = modules_by_vcs_cachedir.clone
+        modules_without_vcs_cachedir = modules_by_cachedir.delete(:none) || []
+
+        modules_without_vcs_cachedir.each {|mod| queue << Array(mod) }
+        modules_by_cachedir.values.each {|mods| queue << mods }
       end
     end
   end
+  public :modules_queue
 
   def visitor_thread(visitor, mods_queue)
     Thread.new do
       begin
-        while mod = mods_queue.pop(true) do mod.accept(visitor) end
+        while mods = mods_queue.pop(true) do
+          mods.each {|mod| mod.accept(visitor) }
+        end
       rescue ThreadError => e
         logger.debug _("Module thread %{id} exiting: %{message}") % {message: e.message, id: Thread.current.object_id}
         Thread.exit

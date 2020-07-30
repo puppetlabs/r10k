@@ -99,6 +99,14 @@ class R10K::Module::Base
     raise NotImplementedError
   end
 
+  # Return the module's cachedir. Subclasses that implement a cache
+  # will override this to return a real directory location.
+  #
+  # @return [String, :none]
+  def cachedir
+    :none
+  end
+
   private
 
   def parse_title(title)
