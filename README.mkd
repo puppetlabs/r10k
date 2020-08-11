@@ -113,6 +113,7 @@ Please see the CHANGELOG for a listing of the (very awesome) contributors.
 
 ## Maintenance
 
-See [MAINTAINERS](MAINTAINERS) (json file)
+See [CODEOWNERS](CODEOWNERS) for active repo maintainers.
 
-Tickets: File at https://tickets.puppet.com/browse/RK
+Open [issues](https://github.com/puppetlabs/r10k/issues) directly in the r10k repo.
+
