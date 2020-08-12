@@ -98,6 +98,14 @@ When localizing the strings found in R10k, follow the prescribed
 The workflow describes the rake tasks provided to generate the .po files for
 each locale.
 
+Releasing
+---------
+To release a new version of the r10k gem, ensure the [changelog](CHANGELOG.mkd) is up to date and open a pull request updating the [version file](lib/r10k/version.rb). When the PR is merged, a new release of the gem will be triggered.
+
+By default, a patch (Z) release will be triggered. To release a new major (X) or minor (Y) version, include `#major` or `#minor` (respectively) in your commit message to trigger the appropriate release.
+
+NOTE: This currently only works for the default branch. If you would like to release from a different branch, please contact the [CODEOWNERS](CODEOWNERS).
+
 Getting help
 ------------
 
