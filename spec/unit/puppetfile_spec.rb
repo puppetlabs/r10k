@@ -173,6 +173,26 @@ describe R10K::Puppetfile do
     end
   end
 
+  describe '#managed_directories' do
+    it 'returns an array of paths that can be purged' do
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, '1.2.3', anything).and_call_original
+
+      subject.add_module('puppet/test_module', '1.2.3')
+      expect(subject.managed_directories).to match_array(["/some/nonexistent/basedir/modules"])
+    end
+
+    context 'with a module with install_path == \'\'' do
+      it 'basedir isn\'t in the list of paths to purge' do
+        module_opts = { install_path: '', git: 'git@example.com:puppet/test_module.git' }
+
+        allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.basedir, module_opts, anything).and_call_original
+
+        subject.add_module('puppet/test_module', module_opts)
+        expect(subject.managed_directories).to be_empty
+      end
+    end
+  end
+
   describe "evaluating a Puppetfile" do
     def expect_wrapped_error(orig, pf_path, wrapped_error)
       expect(orig).to be_a_kind_of(R10K::Error)
