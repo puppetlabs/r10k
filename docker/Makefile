@@ -6,6 +6,7 @@ build_date := $(shell date -u +%FT%T)
 hadolint_available := $(shell hadolint --help > /dev/null 2>&1; echo $$?)
 hadolint_command := hadolint
 hadolint_container := hadolint/hadolint:latest
+alpine_version := 3.9
 export BUNDLE_PATH = $(PWD)/.bundle/gems
 export BUNDLE_BIN = $(PWD)/.bundle/bin
 export GEMFILE = $(PWD)/Gemfile
@@ -48,9 +49,10 @@ else
 endif
 
 build: prep
+	docker pull alpine:$(alpine_version)
 	docker build \
 		${DOCKER_BUILD_FLAGS} \
-		--pull \
+		--build-arg alpine_version=$(alpine_version) \
 		--build-arg vcs_ref=$(vcs_ref) \
 		--build-arg build_date=$(build_date) \
 		--build-arg version=$(VERSION) \
