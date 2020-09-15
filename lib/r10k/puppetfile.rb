@@ -154,7 +154,9 @@ class Puppetfile
   def managed_directories
     self.load unless @loaded
 
-    @managed_content.keys
+    dirs = @managed_content.keys
+    dirs.delete(real_basedir)
+    dirs
   end
 
   # Returns an array of the full paths to all the content being managed.
@@ -264,13 +266,15 @@ class Puppetfile
   end
 
   def validate_install_path(path, modname)
-    real_basedir = Pathname.new(basedir).cleanpath.to_s
-
     unless /^#{Regexp.escape(real_basedir)}.*/ =~ path
       raise R10K::Error.new("Puppetfile cannot manage content '#{modname}' outside of containing environment: #{path} is not within #{real_basedir}")
     end
 
     true
+  end
+
+  def real_basedir
+    Pathname.new(basedir).cleanpath.to_s
   end
 
   class DSL

@@ -1,4 +1,5 @@
-FROM alpine:3.9 as build
+ARG alpine_version=3.9
+FROM alpine:${alpine_version} as build
 
 # hadolint ignore=DL3018
 RUN apk add --no-cache ruby git && \
@@ -8,7 +9,7 @@ COPY . /workspace
 RUN gem build r10k.gemspec && \
     mv r10k*.gem r10k.gem
 
-FROM alpine:3.9
+FROM alpine:${alpine_version}
 
 ARG vcs_ref
 ARG build_date

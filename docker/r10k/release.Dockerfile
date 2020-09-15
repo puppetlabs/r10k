@@ -1,4 +1,5 @@
-FROM alpine:3.9
+ARG alpine_version=3.9
+FROM alpine:${alpine_version}
 
 ARG vcs_ref
 ARG build_date
