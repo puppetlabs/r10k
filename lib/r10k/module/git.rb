@@ -108,6 +108,8 @@ class R10K::Module::Git < R10K::Module::Base
 
     if @desired_ref == :control_branch && @environment && @environment.respond_to?(:ref)
       @desired_ref = @environment.ref
+    elsif @desired_ref == :control_branch && @environment.is_a?(String)
+      @desired_ref = @environment
     end
   end
 end

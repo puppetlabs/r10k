@@ -52,12 +52,14 @@ class Puppetfile
   # @param [String] puppetfile_path The path to the Puppetfile, default to #{basedir}/Puppetfile
   # @param [String] puppetfile_name The name of the Puppetfile, default to 'Puppetfile'
   # @param [Boolean] force Shall we overwrite locally made changes?
-  def initialize(basedir, moduledir = nil, puppetfile_path = nil, puppetfile_name = nil, force = nil )
+  # @param [String] The environment the Puppetfile is in.
+  def initialize(basedir, moduledir = nil, puppetfile_path = nil, puppetfile_name = nil, force = nil, environment = nil )
     @basedir         = basedir
     @force           = force || false
     @moduledir       = moduledir  || File.join(basedir, 'modules')
     @puppetfile_name = puppetfile_name || 'Puppetfile'
     @puppetfile_path = puppetfile_path || File.join(basedir, @puppetfile_name)
+    @environment     = environment
 
     logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile_path}
 
