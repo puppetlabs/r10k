@@ -25,10 +25,13 @@ LABEL org.label-schema.maintainer="Puppet Release Team <release@puppet.com>" \
 COPY adduser.sh docker-entrypoint.sh /
 COPY docker-entrypoint.d /docker-entrypoint.d
 
+ARG PP_USER
+ENV PP_USER="${PP_USER:-puppet}"
+
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["help"]
 
-# dyanmic LABELs and ENV vars placed lower for the sake of Docker layer caching
+# dynamic LABELs and ENV vars placed lower for the sake of Docker layer caching
 ENV PUPPERWARE_ANALYTICS_STREAM="$pupperware_analytics_stream"
 
 LABEL org.label-schema.version="$version" \
@@ -40,7 +43,9 @@ SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 # hadolint ignore=DL3018,DL3028
 RUN chmod a+x /adduser.sh /docker-entrypoint.sh && \
     /adduser.sh && \
-    chown -R puppet: /docker-entrypoint.d /docker-entrypoint.sh && \
+    chown -R "${PP_USER}:" /docker-entrypoint.d /docker-entrypoint.sh && \
+    chmod -R +x            /docker-entrypoint.d /docker-entrypoint.sh && \
+    mkdir -p /docker-custom-entrypoint.d && \
     apk add --no-cache ruby openssh-client git ruby-rugged curl ruby-dev make gcc musl-dev && \
     gem install --no-doc r10k:"$version" json etc && \
     curl --fail --silent --show-error --location --remote-name "$supercronic_url" && \
@@ -49,7 +54,6 @@ RUN chmod a+x /adduser.sh /docker-entrypoint.sh && \
     mv "$supercronic" "/usr/local/bin/${supercronic}" && \
     ln -s "/usr/local/bin/${supercronic}" /usr/local/bin/supercronic
 
-USER puppet
-WORKDIR /home/puppet
+WORKDIR "/home/${PP_USER}"
 
 COPY release.Dockerfile /

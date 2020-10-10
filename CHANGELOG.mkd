@@ -4,6 +4,7 @@ CHANGELOG
 Unreleased
 ----------
 
+- Added the option to mount your on custom script into the r10k (Docker) container, just like you can with [the puppetserver container](https://github.com/puppetlabs/puppetserver/blob/3b6d9181bc79671220ad938a193d938e95f0a70e/docker/puppetserver/docker-entrypoint.sh#L13-L19) [#1091](https://github.com/puppetlabs/r10k/pull/1091)
 - Add 'strip\_component' environment source configuration setting, to allow deploying Git branches named like "env/production" as Puppet environments named like "production". [#1128](https://github.com/puppetlabs/r10k/pull/1128)
 - A warning will be emitted when the user supplies conflicting arguments to module definitions in a Puppetfile, such as when specifying both :commit and :branch [#1130](https://github.com/puppetlabs/r10k/pull/1130)
 - Add optional standard module and environment specification interface: name, type, source, version. These options can be used when specifying environments and/or modules in a yaml/exec source, as well as when specifying modules in a Puppetfile. Providing the standard interface simplifies integrations with external services [#1131](https://github.com/puppetlabs/r10k/pull/1131)

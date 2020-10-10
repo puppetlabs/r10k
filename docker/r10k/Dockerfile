@@ -35,6 +35,9 @@ LABEL org.label-schema.maintainer="Puppet Release Team <release@puppet.com>" \
 COPY docker/r10k/adduser.sh docker/r10k/docker-entrypoint.sh /
 COPY docker/r10k/docker-entrypoint.d /docker-entrypoint.d
 
+ARG PP_USER
+ENV PP_USER="${PP_USER:-puppet}"
+
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["help"]
 
@@ -52,7 +55,9 @@ SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 RUN chmod a+x /adduser.sh /docker-entrypoint.sh && \
 # Add a puppet user to run r10k as for consistency with puppetserver
     /adduser.sh && \
-    chown -R puppet: /docker-entrypoint.d /docker-entrypoint.sh && \
+    chown -R "${PP_USER}:" /docker-entrypoint.d /docker-entrypoint.sh && \
+    chmod -R +x            /docker-entrypoint.d /docker-entrypoint.sh && \
+    mkdir -p /docker-custom-entrypoint.d && \
     apk add --no-cache ruby openssh-client git ruby-rugged curl ruby-json ruby-etc && \
     gem install --no-doc /r10k.gem && \
     rm -f /r10k.gem && \
@@ -62,7 +67,6 @@ RUN chmod a+x /adduser.sh /docker-entrypoint.sh && \
     mv "$supercronic" "/usr/local/bin/${supercronic}" && \
     ln -s "/usr/local/bin/${supercronic}" /usr/local/bin/supercronic
 
-USER puppet
-WORKDIR /home/puppet
+WORKDIR "/home/${PP_USER}"
 
 COPY docker/r10k/Dockerfile /

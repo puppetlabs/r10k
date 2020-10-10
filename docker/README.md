@@ -10,6 +10,11 @@ The following environment variables are supported:
 
   Set to 'true' to enable Google Analytics metrics. Defaults to 'false'.
 
+If you want to use your own script to config the r10k container, you can mount your script to the directory `/docker-custom-entrypoint.d` in the container:
+```
+docker run --name r10k -v ./r10k-custom:/docker-custom-entrypoint.d puppet/r10k
+```
+
 ## Analytics Data Collection
 
 The r10k container collects usage data. This is disabled by default. You can enable it by passing `--env PUPPERWARE_ANALYTICS_ENABLED=true`
