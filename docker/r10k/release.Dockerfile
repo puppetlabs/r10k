@@ -25,8 +25,8 @@ LABEL org.label-schema.maintainer="Puppet Release Team <release@puppet.com>" \
 COPY adduser.sh docker-entrypoint.sh /
 COPY docker-entrypoint.d /docker-entrypoint.d
 
-ARG PP_USER
-ENV PP_USER="${PP_USER:-puppet}"
+ARG PP_USER=puppet
+ENV PP_USER="${PP_USER}"
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["help"]
