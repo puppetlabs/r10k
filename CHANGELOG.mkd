@@ -4,6 +4,9 @@ CHANGELOG
 Unreleased
 ----------
 
+3.6.0
+-----
+
 - Add filter_command configuration option for git repositories. (Thanks to [mhumpula](https://github.com/mhumpula) for the feature.) [#823](https://github.com/puppetlabs/r10k/pull/823)
 - Increase default pool_size to 4, allowing modules to be downloaded on 4 threads concurrently. [#1038](https://github.com/puppetlabs/r10k/issues/1038)
 - Ensure that modules that share a cachedir download serially, to avoid cache corruption. [#1058](https://github.com/puppetlabs/r10k/issues/1058)
@@ -179,6 +182,11 @@ Ruby >= 2.3 official and documented.
     - r10k.yaml file is empty
     - Unable to parse Puppetfile
   - Various perfomance improvements
+
+2.6.9
+----
+
+- Don't purge root when using `puppetfile install`. [#1084](https://github.com/puppetlabs/r10k/issues/1084)
 
 2.6.8
 ----
