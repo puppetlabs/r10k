@@ -180,6 +180,11 @@ Ruby >= 2.3 official and documented.
     - Unable to parse Puppetfile
   - Various perfomance improvements
 
+2.6.9
+----
+
+- Don't purge root when using `puppetfile install`. [#1084](https://github.com/puppetlabs/r10k/issues/1084)
+
 2.6.8
 ----
 
