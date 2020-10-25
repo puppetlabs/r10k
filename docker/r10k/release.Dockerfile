@@ -54,6 +54,7 @@ RUN chmod a+x /adduser.sh /docker-entrypoint.sh && \
     mv "$supercronic" "/usr/local/bin/${supercronic}" && \
     ln -s "/usr/local/bin/${supercronic}" /usr/local/bin/supercronic
 
+# hadolint ignore=DL3000
 WORKDIR "/home/${PP_USER}"
 
 COPY release.Dockerfile /
