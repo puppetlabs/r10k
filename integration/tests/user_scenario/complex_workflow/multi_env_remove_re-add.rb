@@ -15,7 +15,7 @@ initial_env_names = ['production', 'stage']
 
 #Verification
 notify_message_regex = /I am in the production environment/
-stage_env_error_message_regex = /Error:.*Could not find environment 'stage'/
+stage_env_error_message_regex = /Error:.*Could not.*environment '?stage'?/
 
 #Manifest
 site_pp_path = File.join(git_environments_path, 'manifests', 'site.pp')
