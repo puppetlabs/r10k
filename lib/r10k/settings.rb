@@ -12,6 +12,8 @@ module R10K
     class << self
       # Path to puppet executable
       attr_accessor :puppet_path
+      # Path to puppet.conf
+      attr_accessor :puppet_conf
     end
 
     def self.git_settings
@@ -128,6 +130,15 @@ module R10K
           :validate => lambda do |value|
             unless File.executable? value
               raise ArgumentError, "The specified puppet executable #{value} is not executable"
+            end
+          end
+        }),
+        Definition.new(:puppet_conf, {
+          :desc => "Path to puppet.conf. Defaults to /etc/puppetlabs/puppet/puppet.conf.",
+          :default => '/etc/puppetlabs/puppet/puppet.conf',
+          :validate => lambda do |value|
+            unless File.readable? value
+              raise ArgumentError, "The specified puppet.conf #{value} is not readable"
             end
           end
         }),

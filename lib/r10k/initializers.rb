@@ -44,6 +44,7 @@ module R10K
     class DeployInitializer < BaseInitializer
       def call
         with_setting(:puppet_path) { |value| R10K::Settings.puppet_path = value }
+        with_setting(:puppet_conf) { |value| R10K::Settings.puppet_conf = value }
       end
     end
 

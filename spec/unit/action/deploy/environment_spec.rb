@@ -331,6 +331,15 @@ describe R10K::Action::Deploy::Environment do
         expect(subject.instance_variable_get(:@puppet_path)).to eq('/nonexistent')
       end
     end
+
+    describe 'with puppet-conf' do
+
+      subject { described_class.new({ config: '/some/nonexistent/path', 'puppet-conf': '/nonexistent' }, []) }
+
+      it 'sets puppet_conf' do
+        expect(subject.instance_variable_get(:@puppet_conf)).to eq('/nonexistent')
+      end
+    end
   end
 
   describe "write_environment_info!" do
