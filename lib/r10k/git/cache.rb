@@ -16,7 +16,17 @@ class R10K::Git::Cache
 
   include R10K::Settings::Mixin
 
-  def_setting_attr :cache_root, File.expand_path(ENV['HOME'] ? '~/.r10k/git': '/root/.r10k/git')
+  #@api private
+  def self.determine_cache_root
+    if R10K::Util::Platform.windows?
+      File.join(ENV['LOCALAPPDATA'], 'r10k', 'git')
+    else
+      File.expand_path(ENV['HOME'] ? '~/.r10k/git': '/root/.r10k/git')
+    end
+  end
+  private_class_method :determine_cache_root
+
+  def_setting_attr :cache_root, determine_cache_root
 
   @instance_cache = R10K::InstanceCache.new(self)
 

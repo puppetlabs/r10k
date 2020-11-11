@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby? do
+describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby?  || R10K::Util::Platform.windows? do
   before(:all) do
     require 'r10k/git/rugged/credentials'
     require 'rugged/credentials'

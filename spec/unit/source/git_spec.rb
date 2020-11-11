@@ -99,7 +99,11 @@ describe R10K::Source::Git do
 
   describe "filtering branches with command" do
     let(:branches) { ['master', 'development', 'production'] }
-    let(:filter_command) { 'sh -c "[ $R10K_BRANCH != development ]"' }
+    if R10K::Util::Platform.windows?
+      let(:filter_command) { 'powershell.exe if ($env:R10K_BRANCH.equals(\"development\")) {exit 1} else {exit 0}' }
+    else
+      let(:filter_command) { 'sh -c "[ $R10K_BRANCH != development ]"' }
+    end
 
     it "filters branches" do
       expect(subject.filter_branches_by_command(branches, filter_command)).to eq(['master', 'production'])
@@ -109,7 +113,11 @@ describe R10K::Source::Git do
   describe "generate_environments respects filter_command setting" do
     before do
       allow(subject.cache).to receive(:branches).and_return ['master', 'development', 'production']
-      subject.instance_variable_set(:@filter_command, '[ $R10K_BRANCH != master ]')
+      if R10K::Util::Platform.windows?
+        subject.instance_variable_set(:@filter_command, 'powershell.exe if ($env:R10K_BRANCH.equals(\"master\")) {exit 1} else {exit 0}')
+      else
+        subject.instance_variable_set(:@filter_command, '[ $R10K_BRANCH != master ]')
+      end
     end
 
     let(:environments) { subject.generate_environments }
@@ -122,7 +130,11 @@ describe R10K::Source::Git do
   describe "generate_environments respects filter_command setting and name" do
     before do
       allow(subject.cache).to receive(:branches).and_return ['master', 'development', 'production']
-      subject.instance_variable_set(:@filter_command, '[ $R10K_NAME = mysource ]')
+      if R10K::Util::Platform.windows?
+        subject.instance_variable_set(:@filter_command, 'powershell.exe if ($env:R10K_NAME.equals(\"mysource\")) {exit 0} else {exit 1}')
+      else
+        subject.instance_variable_set(:@filter_command, '[ $R10K_NAME = mysource ]')
+      end
     end
 
     let(:environments) { subject.generate_environments }
