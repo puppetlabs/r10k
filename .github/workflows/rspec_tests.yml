@@ -1,0 +1,53 @@
+name: Rspec tests
+
+on:
+  pull_request:
+    branches:
+      - 2.6.x
+
+jobs:
+  rspec_tests:
+    name: ${{ matrix.cfg.os }}(ruby ${{ matrix.cfg.ruby }})
+    strategy:
+      matrix:
+        cfg:
+          - {os: ubuntu-18.04, ruby: 2.4}
+          - {os: ubuntu-18.04, ruby: 2.5}
+          - {os: ubuntu-18.04, ruby: 2.6}
+          - {os: ubuntu-18.04, ruby: 2.7}
+          - {os: ubuntu-18.04, ruby: jruby-9.2.9.0}
+
+    runs-on: ${{ matrix.cfg.os }}
+    steps:
+      - name: Checkout current PR
+        uses: actions/checkout@v2
+
+      - name: Install ruby version ${{ matrix.cfg.ruby }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.cfg.ruby }}
+
+      - name: Install bundler and gems
+        run: |
+          gem install bundler
+          bundle config set without packaging documentation
+          bundle install --jobs 4 --retry 3
+
+      - name: Run tests on Linux
+        run: |
+          # debug information
+          cat Gemfile.lock
+          ruby -v
+          gem --version
+          bundle --version
+          openssl version -a
+
+          if [[ ${{ matrix.cfg.ruby }} =~ "jruby" ]]; then
+            export _JAVA_OPTIONS='-Xmx1024m -Xms512m'
+
+            # workaround for PUP-10683
+            sudo apt remove rpm
+          fi
+
+          # Run tests
+          bundle exec rspec --color --format documentation spec/unit
