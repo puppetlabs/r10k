@@ -5,6 +5,7 @@ Unreleased
 ----------
 
 - Fetch modules from the repo's default branch, rather than defaulting to 'master' [#1096](https://github.com/puppetlabs/r10k/issues/1096)
+- Enable configurable behavior of environment module / Puppetfile module conflicts (experimental features)
 
 3.7.0
 -----
