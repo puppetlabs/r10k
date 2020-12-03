@@ -3,7 +3,7 @@ FROM alpine:${alpine_version} as build
 
 # hadolint ignore=DL3018
 RUN apk add --no-cache ruby git && \
-    mkdir /workspace
+    mkdir -p /workspace
 WORKDIR /workspace
 COPY . /workspace
 RUN gem build r10k.gemspec && \
