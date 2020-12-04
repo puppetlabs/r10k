@@ -103,20 +103,21 @@ class R10K::Environment::WithModules < R10K::Environment::Base
                 .select { |_, v| v.size > 1 }
                 .map(&:first)
     unless conflicts.empty?
+      conflicts_str = conflicts.join(', ')
+      log_msg = _('Environment and Puppetfile both define the following modules, Puppetfile ' \
+                  'definition will be ignored: %{mods}' % { mods: conflicts_str })
       case conflict_opt = @options[:module_conflicts]
       when 'override_puppetfile'
-        logger.debug _('Environment and Puppetfile both define the following modules, Puppetfile ' \
-                       'definition will be ignored: %{mods}' % { mods: conflicts.join(', ') })
+        logger.debug log_msg
       when 'override_puppetfile_and_warn', nil
-        logger.warn  _('Environment and Puppetfile both define the following modules, Puppetfile ' \
-                       'definition will be ignored: %{mods}' % { mods: conflicts.join(', ') })
+        logger.warn log_msg
       when 'error'
         raise R10K::Error, _('Puppetfile cannot contain module names defined by environment ' \
-                             '%{name}; Remove the conflicting definitions of the following modules: ' \
-                             '%{mods}' % { name: self.name, mods: conflicts.join(', ') })
+                             '%{env}; Remove the conflicting definitions of the following modules: ' \
+                             '%{mods}' % { env: self.name, mods: conflicts_str })
       else
         raise R10K::Error, _('Unexpected value for `module_conflicts` setting in %{env} ' \
-                             'environment: %{val}' % {env: 'name', val: conflict_opt})
+                             'environment: %{val}' % {env: self.name, val: conflict_opt})
       end
     end
   end

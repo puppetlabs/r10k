@@ -36,13 +36,14 @@ describe R10K::Environment::WithModules do
         mod = double('duplicate-stdlib', :name => 'stdlib')
         expect(subject.puppetfile).to receive(:load)
         expect(subject.puppetfile).to receive(:modules).and_return [mod]
+        expect(subject.logger).to receive(:warn).with(/Puppetfile.*both define.*ignored/i)
         expect { subject.validate_no_module_conflicts }.not_to raise_error
       end
     end
 
     context "with module conflicts and 'error' behavior" do
       let(:subject_params) {{ :module_conflicts => 'error' }}
-      it "does not raise an error" do
+      it "raises an error" do
         mod = double('duplicate-stdlib', :name => 'stdlib')
         expect(subject.puppetfile).to receive(:load)
         expect(subject.puppetfile).to receive(:modules).and_return [mod]
@@ -74,7 +75,7 @@ describe R10K::Environment::WithModules do
 
   describe "modules method" do
     it "overrides duplicates, choosing the environment version" do
-      mod = double('duplicate-stdlib', :name => 'stdlib', :tag => :double)
+      mod = double('duplicate-stdlib', :name => 'stdlib', :giveaway => :'i-am-a-double')
       expect(subject.puppetfile).to receive(:load)
       expect(subject.puppetfile).to receive(:modules).and_return [mod]
       returned = subject.modules
@@ -82,7 +83,7 @@ describe R10K::Environment::WithModules do
 
       # Make sure the module that was picked was the environment one, not the Puppetfile one
       stdlib = returned.find { |m| m.name == 'stdlib' }
-      expect(stdlib.respond_to?(:tag)).to eq(false)
+      expect(stdlib.respond_to?(:giveaway)).to eq(false)
     end
   end
 end

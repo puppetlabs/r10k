@@ -679,8 +679,8 @@ When a module is defined in an environment and also in a Puppetfile, the default
 
 Available `module_conflicts` options:
 
-* `override_puppetfile_and_warn` (default): the version of the module defined by the enviornment will be used, and the version defined in the Puppetfile will be ignored. A warning will be printed.
-* `override_puppetfile`: the version of the module defined by the enviornment will be used, and the version defined in the Puppetfile will be ignored.
+* `override_puppetfile_and_warn` (default): the version of the module defined by the environment will be used, and the version defined in the Puppetfile will be ignored. A warning will be printed.
+* `override_puppetfile`: the version of the module defined by the environment will be used, and the version defined in the Puppetfile will be ignored.
 * `error`: an error will be raised alerting the user to the conflict. The environment will not be deployed.
 
 ```yaml
