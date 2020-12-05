@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.4.1-57-g2eb088a\n"
+"Project-Id-Version: r10k 3.4.1-105-ge6831cb\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2020-07-22 16:41+0000\n"
-"PO-Revision-Date: 2020-07-22 16:41+0000\n"
+"POT-Creation-Date: 2020-12-05 00:44+0000\n"
+"PO-Revision-Date: 2020-12-05 00:44+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -83,15 +83,15 @@ msgstr ""
 msgid "Cannot track control repo branch for content '%{name}' when not part of a 'deploy' action, will use default if available."
 msgstr ""
 
-#: ../lib/r10k/action/runner.rb:53 ../lib/r10k/deployment/config.rb:42
+#: ../lib/r10k/action/runner.rb:54 ../lib/r10k/deployment/config.rb:42
 msgid "Overriding config file setting '%{key}': '%{old_val}' -> '%{new_val}'"
 msgstr ""
 
-#: ../lib/r10k/action/runner.rb:86
+#: ../lib/r10k/action/runner.rb:87
 msgid "Reading configuration from %{config_path}"
 msgstr ""
 
-#: ../lib/r10k/action/runner.rb:89
+#: ../lib/r10k/action/runner.rb:90
 msgid "No config file explicitly given and no default config file could be found, default settings will be used."
 msgstr ""
 
@@ -107,12 +107,16 @@ msgstr ""
 msgid "%{class} has not implemented method %{method}"
 msgstr ""
 
-#: ../lib/r10k/environment/with_modules.rb:104
-msgid "Puppetfile cannot contain module names defined by environment %{name}"
+#: ../lib/r10k/environment/with_modules.rb:107
+msgid "Environment and Puppetfile both define the following modules, Puppetfile definition will be ignored: %{mods}"
 msgstr ""
 
-#: ../lib/r10k/environment/with_modules.rb:106
-msgid "Remove the conflicting definitions of the following modules: %{conflicts}"
+#: ../lib/r10k/environment/with_modules.rb:115
+msgid "Puppetfile cannot contain module names defined by environment %{env}; Remove the conflicting definitions of the following modules: %{mods}"
+msgstr ""
+
+#: ../lib/r10k/environment/with_modules.rb:119
+msgid "Unexpected value for `module_conflicts` setting in %{env} environment: %{val}"
 msgstr ""
 
 #: ../lib/r10k/feature.rb:27
@@ -187,11 +191,11 @@ msgstr ""
 msgid "Cannot write %{file}; parent directory does not exist"
 msgstr ""
 
-#: ../lib/r10k/git/cache.rb:55
+#: ../lib/r10k/git/cache.rb:65
 msgid "%{class}#path is deprecated; use #git_dir"
 msgstr ""
 
-#: ../lib/r10k/git/cache.rb:84
+#: ../lib/r10k/git/cache.rb:94
 msgid "Creating new git cache for %{remote}"
 msgstr ""
 
@@ -255,31 +259,31 @@ msgstr ""
 msgid "Found local modifications in %{file_path}"
 msgstr ""
 
-#: ../lib/r10k/git/stateful_repository.rb:40
+#: ../lib/r10k/git/stateful_repository.rb:44
 msgid "Unable to sync repo to unresolvable ref '%{ref}'"
 msgstr ""
 
-#: ../lib/r10k/git/stateful_repository.rb:47
+#: ../lib/r10k/git/stateful_repository.rb:51
 msgid "Cloning %{repo_path} and checking out %{ref}"
 msgstr ""
 
-#: ../lib/r10k/git/stateful_repository.rb:50
+#: ../lib/r10k/git/stateful_repository.rb:54
 msgid "Replacing %{repo_path} and checking out %{ref}"
 msgstr ""
 
-#: ../lib/r10k/git/stateful_repository.rb:54 ../lib/r10k/git/stateful_repository.rb:59
+#: ../lib/r10k/git/stateful_repository.rb:58 ../lib/r10k/git/stateful_repository.rb:63
 msgid "Updating %{repo_path} to %{ref}"
 msgstr ""
 
-#: ../lib/r10k/git/stateful_repository.rb:58
+#: ../lib/r10k/git/stateful_repository.rb:62
 msgid "Overwriting local modifications to %{repo_path}"
 msgstr ""
 
-#: ../lib/r10k/git/stateful_repository.rb:62
+#: ../lib/r10k/git/stateful_repository.rb:66
 msgid "Skipping %{repo_path} due to local modifications"
 msgstr ""
 
-#: ../lib/r10k/git/stateful_repository.rb:65
+#: ../lib/r10k/git/stateful_repository.rb:69
 msgid "%{repo_path} is already at Git ref %{ref}"
 msgstr ""
 
@@ -303,7 +307,7 @@ msgstr ""
 msgid "Module %{name} with args %{args} doesn't have an implementation. (Are you using the right arguments?)"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:110
+#: ../lib/r10k/module/base.rb:118
 msgid "Module name (%{title}) must match either 'modulename' or 'owner/modulename'"
 msgstr ""
 
@@ -315,7 +319,7 @@ msgstr ""
 msgid "Forge module names must match 'owner/modulename'"
 msgstr ""
 
-#: ../lib/r10k/module/git.rb:97
+#: ../lib/r10k/module/git.rb:101
 msgid "Unhandled options %{unhandled} specified for %{class}"
 msgstr ""
 
@@ -327,39 +331,39 @@ msgstr ""
 msgid "Could not read metadata.json"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:57
+#: ../lib/r10k/puppetfile.rb:62
 msgid "Using Puppetfile '%{puppetfile}'"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:71
+#: ../lib/r10k/puppetfile.rb:77
 msgid "Puppetfile %{path} missing or unreadable"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:84
+#: ../lib/r10k/puppetfile.rb:90
 msgid "Failed to evaluate %{path}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:98
+#: ../lib/r10k/puppetfile.rb:104
 msgid "Puppetfiles cannot contain duplicate module names."
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:100
+#: ../lib/r10k/puppetfile.rb:106
 msgid "Remove the duplicates of the following modules: %{dupes}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:192
+#: ../lib/r10k/puppetfile.rb:203
 msgid "Updating modules with %{pool_size} threads"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:203
+#: ../lib/r10k/puppetfile.rb:214
 msgid "Error during concurrent deploy of a module: %{message}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:225
+#: ../lib/r10k/puppetfile.rb:243
 msgid "Module thread %{id} exiting: %{message}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:282
+#: ../lib/r10k/puppetfile.rb:302
 msgid "unrecognized declaration '%{method}'"
 msgstr ""
 
