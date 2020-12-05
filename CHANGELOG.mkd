@@ -5,6 +5,7 @@ Unreleased
 ----------
 
 - Fetch modules from the repo's default branch, rather than defaulting to 'master' [#1096](https://github.com/puppetlabs/r10k/issues/1096)
+- Experimental feature change: conflicts between environment-defined modules and Puppetfile-defined modules now default to logging a warning and deploying the environment module version, overriding the Puppetfile. Previously, conflicts would result in an error. The behavior is now configurable via the `module_conflicts` environment setting [#1107](https://github.com/puppetlabs/r10k/pull/1107)
 
 3.7.0
 -----

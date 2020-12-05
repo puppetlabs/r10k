@@ -673,6 +673,31 @@ modules:
     ref: 62d07f2
 ```
 
+#### Puppetfile module conflicts
+
+When a module is defined in an environment and also in a Puppetfile, the default behavior is for the environment definition of the module to take precedence, a warning to be logged, and the Puppetfile definition to be ignored. The behavior is configurable to optionally skip the warning, or allow a hard failure instead. Use the `module_conflicts` option in an environment definition to control this.
+
+Available `module_conflicts` options:
+
+* `override_puppetfile_and_warn` (default): the version of the module defined by the environment will be used, and the version defined in the Puppetfile will be ignored. A warning will be printed.
+* `override_puppetfile`: the version of the module defined by the environment will be used, and the version defined in the Puppetfile will be ignored.
+* `error`: an error will be raised alerting the user to the conflict. The environment will not be deployed.
+
+```yaml
+# production.yaml
+---
+type: git
+remote: git@github.com:puppetlabs/control-repo.git
+ref: 8820892
+module_conflicts: override_puppetfile_and_warn
+modules:
+  puppetlabs-stdlib: 6.0.0
+  puppetlabs-concat: 6.1.0
+  reidmv-xampl:
+    git: https://github.com/reidmv/reidmv-xampl.git
+    ref: 62d07f2
+```
+
 ### Bare Environment Type
 
 A "control repository" typically contains a hiera.yaml, an environment.conf, a manifests/site.pp file, and a few other things. However, none of these are strictly necessary for an environment to be functional if modules can be deployed to it.
