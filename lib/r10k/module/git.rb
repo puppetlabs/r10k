@@ -103,7 +103,7 @@ class R10K::Module::Git < R10K::Module::Base
 
     @remote = options[:git]
 
-    @desired_ref = ref_opts.find { |key| break options[key] if options.has_key?(key) } || 'HEAD'
+    @desired_ref = ref_opts.find { |key| break options[key] if options.has_key?(key) } || 'master'
     @default_ref = options[:default_branch]
 
     if @desired_ref == :control_branch && @environment && @environment.respond_to?(:ref)
