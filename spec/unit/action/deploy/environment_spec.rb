@@ -36,6 +36,14 @@ describe R10K::Action::Deploy::Environment do
     it 'can accept a puppet-path option' do
       described_class.new({ 'puppet-path': '/nonexistent' }, [])
     end
+
+    it 'can accept an sshkey-path option' do
+      described_class.new({ 'sshkey-path': '/nonexistent' }, [])
+    end
+
+    it 'can accept a token option' do
+      described_class.new({ 'token-path': '/nonexistent' }, [])
+    end
   end
 
   describe "when called" do
@@ -338,6 +346,24 @@ describe R10K::Action::Deploy::Environment do
 
       it 'sets puppet_conf' do
         expect(subject.instance_variable_get(:@puppet_conf)).to eq('/nonexistent')
+      end
+    end
+
+    describe 'with sshkey-path' do
+
+      subject { described_class.new({ config: '/some/nonexistent/path', 'sshkey-path': '/nonexistent' }, []) }
+
+      it 'sets puppet_path' do
+        expect(subject.instance_variable_get(:@sshkey_path)).to eq('/nonexistent')
+      end
+    end
+
+    describe 'with token-path' do
+
+      subject { described_class.new({ config: '/some/nonexistent/path', 'token-path': '/nonexistent' }, []) }
+
+      it 'sets puppet_path' do
+        expect(subject.instance_variable_get(:@token_path)).to eq('/nonexistent')
       end
     end
   end

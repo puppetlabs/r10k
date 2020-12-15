@@ -77,7 +77,9 @@ module R10K
                       'no-force': :self,
                       'generate-types': :self,
                       'puppet-path': :self,
-                      'puppet-conf': :self)
+                      'puppet-conf': :self,
+                      'sshkey-path': :self,
+                      'token-path': :self)
         end
       end
     end

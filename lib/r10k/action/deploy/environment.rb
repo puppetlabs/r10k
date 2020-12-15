@@ -189,6 +189,8 @@ module R10K
                       'generate-types': :self,
                       'puppet-path': :self,
                       'puppet-conf': :self,
+                      'sshkey-path': :self,
+                      'token-path': :self,
                       'default-branch-override': :self)
         end
       end
