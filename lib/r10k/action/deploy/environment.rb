@@ -5,6 +5,7 @@ require 'r10k/action/visitor'
 require 'r10k/action/base'
 require 'r10k/action/deploy/deploy_helpers'
 require 'json'
+require 'tempfile'
 
 module R10K
   module Action
@@ -32,7 +33,8 @@ module R10K
           @visit_ok = true
 
           expect_config!
-          deployment = R10K::Deployment.new(@settings)
+          credentials = extract_credentials!
+          deployment = R10K::Deployment.new(@settings, credentials)
           check_write_lock!(@settings)
 
           deployment.accept(self)
@@ -42,6 +44,29 @@ module R10K
         include R10K::Action::Visitor
 
         private
+
+        def extract_credentials!
+          if @sshkey_path && @token_path
+            raise R10K::Error, "Cannot specify both an SSH key and a token to use with this deploy."
+          end
+
+          if @sshkey_path
+            if File.exists?(@sshkey_path)
+              { sshkey_path: @sshkey_path }
+            else
+              raise R10K::Error, _("{%path} does not exist, cannot load SSH key") % { path: @sshkey_path }
+            end
+          elsif @token_path
+            if @token_path == '-'
+              token = $stdin.read
+            elsif File.exists?(@token_path)
+              token = File.read(@token_path)
+            else
+              raise R10K::Error, _("{%path} does not exist, cannot load OAuth token") % { path: @token_path }
+            end
+            { token: token }
+          end
+        end
 
         def visit_deployment(deployment)
           # Ensure that everything can be preloaded. If we cannot preload all

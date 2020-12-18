@@ -153,7 +153,7 @@ describe R10K::Action::Deploy::Module do
 
     subject { described_class.new({ config: '/some/nonexistent/path', cachedir: '/nonexistent' }, []) }
 
-    it 'sets puppet_path' do
+    it 'sets cachedir' do
       expect(subject.instance_variable_get(:@cachedir)).to eq('/nonexistent')
     end
   end
@@ -162,7 +162,7 @@ describe R10K::Action::Deploy::Module do
 
     subject { described_class.new({ config: '/some/nonexistent/path', 'sshkey-path': '/nonexistent' }, []) }
 
-    it 'sets puppet_path' do
+    it 'sets sshkey_path' do
       expect(subject.instance_variable_get(:@sshkey_path)).to eq('/nonexistent')
     end
   end

@@ -28,8 +28,9 @@ module R10K
     #   @return [R10K::Deployment::Config]
     attr_reader :config
 
-    def initialize(config)
+    def initialize(config, credentials = {})
       @config = config
+      @credentials = credentials
     end
 
     def preload!
