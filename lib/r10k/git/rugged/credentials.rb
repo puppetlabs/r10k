@@ -10,9 +10,10 @@ class R10K::Git::Rugged::Credentials
   include R10K::Logging
 
   # @param repository [R10K::Git::Rugged::BaseRepository]
-  def initialize(repository)
+  def initialize(repository, credentials_from_cli = {})
     @repository = repository
     @called = 0
+    @credentials_from_cli = credentials_from_cli
   end
 
   def call(url, username_from_url, allowed_types)
@@ -43,7 +44,10 @@ class R10K::Git::Rugged::Credentials
 
     global_private_key = R10K::Git.settings[:private_key]
 
-    if per_repo_private_key
+    if @credentials_from_cli[:sshkey_file]
+      private_key = @credentials_from_cli[:sshkey_file]
+      logger.debug2 _("Using per-deploy private key %{key} for URL %{url}") % {key: private_key, url: url.inspect}
+    elsif per_repo_private_key
       private_key = per_repo_private_key
       logger.debug2 _("Using per-repository private key %{key} for URL %{url}") % {key: private_key, url: url.inspect}
     elsif global_private_key
@@ -61,8 +65,13 @@ class R10K::Git::Rugged::Credentials
   end
 
   def get_plaintext_credentials(url, username_from_url)
-    user = get_git_username(url, username_from_url)
-    password = URI.parse(url).password || ''
+    if @credentials_from_cli[:token]
+      user = 'x-oauth-token'
+      password = @credentials_from_cli[:token]
+    elsif
+      user = get_git_username(url, username_from_url)
+      password = URI.parse(url).password || ''
+    end
     Rugged::Credentials::UserPassword.new(username: user, password: password)
   end
 

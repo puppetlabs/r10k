@@ -82,8 +82,8 @@ class R10K::Git::Rugged::BaseRepository
   # @api private
   #
   # @return [Proc]
-  def credentials
-    R10K::Git::Rugged::Credentials.new(self)
+  def credentials(credentials_from_cli = {})
+    R10K::Git::Rugged::Credentials.new(self, credentials_from_cli)
   end
 
   def report_transfer(results, remote)

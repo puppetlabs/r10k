@@ -34,8 +34,30 @@ describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby? 
     end
   end
 
+  describe "using a token from the CLI" do
+    it 'uses the token as a password' do
+      credentials = described_class.new(repo, { token: "my_token" })
+      R10K::Git.settings[:repositories] = [{remote: "https://tessier-ashpool.freeside/repo.git"}]
+      creds = credentials.get_plaintext_credentials("https://tessier-ashpool.freeside/repo.git", nil)
+      expect(creds).to be_a_kind_of(Rugged::Credentials::UserPassword)
+      expect(creds.instance_variable_get(:@password)).to eq("my_token")
+      expect(creds.instance_variable_get(:@username)).to eq("x-oauth-token")
+    end
+  end
+
   describe "generating ssh key credentials" do
     after(:each) { R10K::Git.settings.reset! }
+
+    it "allows an override SSH key to be specified from the CLI" do
+      keypath = '/path/to/sshkey'
+      credentials = described_class.new(repo, { sshkey_file: keypath })
+      allow(File).to receive(:readable?).with(keypath).and_return true
+      R10K::Git.settings[:repositories] = [{remote: "ssh://git@tessier-ashpool.freeside/repo.git",
+                                            private_key: "/don't/use/this"}]
+      creds = credentials.get_ssh_key_credentials("ssh://git@tessier-ashpool.freeside/repo.git", nil)
+      expect(creds).to be_a_kind_of(Rugged::Credentials::SshKey)
+      expect(creds.instance_variable_get(:@privatekey)).to eq("/path/to/sshkey")
+    end
 
     it "prefers a per-repository SSH private key" do
       allow(File).to receive(:readable?).with("/etc/puppetlabs/r10k/ssh/tessier-ashpool-id_rsa").and_return true
