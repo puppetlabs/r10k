@@ -5,7 +5,6 @@ require 'r10k/action/visitor'
 require 'r10k/action/base'
 require 'r10k/action/deploy/deploy_helpers'
 require 'json'
-require 'tempfile'
 
 module R10K
   module Action
@@ -60,12 +59,23 @@ module R10K
             if @token_path == '-'
               token = $stdin.read
             elsif File.exists?(@token_path)
-              token = File.read(@token_path)
+              token = File.read(@token_path).strip
             else
               raise R10K::Error, _("{%path} does not exist, cannot load OAuth token") % { path: @token_path }
             end
+
+            unless valid_token?(token)
+              raise R10K::Error, _("Supplied token contains invalid characters.")
+            end
+
             { token: token }
           end
+        end
+
+        # This regex is the only real requirement for OAuth token format,
+        # per https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
+        def valid_token?(token)
+          return token =~ /^[\w\-\.~\+\/]+$/
         end
 
         def visit_deployment(deployment)

@@ -168,49 +168,66 @@ describe R10K::Action::Deploy::Environment do
           end
         end
       end
+    end
 
-      describe 'extracting credentials' do
-        let(:deployment) do
-          R10K::Deployment.new(mock_config)
-        end
+    describe 'extracting credentials' do
+      let(:deployment) do
+        R10K::Deployment.new(mock_config)
+      end
 
-        it 'errors if both token and key paths are passed' do
-          action = described_class.new({ config: '/some/nonexistent/path',
-                                        'token-path': '/nonexistent',
-                                        'sshkey-path': '/also/fake' }, [])
-          expect{ action.call }.to raise_error(R10K::Error, /Cannot specify both/)
-        end
+      it 'errors if both token and key paths are passed' do
+        action = described_class.new({ config: '/some/nonexistent/path',
+                                      'token-path': '/nonexistent',
+                                      'sshkey-path': '/also/fake' }, [])
+        expect{ action.call }.to raise_error(R10K::Error, /Cannot specify both/)
+      end
 
-        it 'errors if sshkey file does not exist' do
-          action = described_class.new({ config: '/some/nonexistent/path',
-                                        'sshkey-path': '/also/fake' }, [])
-          expect{ action.call }.to raise_error(R10K::Error, /cannot load SSH key/)
+      it 'errors if sshkey file does not exist' do
+        action = described_class.new({ config: '/some/nonexistent/path',
+                                      'sshkey-path': '/also/fake' }, [])
+        expect{ action.call }.to raise_error(R10K::Error, /cannot load SSH key/)
 
-        end
+      end
 
-        it 'errors if token file does not exist' do
-          action = described_class.new({ config: '/some/nonexistent/path',
-                                        'token-path': '/also/fake' }, [])
-          expect{ action.call }.to raise_error(R10K::Error, /cannot load OAuth token/)
-        end
+      it 'errors if token file does not exist' do
+        action = described_class.new({ config: '/some/nonexistent/path',
+                                      'token-path': '/also/fake' }, [])
+        expect{ action.call }.to raise_error(R10K::Error, /cannot load OAuth token/)
+      end
 
-        it 'passes token to deployment from file' do
-          token_file = Tempfile.new('token')
-          token_file.write('my_token')
-          token_file.close
-          action = described_class.new({ config: '/some/nonexistent/path',
-                                         'token-path': token_file.path }, [])
-          expect(R10K::Deployment).to receive(:new).with({}, { token: "my_token" }).and_return(deployment)
-          action.call
-        end
+      it 'passes token to deployment from file' do
+        token_file = Tempfile.new('token')
+        token_file.write('my_token')
+        token_file.close
+        action = described_class.new({ config: '/some/nonexistent/path',
+                                       'token-path': token_file.path }, [])
+        expect(R10K::Deployment).to receive(:new).with({}, { token: "my_token" }).and_return(deployment)
+        action.call
+      end
 
-        it 'passes token to deployment from stdin' do
-          allow($stdin).to receive(:read).and_return("my_token")
-          action = described_class.new({ config: '/some/nonexistent/path',
-                                         'token-path': '-' }, [])
-          expect(R10K::Deployment).to receive(:new).with({}, { token: 'my_token' }).and_return(deployment)
-          action.call
-        end
+      it 'passes token to deployment from stdin' do
+        allow($stdin).to receive(:read).and_return("my_token")
+        action = described_class.new({ config: '/some/nonexistent/path',
+                                       'token-path': '-' }, [])
+        expect(R10K::Deployment).to receive(:new).with({}, { token: 'my_token' }).and_return(deployment)
+        action.call
+      end
+
+      it 'errors if the token on stdin is not a valid OAuth token' do
+        allow($stdin).to receive(:read).and_return("<bad>token")
+        action = described_class.new({ config: '/some/nonexistent/path',
+                                       'token-path': '-' }, [])
+        expect{ action.call }.to raise_error(R10K::Error, /Supplied token contains invalid characters/)
+      end
+
+      it 'errors if the token in the file is not a valid OAuth token' do
+        token_file = Tempfile.new('token')
+        token_file.write('my bad \ntoken')
+        token_file.close
+        action = described_class.new({ config: '/some/nonexistent/path',
+                                       'token-path': token_file.path }, [])
+        expect{ action.call }.to raise_error(R10K::Error, /Supplied token contains invalid characters/)
+      end
 
       it 'passes sshkey path to deployment' do
         sshkey_file = Tempfile.new('sshkey')
