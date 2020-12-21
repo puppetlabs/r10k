@@ -3,10 +3,10 @@ require 'r10k/git/rugged/working_repository'
 require 'r10k/git/rugged/cache'
 
 class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
-  def initialize(basedir, dirname, cache_repo)
+  def initialize(basedir, dirname, cache_repo, creds_from_cli: {})
     @cache_repo = cache_repo
 
-    super(basedir, dirname)
+    super(basedir, dirname, creds_from_cli: creds_from_cli)
   end
 
   # Clone this git repository

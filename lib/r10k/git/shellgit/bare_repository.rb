@@ -6,7 +6,8 @@ class R10K::Git::ShellGit::BareRepository < R10K::Git::ShellGit::BaseRepository
 
   # @param basedir [String] The base directory of the Git repository
   # @param dirname [String] The directory name of the Git repository
-  def initialize(basedir, dirname)
+  # @param creds_from_cli [Hash] Currently unused for shellgit provider
+  def initialize(basedir, dirname, creds_from_cli: {})
     @path = Pathname.new(File.join(basedir, dirname))
   end
 

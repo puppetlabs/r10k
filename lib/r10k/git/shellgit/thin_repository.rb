@@ -8,7 +8,8 @@ require 'r10k/git/shellgit/working_repository'
 # making new clones very lightweight.
 class R10K::Git::ShellGit::ThinRepository < R10K::Git::ShellGit::WorkingRepository
 
-  def initialize(basedir, dirname, cache_repo)
+  # @param creds_from_cli [Hash] currentl unused in shellgit provider
+  def initialize(basedir, dirname, cache_repo, creds_from_cli: {})
     @cache_repo = cache_repo
     super(basedir, dirname)
   end

@@ -67,7 +67,8 @@ class R10K::Source::Git < R10K::Source::Base
     @ignore_branch_prefixes = options[:ignore_branch_prefixes]
     @filter_command = options[:filter_command]
 
-    @cache  = R10K::Git.cache.generate(@remote)
+    @creds_from_cli = (options[:creds_from_cli] || {})
+    @cache  = R10K::Git.cache.generate(@remote, creds_from_cli: @creds_from_cli)
   end
 
   # Update the git cache for this git source to get the latest list of environments.
@@ -100,11 +101,17 @@ class R10K::Source::Git < R10K::Source::Base
     branch_names.each do |bn|
       if bn.valid?
         envs << R10K::Environment::Git.new(bn.name, @basedir, bn.dirname,
-                                       {:remote => remote, :ref => bn.name, :puppetfile_name => puppetfile_name })
+                                           { remote: remote,
+                                             ref: bn.name,
+                                             puppetfile_name: puppetfile_name,
+                                             creds_from_cli: @creds_from_cli })
       elsif bn.correct?
        logger.warn _("Environment %{env_name} contained non-word characters, correcting name to %{corrected_env_name}") % {env_name: bn.name.inspect, corrected_env_name: bn.dirname}
         envs << R10K::Environment::Git.new(bn.name, @basedir, bn.dirname,
-                                       {:remote => remote, :ref => bn.name, :puppetfile_name => puppetfile_name})
+                                           {remote: remote,
+                                            ref: bn.name,
+                                            puppetfile_name: puppetfile_name,
+                                            creds_from_cli: @creds_from_cli})
       elsif bn.validate?
        logger.error _("Environment %{env_name} contained non-word characters, ignoring it.") % {env_name: bn.name.inspect}
       end

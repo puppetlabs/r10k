@@ -119,6 +119,10 @@ module R10K
         raise R10K::Error, _("Unable to load sources; the supplied configuration does not define the 'sources' key")
       end
       @_sources = sources.map do |(name, hash)|
+        # Pass the override credentials to each source's hash
+        # This requires all sources to be able to use these credentials
+        hash[:creds_from_cli] = @credentials
+
         R10K::Source.from_hash(name, hash)
       end
     end

@@ -12,7 +12,7 @@ describe R10K::Git::StatefulRepository do
   describe "determining if the cache needs to be synced" do
     let(:cache) { double('cache') }
 
-    before { expect(R10K::Git.cache).to receive(:generate).with(remote).and_return(cache) }
+    before { expect(R10K::Git.cache).to receive(:generate).with(remote, {creds_from_cli: {}}).and_return(cache) }
 
     it "is true if the cache is absent" do
       expect(cache).to receive(:exist?).and_return false

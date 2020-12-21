@@ -41,8 +41,8 @@ class R10K::Git::Cache
   # @api public
   # @param remote [String] The git remote to cache
   # @return [R10K::Git::Cache] The requested cache object.
-  def self.generate(remote)
-    instance_cache.generate(remote)
+  def self.generate(remote, creds_from_cli: {})
+    instance_cache.generate(remote, creds_from_cli: creds_from_cli)
   end
 
   # @abstract
@@ -71,9 +71,9 @@ class R10K::Git::Cache
   attr_reader :repo
 
   # @param remote [String] The URL of the Git remote URL to cache.
-  def initialize(remote)
+  def initialize(remote, creds_from_cli: {})
     @remote = remote
-    @repo = self.class.bare_repository.new(settings[:cache_root], sanitized_dirname)
+    @repo = self.class.bare_repository.new(settings[:cache_root], sanitized_dirname, creds_from_cli: creds_from_cli)
   end
 
   def sync

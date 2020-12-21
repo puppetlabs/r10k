@@ -6,8 +6,9 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
 
   # @param basedir [String] The base directory of the Git repository
   # @param dirname [String] The directory name of the Git repository
-  def initialize(basedir, dirname)
+  def initialize(basedir, dirname, creds_from_cli: {})
     @path = Pathname.new(File.join(basedir, dirname))
+    @creds_from_cli = creds_from_cli
 
     if exist?
       @_rugged_repo = ::Rugged::Repository.bare(@path.to_s)
@@ -48,7 +49,7 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
   # Fetch refs and objects from the origin remote
   #
   # @return [void]
-  def fetch(remote_name='origin')
+  def fetch(remote_name = 'origin')
     logger.debug1 { _("Fetching remote '%{remote_name}' at %{path}") % {remote_name: remote_name, path: @path } }
 
     # Check to see if we have a version of Rugged that supports "fetch --prune" and warn if not
@@ -56,7 +57,7 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
       logger.warn { _("Rugged versions prior to 0.24.0 do not support pruning stale branches during fetch, please upgrade your \'rugged\' gem. (Current version is: %{version})") % {version: Rugged::Version} }
     end
 
-    options = {:credentials => credentials, :prune => true}
+    options = {:credentials => credentials(@creds_from_cli), :prune => true}
     refspecs = ['+refs/*:refs/*']
 
     remote = remotes[remote_name]

@@ -41,7 +41,8 @@ class R10K::Environment::Git < R10K::Environment::WithModules
     @remote = options[:remote]
     @ref    = options[:ref]
 
-    @repo = R10K::Git::StatefulRepository.new(@remote, @basedir, @dirname)
+    credentials = (options[:creds_from_cli] || {})
+    @repo = R10K::Git::StatefulRepository.new(@remote, @basedir, @dirname, creds_from_cli: credentials)
   end
 
   # Clone or update the given Git environment.
