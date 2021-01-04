@@ -1,0 +1,9 @@
+---
+  git:
+    private_key: '/global/config/private/key'
+    oauth_token: '/global/config/oauth/token'
+    repositories:
+      - remote: 'git@myfakegitserver.com:user/repo.git'
+        private_key: '/config/private/key'
+      - remote: 'https://myfakegitserver.com/user/repo.git'
+        oauth_token: '/config/oauth/token'

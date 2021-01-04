@@ -27,8 +27,6 @@ describe R10K::Action::Deploy::Environment do
       described_class.new({:'no-force' => true}, [])
     end
 
-    it "normalizes environment names in the arg vector"
-
     it 'can accept a generate-types option' do
       described_class.new({ 'generate-types': true }, [])
     end
@@ -37,12 +35,12 @@ describe R10K::Action::Deploy::Environment do
       described_class.new({ 'puppet-path': '/nonexistent' }, [])
     end
 
-    it 'can accept an sshkey-path option' do
-      described_class.new({ 'sshkey-path': '/nonexistent' }, [])
+    it 'can accept a private-key option' do
+      described_class.new({ 'private-key': '/nonexistent' }, [])
     end
 
     it 'can accept a token option' do
-      described_class.new({ 'token-path': '/nonexistent' }, [])
+      described_class.new({ 'oauth-token': '/nonexistent' }, [])
     end
   end
 
@@ -175,67 +173,6 @@ describe R10K::Action::Deploy::Environment do
         R10K::Deployment.new(mock_config)
       end
 
-      it 'errors if both token and key paths are passed' do
-        action = described_class.new({ config: '/some/nonexistent/path',
-                                      'token-path': '/nonexistent',
-                                      'sshkey-path': '/also/fake' }, [])
-        expect{ action.call }.to raise_error(R10K::Error, /Cannot specify both/)
-      end
-
-      it 'errors if sshkey file does not exist' do
-        action = described_class.new({ config: '/some/nonexistent/path',
-                                      'sshkey-path': '/also/fake' }, [])
-        expect{ action.call }.to raise_error(R10K::Error, /cannot load SSH key/)
-
-      end
-
-      it 'errors if token file does not exist' do
-        action = described_class.new({ config: '/some/nonexistent/path',
-                                      'token-path': '/also/fake' }, [])
-        expect{ action.call }.to raise_error(R10K::Error, /cannot load OAuth token/)
-      end
-
-      it 'passes token to deployment from file' do
-        token_file = Tempfile.new('token')
-        token_file.write('my_token')
-        token_file.close
-        action = described_class.new({ config: '/some/nonexistent/path',
-                                       'token-path': token_file.path }, [])
-        expect(R10K::Deployment).to receive(:new).with({}, { token: "my_token" }).and_return(deployment)
-        action.call
-      end
-
-      it 'passes token to deployment from stdin' do
-        allow($stdin).to receive(:read).and_return("my_token")
-        action = described_class.new({ config: '/some/nonexistent/path',
-                                       'token-path': '-' }, [])
-        expect(R10K::Deployment).to receive(:new).with({}, { token: 'my_token' }).and_return(deployment)
-        action.call
-      end
-
-      it 'errors if the token on stdin is not a valid OAuth token' do
-        allow($stdin).to receive(:read).and_return("<bad>token")
-        action = described_class.new({ config: '/some/nonexistent/path',
-                                       'token-path': '-' }, [])
-        expect{ action.call }.to raise_error(R10K::Error, /Supplied token contains invalid characters/)
-      end
-
-      it 'errors if the token in the file is not a valid OAuth token' do
-        token_file = Tempfile.new('token')
-        token_file.write('my bad \ntoken')
-        token_file.close
-        action = described_class.new({ config: '/some/nonexistent/path',
-                                       'token-path': token_file.path }, [])
-        expect{ action.call }.to raise_error(R10K::Error, /Supplied token contains invalid characters/)
-      end
-
-      it 'passes sshkey path to deployment' do
-        sshkey_file = Tempfile.new('sshkey')
-        action = described_class.new({ config: '/some/nonexistent/path',
-                                       'sshkey-path': sshkey_file.path }, [])
-        expect(R10K::Deployment).to receive(:new).with({}, { sshkey_path: sshkey_file.path }).and_return(deployment)
-        action.call
-      end
     end
 
     describe "purge_levels" do
@@ -418,21 +355,21 @@ describe R10K::Action::Deploy::Environment do
       end
     end
 
-    describe 'with sshkey-path' do
+    describe 'with private-key' do
 
-      subject { described_class.new({ config: '/some/nonexistent/path', 'sshkey-path': '/nonexistent' }, []) }
+      subject { described_class.new({ config: '/some/nonexistent/path', 'private-key': '/nonexistent' }, []) }
 
-      it 'sets sshkey_path' do
-        expect(subject.instance_variable_get(:@sshkey_path)).to eq('/nonexistent')
+      it 'sets private_key' do
+        expect(subject.instance_variable_get(:@private_key)).to eq('/nonexistent')
       end
     end
 
-    describe 'with token-path' do
+    describe 'with oauth-token' do
 
-      subject { described_class.new({ config: '/some/nonexistent/path', 'token-path': '/nonexistent' }, []) }
+      subject { described_class.new({ config: '/some/nonexistent/path', 'oauth-token': '/nonexistent' }, []) }
 
-      it 'sets token_path' do
-        expect(subject.instance_variable_get(:@token_path)).to eq('/nonexistent')
+      it 'sets oauth_token' do
+        expect(subject.instance_variable_get(:@oauth_token)).to eq('/nonexistent')
       end
     end
   end

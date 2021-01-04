@@ -37,6 +37,11 @@ module R10K
                     Only used by the 'rugged' Git provider.",
         }),
 
+        Definition.new(:oauth_token, {
+          :desc => "The path to a token file for Git OAuth remotes.
+                    Only used by the 'rugged' Git provider."
+        }),
+
         URIDefinition.new(:proxy, {
           :desc => "An optional proxy server to use when interacting with Git sources via HTTP(S).",
           :default => :inherit,
@@ -54,11 +59,17 @@ module R10K
               :default => :inherit,
             }),
 
+            Definition.new(:oauth_token, {
+              :desc => "The path to a token file for Git OAuth remotes.
+                        Only used by the 'rugged' Git provider.",
+              :default => :inherit
+            }),
+
             URIDefinition.new(:proxy, {
               :desc => "An optional proxy server to use when interacting with Git sources via HTTP(S).",
               :default => :inherit,
             }),
-            
+
             Definition.new(:ignore_branch_prefixes, {
               :desc => "Array of strings used to prefix branch names that will not be deployed as environments.",
             }),
