@@ -32,8 +32,8 @@ module R10K::CLI
           end
         end
         option nil, :'puppet-conf', 'Path to puppet.conf', argument: :required
-        option nil, :'sshkey-path', 'Path to SSH key to use when cloning. Only valid with rugged provider', argument: :required
-        option nil, :'token-path', 'Path to OAuth token to use when cloning. Only valid with rugged provider', argument: :required
+        option nil, :'private-key', 'Path to SSH key to use when cloning. Only valid with rugged provider', argument: :required
+        option nil, :'oauth-token', 'Path to OAuth token to use when cloning. Only valid with rugged provider', argument: :required
 
         run do |opts, args, cmd|
           puts cmd.help(:verbose => opts[:verbose])

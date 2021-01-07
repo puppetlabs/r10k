@@ -10,11 +10,12 @@ describe R10K::Action::Runner do
     Class.new do
       attr_reader :opts
       attr_reader :argv
+      attr_reader :settings
 
       def initialize(opts, argv, settings = {})
         @opts = opts
         @argv = argv
-        @settings = {}
+        @settings = settings
       end
 
       def call
@@ -167,6 +168,52 @@ describe R10K::Action::Runner do
     it "does not modify the loglevel if :loglevel is not provided" do
       expect(R10K::Logging).to_not receive(:level=)
       runner.call
+    end
+  end
+
+  describe "configuring git credentials" do
+    it 'errors if both token and key paths are passed' do
+      runner = described_class.new({ 'oauth-token': '/nonexistent',
+                                     'private-key': '/also/fake' }, %w[args yes], action_class)
+      expect{ runner.call }.to raise_error(R10K::Error, /Cannot specify both/)
+    end
+
+    it 'saves the sshkey path in settings hash' do
+      runner = described_class.new({ 'private-key': '/my/ssh/key' }, %w[args yes], action_class)
+      runner.call
+      expect(runner.instance.settings[:git][:private_key]).to eq('/my/ssh/key')
+    end
+
+    it 'overrides per-repo sshkey in settings hash' do
+      runner = described_class.new({ config: "spec/fixtures/unit/action/r10k_creds.yaml",
+                                     'private-key': '/my/ssh/key' },
+                                     %w[args yes],
+                                     action_class)
+      runner.call
+      expect(runner.instance.settings[:git][:private_key]).to eq('/my/ssh/key')
+      expect(runner.instance.settings[:git][:repositories].count).to eq(2)
+      runner.instance.settings[:git][:repositories].each do |repo_settings|
+        expect(repo_settings[:private_key]).to eq('/my/ssh/key')
+      end
+    end
+
+    it 'saves the token path in settings hash' do
+      runner = described_class.new({ 'oauth-token': '/my/token/path' }, %w[args yes], action_class)
+      runner.call
+      expect(runner.instance.settings[:git][:oauth_token]).to eq('/my/token/path')
+    end
+
+    it 'overrides per-repo oauth token in settings hash' do
+      runner = described_class.new({ config: "spec/fixtures/unit/action/r10k_creds.yaml",
+                                     'oauth-token': '/my/token' },
+                                     %w[args yes],
+                                     action_class)
+      runner.call
+      expect(runner.instance.settings[:git][:oauth_token]).to eq('/my/token')
+      expect(runner.instance.settings[:git][:repositories].count).to eq(2)
+      runner.instance.settings[:git][:repositories].each do |repo_settings|
+        expect(repo_settings[:oauth_token]).to eq('/my/token')
+      end
     end
   end
 

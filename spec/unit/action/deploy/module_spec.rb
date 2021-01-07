@@ -34,12 +34,12 @@ describe R10K::Action::Deploy::Module do
       described_class.new({ cachedir: '/nonexistent' }, [])
     end
 
-    it 'can accept an sshkey-path option' do
-      described_class.new({ 'sshkey-path': '/nonexistent' }, [])
+    it 'can accept a private-key option' do
+      described_class.new({ 'private-key': '/nonexistent' }, [])
     end
 
     it 'can accept a token option' do
-      described_class.new({ 'token-path': '/nonexistent' }, [])
+      described_class.new({ 'oauth-token': '/nonexistent' }, [])
     end
   end
 
@@ -158,21 +158,21 @@ describe R10K::Action::Deploy::Module do
     end
   end
 
-  describe 'with sshkey-path' do
+  describe 'with private-key' do
 
-    subject { described_class.new({ config: '/some/nonexistent/path', 'sshkey-path': '/nonexistent' }, []) }
+    subject { described_class.new({ config: '/some/nonexistent/path', 'private-key': '/nonexistent' }, []) }
 
-    it 'sets sshkey_path' do
-      expect(subject.instance_variable_get(:@sshkey_path)).to eq('/nonexistent')
+    it 'sets private_key' do
+      expect(subject.instance_variable_get(:@private_key)).to eq('/nonexistent')
     end
   end
 
-  describe 'with token-path' do
+  describe 'with oauth-token' do
 
-    subject { described_class.new({ config: '/some/nonexistent/path', 'token-path': '/nonexistent' }, []) }
+    subject { described_class.new({ config: '/some/nonexistent/path', 'oauth-token': '/nonexistent' }, []) }
 
     it 'sets token_path' do
-      expect(subject.instance_variable_get(:@token_path)).to eq('/nonexistent')
+      expect(subject.instance_variable_get(:@oauth_token)).to eq('/nonexistent')
     end
   end
 end

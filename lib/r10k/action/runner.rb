@@ -55,6 +55,10 @@ module R10K
           newval
         end
 
+        # Credentials from the CLI override both the global and per-repo
+        # credentials from the config, and so need to be handled specially
+        with_overrides = add_credential_overrides(with_overrides)
+
         @settings = R10K::Settings.global_settings.evaluate(with_overrides)
 
         R10K::Initializers::GlobalInitializer.new(@settings).call
@@ -91,6 +95,35 @@ module R10K
         end
 
         results
+      end
+
+      def add_credential_overrides(overrides)
+        sshkey_path = @opts[:'private-key']
+        token_path = @opts[:'oauth-token']
+
+        if sshkey_path && token_path
+          raise R10K::Error, "Cannot specify both an SSH key and a token to use with this deploy."
+        end
+
+        if sshkey_path
+          overrides[:git] ||= {}
+          overrides[:git][:private_key] = sshkey_path
+          if repo_settings = overrides[:git][:repositories]
+            repo_settings.each do |repo|
+              repo[:private_key] = sshkey_path
+            end
+          end
+        elsif token_path
+          overrides[:git] ||= {}
+          overrides[:git][:oauth_token] = token_path
+          if repo_settings = overrides[:git][:repositories]
+            repo_settings.each do |repo|
+              repo[:oauth_token] = token_path
+            end
+          end
+        end
+
+        overrides
       end
     end
   end

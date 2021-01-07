@@ -10,7 +10,7 @@ describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby? 
 
   subject { described_class.new(repo) }
 
-  after(:all) { R10K::Git.settings.reset! }
+  after(:each) { R10K::Git.settings.reset! }
 
   describe "determining the username" do
     before { R10K::Git.settings[:username] = "moderns" }
@@ -39,6 +39,7 @@ describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby? 
 
     it "prefers a per-repository SSH private key" do
       allow(File).to receive(:readable?).with("/etc/puppetlabs/r10k/ssh/tessier-ashpool-id_rsa").and_return true
+      R10K::Git.settings[:private_key] = "/etc/puppetlabs/r10k/ssh/id_rsa"
       R10K::Git.settings[:repositories] = [{ remote: "ssh://git@tessier-ashpool.freeside/repo.git",
         private_key: "/etc/puppetlabs/r10k/ssh/tessier-ashpool-id_rsa"}]
       creds = subject.get_ssh_key_credentials("ssh://git@tessier-ashpool.freeside/repo.git", nil)
@@ -75,6 +76,72 @@ describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby? 
       creds = subject.get_ssh_key_credentials("https://tessier-ashpool.freeside/repo.git", nil)
       expect(creds).to be_a_kind_of(Rugged::Credentials::SshKey)
       expect(creds.instance_variable_get(:@privatekey)).to eq("/etc/puppetlabs/r10k/ssh/id_rsa")
+    end
+  end
+
+  describe "generating token credentials" do
+    it 'errors if token file does not exist' do
+      R10K::Git.settings[:oauth_token] = "/missing/token/file"
+      expect(File).to receive(:readable?).with("/missing/token/file").and_return false
+      R10K::Git.settings[:repositories] = [{remote: "https://tessier-ashpool.freeside/repo.git"}]
+      expect {
+        subject.get_plaintext_credentials("https://tessier-ashpool.freeside/repo.git", nil)
+      }.to raise_error(R10K::Git::GitError, /cannot load OAuth token/)
+    end
+
+    it 'errors if the token on stdin is not a valid OAuth token' do
+      allow($stdin).to receive(:read).and_return("<bad>token")
+      R10K::Git.settings[:oauth_token] = "-"
+      R10K::Git.settings[:repositories] = [{remote: "https://tessier-ashpool.freeside/repo.git"}]
+      expect {
+        subject.get_plaintext_credentials("https://tessier-ashpool.freeside/repo.git", nil)
+      }.to raise_error(R10K::Git::GitError, /invalid characters/)
+    end
+
+    it 'errors if the token in the file is not a valid OAuth token' do
+      token_file = Tempfile.new('token')
+      token_file.write('my bad \ntoken')
+      token_file.close
+      R10K::Git.settings[:oauth_token] = token_file.path
+      R10K::Git.settings[:repositories] = [{remote: "https://tessier-ashpool.freeside/repo.git"}]
+      expect {
+        subject.get_plaintext_credentials("https://tessier-ashpool.freeside/repo.git", nil)
+      }.to raise_error(R10K::Git::GitError, /invalid characters/)
+    end
+
+    it 'prefers per-repo token file' do
+      token_file = Tempfile.new('token')
+      token_file.write('my_token')
+      token_file.close
+      R10K::Git.settings[:oauth_token] = "/do/not/use"
+      R10K::Git.settings[:repositories] = [{remote: "https://tessier-ashpool.freeside/repo.git",
+                                            oauth_token: token_file.path }]
+      creds = subject.get_plaintext_credentials("https://tessier-ashpool.freeside/repo.git", nil)
+      expect(creds).to be_a_kind_of(Rugged::Credentials::UserPassword)
+      expect(creds.instance_variable_get(:@password)).to eq("my_token")
+      expect(creds.instance_variable_get(:@username)).to eq("x-oauth-token")
+    end
+
+    it 'uses the token from a file as a password' do
+      token_file = Tempfile.new('token')
+      token_file.write('my_token')
+      token_file.close
+      R10K::Git.settings[:oauth_token] = token_file.path
+      R10K::Git.settings[:repositories] = [{remote: "https://tessier-ashpool.freeside/repo.git"}]
+      creds = subject.get_plaintext_credentials("https://tessier-ashpool.freeside/repo.git", nil)
+      expect(creds).to be_a_kind_of(Rugged::Credentials::UserPassword)
+      expect(creds.instance_variable_get(:@password)).to eq("my_token")
+      expect(creds.instance_variable_get(:@username)).to eq("x-oauth-token")
+    end
+
+    it 'uses the token from stdin as a password' do
+      allow($stdin).to receive(:read).and_return("my_token")
+      R10K::Git.settings[:oauth_token] = '-'
+      R10K::Git.settings[:repositories] = [{remote: "https://tessier-ashpool.freeside/repo.git"}]
+      creds = subject.get_plaintext_credentials("https://tessier-ashpool.freeside/repo.git", nil)
+      expect(creds).to be_a_kind_of(Rugged::Credentials::UserPassword)
+      expect(creds.instance_variable_get(:@password)).to eq("my_token")
+      expect(creds.instance_variable_get(:@username)).to eq("x-oauth-token")
     end
   end
 
