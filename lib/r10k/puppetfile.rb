@@ -85,6 +85,7 @@ class Puppetfile
     dsl.instance_eval(puppetfile_contents, @puppetfile_path)
     
     validate_no_duplicate_names(@modules)
+    validate_ref_names()
     @loaded = true
   rescue SyntaxError, LoadError, ArgumentError, NameError => e
     raise R10K::Error.wrap(e, _("Failed to evaluate %{path}") % {path: @puppetfile_path})
@@ -105,6 +106,20 @@ class Puppetfile
       msg += ' '
       msg += _("Remove the duplicates of the following modules: %{dupes}" % { dupes: dupes.join(' ') })
       raise R10K::Error.new(msg)
+    end
+  end
+
+  def validate_ref_names()
+    # check that all elements with name :git, :ref, :branch, :commit are of type string
+    # unless :branch is set to :control_repo
+    [/:git/, /:ref/, /:branch/, /:commit/].each do |obj|
+      puppetfile_contents.split("\n").grep(obj).each do |line|
+        result = line.split('=>')[1].strip.tr(',', '')
+        next if obj == /:branch/ and result == ':control_branch'
+        if ! result.start_with? "'" or ! result.end_with? "'"
+          raise R10K::Error.new("#{obj.to_s} must be of type string")
+        end
+      end
     end
   end
 
