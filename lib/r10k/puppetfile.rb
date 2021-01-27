@@ -140,6 +140,15 @@ class Puppetfile
     @modules << mod
   end
 
+  # Removes a loaded module from the set of content being managed
+  # @param [R10K::Module::Base] mod
+  def remove_module(mod)
+    return unless @modules.include?(mod)
+    @modules -= [mod]
+    @managed_content[mod.dirname] -= [mod.name]
+    @managed_content.delete(mod.dirname) if @managed_content[mod.dirname].empty?
+  end
+
   include R10K::Util::Purgeable
 
   def managed_directories
