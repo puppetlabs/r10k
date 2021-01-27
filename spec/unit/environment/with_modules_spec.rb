@@ -39,6 +39,27 @@ describe R10K::Environment::WithModules do
         expect(subject.logger).to receive(:warn).with(/Puppetfile.*both define.*ignored/i)
         expect { subject.validate_no_module_conflicts }.not_to raise_error
       end
+
+      it "does not visit puppetfile modules overridden by environment modules" do
+        mod1 = double('puppet-nondup', name: 'nondup', dirname: '/dev/null', cachedir: :none)
+        mod2 = double('puppet-stdlib', name: 'stdlib', dirname: '/dev/null', cachedir: :none)
+
+        pf = R10K::Puppetfile.new('/some/nonexistent/path', nil, nil)
+        pf.instance_variable_set(:@managed_content, {'/dev/null' => []})
+        pf.instance_variable_set(:@modules, [mod1, mod2])
+
+        allow(subject).to receive(:puppetfile).and_return(pf)
+        allow(pf).to receive(:load).and_return(nil)
+
+        visitor = spy('visitor')
+        expect(visitor).to receive(:visit).with(:environment, subject) { |&block| block.call }
+        expect(visitor).to receive(:visit).with(:puppetfile, pf) { |&block| block.call }
+
+        expect(mod1).to receive(:accept)
+        expect(mod2).not_to receive(:accept)
+
+        subject.accept(visitor)
+      end
     end
 
     context "with module conflicts and 'error' behavior" do

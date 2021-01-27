@@ -46,12 +46,12 @@ class R10K::Environment::WithModules < R10K::Environment::Base
   #     - The r10k environment object
   #     - A Puppetfile in the environment's content
   def modules
-    return @modules if @puppetfile.nil?
+    return @modules if puppetfile.nil?
 
-    @puppetfile.load unless @puppetfile.loaded?
+    puppetfile.load unless puppetfile.loaded?
 
     env_mod_names = @modules.map(&:name)
-    @modules + @puppetfile.modules.select { |mod| !env_mod_names.include?(mod.name) }
+    @modules + puppetfile.modules.select { |mod| !env_mod_names.include?(mod.name) }
   end
 
   def accept(visitor)
@@ -98,8 +98,8 @@ class R10K::Environment::WithModules < R10K::Environment::Base
   end
 
   def validate_no_module_conflicts
-    @puppetfile.load unless @puppetfile.loaded?
-    conflicts = (@modules + @puppetfile.modules)
+    puppetfile.load unless puppetfile.loaded?
+    conflicts = (@modules + puppetfile.modules)
                 .group_by { |mod| mod.name }
                 .select { |_, v| v.size > 1 }
     unless conflicts.empty?
@@ -110,10 +110,10 @@ class R10K::Environment::WithModules < R10K::Environment::Base
       case conflict_opt = @options[:module_conflicts]
       when 'override_puppetfile_and_warn', nil
         logger.warn log_msg
-        conflicting_mods.each { |mod| @puppetfile.remove_module(mod) }
+        conflicting_mods.each { |mod| puppetfile.remove_module(mod) }
       when 'override_puppetfile'
         logger.debug log_msg
-        conflicting_mods.each { |mod| @puppetfile.remove_module(mod) }
+        conflicting_mods.each { |mod| puppetfile.remove_module(mod) }
       when 'error'
         raise R10K::Error, _('Puppetfile cannot contain module names defined by environment ' \
                              '%{env}; Remove the conflicting definitions of the following modules: ' \
