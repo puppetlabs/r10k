@@ -42,11 +42,6 @@ class Puppetfile
   #   @return [Boolean] Overwrite any locally made changes
   attr_accessor :force
 
-  # @!attribute [r] modules_by_vcs_cachedir
-  #   @api private Only exposed for testing purposes
-  #   @return [Hash{:none, String => Array<R10K::Module>}]
-  attr_reader :modules_by_vcs_cachedir
-
   # @param [String] basedir
   # @param [String] moduledir The directory to install the modules, default to #{basedir}/modules
   # @param [String] puppetfile_path The path to the Puppetfile, default to #{basedir}/Puppetfile
@@ -63,7 +58,6 @@ class Puppetfile
 
     @modules = []
     @managed_content = {}
-    @modules_by_vcs_cachedir = {}
     @forge   = 'forgeapi.puppetlabs.com'
 
     @loaded = false
@@ -83,7 +77,7 @@ class Puppetfile
 
     dsl = R10K::Puppetfile::DSL.new(self)
     dsl.instance_eval(puppetfile_contents, @puppetfile_path)
-    
+
     validate_no_duplicate_names(@modules)
     @loaded = true
   rescue SyntaxError, LoadError, ArgumentError, NameError => e
@@ -140,12 +134,9 @@ class Puppetfile
     @managed_content[install_path] = Array.new unless @managed_content.has_key?(install_path)
 
     mod = R10K::Module.new(name, install_path, args, @environment)
-    mod.origin = 'Puppetfile'
+    mod.origin = :puppetfile
 
     @managed_content[install_path] << mod.name
-    cachedir = mod.cachedir
-    @modules_by_vcs_cachedir[cachedir] ||= []
-    @modules_by_vcs_cachedir[cachedir] << mod
     @modules << mod
   end
 
@@ -223,7 +214,7 @@ class Puppetfile
   def modules_queue(visitor)
     Queue.new.tap do |queue|
       visitor.visit(:puppetfile, self) do
-        modules_by_cachedir = modules_by_vcs_cachedir.clone
+        modules_by_cachedir = modules.group_by { |mod| mod.cachedir }
         modules_without_vcs_cachedir = modules_by_cachedir.delete(:none) || []
 
         modules_without_vcs_cachedir.each {|mod| queue << Array(mod) }
