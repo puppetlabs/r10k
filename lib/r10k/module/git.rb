@@ -28,6 +28,11 @@ class R10K::Module::Git < R10K::Module::Base
   #   @return [String]
   attr_reader :default_ref
 
+  # @!attribute [r] default_override_ref
+  #   @api private
+  #   @return [String]
+  attr_reader :default_override_ref
+
   def initialize(title, dirname, args, environment=nil)
     super
 
@@ -37,7 +42,7 @@ class R10K::Module::Git < R10K::Module::Base
   end
 
   def version
-    validate_ref(@desired_ref, @default_ref)
+    validate_ref(@desired_ref, @default_ref, @default_override_ref)
   end
 
   def properties
@@ -63,9 +68,11 @@ class R10K::Module::Git < R10K::Module::Base
 
   private
 
-  def validate_ref(desired, default)
+  def validate_ref(desired, default, default_override)
     if desired && desired != :control_branch && @repo.resolve(desired)
       return desired
+    elsif default_override && @repo.resolve(default_override)
+      return default_override
     elsif default && @repo.resolve(default)
       return default
     else
@@ -81,6 +88,11 @@ class R10K::Module::Git < R10K::Module::Base
         msg << "Could not determine desired ref"
       end
 
+      if default_override
+        msg << "or resolve the default branch override '%{default_override}',"
+        vars[:default_override] = default_override
+      end
+
       if default
         msg << "or resolve default ref '%{default}'"
         vars[:default] = default
@@ -94,7 +106,7 @@ class R10K::Module::Git < R10K::Module::Base
 
   def parse_options(options)
     ref_opts = [:branch, :tag, :commit, :ref]
-    known_opts = [:git, :default_branch] + ref_opts
+    known_opts = [:git, :default_branch, :default_branch_override] + ref_opts
 
     unhandled = options.keys - known_opts
     unless unhandled.empty?
@@ -105,6 +117,7 @@ class R10K::Module::Git < R10K::Module::Base
 
     @desired_ref = ref_opts.find { |key| break options[key] if options.has_key?(key) } || 'master'
     @default_ref = options[:default_branch]
+    @default_override_ref = options[:default_branch_override]
 
     if @desired_ref == :control_branch && @environment && @environment.respond_to?(:ref)
       @desired_ref = @environment.ref

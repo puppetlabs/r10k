@@ -66,11 +66,12 @@ Update a single environment and specify a default branch override:
 
     r10k deploy environment my_working_environment --puppetfile --default-branch-override default_branch_override
 
-This will update the given environment and update all contained modules, overrideing 
-the :default_branch entry in the Puppetfile of each module. This is used primarily to allow
+This will update the given environment and update all contained modules, overriding
+the :default_branch entry in the Puppetfile of each module. If the specified override branch is not
+found, it will fall back to the normal default branch and attempt to use that. This is used primarily to allow
 automated r10k solutions using the control_branch pattern with a temporary branch deployment to 
-ensure the deployment is pushed to the correct module repository branch. Note that the :default_branch
-is only ever utilized if the desired ref cannot be located.
+ensure the deployment is pushed to the correct module repository branch. Note that the :default_branch and its
+override are only ever used if the specific desired ref cannot be located.
 
 ### Deploying modules
 

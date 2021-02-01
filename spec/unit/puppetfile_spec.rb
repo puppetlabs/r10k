@@ -283,7 +283,8 @@ describe R10K::Puppetfile do
       default_branch_override = 'default_branch_override_name'
       expect { subject.load!(default_branch_override) }.not_to raise_error
       git_module = subject.modules[0]
-      expect(git_module.default_ref).to eq default_branch_override
+      expect(git_module.default_override_ref).to eq default_branch_override
+      expect(git_module.default_ref).to eq "here_lies_the_default_branch"
     end
   end
 
