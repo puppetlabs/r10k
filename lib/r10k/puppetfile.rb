@@ -83,7 +83,7 @@ class Puppetfile
 
     dsl = R10K::Puppetfile::DSL.new(self)
     dsl.instance_eval(puppetfile_contents, @puppetfile_path)
-    
+
     validate_no_duplicate_names(@modules)
     @loaded = true
   rescue SyntaxError, LoadError, ArgumentError, NameError => e
@@ -133,7 +133,7 @@ class Puppetfile
     end
 
     if args.is_a?(Hash) && @default_branch_override != nil
-      args[:default_branch] = @default_branch_override
+      args[:default_branch_override] = @default_branch_override
     end
 
     # Keep track of all the content this Puppetfile is managing to enable purging.
