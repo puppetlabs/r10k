@@ -46,22 +46,23 @@ class R10K::Environment::WithModules < R10K::Environment::Base
   #     - The r10k environment object
   #     - A Puppetfile in the environment's content
   def modules
-    return @modules if @puppetfile.nil?
+    return @modules if puppetfile.nil?
 
-    @puppetfile.load unless @puppetfile.loaded?
+    puppetfile.load unless puppetfile.loaded?
 
     env_mod_names = @modules.map(&:name)
-    @modules + @puppetfile.modules.select { |mod| !env_mod_names.include?(mod.name) }
+    @modules + puppetfile.modules.select { |mod| !env_mod_names.include?(mod.name) }
   end
 
   def accept(visitor)
     visitor.visit(:environment, self) do
+      validate_no_module_conflicts
+
       @modules.each do |mod|
         mod.accept(visitor)
       end
 
       puppetfile.accept(visitor)
-      validate_no_module_conflicts
     end
   end
 
@@ -90,31 +91,35 @@ class R10K::Environment::WithModules < R10K::Environment::Base
     @managed_content[install_path] = Array.new unless @managed_content.has_key?(install_path)
 
     mod = R10K::Module.new(name, install_path, args, self.name)
-    mod.origin = 'Environment'
+    mod.origin = :environment
 
     @managed_content[install_path] << mod.name
     @modules << mod
   end
 
   def validate_no_module_conflicts
-    @puppetfile.load unless @puppetfile.loaded?
-    conflicts = (@modules + @puppetfile.modules)
+    puppetfile.load unless puppetfile.loaded?
+    conflicts = (@modules + puppetfile.modules)
                 .group_by { |mod| mod.name }
                 .select { |_, v| v.size > 1 }
-                .map(&:first)
     unless conflicts.empty?
-      conflicts_str = conflicts.join(', ')
+      conflicting_module_names = conflicts.keys.join(', ')
+      conflicting_puppetfile_modules = conflicts.values.flatten.select do |mod|
+                                         puppetfile.modules.include?(mod)
+                                       end
       log_msg = _('Environment and Puppetfile both define the following modules, Puppetfile ' \
-                  'definition will be ignored: %{mods}' % { mods: conflicts_str })
+                  'definition will be ignored: %{mods}' % { mods: conflicting_module_names })
       case conflict_opt = @options[:module_conflicts]
-      when 'override_puppetfile'
-        logger.debug log_msg
       when 'override_puppetfile_and_warn', nil
         logger.warn log_msg
+        conflicting_puppetfile_modules.each { |mod| puppetfile.remove_module(mod) }
+      when 'override_puppetfile'
+        logger.debug log_msg
+        conflicting_puppetfile_modules.each { |mod| puppetfile.remove_module(mod) }
       when 'error'
         raise R10K::Error, _('Puppetfile cannot contain module names defined by environment ' \
                              '%{env}; Remove the conflicting definitions of the following modules: ' \
-                             '%{mods}' % { env: self.name, mods: conflicts_str })
+                             '%{mods}' % { env: self.name, mods: conflicting_module_names })
       else
         raise R10K::Error, _('Unexpected value for `module_conflicts` setting in %{env} ' \
                              'environment: %{val}' % {env: self.name, val: conflict_opt})

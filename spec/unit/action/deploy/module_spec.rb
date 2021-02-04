@@ -82,8 +82,8 @@ describe R10K::Action::Deploy::Module do
 
       before do
         allow(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
-          expect(environment.puppetfile).to receive(:modules_by_vcs_cachedir).and_return(
-            {none: [R10K::Module::Local.new(environment.name, '/fakedir', [], environment)]}
+          expect(environment.puppetfile).to receive(:modules).and_return(
+            [R10K::Module::Local.new(environment.name, '/fakedir', [], environment)]
           )
           original.call(environment, &block)
         end
