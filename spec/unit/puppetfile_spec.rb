@@ -283,8 +283,8 @@ describe R10K::Puppetfile do
         block.call
       end
 
-      mod1 = double('module', :cachedir => :none)
-      mod2 = double('module', :cachedir => :none)
+      mod1 = instance_double('R10K::Module::Base', :cachedir => :none)
+      mod2 = instance_double('R10K::Module::Base', :cachedir => :none)
       expect(mod1).to receive(:accept).with(visitor)
       expect(mod2).to receive(:accept).with(visitor)
       expect(subject).to receive(:modules).and_return([mod1, mod2])
@@ -304,8 +304,8 @@ describe R10K::Puppetfile do
         block.call
       end
 
-      mod1 = double('module1', :cachedir => :none)
-      mod2 = double('module2', :cachedir => :none)
+      mod1 = instance_double('R10K::Module::Base', :cachedir => :none)
+      mod2 = instance_double('R10K::Module::Base', :cachedir => :none)
       expect(mod1).to receive(:accept).with(visitor)
       expect(mod2).to receive(:accept).with(visitor)
       expect(subject).to receive(:modules).and_return([mod1, mod2])
@@ -324,12 +324,12 @@ describe R10K::Puppetfile do
         block.call
       end
 
-      m1 = double('module1', :cachedir => '/dev/null/A')
-      m2 = double('module2', :cachedir => '/dev/null/B')
-      m3 = double('module3', :cachedir => '/dev/null/C')
-      m4 = double('module4', :cachedir => '/dev/null/C')
-      m5 = double('module5', :cachedir => '/dev/null/D')
-      m6 = double('module6', :cachedir => '/dev/null/D')
+      m1 = instance_double('R10K::Module::Base', :cachedir => '/dev/null/A')
+      m2 = instance_double('R10K::Module::Base', :cachedir => '/dev/null/B')
+      m3 = instance_double('R10K::Module::Base', :cachedir => '/dev/null/C')
+      m4 = instance_double('R10K::Module::Base', :cachedir => '/dev/null/C')
+      m5 = instance_double('R10K::Module::Base', :cachedir => '/dev/null/D')
+      m6 = instance_double('R10K::Module::Base', :cachedir => '/dev/null/D')
 
       expect(subject).to receive(:modules).and_return([m1, m2, m3, m4, m5, m6])
 
