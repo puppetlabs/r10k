@@ -92,8 +92,9 @@ class R10K::Git::Rugged::Credentials
 
   # This regex is the only real requirement for OAuth token format,
   # per https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
+  # Bitbucket's tokens also can include an underscore, so that is added here.
   def valid_token?(token)
-    return token =~ /^[\w\-\.~\+\/]+$/
+    return token =~ /^[\w\-\.~_\+\/]+$/
   end
 
   def get_default_credentials(url, username_from_url)
