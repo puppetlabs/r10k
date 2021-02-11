@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.4.1-117-gf036d71\n"
+"Project-Id-Version: r10k 3.4.1-129-gb5f1ac7\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2021-01-07 20:18+0000\n"
-"PO-Revision-Date: 2021-01-07 20:18+0000\n"
+"POT-Creation-Date: 2021-02-11 23:00+0000\n"
+"PO-Revision-Date: 2021-02-11 23:00+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -107,15 +107,15 @@ msgstr ""
 msgid "%{class} has not implemented method %{method}"
 msgstr ""
 
-#: ../lib/r10k/environment/with_modules.rb:107
+#: ../lib/r10k/environment/with_modules.rb:110
 msgid "Environment and Puppetfile both define the following modules, Puppetfile definition will be ignored: %{mods}"
 msgstr ""
 
-#: ../lib/r10k/environment/with_modules.rb:115
+#: ../lib/r10k/environment/with_modules.rb:120
 msgid "Puppetfile cannot contain module names defined by environment %{env}; Remove the conflicting definitions of the following modules: %{mods}"
 msgstr ""
 
-#: ../lib/r10k/environment/with_modules.rb:119
+#: ../lib/r10k/environment/with_modules.rb:124
 msgid "Unexpected value for `module_conflicts` setting in %{env} environment: %{val}"
 msgstr ""
 
@@ -332,10 +332,10 @@ msgid "The module %{title} does not exist on %{url}."
 msgstr ""
 
 #: ../lib/r10k/module/forge.rb:174
-msgid "Forge module names must match 'owner/modulename'"
+msgid "Forge module names must match 'owner/modulename', instead got #{title}"
 msgstr ""
 
-#: ../lib/r10k/module/git.rb:101
+#: ../lib/r10k/module/git.rb:113
 msgid "Unhandled options %{unhandled} specified for %{class}"
 msgstr ""
 
@@ -347,23 +347,23 @@ msgstr ""
 msgid "Could not read metadata.json"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:62
+#: ../lib/r10k/puppetfile.rb:57
 msgid "Using Puppetfile '%{puppetfile}'"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:77
+#: ../lib/r10k/puppetfile.rb:71
 msgid "Puppetfile %{path} missing or unreadable"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:90
+#: ../lib/r10k/puppetfile.rb:84
 msgid "Failed to evaluate %{path}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:104
+#: ../lib/r10k/puppetfile.rb:98
 msgid "Puppetfiles cannot contain duplicate module names."
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:106
+#: ../lib/r10k/puppetfile.rb:100
 msgid "Remove the duplicates of the following modules: %{dupes}"
 msgstr ""
 
