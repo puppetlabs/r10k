@@ -22,6 +22,10 @@ class Puppetfile
   #   @return [Array<R10K::Module>]
   attr_reader :modules
 
+  # @!attribute [r] disabled_modules
+  #   @return [Array<R10K::Module>]
+  attr_reader :disabled_modules
+
   # @!attribute [r] basedir
   #   @return [String] The base directory that contains the Puppetfile
   attr_reader :basedir
@@ -57,6 +61,7 @@ class Puppetfile
     logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile_path}
 
     @modules = []
+    @disabled_modules = []
     @managed_content = {}
     @forge   = 'forgeapi.puppetlabs.com'
 
@@ -130,23 +135,21 @@ class Puppetfile
       args[:default_branch_override] = @default_branch_override
     end
 
-    # Keep track of all the content this Puppetfile is managing to enable purging.
-    @managed_content[install_path] = Array.new unless @managed_content.has_key?(install_path)
-
     mod = R10K::Module.new(name, install_path, args, @environment)
     mod.origin = :puppetfile
 
-    @managed_content[install_path] << mod.name
-    @modules << mod
-  end
+    # Do not load modules if they would conflict with the attached
+    # environment
+    if environment && environment.module_conflicts?(mod)
+      @disabled_modules << mod
+      return @modules
+    end
 
-  # Removes a loaded module from the set of content being managed
-  # @param [R10K::Module::Base] mod
-  def remove_module(mod)
-    return unless @modules.include?(mod)
-    @modules -= [mod]
-    @managed_content[mod.dirname] -= [mod.name]
-    @managed_content.delete(mod.dirname) if @managed_content[mod.dirname].empty?
+    # Keep track of all the content this Puppetfile is managing to enable purging.
+    @managed_content[install_path] = Array.new unless @managed_content.has_key?(install_path)
+    @managed_content[install_path] << mod.name
+
+    @modules << mod
   end
 
   include R10K::Util::Purgeable
