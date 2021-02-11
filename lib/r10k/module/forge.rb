@@ -171,7 +171,7 @@ class R10K::Module::Forge < R10K::Module::Base
     if (match = title.match(/\A(\w+)[-\/](\w+)\Z/))
       [match[1], match[2]]
     else
-      raise ArgumentError, _("Forge module names must match 'owner/modulename'")
+      raise ArgumentError, _("Forge module names must match 'owner/modulename', instead got #{title}")
     end
   end
 end
