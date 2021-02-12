@@ -103,6 +103,13 @@ class R10K::Environment::Base
     @puppetfile.modules
   end
 
+  # @return [Array<R10K::Module::Base>] Whether or not the given module
+  #   conflicts with any modules already defined in the r10k environment
+  #   object.
+  def module_conflicts?(mod)
+    false
+  end
+
   def accept(visitor)
     visitor.visit(:environment, self) do
       puppetfile.accept(visitor)
