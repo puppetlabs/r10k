@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.4.1-129-gb5f1ac7\n"
+"Project-Id-Version: r10k 3.4.1-133-g2007a86\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2021-02-11 23:00+0000\n"
-"PO-Revision-Date: 2021-02-11 23:00+0000\n"
+"POT-Creation-Date: 2021-02-12 02:00+0000\n"
+"PO-Revision-Date: 2021-02-12 02:00+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -107,15 +107,15 @@ msgstr ""
 msgid "%{class} has not implemented method %{method}"
 msgstr ""
 
-#: ../lib/r10k/environment/with_modules.rb:110
-msgid "Environment and Puppetfile both define the following modules, Puppetfile definition will be ignored: %{mods}"
+#: ../lib/r10k/environment/with_modules.rb:60
+msgid "Environment and %{src} both define the \"%{name}\" module"
 msgstr ""
 
-#: ../lib/r10k/environment/with_modules.rb:120
-msgid "Puppetfile cannot contain module names defined by environment %{env}; Remove the conflicting definitions of the following modules: %{mods}"
+#: ../lib/r10k/environment/with_modules.rb:61
+msgid "#{msg_error}. The %{src} definition will be ignored"
 msgstr ""
 
-#: ../lib/r10k/environment/with_modules.rb:124
+#: ../lib/r10k/environment/with_modules.rb:71
 msgid "Unexpected value for `module_conflicts` setting in %{env} environment: %{val}"
 msgstr ""
 
@@ -367,19 +367,19 @@ msgstr ""
 msgid "Remove the duplicates of the following modules: %{dupes}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:203
+#: ../lib/r10k/puppetfile.rb:201
 msgid "Updating modules with %{pool_size} threads"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:214
+#: ../lib/r10k/puppetfile.rb:212
 msgid "Error during concurrent deploy of a module: %{message}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:243
+#: ../lib/r10k/puppetfile.rb:241
 msgid "Module thread %{id} exiting: %{message}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:302
+#: ../lib/r10k/puppetfile.rb:300
 msgid "unrecognized declaration '%{method}'"
 msgstr ""
 
