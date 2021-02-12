@@ -22,10 +22,6 @@ class Puppetfile
   #   @return [Array<R10K::Module>]
   attr_reader :modules
 
-  # @!attribute [r] disabled_modules
-  #   @return [Array<R10K::Module>]
-  attr_reader :disabled_modules
-
   # @!attribute [r] basedir
   #   @return [String] The base directory that contains the Puppetfile
   attr_reader :basedir
@@ -61,7 +57,6 @@ class Puppetfile
     logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile_path}
 
     @modules = []
-    @disabled_modules = []
     @managed_content = {}
     @forge   = 'forgeapi.puppetlabs.com'
 
@@ -141,7 +136,7 @@ class Puppetfile
     # Do not load modules if they would conflict with the attached
     # environment
     if environment && environment.module_conflicts?(mod)
-      @disabled_modules << mod
+      mod = nil
       return @modules
     end
 

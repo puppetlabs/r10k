@@ -137,7 +137,6 @@ describe R10K::Puppetfile do
 
       allow(R10K::Module).to receive(:new).with('test', anything, anything, anything).and_return(mod)
       expect { subject.add_module('test', {}) }.not_to change { subject.modules }
-      expect(subject.disabled_modules).to eq [mod]
     end
   end
 
