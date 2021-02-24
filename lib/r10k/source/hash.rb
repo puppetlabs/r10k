@@ -152,8 +152,10 @@ class R10K::Source::Hash < R10K::Source::Base
       R10K::Util::SymbolizeKeys.symbolize_keys!(opts)
       memo.merge({ 
         name => opts.merge({
-          :basedir => @basedir,
-          :dirname => R10K::Environment::Name.new(name, {prefix: @prefix, source: @name}).dirname
+          basedir: @basedir,
+          dirname: R10K::Environment::Name.new(name, {prefix: @prefix,
+                                                      source: @name,
+                                                      strip_component: @strip_component}).dirname
         })
       })
     end

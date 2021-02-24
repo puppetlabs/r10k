@@ -12,12 +12,12 @@ module R10K
       INVALID_CHARACTERS = %r[\W]
 
       def initialize(name, opts)
-        @name   = name
-        @opts   = opts
-
         @source  = opts[:source]
         @prefix  = opts[:prefix]
         @invalid = opts[:invalid]
+
+        @name = derive_name(name, opts[:strip_component])
+        @opts = opts
 
         case @invalid
         when 'correct_and_warn'
@@ -71,8 +71,24 @@ module R10K
 
       private
 
-      def derive_prefix(source,prefix)
+      def derive_name(name, strip_component)
+        if strip_component == nil
+          name
+        elsif %r{^/.*/$}.match(strip_component)
+          regex = Regexp.new(strip_component[1..-2])
+          name.gsub(regex, '')
+        elsif name.start_with?(strip_component)
+          name[strip_component.size..-1]
+        else
+          name
+        end
+      rescue TypeError, NoMethodError
+        raise _('Improper configuration value given for strip_component setting in %{src} source. ' \
+                'Value must be a string, a /regex/, or omitted. Got "%{val}" (%{type})' \
+                % {src: @source, val: strip_component, type: strip_component.class})
+      end
 
+      def derive_prefix(source,prefix)
         if prefix == true
           "#{source}_"
         elsif prefix.is_a? String

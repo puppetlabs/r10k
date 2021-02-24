@@ -145,7 +145,10 @@ class R10K::Source::Git < R10K::Source::Base
   private
 
   def branch_names
-    opts = {:prefix => @prefix, :invalid => @invalid_branches, :source => @name}
+    opts = {prefix: @prefix,
+            invalid: @invalid_branches,
+            source: @name,
+            strip_component: @strip_component}
     branches = @cache.branches
     if @ignore_branch_prefixes && !@ignore_branch_prefixes.empty?
       branches = filter_branches_by_regexp(branches, @ignore_branch_prefixes)
