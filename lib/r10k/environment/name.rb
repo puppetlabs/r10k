@@ -72,9 +72,15 @@ module R10K
       private
 
       def derive_name(name, strip_component)
-        if strip_component == nil
-          name
-        elsif %r{^/.*/$}.match(strip_component)
+        return name unless strip_component
+
+        unless strip_component.is_a?(String)
+          raise _('Improper configuration value given for strip_component setting in %{src} source. ' \
+                  'Value must be a string, a /regex/, false, or omitted. Got "%{val}" (%{type})' \
+                  % {src: @source, val: strip_component, type: strip_component.class})
+        end
+
+        if %r{^/.*/$}.match(strip_component)
           regex = Regexp.new(strip_component[1..-2])
           name.gsub(regex, '')
         elsif name.start_with?(strip_component)
@@ -82,10 +88,6 @@ module R10K
         else
           name
         end
-      rescue TypeError, NoMethodError
-        raise _('Improper configuration value given for strip_component setting in %{src} source. ' \
-                'Value must be a string, a /regex/, or omitted. Got "%{val}" (%{type})' \
-                % {src: @source, val: strip_component, type: strip_component.class})
       end
 
       def derive_prefix(source,prefix)
