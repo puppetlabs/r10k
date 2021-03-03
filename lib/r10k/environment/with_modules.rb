@@ -24,7 +24,7 @@ class R10K::Environment::WithModules < R10K::Environment::Base
   # @param options [String] :moduledir The path to install modules to
   # @param options [Hash] :modules Modules to add to the environment
   def initialize(name, basedir, dirname, options = {})
-    super(name, basedir, dirname, options)
+    super
 
     @managed_content = {}
     @modules = []
