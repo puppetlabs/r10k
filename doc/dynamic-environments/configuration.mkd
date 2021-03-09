@@ -394,6 +394,23 @@ sources:
 * if `false` (default) environment folder will not be prefixed
 * if `String` environment folder will be prefixed with the `prefix` value.
 
+### strip\_component
+
+The 'strip\_component' setting allows parts of environment names from a source to have a transformation applied, removing a part of the name before turning them into Puppet environments. This is primarily useful for VCS sources (e.g.  Git), because it allows branch names to use prefixes or organizing name components such as "env/production", "env/development", but deploy Puppet environments from these branches named without the leading "env/" component. E.g. "production", "development".
+
+```yaml
+---
+sources:
+  mysource:
+    basedir: '/etc/puppet/environments'
+    strip_component: 'env/'
+```
+
+#### strip\_component behaviour
+
+* if `string` environment names will have this prefix removed, if the prefix is present. Note that when string values are used, names can only have prefix components removed.
+* if `/regex/` the regex will be matched against environment names and if a match is found, the matching name component will be removed.
+
 ### ignore_branch_prefixes
 
 The 'ignore_branch_prefixes' setting causes environments to be ignored which match in part or whole

@@ -121,7 +121,11 @@ class R10K::Source::SVN < R10K::Source::Base
 
   def names_and_paths
     branches = []
-    opts = {:prefix => @prefix, :correct => false, :validate => false, :source => @name}
+    opts = {prefix: @prefix,
+            correct: false,
+            validate: false,
+            source: @name,
+            strip_component: @strip_component}
     branches << [R10K::Environment::Name.new('production', opts), "#{@remote}/trunk"]
     additional_branch_names = @svn_remote.branches
     if @ignore_branch_prefixes && !@ignore_branch_prefixes.empty?

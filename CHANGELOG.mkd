@@ -4,6 +4,8 @@ CHANGELOG
 Unreleased
 ----------
 
+- Add 'strip\_component' environment source configuration setting, to allow deploying Git branches named like "env/production" as Puppet environments named like "production". [#1128](https://github.com/puppetlabs/r10k/pull/1128)
+
 3.8.0
 -----
 
