@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.4.1-133-g2007a86\n"
+"Project-Id-Version: r10k 3.4.1-139-g0f571cc\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2021-02-12 02:00+0000\n"
-"PO-Revision-Date: 2021-02-12 02:00+0000\n"
+"POT-Creation-Date: 2021-03-09 19:15+0000\n"
+"PO-Revision-Date: 2021-03-09 19:15+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -103,8 +103,12 @@ msgstr ""
 msgid "Unable to load sources; the supplied configuration does not define the 'sources' key"
 msgstr ""
 
-#: ../lib/r10k/environment/base.rb:61 ../lib/r10k/environment/base.rb:77 ../lib/r10k/environment/base.rb:86 ../lib/r10k/source/base.rb:64
+#: ../lib/r10k/environment/base.rb:61 ../lib/r10k/environment/base.rb:77 ../lib/r10k/environment/base.rb:86 ../lib/r10k/source/base.rb:69
 msgid "%{class} has not implemented method %{method}"
+msgstr ""
+
+#: ../lib/r10k/environment/name.rb:78
+msgid "Improper configuration value given for strip_component setting in %{src} source. Value must be a string, a /regex/, false, or omitted. Got \"%{val}\" (%{type})"
 msgstr ""
 
 #: ../lib/r10k/environment/with_modules.rb:60
