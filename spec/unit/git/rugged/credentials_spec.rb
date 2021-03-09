@@ -143,6 +143,16 @@ describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby? 
       expect(creds.instance_variable_get(:@password)).to eq("my_token")
       expect(creds.instance_variable_get(:@username)).to eq("x-oauth-token")
     end
+
+    it 'only reads the token in once' do
+      expect($stdin).to receive(:read).and_return("my_token").once
+      R10K::Git.settings[:oauth_token] = '-'
+      R10K::Git.settings[:repositories] = [{remote: "https://tessier-ashpool.freeside/repo.git"}]
+      creds = subject.get_plaintext_credentials("https://tessier-ashpool.freeside/repo.git", nil)
+      expect(creds.instance_variable_get(:@password)).to eq("my_token")
+      creds = subject.get_plaintext_credentials("https://tessier-ashpool.freeside/repo.git", nil)
+      expect(creds.instance_variable_get(:@password)).to eq("my_token")
+    end
   end
 
   describe "generating default credentials" do
