@@ -140,14 +140,8 @@ module R10K
         end
 
         def visit_module(mod)
-          logger.warn _("!!!!! Deploying %{origin} content %{path}") % {origin: mod.origin, path: mod.path}
+          logger.info _("Deploying %{origin} content %{path}") % {origin: mod.origin, path: mod.path}
           mod.sync(force: @force)
-          logger.warn _("!!!!! DIRS IN %{moddir}: %{dirs}") % {moddir: mod.path, dirs: Dir.entries(mod.path)}
-
-          spec_dir = File.join(mod.path, 'spec')
-          logger.warn _("!!!!! REMOVING SPEC DIR %{dir}") % {dir: spec_dir}
-          FileUtils.rm_rf spec_dir
-          logger.warn _("!!!!! NEW DIRS IN %{moddir}: %{dirs}") % {moddir: mod.path, dirs: Dir.entries(mod.path)}
         end
 
         def write_environment_info!(environment, started_at, success)
