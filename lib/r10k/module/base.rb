@@ -1,5 +1,6 @@
 require 'r10k/module'
 require 'puppet_forge'
+require 'r10k/logging'
 
 # This class defines a common interface for module implementations.
 class R10K::Module::Base
@@ -63,7 +64,9 @@ class R10K::Module::Base
   # Synchronize this module with the indicated state.
   # @abstract
   def sync(opts={})
-    raise NotImplementedError
+    spec_dir = File.join(path, 'spec')
+    logger.warn _("!!!!! REMOVING SPEC DIR %{dir}") % {dir: spec_dir}
+    FileUtils.rm_rf spec_dir
   end
 
   # Return the desired version of this module

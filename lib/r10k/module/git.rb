@@ -53,9 +53,11 @@ class R10K::Module::Git < R10K::Module::Base
     }
   end
 
+  include R10K::Logging
   def sync(opts={})
     force = opts && opts.fetch(:force, true)
     @repo.sync(version, force)
+    super
   end
 
   def status

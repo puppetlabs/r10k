@@ -51,6 +51,7 @@ class R10K::Module::Forge < R10K::Module::Base
     when :mismatched
       reinstall
     end
+    super
   end
 
   def properties

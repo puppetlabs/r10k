@@ -34,6 +34,7 @@ class R10K::Module::SVN < R10K::Module::Base
   #   @api private
   attr_reader :working_dir
 
+  include R10K::Logging
   include R10K::Util::Setopts
 
   INITIALIZE_OPTS = {
@@ -75,6 +76,7 @@ class R10K::Module::SVN < R10K::Module::Base
     when :outdated
       update
     end
+    super
   end
 
   def exist?
