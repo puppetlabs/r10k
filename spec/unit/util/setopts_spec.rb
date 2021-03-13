@@ -56,6 +56,17 @@ describe R10K::Util::Setopts do
     }.to raise_error(ArgumentError, /cannot handle option 'notvalid'/)
   end
 
+  it "warns when given an unhandled option and raise_on_unhandled=false" do
+    test = Class.new { include R10K::Util::Setopts }.new
+    allow(test).to receive(:logger).and_return(spy)
+
+    test.send(:setopts, {valid: :value, invalid: :value},
+                        {valid: :self},
+                        raise_on_unhandled: false)
+
+    expect(test.logger).to have_received(:warn).with(%r{cannot handle option 'invalid'})
+  end
+
   it "ignores values that are marked as unhandled" do
     klass.new(:ignoreme => "IGNORE ME!")
   end

@@ -7,6 +7,8 @@ module R10K
     # supports Ruby 1.8.7+ we cannot use that functionality.
     module Setopts
 
+      class Ignore; end
+
       include R10K::Logging
 
       private
@@ -33,12 +35,13 @@ module R10K
       #   setopts(opts, allowed)
       #   @trace # => nil
       #
-      def setopts(opts, allowed)
+      def setopts(opts, allowed, raise_on_unhandled: true)
         processed_vars = {}
         opts.each_pair do |key, value|
           if allowed.key?(key)
-            # Ignore nil options
+            # Ignore nil options and explicit ignore param
             next unless rhs = allowed[key]
+            next if rhs == ::R10K::Util::Setopts::Ignore
 
             var = case rhs
                   when :self, TrueClass
@@ -59,7 +62,12 @@ module R10K
             instance_variable_set(var, value)
             processed_vars[var] = key
           else
-            raise ArgumentError, _("%{class_name} cannot handle option '%{key}'") % {class_name: self.class.name, key: key}
+            err_str = _("%{class_name} cannot handle option '%{key}'") % {class_name: self.class.name, key: key}
+            if raise_on_unhandled
+              raise ArgumentError, err_str
+            else
+              logger.warn(err_str)
+            end
           end
         end
       end
