@@ -15,6 +15,22 @@ describe R10K::Environment::Git do
     )
   end
 
+  describe "initializing" do
+    subject do
+      described_class.new('name', '/dir', 'ref', {
+        :remote          => 'url',
+        :ref             => 'value',
+        :puppetfile_name => 'Puppetfile',
+        :moduledir       => 'modules',
+        :modules         => { },
+      })
+    end
+
+    it "accepts valid base class initialization arguments" do
+      expect(subject.name).to eq 'name'
+    end
+  end
+
   describe "storing attributes" do
     it "can return the environment name" do
       expect(subject.name).to eq 'myenv'

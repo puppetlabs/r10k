@@ -123,7 +123,7 @@ describe R10K::Module::Git do
       let(:opts) { { unrecognized: true } }
 
       it "raises an error" do
-        expect { test_module(opts) }.to raise_error(ArgumentError, /unhandled options.*unrecognized/i)
+        expect { test_module(opts) }.to raise_error(ArgumentError, /cannot handle option 'unrecognized'/)
       end
     end
 

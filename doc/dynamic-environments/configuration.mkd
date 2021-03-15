@@ -645,7 +645,7 @@ sources:
 
 The environment modules feature allows module content to be attached to an environment at environment definition time. This happens before modules specified in a Puppetfile are attached to an environment, which does not happen until deploy time. Environment module implementation depends on the environment source type.
 
-For the YAML environment source type, attach modules to an environment by specifying a modules key for the environment, and providing a hash of modules to attach. Each module accepts the same arguments accepted by the `mod` method in a Puppetfile.
+For the YAML environment source type, attach modules to an environment by specifying a modules key for the environment, and providing a hash of modules to attach. Each module accepts the same arguments accepted by the `mod` method in a Puppetfile. For ease of reading and consistency, however, it is perferred to use the generic type, source, and version options over implementation-specific formats and options such as "ref" and "git".
 
 The example below includes two Forge modules and one module sourced from a Git repository. The two environments are almost identical. However, a new version of the stdlib module has been deployed in development (6.2.0), that has not yet been deployed to production.
 
@@ -653,25 +653,35 @@ The example below includes two Forge modules and one module sourced from a Git r
 ---
 production:
   type: git
-  remote: git@github.com:puppetlabs/control-repo.git
-  ref: 8820892
+  source: git@github.com:puppetlabs/control-repo.git
+  version: 8820892
   modules:
-    puppetlabs-stdlib: 6.0.0
-    puppetlabs-concat: 6.1.0
+    puppetlabs-stdlib:
+      type: forge
+      version: 6.0.0
+    puppetlabs-concat:
+      type: forge
+      version: 6.1.0
     reidmv-xampl:
-      git: https://github.com/reidmv/reidmv-xampl.git
-      ref: 62d07f2
+      type: git
+      source: https://github.com/reidmv/reidmv-xampl.git
+      version: 62d07f2
 
 development:
   type: git
-  remote: git@github.com:puppetlabs/control-repo.git
-  ref: 8820892
+  source: git@github.com:puppetlabs/control-repo.git
+  version: 8820892
   modules:
-    puppetlabs-stdlib: 6.2.0
-    puppetlabs-concat: 6.1.0
+    puppetlabs-stdlib:
+      type: forge
+      version: 6.2.0
+    puppetlabs-concat:
+      type: forge
+      version: 6.1.0
     reidmv-xampl:
-      git: https://github.com/reidmv/reidmv-xampl.git
-      ref: 62d07f2
+      type: git
+      source: https://github.com/reidmv/reidmv-xampl.git
+      version: 62d07f2
 ```
 
 An example of a single environment definition for the YAMLdir environment source type:
@@ -680,14 +690,19 @@ An example of a single environment definition for the YAMLdir environment source
 # production.yaml
 ---
 type: git
-remote: git@github.com:puppetlabs/control-repo.git
-ref: 8820892
+source: git@github.com:puppetlabs/control-repo.git
+version: 8820892
 modules:
-  puppetlabs-stdlib: 6.0.0
-  puppetlabs-concat: 6.1.0
+  puppetlabs-stdlib:
+    type: forge
+    version: 6.0.0
+  puppetlabs-concat:
+    type: forge
+    version: 6.1.0
   reidmv-xampl:
-    git: https://github.com/reidmv/reidmv-xampl.git
-    ref: 62d07f2
+    type: git
+    source: https://github.com/reidmv/reidmv-xampl.git
+    version: 62d07f2
 ```
 
 #### Puppetfile module conflicts
@@ -704,15 +719,20 @@ Available `module_conflicts` options:
 # production.yaml
 ---
 type: git
-remote: git@github.com:puppetlabs/control-repo.git
-ref: 8820892
-module_conflicts: override_puppetfile_and_warn
+source: git@github.com:puppetlabs/control-repo.git
+version: 8820892
+module_conflicts: override_and_warn
 modules:
-  puppetlabs-stdlib: 6.0.0
-  puppetlabs-concat: 6.1.0
+  puppetlabs-stdlib:
+    type: forge
+    version: 6.0.0
+  puppetlabs-concat:
+    type: forge
+    version: 6.1.0
   reidmv-xampl:
-    git: https://github.com/reidmv/reidmv-xampl.git
-    ref: 62d07f2
+    type: git
+    source: https://github.com/reidmv/reidmv-xampl.git
+    version: 62d07f2
 ```
 
 ### Bare Environment Type
@@ -726,18 +746,28 @@ The bare environment type allows sources that support environment modules to ope
 production:
   type: bare
   modules:
-    puppetlabs-stdlib: 6.0.0
-    puppetlabs-concat: 6.1.0
+    puppetlabs-stdlib:
+      type: forge
+      version: 6.0.0
+    puppetlabs-concat:
+      type: forge
+      version: 6.1.0
     reidmv-xampl:
-      git: https://github.com/reidmv/reidmv-xampl.git
-      ref: 62d07f2
+      type: git
+      source: https://github.com/reidmv/reidmv-xampl.git
+      version: 62d07f2
 
 development:
   type: bare
   modules:
-    puppetlabs-stdlib: 6.0.0
-    puppetlabs-concat: 6.1.0
+    puppetlabs-stdlib:
+      type: forge
+      version: 6.0.0
+    puppetlabs-concat:
+      type: forge
+      version: 6.1.0
     reidmv-xampl:
-      git: https://github.com/reidmv/reidmv-xampl.git
-      ref: 62d07f2
+      type: git
+      source: https://github.com/reidmv/reidmv-xampl.git
+      version: 62d07f2
 ```
