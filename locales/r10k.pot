@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.4.1-142-g413d01d\n"
+"Project-Id-Version: r10k 3.4.1-151-g93d38cb\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2021-03-09 19:30+0000\n"
-"PO-Revision-Date: 2021-03-09 19:30+0000\n"
+"POT-Creation-Date: 2021-03-15 17:00+0000\n"
+"PO-Revision-Date: 2021-03-15 17:00+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -235,31 +235,31 @@ msgstr ""
 msgid "Unable to use SSH key auth for %{url}: private key %{private_key} is missing or unreadable"
 msgstr ""
 
-#: ../lib/r10k/git/rugged/credentials.rb:72
+#: ../lib/r10k/git/rugged/credentials.rb:84
 msgid "Using OAuth token from stdin for URL %{url}"
 msgstr ""
 
-#: ../lib/r10k/git/rugged/credentials.rb:75
+#: ../lib/r10k/git/rugged/credentials.rb:87
 msgid "Using OAuth token from %{token_path} for URL %{url}"
 msgstr ""
 
-#: ../lib/r10k/git/rugged/credentials.rb:77
+#: ../lib/r10k/git/rugged/credentials.rb:89
 msgid "%{path} is missing or unreadable, cannot load OAuth token"
 msgstr ""
 
-#: ../lib/r10k/git/rugged/credentials.rb:81
+#: ../lib/r10k/git/rugged/credentials.rb:93
 msgid "Supplied OAuth token contains invalid characters."
 msgstr ""
 
-#: ../lib/r10k/git/rugged/credentials.rb:110
+#: ../lib/r10k/git/rugged/credentials.rb:117
 msgid "URL %{url} includes the username %{username}, using that user for authentication."
 msgstr ""
 
-#: ../lib/r10k/git/rugged/credentials.rb:113
+#: ../lib/r10k/git/rugged/credentials.rb:120
 msgid "URL %{url} did not specify a user, using %{user} from configuration"
 msgstr ""
 
-#: ../lib/r10k/git/rugged/credentials.rb:116
+#: ../lib/r10k/git/rugged/credentials.rb:123
 msgid "URL %{url} did not specify a user, using current user %{user}"
 msgstr ""
 
@@ -331,16 +331,12 @@ msgstr ""
 msgid "Module name (%{title}) must match either 'modulename' or 'owner/modulename'"
 msgstr ""
 
-#: ../lib/r10k/module/forge.rb:70 ../lib/r10k/module/forge.rb:99
+#: ../lib/r10k/module/forge.rb:81 ../lib/r10k/module/forge.rb:110
 msgid "The module %{title} does not exist on %{url}."
 msgstr ""
 
-#: ../lib/r10k/module/forge.rb:174
+#: ../lib/r10k/module/forge.rb:185
 msgid "Forge module names must match 'owner/modulename', instead got #{title}"
-msgstr ""
-
-#: ../lib/r10k/module/git.rb:113
-msgid "Unhandled options %{unhandled} specified for %{class}"
 msgstr ""
 
 #: ../lib/r10k/module/local.rb:34
@@ -550,11 +546,11 @@ msgstr ""
 msgid "Unable to remove unmanaged path: %{path}"
 msgstr ""
 
-#: ../lib/r10k/util/setopts.rb:55
+#: ../lib/r10k/util/setopts.rb:58
 msgid "%{class_name} parameters '%{a}' and '%{b}' conflict. Specify one or the other, but not both"
 msgstr ""
 
-#: ../lib/r10k/util/setopts.rb:62
+#: ../lib/r10k/util/setopts.rb:65
 msgid "%{class_name} cannot handle option '%{key}'"
 msgstr ""
 
