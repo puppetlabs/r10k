@@ -15,10 +15,11 @@ jobs:
         with:
           fetch-depth: '0'
       - name: Bump version and push tag
-        uses: anothrNick/github-tag-action@1.17.2
+        uses: anothrNick/github-tag-action@1.35.0
         env:
           GITHUB_TOKEN: ${{ secrets.PUPPET_RELEASE_GH_TOKEN }}
           DEFAULT_BUMP: patch
+          TAG_CONTEXT: branch
           WITH_V: false
           # Uncomment this if the tag and version file become out-of-sync and
           # you need to tag at a specific version.
