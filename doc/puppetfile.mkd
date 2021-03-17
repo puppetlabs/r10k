@@ -54,6 +54,8 @@ The `forge` setting specifies which server that Forge based modules are fetched
 from. This is currently a noop and is provided for compatibility with
 librarian-puppet.
 
+R10k supports setting the Forge to use _globally_ in `r10k.yaml`. see [Configuration](/doc/dynamic-environments/configuration.mkd#baseurl) for details.
+
 ### moduledir
 
 The `moduledir` setting specifies where modules from the Puppetfile will be
@@ -107,11 +109,19 @@ latest version available.
 
     mod 'puppetlabs/apache', :latest
 
+An explicit type and/or version can be specified using the standard interface,
+`:type` and `:version`. The `:source` parameter is not supported for individual
+forge modules and will be ignored.
+
+    mod 'puppetlabs/apache',
+      type:    'forge',
+      version: '6.0.0'
+
 ### Git
 
 Git repositories that contain a Puppet module can be cloned and used as modules.
 When Git is used, the module version can be specified by using `:ref`, `:tag`,
-`:commit`, and `:branch`.
+`:commit`, `:branch`, or the standard interface parameter `:version`.
 
 When a module is installed using `:ref`, r10k uses some simple heuristics to
 determine the type of Git object that should be checked out. This can be used
@@ -151,6 +161,13 @@ mod 'apache',
 mod 'apache',
   :git    => 'https://github.com/puppetlabs/puppetlabs-apache',
   :branch => 'docs_experiment'
+
+# Install puppetlabs/apache and use standard interface parameters pinned to the
+# '2098a17' commit.
+mod 'puppetlabs-apache',
+  type:    'git',
+  source:  'https://github.com/puppetlabs/puppetlabs-apache',
+  version: '2098a17'
 ```
 
 #### Control Repo Branch Tracking
@@ -193,8 +210,8 @@ the latest version available in the main SVN repository.
     mod 'apache',
       :svn => 'https://github.com/puppetlabs/puppetlabs-apache/trunk'
 
-If an SVN revision number is specified with `:rev` (or `:revision`), that
-SVN revision will be kept checked out.
+If an SVN revision number is specified with `:rev`, `:revision`, or `:version`,
+that SVN revision will be kept checked out.
 
     mod 'apache',
       :svn => 'https://github.com/puppetlabs/puppetlabs-apache/trunk',
@@ -203,6 +220,11 @@ SVN revision will be kept checked out.
     mod 'apache',
       :svn      => 'https://github.com/puppetlabs/puppetlabs-apache/trunk',
       :revision => '154'
+
+    mod 'apache',
+      type:    'svn',
+      source:  'https://github.com/puppetlabs/puppetlabs-apache/trunk',
+      version: '154'
 
 If the SVN repository requires credentials, you can supply the `:username` and
 `:password` options.

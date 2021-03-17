@@ -10,11 +10,12 @@ describe R10K::Action::Runner do
     Class.new do
       attr_reader :opts
       attr_reader :argv
+      attr_reader :settings
 
       def initialize(opts, argv, settings = {})
         @opts = opts
         @argv = argv
-        @settings = {}
+        @settings = settings
       end
 
       def call
@@ -24,6 +25,10 @@ describe R10K::Action::Runner do
   end
 
   subject(:runner) { described_class.new({:opts => :yep}, %w[args yes], action_class) }
+
+  before(:each) do
+    expect(runner.logger).not_to receive(:error)
+  end
 
   describe "instantiating the wrapped class" do
     it "creates an instance of the class" do
@@ -62,6 +67,97 @@ describe R10K::Action::Runner do
     end
   end
 
+  describe "configuring settings" do
+    subject(:runner) { described_class.new(options, %w[args yes], action_class) }
+
+    let(:global_settings) { R10K::Settings.global_settings }
+
+    before(:each) do
+      expect(R10K::Settings).to receive(:global_settings).and_return(global_settings)
+      allow(File).to receive(:executable?).and_return(true)
+    end
+
+    opts = {
+      cachedir:       nil,
+      puppet_path:    :deploy,
+      generate_types: :deploy,
+    }
+
+    opts.each do |opt, conf_path|
+      context "with #{opt} config setting" do
+        let(:options) { { config: "spec/fixtures/unit/action/r10k_#{opt}.yaml" } }
+
+        context "when not overridden" do
+          it "uses the config value" do
+            override = { "#{opt}": "/config_#{opt}" }
+            overrides = if conf_path.nil?
+                          override
+                        else
+                          { "#{conf_path}": override }
+                        end
+            expect(global_settings).to receive(:evaluate).with(hash_including(overrides)).and_call_original
+            runner.call
+          end
+        end
+
+        context "when overridden" do
+          let(:options) { super().merge("#{opt.to_s.sub('_','-')}": "/overridden_#{opt}") }
+
+          it "uses the overridden value" do
+            override = { "#{opt}": "/overridden_#{opt}" }
+            overrides = if conf_path.nil?
+                          override
+                        else
+                          { "#{conf_path}": override }
+                        end
+            expect(global_settings).to receive(:evaluate).with(hash_including(overrides)).and_call_original
+            runner.call
+          end
+        end
+      end
+
+      context "with complete config" do
+        let(:options) { { config: "spec/fixtures/unit/action/r10k.yaml" } }
+        let(:config) do
+          config = {}
+          opts.each do |o, path|
+            if path.nil?
+              config[o] = "/config_#{o}"
+            else
+              config[path] ||= {}
+              config[path][o] = "/config_#{o}"
+            end
+          end
+          config
+        end
+
+        context "when not overridden" do
+          it "uses the config value" do
+            expect(global_settings).to receive(:evaluate).with(config).and_call_original
+            runner.call
+          end
+        end
+
+        context "when overridden" do
+          let(:options) {
+            super().merge("#{opt.to_s.sub('_','-')}": "/overridden_#{opt}")
+          }
+
+          it "uses the overridden value" do
+            with_overrides = config
+            if conf_path.nil?
+              with_overrides[opt] = "/overridden_#{opt}"
+            else
+              with_overrides[conf_path][opt] = "/overridden_#{opt}"
+            end
+            expect(global_settings).to receive(:evaluate).with(with_overrides).and_call_original
+            runner.call
+          end
+        end
+      end
+    end
+  end
+
   describe "configuring logging" do
     it "sets the log level if :loglevel is provided" do
       runner = described_class.new({:opts => :yep, :loglevel => 'FATAL'}, %w[args yes], action_class)
@@ -72,6 +168,52 @@ describe R10K::Action::Runner do
     it "does not modify the loglevel if :loglevel is not provided" do
       expect(R10K::Logging).to_not receive(:level=)
       runner.call
+    end
+  end
+
+  describe "configuring git credentials" do
+    it 'errors if both token and key paths are passed' do
+      runner = described_class.new({ 'oauth-token': '/nonexistent',
+                                     'private-key': '/also/fake' }, %w[args yes], action_class)
+      expect{ runner.call }.to raise_error(R10K::Error, /Cannot specify both/)
+    end
+
+    it 'saves the sshkey path in settings hash' do
+      runner = described_class.new({ 'private-key': '/my/ssh/key' }, %w[args yes], action_class)
+      runner.call
+      expect(runner.instance.settings[:git][:private_key]).to eq('/my/ssh/key')
+    end
+
+    it 'overrides per-repo sshkey in settings hash' do
+      runner = described_class.new({ config: "spec/fixtures/unit/action/r10k_creds.yaml",
+                                     'private-key': '/my/ssh/key' },
+                                     %w[args yes],
+                                     action_class)
+      runner.call
+      expect(runner.instance.settings[:git][:private_key]).to eq('/my/ssh/key')
+      expect(runner.instance.settings[:git][:repositories].count).to eq(2)
+      runner.instance.settings[:git][:repositories].each do |repo_settings|
+        expect(repo_settings[:private_key]).to eq('/my/ssh/key')
+      end
+    end
+
+    it 'saves the token path in settings hash' do
+      runner = described_class.new({ 'oauth-token': '/my/token/path' }, %w[args yes], action_class)
+      runner.call
+      expect(runner.instance.settings[:git][:oauth_token]).to eq('/my/token/path')
+    end
+
+    it 'overrides per-repo oauth token in settings hash' do
+      runner = described_class.new({ config: "spec/fixtures/unit/action/r10k_creds.yaml",
+                                     'oauth-token': '/my/token' },
+                                     %w[args yes],
+                                     action_class)
+      runner.call
+      expect(runner.instance.settings[:git][:oauth_token]).to eq('/my/token')
+      expect(runner.instance.settings[:git][:repositories].count).to eq(2)
+      runner.instance.settings[:git][:repositories].each do |repo_settings|
+        expect(repo_settings[:oauth_token]).to eq('/my/token')
+      end
     end
   end
 

@@ -13,7 +13,7 @@ class R10K::Module::Forge < R10K::Module::Base
   R10K::Module.register(self)
 
   def self.implement?(name, args)
-    !!(name.match %r[\w+[/-]\w+]) && valid_version?(args)
+    (args.is_a?(Hash) && args[:type].to_s == 'forge') || (!!(name.match %r[\w+[/-]\w+]) && valid_version?(args))
   end
 
   def self.valid_version?(expected_version)
@@ -32,13 +32,24 @@ class R10K::Module::Forge < R10K::Module::Base
 
   include R10K::Logging
 
-  def initialize(title, dirname, expected_version, environment=nil)
+  include R10K::Util::Setopts
+
+  def initialize(title, dirname, opts, environment=nil)
     super
+
+    if opts.is_a?(Hash)
+      setopts(opts, {
+        # Standard option interface
+        :version => :expected_version,
+        :source  => ::R10K::Util::Setopts::Ignore,
+        :type    => ::R10K::Util::Setopts::Ignore,
+      })
+    else
+      @expected_version = opts || current_version || :latest
+    end
 
     @metadata_file = R10K::Module::MetadataFile.new(path + 'metadata.json')
     @metadata = @metadata_file.read
-
-    @expected_version = expected_version || current_version || :latest
     @v3_module = PuppetForge::V3::Module.new(:slug => @title)
   end
 
@@ -75,7 +86,11 @@ class R10K::Module::Forge < R10K::Module::Base
 
   # @return [String] The version of the currently installed module
   def current_version
-    @metadata ? @metadata.version : nil
+    if insync?
+      (@metadata ||= @metadata_file.read).nil? ? nil : @metadata.version
+    else
+      nil
+    end
   end
 
   alias version current_version
@@ -167,7 +182,7 @@ class R10K::Module::Forge < R10K::Module::Base
     if (match = title.match(/\A(\w+)[-\/](\w+)\Z/))
       [match[1], match[2]]
     else
-      raise ArgumentError, _("Forge module names must match 'owner/modulename'")
+      raise ArgumentError, _("Forge module names must match 'owner/modulename', instead got #{title}")
     end
   end
 end

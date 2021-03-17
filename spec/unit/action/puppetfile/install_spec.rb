@@ -19,12 +19,15 @@ describe R10K::Action::Puppetfile::Install do
 
   describe "installing modules" do
     let(:modules) do
-      Array.new(4, R10K::Module::Base.new('author/modname', "/some/nonexistent/path/modname", nil))
+      (1..4).map do |idx|
+        R10K::Module::Base.new("author/modname#{idx}", "/some/nonexistent/path/modname#{idx}", nil)
+      end
     end
 
     before do
       allow(puppetfile).to receive(:purge!)
       allow(puppetfile).to receive(:modules).and_return(modules)
+      allow(puppetfile).to receive(:modules_by_vcs_cachedir).and_return({none: modules})
     end
 
     it "syncs each module in the Puppetfile" do

@@ -29,7 +29,7 @@ seamlessly reflected in Puppet environments. This means that creating a new Git
 branch creates a new Puppet environment, updating a Git branch will update that
 environment, and deleting a Git branch will remove that environment.
 
-R10k supports both [directory and config file environments](https://docs.puppetlabs.com/puppet/latest/reference/environments.html).
+R10k supports both [directory and config file environments](https://puppet.com/docs/puppet/latest/env_environments.html).
 Ensure that the basedir for your sources and your puppet config align.
 
 How it works

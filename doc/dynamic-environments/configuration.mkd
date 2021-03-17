@@ -48,7 +48,7 @@ cachedir: '/var/cache/r10k'
 
 
 The cachedir setting defaults to `~/.r10k`. If the HOME environment variable is
-unset r10k will assume that r10k is being run with the Puppet [`prerun_command`](http://docs.puppetlabs.com/references/latest/configuration.html#preruncommand)
+unset r10k will assume that r10k is being run with the Puppet [`prerun_command`](https://puppet.com/docs/puppet/latest/configuration.html#preruncommand)
 setting and will set the cachedir default to `/root/.r10k`.
 
 ### proxy
@@ -72,6 +72,13 @@ proxy: 'http://user:password@proxy.example.com:3128'
 ```
 
 The proxy server being used will be logged at the "debug" level when r10k runs.
+
+### pool_size
+
+The pool_size setting is a number to determine how many threads should be spawn
+while updating modules. The default value is 4, which means modules will be updated
+in parallel. If this causes issues, change this setting to 1 to cause modules to be
+updated serially.
 
 ### git
 
@@ -256,7 +263,7 @@ After Puppetfile content for a given environment is deployed, r10k will
 recursively remove any content found in a directory managed by the Puppetfile
 which is not also declared in that Puppetfile. Directories considered to be
 managed by a Puppetfile include the configured `moduledir` (which defaults to
-"modules") as well as alternate directories specified as an `install\_path`
+"modules") as well as alternate directories specified as an `install_path`
 option to any Puppetfile content declarations.
 
 #### purge\_whitelist
@@ -298,6 +305,35 @@ with a common set of code that may be touched by multiple r10k configurations.
 ---
 deploy:
   write_lock: "Deploying code is disallowed until the next maintenance window (2038-01-19)"
+```
+
+#### generate\_types
+
+The `generate_types` setting controls whether r10k should update generated types
+after a successful environment update. See [Environment isolation](https://puppet.com/docs/puppet/latest/environment\_isolation.html)
+for more information on generated types. Defaults to false.
+
+```yaml
+deploy:
+  generate_types: true
+```
+
+#### puppet\_path
+
+The path to the puppet executable used for generating types. Defaults to `/opt/puppetlabs/bin/puppet`.
+
+```yaml
+deploy:
+  puppet_path: '/usr/local/bin/puppet'
+```
+
+#### puppet\_conf
+
+The path to the puppet.conf file used for generating types. Defaults to `/etc/puppetlabs/puppet/puppet.conf`.
+
+```yaml
+deploy:
+  puppet_conf: '/opt/puppet/conf/puppet.conf'
 ```
 
 Source options
@@ -358,6 +394,23 @@ sources:
 * if `false` (default) environment folder will not be prefixed
 * if `String` environment folder will be prefixed with the `prefix` value.
 
+### strip\_component
+
+The 'strip\_component' setting allows parts of environment names from a source to have a transformation applied, removing a part of the name before turning them into Puppet environments. This is primarily useful for VCS sources (e.g.  Git), because it allows branch names to use prefixes or organizing name components such as "env/production", "env/development", but deploy Puppet environments from these branches named without the leading "env/" component. E.g. "production", "development".
+
+```yaml
+---
+sources:
+  mysource:
+    basedir: '/etc/puppet/environments'
+    strip_component: 'env/'
+```
+
+#### strip\_component behaviour
+
+* if `string` environment names will have this prefix removed, if the prefix is present. Note that when string values are used, names can only have prefix components removed.
+* if `/regex/` the regex will be matched against environment names and if a match is found, the matching name component will be removed.
+
 ### ignore_branch_prefixes
 
 The 'ignore_branch_prefixes' setting causes environments to be ignored which match in part or whole
@@ -383,6 +436,29 @@ sources:
       - 'test'
       - 'dev'
 ```
+
+### filter_command
+
+You can filter out any branch based on the result of the command specified as
+'filter_command'. Currently it only works with git repository. Non zero return
+status of the command results in a branch beeing removed. The command is passed
+additional environment variables
+
+* GIT_DIR – path to the cached git repository
+* R10K_BRANCH – branch which is being filtered
+* R10K_NAME – source name from r10k configuration
+
+This can be used for example for filtering out the branches with invalid gpg signature of their latest commit
+
+```yaml
+---
+sources:
+  mysource:
+    basedir: '/etc/puppet/environments'
+    filter_command: 'git verify-commit $R10K_BRANCH 2> /dev/null'
+```
+
+Beware that if the production branch of manifests is filtered out, you will end up with empty environment.
 
 Examples
 --------
@@ -481,4 +557,217 @@ This will create the following directory structure:
 /etc/puppet/hieradata
 |-- app1_production  # app1 data repository, production branch
 |-- app1_develop     # app1 data repository, develop branch
+```
+
+Experimental Features
+---------------------
+
+### YAML Environment Source
+
+Dynamically deploying Puppet content based on the state of version control repositories can be powerful and efficient for development workflows. The linkage however is not advantageous when trying to build precision controls over deployment of previously-developed and tested content.
+
+The YAML environment source type allows for a clear separation of tooling between development workflow, and deployment workflow. Development workflow creates new commits in the version control system. Deployment workflow consumes them.
+
+To use the YAML environment source, configure r10k's sources with at least one entry using the yaml type.
+
+```yaml
+# r10k.yaml
+---
+sources:
+  puppet:
+    type: yaml
+    basedir: /etc/puppetlabs/code/environments
+    config: /etc/puppetlabs/r10k/environments.yaml # default
+```
+
+When using the YAML source type, every environment is enumerated in a single yaml file. Each environment specifies a type, source, and version (typically a Git ref) to deploy. In the following example, two environments are defined, which are identical to each other.
+
+```yaml
+---
+production:
+  type: git
+  remote: git@github.com:puppetlabs/control-repo.git
+  ref: 8820892
+
+development:
+  type: git
+  remote: git@github.com:puppetlabs/control-repo.git
+  ref: 8820892
+```
+
+### YAMLdir Environment Source
+
+Like the YAML environment source, but implemented as a conf.d pattern.
+
+```yaml
+# r10k.yaml
+---
+sources:
+  puppet:
+    type: yamldir
+    basedir: /etc/puppetlabs/code/environments
+    config: /etc/puppetlabs/r10k/environments.d # default
+```
+
+Each environment is defined in a yaml file placed in the configuration directory. The filename, without the .yaml extension, will be the name of the environment.
+
+```
+/etc/puppetlabs/r10k/environments.d
+├── production.yaml
+└── development.yaml
+```
+
+The contents of the file should be a hash specifying the enviornment type, and all other applicable environment options.
+
+```yaml
+# production.yaml
+---
+type: git
+remote: git@github.com:puppetlabs/control-repo.git
+ref: 8820892
+```
+
+### Exec environment Source
+
+The exec environment source runs an external command which is expected to return on stdout content compatible with the YAML environment source data format. The command may return the data in JSON or YAML form. The exec environment source is similar in purpose to Puppet's exec node terminus, used to implement external node classifiers (ENCs). R10k's exec source type allows the the implementation of external environment sources.
+
+```yaml
+# r10k.yaml
+---
+sources:
+  puppet:
+    type: exec
+    basedir: /etc/puppetlabs/code/environments
+    command: /usr/local/bin/r10k-environments.sh
+```
+
+### Environment Modules
+
+The environment modules feature allows module content to be attached to an environment at environment definition time. This happens before modules specified in a Puppetfile are attached to an environment, which does not happen until deploy time. Environment module implementation depends on the environment source type.
+
+For the YAML environment source type, attach modules to an environment by specifying a modules key for the environment, and providing a hash of modules to attach. Each module accepts the same arguments accepted by the `mod` method in a Puppetfile. For ease of reading and consistency, however, it is perferred to use the generic type, source, and version options over implementation-specific formats and options such as "ref" and "git".
+
+The example below includes two Forge modules and one module sourced from a Git repository. The two environments are almost identical. However, a new version of the stdlib module has been deployed in development (6.2.0), that has not yet been deployed to production.
+
+```yaml
+---
+production:
+  type: git
+  source: git@github.com:puppetlabs/control-repo.git
+  version: 8820892
+  modules:
+    puppetlabs-stdlib:
+      type: forge
+      version: 6.0.0
+    puppetlabs-concat:
+      type: forge
+      version: 6.1.0
+    reidmv-xampl:
+      type: git
+      source: https://github.com/reidmv/reidmv-xampl.git
+      version: 62d07f2
+
+development:
+  type: git
+  source: git@github.com:puppetlabs/control-repo.git
+  version: 8820892
+  modules:
+    puppetlabs-stdlib:
+      type: forge
+      version: 6.2.0
+    puppetlabs-concat:
+      type: forge
+      version: 6.1.0
+    reidmv-xampl:
+      type: git
+      source: https://github.com/reidmv/reidmv-xampl.git
+      version: 62d07f2
+```
+
+An example of a single environment definition for the YAMLdir environment source type:
+
+```yaml
+# production.yaml
+---
+type: git
+source: git@github.com:puppetlabs/control-repo.git
+version: 8820892
+modules:
+  puppetlabs-stdlib:
+    type: forge
+    version: 6.0.0
+  puppetlabs-concat:
+    type: forge
+    version: 6.1.0
+  reidmv-xampl:
+    type: git
+    source: https://github.com/reidmv/reidmv-xampl.git
+    version: 62d07f2
+```
+
+#### Puppetfile module conflicts
+
+When a module is defined in an environment and also in a Puppetfile, the default behavior is for the environment definition of the module to take precedence, a warning to be logged, and the Puppetfile definition to be ignored. The behavior is configurable to optionally skip the warning, or allow a hard failure instead. Use the `module_conflicts` option in an environment definition to control this.
+
+Available `module_conflicts` options:
+
+* `override_and_warn` (default): the version of the module defined by the environment will be used, and the version defined in the Puppetfile will be ignored. A warning will be printed.
+* `override`: the version of the module defined by the environment will be used, and the version defined in the Puppetfile will be ignored.
+* `error`: an error will be raised alerting the user to the conflict. The environment will not be deployed.
+
+```yaml
+# production.yaml
+---
+type: git
+source: git@github.com:puppetlabs/control-repo.git
+version: 8820892
+module_conflicts: override_and_warn
+modules:
+  puppetlabs-stdlib:
+    type: forge
+    version: 6.0.0
+  puppetlabs-concat:
+    type: forge
+    version: 6.1.0
+  reidmv-xampl:
+    type: git
+    source: https://github.com/reidmv/reidmv-xampl.git
+    version: 62d07f2
+```
+
+### Bare Environment Type
+
+A "control repository" typically contains a hiera.yaml, an environment.conf, a manifests/site.pp file, and a few other things. However, none of these are strictly necessary for an environment to be functional if modules can be deployed to it.
+
+The bare environment type allows sources that support environment modules to operate without a control repo being required. Modules can be deployed directly.
+
+```yaml
+---
+production:
+  type: bare
+  modules:
+    puppetlabs-stdlib:
+      type: forge
+      version: 6.0.0
+    puppetlabs-concat:
+      type: forge
+      version: 6.1.0
+    reidmv-xampl:
+      type: git
+      source: https://github.com/reidmv/reidmv-xampl.git
+      version: 62d07f2
+
+development:
+  type: bare
+  modules:
+    puppetlabs-stdlib:
+      type: forge
+      version: 6.0.0
+    puppetlabs-concat:
+      type: forge
+      version: 6.1.0
+    reidmv-xampl:
+      type: git
+      source: https://github.com/reidmv/reidmv-xampl.git
+      version: 62d07f2
 ```

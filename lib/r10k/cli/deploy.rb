@@ -18,11 +18,22 @@ module R10K::CLI
 
         description <<-DESCRIPTION
 `r10k deploy` implements the Git branch to Puppet environment workflow
-(https://puppetlabs.com/blog/git-workflow-and-puppet-environments/).
+(https://puppet.com/docs/puppet/latest/environments_about.html).
         DESCRIPTION
 
-        required nil, :cachedir, 'Specify a cachedir, overriding the value in config'
+        option nil, :cachedir, 'Specify a cachedir, overriding the value in config', argument: :required
         flag nil, :'no-force', 'Prevent the overwriting of local module modifications'
+        flag nil, :'generate-types', 'Run `puppet generate types` after updating an environment'
+        option nil, :'puppet-path', 'Path to puppet executable', argument: :required do |value, cmd|
+          unless File.executable? value
+            $stderr.puts "The specified puppet executable #{value} is not executable."
+            puts cmd.help
+            exit 1
+          end
+        end
+        option nil, :'puppet-conf', 'Path to puppet.conf', argument: :required
+        option nil, :'private-key', 'Path to SSH key to use when cloning. Only valid with rugged provider', argument: :required
+        option nil, :'oauth-token', 'Path to OAuth token to use when cloning. Only valid with rugged provider', argument: :required
 
         run do |opts, args, cmd|
           puts cmd.help(:verbose => opts[:verbose])
@@ -53,6 +64,8 @@ scheduled. On subsequent deployments, Puppetfile deployment will default to off.
           DESCRIPTION
 
           flag :p, :puppetfile, 'Deploy modules from a puppetfile'
+          option nil, :'default-branch-override', 'Specify a branchname to override the default branch in the puppetfile',
+                 argument: :required
 
           runner R10K::Action::CriRunner.wrap(R10K::Action::Deploy::Environment)
         end
@@ -72,7 +85,7 @@ It will load the Puppetfile configurations out of all environments, and will
 try to deploy the given module names in all environments.
           DESCRIPTION
 
-          required :e, :environment, 'Update the modules in the given environment'
+          option :e, :environment, 'Update the modules in the given environment', argument: :required
 
           runner R10K::Action::CriRunner.wrap(R10K::Action::Deploy::Module)
         end
@@ -90,7 +103,8 @@ try to deploy the given module names in all environments.
           flag :p, :puppetfile, 'Display Puppetfile modules'
           flag nil, :detail, 'Display detailed information'
           flag nil, :fetch, 'Update available environment lists from all remote sources'
-          required nil, :format, 'Display output in a specific format. Valid values: json, yaml. Default: yaml'
+          option nil, :format, 'Display output in a specific format. Valid values: json, yaml. Default: yaml',
+                 argument: :required
 
           runner R10K::Action::CriRunner.wrap(R10K::Action::Deploy::Display)
         end

@@ -3,6 +3,16 @@ require 'r10k/git/cache'
 
 describe R10K::Git::Cache do
 
+  describe 'the default cache_root' do
+    it 'is in the right location in linux', unless: R10K::Util::Platform.windows?  do
+      expect(described_class.defaults[:cache_root]).to match(/\.r10k\/git/)
+    end
+
+    it 'is in the right location for windows', if: R10K::Util::Platform.windows? do
+      expect(described_class.defaults[:cache_root]).to match(/[^.]r10k\/git/)
+    end
+  end
+
   let(:subclass) do
     Class.new(described_class) do
       def self.bare_repository

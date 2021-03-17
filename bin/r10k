@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'r10k/cli'
-require 'colored'
+require 'colored2'
 
 begin
   R10K::CLI.command.run(ARGV)

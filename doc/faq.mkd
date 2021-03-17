@@ -141,7 +141,7 @@ modulepath = modules:external-modules
 
 Lastly, you can simply move your locally versioned modules to a separate
 directory to avoid conflicting over the `/modules` directory entirely. With this
-example as well you can use the `environment.conf file to tell Puppet which
+example as well you can use the `environment.conf` file to tell Puppet which
 directories contain modules.
 
 ```
@@ -149,6 +149,16 @@ directories contain modules.
 modulepath = internal-modules:modules
 ```
 
+#### Does R10K support Local/Private Forge?
+
+Yes. Set the Forge to use _globally_ in `r10k.yaml`. see [Configuration](/doc/dynamic-environments/configuration.mkd#baseurl) for details.
+
+
 #### What does the name mean?
 
-It's explained in [this blog post](http://somethingsinistral.net/blog/rethinking-puppet-deployment/#addendum).
+It’s called R10K because I’m terrible at names. When I started working on R10K
+I couldn’t come up with a decent name. While trying to come up with something
+clever, I recalled that Randall Munroe wrote a bot for [controlling IRC chatter](http://blog.xkcd.com/2008/01/14/robot9000-and-xkcd-signal-attacking-noise-in-chat/),
+and gave it the most generic name he could think of - Robot 9000. Since I just
+needed a name, any name, I decided to go with an equally generic name by
+incrementing the robot index.

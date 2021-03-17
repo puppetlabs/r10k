@@ -1,3 +1,4 @@
+require 'thread'
 require 'pathname'
 require 'r10k/module'
 require 'r10k/util/purgeable'
@@ -6,6 +7,10 @@ require 'r10k/errors'
 module R10K
 class Puppetfile
   # Defines the data members of a Puppetfile
+
+  include R10K::Settings::Mixin
+
+  def_setting_attr :pool_size, 4
 
   include R10K::Logging
 
@@ -58,15 +63,18 @@ class Puppetfile
     @loaded = false
   end
 
-  def load
+  def load(default_branch_override = nil)
+    return true if self.loaded?
     if File.readable? @puppetfile_path
-      self.load!
+      self.load!(default_branch_override)
     else
       logger.debug _("Puppetfile %{path} missing or unreadable") % {path: @puppetfile_path.inspect}
     end
   end
 
-  def load!
+  def load!(default_branch_override = nil)
+    @default_branch_override = default_branch_override
+
     begin
       logger.debug "Attempting to parse the AST directly"
 
@@ -84,6 +92,10 @@ class Puppetfile
     @loaded = true
   rescue SyntaxError, LoadError, ArgumentError, NameError => e
     raise R10K::Error.wrap(e, _("Failed to evaluate %{path}") % {path: @puppetfile_path})
+  end
+
+  def loaded?
+    @loaded
   end
 
   # @param [Array<String>] modules
@@ -124,12 +136,24 @@ class Puppetfile
       install_path = @moduledir
     end
 
-    # Keep track of all the content this Puppetfile is managing to enable purging.
-    @managed_content[install_path] = Array.new unless @managed_content.has_key?(install_path)
+    if args.is_a?(Hash) && @default_branch_override != nil
+      args[:default_branch_override] = @default_branch_override
+    end
 
     mod = R10K::Module.new(name, install_path, args, @environment)
+    mod.origin = :puppetfile
 
+    # Do not load modules if they would conflict with the attached
+    # environment
+    if environment && environment.module_conflicts?(mod)
+      mod = nil
+      return @modules
+    end
+
+    # Keep track of all the content this Puppetfile is managing to enable purging.
+    @managed_content[install_path] = Array.new unless @managed_content.has_key?(install_path)
     @managed_content[install_path] << mod.name
+
     @modules << mod
   end
 
@@ -138,7 +162,9 @@ class Puppetfile
   def managed_directories
     self.load unless @loaded
 
-    @managed_content.keys
+    dirs = @managed_content.keys
+    dirs.delete(real_basedir)
+    dirs
   end
 
   # Returns an array of the full paths to all the content being managed.
@@ -163,6 +189,17 @@ class Puppetfile
   end
 
   def accept(visitor)
+    pool_size = self.settings[:pool_size]
+    if pool_size > 1
+      concurrent_accept(visitor, pool_size)
+    else
+      serial_accept(visitor)
+    end
+  end
+
+  private
+
+  def serial_accept(visitor)
     visitor.visit(:puppetfile, self) do
       modules.each do |mod|
         mod.accept(visitor)
@@ -170,7 +207,54 @@ class Puppetfile
     end
   end
 
-  private
+  def concurrent_accept(visitor, pool_size)
+    logger.debug _("Updating modules with %{pool_size} threads") % {pool_size: pool_size}
+    mods_queue = modules_queue(visitor)
+    thread_pool = pool_size.times.map { visitor_thread(visitor, mods_queue) }
+    thread_exception = nil
+
+    # If any threads raise an exception the deployment is considered a failure.
+    # In that event clear the queue, wait for other threads to finish their
+    # current work, then re-raise the first exception caught.
+    begin
+      thread_pool.each(&:join)
+    rescue => e
+      logger.error _("Error during concurrent deploy of a module: %{message}") % {message: e.message}
+      mods_queue.clear
+      thread_exception ||= e
+      retry
+    ensure
+      raise thread_exception unless thread_exception.nil?
+    end
+  end
+
+  def modules_queue(visitor)
+    Queue.new.tap do |queue|
+      visitor.visit(:puppetfile, self) do
+        modules_by_cachedir = modules.group_by { |mod| mod.cachedir }
+        modules_without_vcs_cachedir = modules_by_cachedir.delete(:none) || []
+
+        modules_without_vcs_cachedir.each {|mod| queue << Array(mod) }
+        modules_by_cachedir.values.each {|mods| queue << mods }
+      end
+    end
+  end
+  public :modules_queue
+
+  def visitor_thread(visitor, mods_queue)
+    Thread.new do
+      begin
+        while mods = mods_queue.pop(true) do
+          mods.each {|mod| mod.accept(visitor) }
+        end
+      rescue ThreadError => e
+        logger.debug _("Module thread %{id} exiting: %{message}") % {message: e.message, id: Thread.current.object_id}
+        Thread.exit
+      rescue => e
+        Thread.main.raise(e)
+      end
+    end
+  end
 
   def puppetfile_contents
     File.read(@puppetfile_path)
@@ -190,13 +274,15 @@ class Puppetfile
   end
 
   def validate_install_path(path, modname)
-    real_basedir = Pathname.new(basedir).cleanpath.to_s
-
     unless /^#{Regexp.escape(real_basedir)}.*/ =~ path
       raise R10K::Error.new("Puppetfile cannot manage content '#{modname}' outside of containing environment: #{path} is not within #{real_basedir}")
     end
 
     true
+  end
+
+  def real_basedir
+    Pathname.new(basedir).cleanpath.to_s
   end
 
   class DSL

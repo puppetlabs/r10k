@@ -19,6 +19,7 @@ module R10K
           settings ||= {}
           @purge_levels = settings.fetch(:deploy, {}).fetch(:purge_levels, [])
           @user_purge_whitelist = settings.fetch(:deploy, {}).fetch(:purge_whitelist, [])
+          @generate_types = settings.fetch(:deploy, {}).fetch(:generate_types, false)
 
           super
 
@@ -65,7 +66,7 @@ module R10K
         ensure
           if (postcmd = @settings[:postrun])
             if postcmd.grep('$modifiedenvs').any?
-              envs = deployment.environments.map { |e| e.name }
+              envs = deployment.environments.map { |e| e.dirname }
               envs.reject! { |e| !@argv.include?(e) } if @argv.any?
               postcmd = postcmd.map { |e| e.gsub('$modifiedenvs', envs.join(' ')) }
             end
@@ -86,6 +87,7 @@ module R10K
           end
 
           started_at = Time.new
+          @environment_ok = true
 
           status = environment.status
           logger.info _("Deploying environment %{env_path}") % {env_path: environment.path}
@@ -98,7 +100,11 @@ module R10K
               logger.debug(_("Environment %{env_dir} is new, updating all modules") % {env_dir: environment.dirname})
             end
 
+            previous_ok = @visit_ok
+            @visit_ok = true
             yield
+            @environment_ok = @visit_ok
+            @visit_ok &&= previous_ok
           end
 
           if @purge_levels.include?(:environment)
@@ -110,11 +116,20 @@ module R10K
             end
           end
 
+          if @generate_types
+            if @environment_ok
+              logger.debug("Generating puppet types for environment '#{environment.dirname}'...")
+              environment.generate_types!
+            else
+              logger.debug("Not generating puppet types for environment '#{environment.dirname}' due to puppetfile failures.")
+            end
+          end
+
           write_environment_info!(environment, started_at, @visit_ok)
         end
 
         def visit_puppetfile(puppetfile)
-          puppetfile.load
+          puppetfile.load(@opts[:'default-branch-override'])
 
           yield
 
@@ -125,20 +140,37 @@ module R10K
         end
 
         def visit_module(mod)
-          logger.info _("Deploying Puppetfile content %{mod_path}") % {mod_path: mod.path}
+          logger.info _("Deploying %{origin} content %{path}") % {origin: mod.origin, path: mod.path}
           mod.sync(force: @force)
         end
 
         def write_environment_info!(environment, started_at, success)
-          File.open("#{environment.path}/.r10k-deploy.json", 'w') do |f|
+          module_deploys = []
+          begin
+            environment.modules.each do |mod|
+              name = mod.name
+              version = mod.version
+              sha = mod.repo.head rescue nil
+              module_deploys.push({:name => name, :version => version, :sha => sha})
+            end
+          rescue
+            logger.debug("Unable to get environment module deploy data for .r10k-deploy.json at #{environment.path}")
+          end
+
+          # make this file write as atomic as possible in pure ruby
+          final   = "#{environment.path}/.r10k-deploy.json"
+          staging = "#{environment.path}/.r10k-deploy.json~"
+          File.open(staging, 'w') do |f|
             deploy_info = environment.info.merge({
               :started_at => started_at,
               :finished_at => Time.new,
               :deploy_success => success,
+              :module_deploys => module_deploys,
             })
 
             f.puts(JSON.pretty_generate(deploy_info))
           end
+          FileUtils.mv(staging, final)
         end
 
         def undeployable_environment_names(environments, expected_names)
@@ -151,7 +183,15 @@ module R10K
         end
 
         def allowed_initialize_opts
-          super.merge(puppetfile: :self, cachedir: :self, :'no-force' => :self)
+          super.merge(puppetfile: :self,
+                      cachedir: :self,
+                      'no-force': :self,
+                      'generate-types': :self,
+                      'puppet-path': :self,
+                      'puppet-conf': :self,
+                      'private-key': :self,
+                      'oauth-token': :self,
+                      'default-branch-override': :self)
         end
       end
     end

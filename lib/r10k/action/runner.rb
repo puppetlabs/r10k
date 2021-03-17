@@ -42,13 +42,22 @@ module R10K
       def setup_settings
         config_settings = settings_from_config(@opts[:config])
 
-        overrides = {:cachedir => @opts[:cachedir]}
-        overrides.delete_if { |_, val| val.nil? }
+        overrides = {}
+        overrides[:cachedir] = @opts[:cachedir] if @opts.key?(:cachedir)
+        overrides[:deploy] = {} if @opts.key?(:'puppet-path') || @opts.key?(:'generate-types')
+        overrides[:deploy][:puppet_path] = @opts[:'puppet-path'] if @opts.key?(:'puppet-path')
+        overrides[:deploy][:puppet_conf] = @opts[:'puppet-conf'] unless @opts[:'puppet-conf'].nil?
+        overrides[:deploy][:generate_types] = @opts[:'generate-types'] if @opts.key?(:'generate-types')
 
         with_overrides = config_settings.merge(overrides) do |key, oldval, newval|
+          newval = oldval.merge(newval) if oldval.is_a? Hash
           logger.debug2 _("Overriding config file setting '%{key}': '%{old_val}' -> '%{new_val}'") % {key: key, old_val: oldval, new_val: newval}
           newval
         end
+
+        # Credentials from the CLI override both the global and per-repo
+        # credentials from the config, and so need to be handled specially
+        with_overrides = add_credential_overrides(with_overrides)
 
         @settings = R10K::Settings.global_settings.evaluate(with_overrides)
 
@@ -86,6 +95,35 @@ module R10K
         end
 
         results
+      end
+
+      def add_credential_overrides(overrides)
+        sshkey_path = @opts[:'private-key']
+        token_path = @opts[:'oauth-token']
+
+        if sshkey_path && token_path
+          raise R10K::Error, "Cannot specify both an SSH key and a token to use with this deploy."
+        end
+
+        if sshkey_path
+          overrides[:git] ||= {}
+          overrides[:git][:private_key] = sshkey_path
+          if repo_settings = overrides[:git][:repositories]
+            repo_settings.each do |repo|
+              repo[:private_key] = sshkey_path
+            end
+          end
+        elsif token_path
+          overrides[:git] ||= {}
+          overrides[:git][:oauth_token] = token_path
+          if repo_settings = overrides[:git][:repositories]
+            repo_settings.each do |repo|
+              repo[:oauth_token] = token_path
+            end
+          end
+        end
+
+        overrides
       end
     end
   end

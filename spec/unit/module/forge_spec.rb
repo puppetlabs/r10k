@@ -23,6 +23,12 @@ describe R10K::Module::Forge do
     end
   end
 
+  describe "implementing the standard options interface" do
+    it "should implement {type: forge}" do
+      expect(described_class).to be_implement('branan-eight_hundred', {type: 'forge', version: '8.0.0', source: 'not implemented'})
+    end
+  end
+
   describe "setting attributes" do
     subject { described_class.new('branan/eight_hundred', '/moduledir', '8.0.0') }
 

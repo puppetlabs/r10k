@@ -9,6 +9,8 @@ class R10K::Environment::SVN < R10K::Environment::Base
 
   include R10K::Logging
 
+  R10K::Environment.register(:svn, self)
+
   # @!attribute [r] remote
   #   @return [String] The URL to the remote SVN branch to check out
   attr_reader :remote
@@ -42,8 +44,17 @@ class R10K::Environment::SVN < R10K::Environment::Base
   # @option options [String] :password The SVN password
   def initialize(name, basedir, dirname, options = {})
     super
+    setopts(options, {
+      # Standard option interface
+      :source  => :remote,
+      :version => :expected_revision,
+      :type    => ::R10K::Util::Setopts::Ignore,
 
-    setopts(options, {:remote => :self, :username => :self, :password => :self, :puppetfile_name => :self })
+      # Type-specific options
+      :remote => :self,
+      :username => :self,
+      :password => :self,
+    })
 
     @working_dir = R10K::SVN::WorkingDir.new(Pathname.new(@full_path), :username => @username, :password => @password)
   end
@@ -59,7 +70,7 @@ class R10K::Environment::SVN < R10K::Environment::Base
     if @working_dir.is_svn?
       @working_dir.update
     else
-      @working_dir.checkout(@remote)
+      @working_dir.checkout(@remote, @expected_revision)
     end
     @synced = true
   end

@@ -123,7 +123,7 @@ describe R10K::Module::Git do
       let(:opts) { { unrecognized: true } }
 
       it "raises an error" do
-        expect { test_module(opts) }.to raise_error(ArgumentError, /unhandled options.*unrecognized/i)
+        expect { test_module(opts) }.to raise_error(ArgumentError, /cannot handle option 'unrecognized'/)
       end
     end
 
@@ -265,6 +265,61 @@ describe R10K::Module::Git do
               mod = test_module({branch: :control_branch}, mock_env)
 
               expect { mod.properties }.to raise_error(ArgumentError, /unable to manage.*no default provided/i)
+            end
+          end
+        end
+
+        context "when using default_branch_override" do
+          before(:each) do
+            allow(mock_repo).to receive(:resolve).with(mock_env.ref).and_return(nil)
+          end
+
+          context "and the default branch override is resolvable" do
+            it "uses the override" do
+              expect(mock_repo).to receive(:resolve).with('default_override').and_return('5566aabb')
+              mod = test_module({branch: :control_branch,
+                                 default_branch: 'default',
+                                 default_branch_override: 'default_override'},
+                                 mock_env)
+              expect(mod.properties).to include(expected: 'default_override')
+            end
+          end
+
+          context "and the default branch override is not resolvable" do
+            context "and default branch is provided" do
+              it "falls back to the default" do
+                expect(mock_repo).to receive(:resolve).with('default_override').and_return(nil)
+                expect(mock_repo).to receive(:resolve).with('default').and_return('5566aabb')
+                mod = test_module({branch: :control_branch,
+                                   default_branch: 'default',
+                                   default_branch_override: 'default_override'},
+                                   mock_env)
+                expect(mod.properties).to include(expected: 'default')
+              end
+            end
+
+            context "and default branch is not provided" do
+              it "raises the appropriate error" do
+                expect(mock_repo).to receive(:resolve).with('default_override').and_return(nil)
+                mod = test_module({branch: :control_branch,
+                                   default_branch_override: 'default_override'},
+                                   mock_env)
+
+                expect { mod.properties }.to raise_error(ArgumentError, /unable to manage.*or resolve the default branch override.*no default provided/i)
+              end
+            end
+
+            context "and default branch is not resolvable" do
+              it "raises the appropriate error" do
+                expect(mock_repo).to receive(:resolve).with('default_override').and_return(nil)
+                expect(mock_repo).to receive(:resolve).with('default').and_return(nil)
+                mod = test_module({branch: :control_branch,
+                                   default_branch: 'default',
+                                   default_branch_override: 'default_override'},
+                                   mock_env)
+
+                expect { mod.properties }.to raise_error(ArgumentError, /unable to manage.*or resolve the default branch override.*or resolve default/i)
+              end
             end
           end
         end

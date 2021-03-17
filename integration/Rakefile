@@ -24,7 +24,6 @@ pre-suite/00_pe_install.rb,
 component/pre-suite/05_install_dev_r10k.rb,
 pre-suite/10_git_config.rb,
 pre-suite/20_pe_r10k.rb,
-pre-suite/30_test_utils.rb,
 EOS
   common_setup.gsub!("\n", '')
 
@@ -45,8 +44,8 @@ EOS
 
   t.add_env do |env|
     env.name = 'pe_dist_dir'
-    env.message = 'The location to download PE from example "http://enterprise.delivery.puppetlabs.net/20XX.X/ci-ready"'
-    ENV['pe_dist_dir'] ||= "http://enterprise.delivery.puppetlabs.net/#{ENV['PE_FAMILY']}/ci-ready"
+    env.message = 'The location to download PE from, for example "https://artifactory.delivery.puppetlabs.net/artifactory/generic_enterprise__local/20XX.X/ci-ready"'
+    ENV['pe_dist_dir'] ||= "https://artifactory.delivery.puppetlabs.net/artifactory/generic_enterprise__local/#{ENV['PE_FAMILY']}/ci-ready"
   end
 
   t.add_env do |env|

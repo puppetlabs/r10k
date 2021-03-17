@@ -62,13 +62,24 @@ module R10K
           if @argv.include?(mod.name)
             logger.info _("Deploying module %{mod_path}") % {mod_path: mod.path}
             mod.sync(force: @force)
+            if mod.environment && @generate_types
+              logger.debug("Generating puppet types for environment '#{mod.environment.dirname}'...")
+              mod.environment.generate_types!
+            end
           else
             logger.debug1(_("Only updating modules %{modules}, skipping module %{mod_name}") % {modules: @argv.inspect, mod_name: mod.name})
           end
         end
 
         def allowed_initialize_opts
-          super.merge(environment: true, :'no-force' => :self)
+          super.merge(environment: true,
+                      cachedir: :self,
+                      'no-force': :self,
+                      'generate-types': :self,
+                      'puppet-path': :self,
+                      'puppet-conf': :self,
+                      'private-key': :self,
+                      'oauth-token': :self)
         end
       end
     end

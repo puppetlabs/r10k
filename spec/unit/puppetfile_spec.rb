@@ -127,6 +127,17 @@ describe R10K::Puppetfile do
 
       expect { subject.add_module('puppet/test_module', module_opts) }.to raise_error(R10K::Error, /cannot manage content.*is not within/i).and not_change { subject.modules }
     end
+
+    it "should disable and not add modules that conflict with the environment" do
+      env = instance_double('R10K::Environment::Base')
+      mod = instance_double('R10K::Module::Base', name: 'conflict', origin: :puppetfile)
+      allow(mod).to receive(:origin=).and_return(nil)
+      allow(subject).to receive(:environment).and_return(env)
+      allow(env).to receive(:'module_conflicts?').with(mod).and_return(true)
+
+      allow(R10K::Module).to receive(:new).with('test', anything, anything, anything).and_return(mod)
+      expect { subject.add_module('test', {}) }.not_to change { subject.modules }
+    end
   end
 
   describe "#purge_exclusions" do
@@ -150,6 +161,26 @@ describe R10K::Puppetfile do
 
       it "includes environment's desired_contents" do
         expect(subject.purge_exclusions).to match_array(managed_dirs + env_contents)
+      end
+    end
+  end
+
+  describe '#managed_directories' do
+    it 'returns an array of paths that can be purged' do
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, '1.2.3', anything).and_call_original
+
+      subject.add_module('puppet/test_module', '1.2.3')
+      expect(subject.managed_directories).to match_array(["/some/nonexistent/basedir/modules"])
+    end
+
+    context 'with a module with install_path == \'\'' do
+      it 'basedir isn\'t in the list of paths to purge' do
+        module_opts = { install_path: '', git: 'git@example.com:puppet/test_module.git' }
+
+        allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.basedir, module_opts, anything).and_call_original
+
+        subject.add_module('puppet/test_module', module_opts)
+        expect(subject.managed_directories).to be_empty
       end
     end
   end
@@ -227,6 +258,26 @@ describe R10K::Puppetfile do
       subject = described_class.new(path)
       expect { subject.load! }.not_to raise_error
     end
+
+    it "creates a git module and applies the default branch sepcified in the Puppetfile" do
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'default-branch-override')
+      pf_path = File.join(path, 'Puppetfile')
+      subject = described_class.new(path)
+      expect { subject.load! }.not_to raise_error
+      git_module = subject.modules[0]
+      expect(git_module.default_ref).to eq 'here_lies_the_default_branch'
+    end
+
+    it "creates a git module and applies the provided default_branch_override" do
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'default-branch-override')
+      pf_path = File.join(path, 'Puppetfile')
+      subject = described_class.new(path)
+      default_branch_override = 'default_branch_override_name'
+      expect { subject.load!(default_branch_override) }.not_to raise_error
+      git_module = subject.modules[0]
+      expect(git_module.default_override_ref).to eq default_branch_override
+      expect(git_module.default_ref).to eq "here_lies_the_default_branch"
+    end
   end
 
   describe "accepting a visitor" do
@@ -244,13 +295,60 @@ describe R10K::Puppetfile do
         block.call
       end
 
-      mod1 = spy('module')
+      mod1 = instance_double('R10K::Module::Base', :cachedir => :none)
+      mod2 = instance_double('R10K::Module::Base', :cachedir => :none)
       expect(mod1).to receive(:accept).with(visitor)
-      mod2 = spy('module')
       expect(mod2).to receive(:accept).with(visitor)
-
       expect(subject).to receive(:modules).and_return([mod1, mod2])
+
       subject.accept(visitor)
+    end
+
+    it "creates a thread pool to visit concurrently if pool_size setting is greater than one" do
+      pool_size = 3
+
+      subject.settings[:pool_size] = pool_size
+
+      visitor = spy('visitor')
+      expect(visitor).to receive(:visit) do |type, other, &block|
+        expect(type).to eq :puppetfile
+        expect(other).to eq subject
+        block.call
+      end
+
+      mod1 = instance_double('R10K::Module::Base', :cachedir => :none)
+      mod2 = instance_double('R10K::Module::Base', :cachedir => :none)
+      expect(mod1).to receive(:accept).with(visitor)
+      expect(mod2).to receive(:accept).with(visitor)
+      expect(subject).to receive(:modules).and_return([mod1, mod2])
+
+      expect(Thread).to receive(:new).exactly(pool_size).and_call_original
+      expect(Queue).to receive(:new).and_call_original
+
+      subject.accept(visitor)
+    end
+
+    it "Creates queues of modules grouped by cachedir" do
+      visitor = spy('visitor')
+      expect(visitor).to receive(:visit) do |type, other, &block|
+        expect(type).to eq :puppetfile
+        expect(other).to eq subject
+        block.call
+      end
+
+      m1 = instance_double('R10K::Module::Base', :cachedir => '/dev/null/A')
+      m2 = instance_double('R10K::Module::Base', :cachedir => '/dev/null/B')
+      m3 = instance_double('R10K::Module::Base', :cachedir => '/dev/null/C')
+      m4 = instance_double('R10K::Module::Base', :cachedir => '/dev/null/C')
+      m5 = instance_double('R10K::Module::Base', :cachedir => '/dev/null/D')
+      m6 = instance_double('R10K::Module::Base', :cachedir => '/dev/null/D')
+
+      expect(subject).to receive(:modules).and_return([m1, m2, m3, m4, m5, m6])
+
+      queue = subject.modules_queue(visitor)
+      expect(queue.length).to be 4
+      queue_array = 4.times.map { queue.pop }
+      expect(queue_array).to match_array([[m1], [m2], [m3, m4], [m5, m6]])
     end
   end
 end

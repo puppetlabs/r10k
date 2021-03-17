@@ -11,7 +11,7 @@ describe R10K::Git do
       expect(described_class.default_name).to eq :shellgit
     end
 
-    context 'under c-based rubies', :unless => R10K::Util::Platform.jruby? do
+    context 'under c-based rubies with rugged available', :unless => R10K::Util::Platform.jruby? || R10K::Util::Platform.windows? do
       it 'returns rugged when the git executable is absent and the rugged library is present' do
         expect(R10K::Features).to receive(:available?).with(:shellgit).and_return false
         expect(R10K::Features).to receive(:available?).with(:rugged).and_return true
@@ -53,7 +53,7 @@ describe R10K::Git do
       }.to raise_error(R10K::Error, "Git provider 'shellgit' is not functional.")
     end
 
-    context 'under c-based rubies', :unless => R10K::Util::Platform.jruby? do
+    context 'under c-based rubies with rugged available', :unless => R10K::Util::Platform.jruby? || R10K::Util::Platform.windows? do
       it "sets the current provider if the provider exists and is functional" do
         expect(R10K::Features).to receive(:available?).with(:rugged).and_return true
         described_class.provider = :rugged
@@ -71,7 +71,7 @@ describe R10K::Git do
   end
 
   describe "retrieving the current provider" do
-    context 'under c-based rubies', :unless => R10K::Util::Platform.jruby? do
+    context 'under c-based rubies', :unless => R10K::Util::Platform.jruby? || R10K::Util::Platform.windows? do
       it "uses the default if a provider has not been set" do
         expect(described_class).to receive(:default_name).and_return :rugged
         expect(described_class.provider).to eq(R10K::Git::Rugged)

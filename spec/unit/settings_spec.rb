@@ -117,6 +117,30 @@ describe R10K::Settings do
         end
       end
     end
+
+    describe 'puppet_path' do
+      it 'when executable raises no error' do
+        expect(File).to receive(:executable?).with('/nonexistent').and_return(true)
+        expect { subject.evaluate('puppet_path' => '/nonexistent') }.not_to raise_error
+      end
+
+      it 'when not executable raises error' do
+        expect(File).to receive(:executable?).with('/nonexistent')
+        expect { subject.evaluate('puppet_path' => '/nonexistent') }.to raise_error(R10K::Settings::Collection::ValidationError)
+      end
+    end
+
+    describe 'puppet_conf' do
+      it 'when file raises no error' do
+        allow(File).to receive(:readable?).with('/nonexistent').and_return(true)
+        expect { subject.evaluate('puppet_conf' => '/nonexistent') }.not_to raise_error
+      end
+
+      it 'when not file raises error' do
+        allow(File).to receive(:readable?).with('/nonexistent').and_return(false)
+        expect { subject.evaluate('puppet_conf' => '/nonexistent') }.to raise_error(R10K::Settings::Collection::ValidationError)
+      end
+    end
   end
 
   describe "global settings" do
@@ -149,6 +173,41 @@ describe R10K::Settings do
           expect(err.errors.size).to eq 1
           expect(err.errors[:postrun]).to be_a_kind_of(ArgumentError)
           expect(err.errors[:postrun].message).to eq("The postrun setting should be an array of strings, not a String")
+        end
+      end
+    end
+
+    describe "pool_size" do
+      it "accepts integers greater than zero" do
+        output = subject.evaluate("pool_size" => 5)
+        expect(output[:pool_size]).to eq 5
+      end
+
+      it "rejects non integer values" do
+        expect {
+          subject.evaluate("pool_size" => "5")
+        }.to raise_error do |err|
+          expect(err.errors.size).to eq 1
+          expect(err.errors[:pool_size]).to be_a_kind_of(ArgumentError)
+          expect(err.errors[:pool_size].message).to match(/The pool_size setting should be an integer/)
+        end
+      end
+
+      it "rejects integers smaller than one" do
+        expect {
+          subject.evaluate("pool_size" => 0)
+        }.to raise_error do |err|
+          expect(err.errors.size).to eq 1
+          expect(err.errors[:pool_size]).to be_a_kind_of(ArgumentError)
+          expect(err.errors[:pool_size].message).to match(/The pool_size setting should be greater than zero/)
+        end
+
+        expect {
+          subject.evaluate("pool_size" => -3)
+        }.to raise_error do |err|
+          expect(err.errors.size).to eq 1
+          expect(err.errors[:pool_size]).to be_a_kind_of(ArgumentError)
+          expect(err.errors[:pool_size].message).to match(/The pool_size setting should be greater than zero/)
         end
       end
     end
