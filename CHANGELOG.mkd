@@ -2,10 +2,44 @@ CHANGELOG
 =========
 
 Unreleased
-----
+----------
 
-- Change default API base url to forgeapi.puppet.com
-  [#1066](https://github.com/puppetlabs/r10k/pull/1066)
+- Add 'strip\_component' environment source configuration setting, to allow deploying Git branches named like "env/production" as Puppet environments named like "production". [#1128](https://github.com/puppetlabs/r10k/pull/1128)
+- A warning will be emitted when the user supplies conflicting arguments to module definitions in a Puppetfile, such as when specifying both :commit and :branch [#1130](https://github.com/puppetlabs/r10k/pull/1130)
+- Add optional standard module and environment specification interface: name, type, source, version. These options can be used when specifying environments and/or modules in a yaml/exec source, as well as when specifying modules in a Puppetfile. Providing the standard interface simplifies integrations with external services [#1131](https://github.com/puppetlabs/r10k/pull/1131)
+- Change default API base url to forgeapi.puppet.com [#1066](https://github.com/puppetlabs/r10k/pull/1066)
+  
+3.8.0
+-----
+
+- When a forge module fails name validation the offending name will now be printed in the error message. [#1126](https://github.com/puppetlabs/r10k/pull/1126)
+- Module ref resolution will now fall back to the normal default branch if the default branch override cannot be resolved. [#1122](https://github.com/puppetlabs/r10k/pull/1122)
+- Experimental feature change: conflicts between environment-defined modules and Puppetfile-defined modules now default to logging a warning and deploying the environment module version, overriding the Puppetfile. Previously, conflicts would result in an error. The behavior is now configurable via the `module_conflicts` environment setting [#1107](https://github.com/puppetlabs/r10k/pull/1107)
+
+3.7.0
+-----
+
+- Use %LOCALAPPDATA% for Windows cachedir [#1049](https://github.com/puppetlabs/r10k/issues/1049)
+- Add support for defining custom puppet.conf when generating types [#993](https://github.com/puppetlabs/r10k/pull/993)
+- Update test cases to account for error message changes in Puppet 7
+
+3.6.0
+-----
+
+- Add filter_command configuration option for git repositories. (Thanks to [mhumpula](https://github.com/mhumpula) for the feature.) [#823](https://github.com/puppetlabs/r10k/pull/823)
+- Increase default pool_size to 4, allowing modules to be downloaded on 4 threads concurrently. [#1038](https://github.com/puppetlabs/r10k/issues/1038)
+- Ensure that modules that share a cachedir download serially, to avoid cache corruption. [#1058](https://github.com/puppetlabs/r10k/issues/1058)
+- Don't purge root when using `puppetfile install`. [#1084](https://github.com/puppetlabs/r10k/issues/1084)
+
+3.5.2
+-----
+
+- (RK-319) Clean up tmp directories used for downloading modules
+
+3.5.1
+-----
+
+- Upgrade Rugged Gemfile dependency for local development to ~> 1.0
 
 3.5.0
 -----
@@ -17,7 +51,7 @@ Unreleased
   [#813](https://github.com/puppetlabs/r10k/issues/813)
 
 3.4.1
-----
+-----
 
 - Add support for Ruby 2.7
 - (RK-357) Restrict gettext and fast_gettext versions for compatibility with Ruby 2.4
@@ -167,6 +201,11 @@ Ruby >= 2.3 official and documented.
     - r10k.yaml file is empty
     - Unable to parse Puppetfile
   - Various perfomance improvements
+
+2.6.9
+----
+
+- Don't purge root when using `puppetfile install`. [#1084](https://github.com/puppetlabs/r10k/issues/1084)
 
 2.6.8
 ----
@@ -396,7 +435,7 @@ Puppetfile should be installed to. See the [Puppetfile documentation](https://gi
 
 You can now configure how r10k purges unmanaged content after a deployment. The
 default behavior should be unchanged but there is a new "purge\_levels" configuration
-option that can be used to enable new behavior or de-activate certain existing 
+option that can be used to enable new behavior or de-activate certain existing
 behaviors. See the relevant [configuration documentation](https://github.com/puppetlabs/r10k/blob/master/doc/dynamic-environments/configuration.mkd#purge_levels) for more details.
 
 (RK-223) Ability to track control repo branch from content declarations.
@@ -443,7 +482,7 @@ fix.)
 Previously, r10k only supported the use of HTTP proxies for connecting to the Puppet
 Forge. With these changes, r10k can now be configured to use an HTTP proxy for both
 Forge and Git operations. Configuration can be specified globally, for Forge or Git
-only, or on a per-Git repository basis. See [configuration documentation](https://github.com/puppetlabs/r10k/blob/master/doc/dynamic-environments/configuration.mkd) 
+only, or on a per-Git repository basis. See [configuration documentation](https://github.com/puppetlabs/r10k/blob/master/doc/dynamic-environments/configuration.mkd)
 for more details.
 
 ### Bug Fixes
@@ -464,9 +503,9 @@ for SSH.
 (RK-241) "deploy display" action does not properly format wrapped exceptions
 
 The "deploy display" action was not capturing and logging exceptions in the same way as
-other related actions. This meant that in many cases, when an error occurred, the 
+other related actions. This meant that in many cases, when an error occurred, the
 underlying cause was not being shown. Specifically, the "deploy display" action was
-not benefitting from the improved error messaging for unreadable SSH keys which was 
+not benefitting from the improved error messaging for unreadable SSH keys which was
 added in r10k 2.2.0 as part of RK-220.
 
 2.2.1

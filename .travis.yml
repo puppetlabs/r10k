@@ -6,7 +6,7 @@ notifications:
   email: false
 sudo: false
 jdk:
-  - openjdk8
+  - openjdk11
 before_install: gem install bundler -v '< 2' --no-document
 matrix:
   include:
@@ -23,20 +23,23 @@ matrix:
     - stage: r10k tests
       rvm: jruby
     - stage: r10k container tests
-      dist: bionic
+      dist: focal
       language: ruby
       services:
-        # bionic uses 18.06 but need 19.03+ for buildkit so upgrade later in relevant cell
         - docker
-      rvm: 2.6.5
+      rvm: 2.6.6
       env:
+        - DOCKER_COMPOSE_VERSION=1.25.5
         # necessary to prevent overwhelming TravisCI build output limits
         - DOCKER_BUILD_FLAGS="--progress plain"
+      before_install:
+        - sudo rm /usr/local/bin/docker-compose
+        - curl --location https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname --kernel-name`-`uname --machine` > docker-compose
+        - chmod +x docker-compose
+        - sudo mv docker-compose /usr/local/bin
       script:
-        - |
-          set -ex
-          sudo apt update -y && sudo apt install -y docker.io
-          sudo systemctl unmask docker.service
-          sudo systemctl start docker
-          cd docker && make lint build test
-          set +x
+        - set -e
+        - cd docker
+        - make lint
+        - make build
+        - make test

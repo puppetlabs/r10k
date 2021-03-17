@@ -31,10 +31,15 @@ class R10K::Source::Base
   # @option options [Boolean, String] :prefix If a String this becomes the prefix.
   #   If true, will use the source name as the prefix. All sources should respect this option.
   #   Defaults to false for no environment prefix.
+  # @option options [String] :strip_component If a string, this value will be
+  #   removed from the beginning of each generated environment's name, if
+  #   present. If the string is contained within two "/" characters, it will
+  #   be treated as a regular expression.
   def initialize(name, basedir, options = {})
     @name    = name
     @basedir = Pathname.new(basedir).cleanpath.to_s
     @prefix  = options.delete(:prefix)
+    @strip_component = options.delete(:strip_component)
     @puppetfile_name = options.delete(:puppetfile_name)
     @options = options
   end

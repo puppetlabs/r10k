@@ -22,7 +22,7 @@ site_pp = create_site_pp(master_certname, '  include helloworld')
 notify_message_prod_env_regex = /I am in the production environment/
 notify_message_test_env_regex = /I am in the test environment/
 removal_message_test_env_regex = /Removing unmanaged path.*test/
-error_message_regex = /Could not retrieve catalog from remote server/
+error_message_regex = /Could not retrieve (catalog from remote server|information from environment test)/
 
 #Teardown
 teardown do

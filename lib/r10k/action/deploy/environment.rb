@@ -188,6 +188,9 @@ module R10K
                       'no-force': :self,
                       'generate-types': :self,
                       'puppet-path': :self,
+                      'puppet-conf': :self,
+                      'private-key': :self,
+                      'oauth-token': :self,
                       'default-branch-override': :self)
         end
       end

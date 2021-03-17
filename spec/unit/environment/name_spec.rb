@@ -2,6 +2,34 @@ require 'spec_helper'
 require 'r10k/environment/name'
 
 describe R10K::Environment::Name do
+  describe "strip_component" do
+    it "does not modify the given name when no strip_component is given" do
+      bn = described_class.new('myenv', source: 'source', prefix: false)
+      expect(bn.dirname).to eq 'myenv'
+    end
+
+    it "removes the first occurance of a regex match when a regex is given" do
+      bn = described_class.new('myenv', source: 'source', prefix: false, strip_component: '/env/')
+      expect(bn.dirname).to eq 'my'
+    end
+
+    it "does not modify the given name when there is no regex match" do
+      bn = described_class.new('myenv', source: 'source', prefix: false, strip_component: '/bar/')
+      expect(bn.dirname).to eq 'myenv'
+    end
+
+    it "removes the given name's prefix when it matches strip_component" do
+      bn = described_class.new('env/prod', source: 'source', prefix: false, strip_component: 'env/')
+      expect(bn.dirname).to eq 'prod'
+    end
+
+    it "raises an error when given an integer" do
+      expect {
+        described_class.new('env/prod', source: 'source', prefix: false, strip_component: 4)
+      }.to raise_error(%r{Improper.*"4"})
+    end
+  end
+
   describe "prefixing" do
     it "uses the branch name as the dirname when prefixing is off" do
       bn = described_class.new('mybranch', :source => 'source', :prefix => false)

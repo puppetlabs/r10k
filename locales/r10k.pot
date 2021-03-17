@@ -1,16 +1,16 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2020 Puppet, Inc.
+# Copyright (C) 2021 Puppet, Inc.
 # This file is distributed under the same license as the r10k package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.4.1-20-g8fe925b\n"
+"Project-Id-Version: r10k 3.4.1-151-g93d38cb\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2020-04-28 18:41+0000\n"
-"PO-Revision-Date: 2020-04-28 18:41+0000\n"
+"POT-Creation-Date: 2021-03-15 17:00+0000\n"
+"PO-Revision-Date: 2021-03-15 17:00+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -83,15 +83,15 @@ msgstr ""
 msgid "Cannot track control repo branch for content '%{name}' when not part of a 'deploy' action, will use default if available."
 msgstr ""
 
-#: ../lib/r10k/action/runner.rb:53 ../lib/r10k/deployment/config.rb:42
+#: ../lib/r10k/action/runner.rb:54 ../lib/r10k/deployment/config.rb:42
 msgid "Overriding config file setting '%{key}': '%{old_val}' -> '%{new_val}'"
 msgstr ""
 
-#: ../lib/r10k/action/runner.rb:86
+#: ../lib/r10k/action/runner.rb:91
 msgid "Reading configuration from %{config_path}"
 msgstr ""
 
-#: ../lib/r10k/action/runner.rb:89
+#: ../lib/r10k/action/runner.rb:94
 msgid "No config file explicitly given and no default config file could be found, default settings will be used."
 msgstr ""
 
@@ -103,16 +103,24 @@ msgstr ""
 msgid "Unable to load sources; the supplied configuration does not define the 'sources' key"
 msgstr ""
 
-#: ../lib/r10k/environment/base.rb:61 ../lib/r10k/environment/base.rb:77 ../lib/r10k/environment/base.rb:86 ../lib/r10k/source/base.rb:64
+#: ../lib/r10k/environment/base.rb:61 ../lib/r10k/environment/base.rb:77 ../lib/r10k/environment/base.rb:86 ../lib/r10k/source/base.rb:69
 msgid "%{class} has not implemented method %{method}"
 msgstr ""
 
-#: ../lib/r10k/environment/with_modules.rb:104
-msgid "Puppetfile cannot contain module names defined by environment %{name}"
+#: ../lib/r10k/environment/name.rb:78
+msgid "Improper configuration value given for strip_component setting in %{src} source. Value must be a string, a /regex/, false, or omitted. Got \"%{val}\" (%{type})"
 msgstr ""
 
-#: ../lib/r10k/environment/with_modules.rb:106
-msgid "Remove the conflicting definitions of the following modules: %{conflicts}"
+#: ../lib/r10k/environment/with_modules.rb:60
+msgid "Environment and %{src} both define the \"%{name}\" module"
+msgstr ""
+
+#: ../lib/r10k/environment/with_modules.rb:61
+msgid "#{msg_error}. The %{src} definition will be ignored"
+msgstr ""
+
+#: ../lib/r10k/environment/with_modules.rb:71
+msgid "Unexpected value for `module_conflicts` setting in %{env} environment: %{val}"
 msgstr ""
 
 #: ../lib/r10k/feature.rb:27
@@ -187,11 +195,11 @@ msgstr ""
 msgid "Cannot write %{file}; parent directory does not exist"
 msgstr ""
 
-#: ../lib/r10k/git/cache.rb:55
+#: ../lib/r10k/git/cache.rb:65
 msgid "%{class}#path is deprecated; use #git_dir"
 msgstr ""
 
-#: ../lib/r10k/git/cache.rb:84
+#: ../lib/r10k/git/cache.rb:94
 msgid "Creating new git cache for %{remote}"
 msgstr ""
 
@@ -227,15 +235,31 @@ msgstr ""
 msgid "Unable to use SSH key auth for %{url}: private key %{private_key} is missing or unreadable"
 msgstr ""
 
-#: ../lib/r10k/git/rugged/credentials.rb:80
+#: ../lib/r10k/git/rugged/credentials.rb:84
+msgid "Using OAuth token from stdin for URL %{url}"
+msgstr ""
+
+#: ../lib/r10k/git/rugged/credentials.rb:87
+msgid "Using OAuth token from %{token_path} for URL %{url}"
+msgstr ""
+
+#: ../lib/r10k/git/rugged/credentials.rb:89
+msgid "%{path} is missing or unreadable, cannot load OAuth token"
+msgstr ""
+
+#: ../lib/r10k/git/rugged/credentials.rb:93
+msgid "Supplied OAuth token contains invalid characters."
+msgstr ""
+
+#: ../lib/r10k/git/rugged/credentials.rb:117
 msgid "URL %{url} includes the username %{username}, using that user for authentication."
 msgstr ""
 
-#: ../lib/r10k/git/rugged/credentials.rb:83
+#: ../lib/r10k/git/rugged/credentials.rb:120
 msgid "URL %{url} did not specify a user, using %{user} from configuration"
 msgstr ""
 
-#: ../lib/r10k/git/rugged/credentials.rb:86
+#: ../lib/r10k/git/rugged/credentials.rb:123
 msgid "URL %{url} did not specify a user, using current user %{user}"
 msgstr ""
 
@@ -255,31 +279,31 @@ msgstr ""
 msgid "Found local modifications in %{file_path}"
 msgstr ""
 
-#: ../lib/r10k/git/stateful_repository.rb:40
+#: ../lib/r10k/git/stateful_repository.rb:44
 msgid "Unable to sync repo to unresolvable ref '%{ref}'"
 msgstr ""
 
-#: ../lib/r10k/git/stateful_repository.rb:47
+#: ../lib/r10k/git/stateful_repository.rb:51
 msgid "Cloning %{repo_path} and checking out %{ref}"
 msgstr ""
 
-#: ../lib/r10k/git/stateful_repository.rb:50
+#: ../lib/r10k/git/stateful_repository.rb:54
 msgid "Replacing %{repo_path} and checking out %{ref}"
 msgstr ""
 
-#: ../lib/r10k/git/stateful_repository.rb:54 ../lib/r10k/git/stateful_repository.rb:59
+#: ../lib/r10k/git/stateful_repository.rb:58 ../lib/r10k/git/stateful_repository.rb:63
 msgid "Updating %{repo_path} to %{ref}"
 msgstr ""
 
-#: ../lib/r10k/git/stateful_repository.rb:58
+#: ../lib/r10k/git/stateful_repository.rb:62
 msgid "Overwriting local modifications to %{repo_path}"
 msgstr ""
 
-#: ../lib/r10k/git/stateful_repository.rb:62
+#: ../lib/r10k/git/stateful_repository.rb:66
 msgid "Skipping %{repo_path} due to local modifications"
 msgstr ""
 
-#: ../lib/r10k/git/stateful_repository.rb:65
+#: ../lib/r10k/git/stateful_repository.rb:69
 msgid "%{repo_path} is already at Git ref %{ref}"
 msgstr ""
 
@@ -303,20 +327,16 @@ msgstr ""
 msgid "Module %{name} with args %{args} doesn't have an implementation. (Are you using the right arguments?)"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:110
+#: ../lib/r10k/module/base.rb:118
 msgid "Module name (%{title}) must match either 'modulename' or 'owner/modulename'"
 msgstr ""
 
-#: ../lib/r10k/module/forge.rb:70 ../lib/r10k/module/forge.rb:99
+#: ../lib/r10k/module/forge.rb:81 ../lib/r10k/module/forge.rb:110
 msgid "The module %{title} does not exist on %{url}."
 msgstr ""
 
-#: ../lib/r10k/module/forge.rb:174
-msgid "Forge module names must match 'owner/modulename'"
-msgstr ""
-
-#: ../lib/r10k/module/git.rb:97
-msgid "Unhandled options %{unhandled} specified for %{class}"
+#: ../lib/r10k/module/forge.rb:185
+msgid "Forge module names must match 'owner/modulename', instead got #{title}"
 msgstr ""
 
 #: ../lib/r10k/module/local.rb:34
@@ -347,19 +367,19 @@ msgstr ""
 msgid "Remove the duplicates of the following modules: %{dupes}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:192
+#: ../lib/r10k/puppetfile.rb:201
 msgid "Updating modules with %{pool_size} threads"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:203
+#: ../lib/r10k/puppetfile.rb:212
 msgid "Error during concurrent deploy of a module: %{message}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:225
+#: ../lib/r10k/puppetfile.rb:241
 msgid "Module thread %{id} exiting: %{message}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:282
+#: ../lib/r10k/puppetfile.rb:300
 msgid "unrecognized declaration '%{method}'"
 msgstr ""
 
@@ -442,24 +462,28 @@ msgid ""
 "Returned: %{data}"
 msgstr ""
 
-#: ../lib/r10k/source/git.rb:72
+#: ../lib/r10k/source/git.rb:77
 msgid "Fetching '%{remote}' to determine current branches."
 msgstr ""
 
-#: ../lib/r10k/source/git.rb:75
+#: ../lib/r10k/source/git.rb:80
 msgid "Unable to determine current branches for Git source '%{name}' (%{basedir})"
 msgstr ""
 
-#: ../lib/r10k/source/git.rb:100
+#: ../lib/r10k/source/git.rb:105
 msgid "Environment %{env_name} contained non-word characters, correcting name to %{corrected_env_name}"
 msgstr ""
 
-#: ../lib/r10k/source/git.rb:104
+#: ../lib/r10k/source/git.rb:109
 msgid "Environment %{env_name} contained non-word characters, ignoring it."
 msgstr ""
 
-#: ../lib/r10k/source/git.rb:123 ../lib/r10k/source/svn.rb:113
+#: ../lib/r10k/source/git.rb:128 ../lib/r10k/source/svn.rb:113
 msgid "Branch %{branch} filtered out by ignore_branch_prefixes %{ibp}"
+msgstr ""
+
+#: ../lib/r10k/source/git.rb:139
+msgid "Branch `%{name}:%{branch}` filtered out by filter_command %{cmd}"
 msgstr ""
 
 #: ../lib/r10k/source/yaml.rb:10
@@ -522,7 +546,11 @@ msgstr ""
 msgid "Unable to remove unmanaged path: %{path}"
 msgstr ""
 
-#: ../lib/r10k/util/setopts.rb:49
+#: ../lib/r10k/util/setopts.rb:58
+msgid "%{class_name} parameters '%{a}' and '%{b}' conflict. Specify one or the other, but not both"
+msgstr ""
+
+#: ../lib/r10k/util/setopts.rb:65
 msgid "%{class_name} cannot handle option '%{key}'"
 msgstr ""
 

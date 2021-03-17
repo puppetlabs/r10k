@@ -19,6 +19,7 @@ variables:
   CONTAINER_BUILD_PATH: .
   LINT_IGNORES:
   DOCKER_BUILDKIT: 1
+  BUILD_OPTIONS: --build-arg alpine_version=3.9
 
 workspace:
   clean: resources
@@ -53,7 +54,7 @@ steps:
 
 - powershell: |
     . "$(bundle show pupperware)/ci/build.ps1"
-    Build-Container -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE -PathOrUri $ENV:CONTAINER_BUILD_PATH
+    Build-Container -Name $ENV:CONTAINER_NAME -Namespace $ENV:NAMESPACE -PathOrUri $ENV:CONTAINER_BUILD_PATH -AdditionalOptions ($ENV:BUILD_OPTIONS -split ' ')
   displayName: Build $(CONTAINER_NAME) Container
   timeoutInMinutes: 5
   name: build_container

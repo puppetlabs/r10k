@@ -129,6 +129,18 @@ describe R10K::Settings do
         expect { subject.evaluate('puppet_path' => '/nonexistent') }.to raise_error(R10K::Settings::Collection::ValidationError)
       end
     end
+
+    describe 'puppet_conf' do
+      it 'when file raises no error' do
+        allow(File).to receive(:readable?).with('/nonexistent').and_return(true)
+        expect { subject.evaluate('puppet_conf' => '/nonexistent') }.not_to raise_error
+      end
+
+      it 'when not file raises error' do
+        allow(File).to receive(:readable?).with('/nonexistent').and_return(false)
+        expect { subject.evaluate('puppet_conf' => '/nonexistent') }.to raise_error(R10K::Settings::Collection::ValidationError)
+      end
+    end
   end
 
   describe "global settings" do

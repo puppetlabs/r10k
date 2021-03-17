@@ -1,11 +1,12 @@
 PUPPERWARE_ANALYTICS_STREAM ?= dev
 NAMESPACE ?= puppet
-git_describe = $(shell git describe)
+git_describe = $(shell git describe --tags)
 vcs_ref := $(shell git rev-parse HEAD)
 build_date := $(shell date -u +%FT%T)
 hadolint_available := $(shell hadolint --help > /dev/null 2>&1; echo $$?)
 hadolint_command := hadolint
 hadolint_container := hadolint/hadolint:latest
+alpine_version := 3.9
 export BUNDLE_PATH = $(PWD)/.bundle/gems
 export BUNDLE_BIN = $(PWD)/.bundle/bin
 export GEMFILE = $(PWD)/Gemfile
@@ -13,6 +14,14 @@ export DOCKER_BUILDKIT = 1
 
 ifeq ($(IS_RELEASE),true)
 	VERSION ?= $(shell echo $(git_describe) | sed 's/-.*//')
+	PUBLISHED_VERSION ?= $(shell curl --silent 'https://rubygems.org/api/v1/gems/r10k.json' | jq '."version"' | tr -d '"')
+	CONTAINER_EXISTS = $(shell DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect $(NAMESPACE)/r10k:$(VERSION) > /dev/null 2>&1; echo $$?)
+ifeq ($(CONTAINER_EXISTS),0)
+	SKIP_BUILD ?= true
+else ifneq ($(VERSION),$(PUBLISHED_VERSION))
+	SKIP_BUILD ?= true
+endif
+
 	LATEST_VERSION ?= latest
 	dockerfile := release.Dockerfile
 	dockerfile_context := r10k
@@ -26,6 +35,10 @@ endif
 prep:
 	@git fetch --unshallow 2> /dev/null ||:
 	@git fetch origin 'refs/tags/*:refs/tags/*'
+ifeq ($(SKIP_BUILD),true)
+	@echo "SKIP_BUILD is true, exiting with 1"
+	@exit 1
+endif
 
 lint:
 ifeq ($(hadolint_available),0)
@@ -36,9 +49,10 @@ else
 endif
 
 build: prep
+	docker pull alpine:$(alpine_version)
 	docker build \
 		${DOCKER_BUILD_FLAGS} \
-		--pull \
+		--build-arg alpine_version=$(alpine_version) \
 		--build-arg vcs_ref=$(vcs_ref) \
 		--build-arg build_date=$(build_date) \
 		--build-arg version=$(VERSION) \

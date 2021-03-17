@@ -43,7 +43,7 @@ class R10K::Environment::Base
     @basedir = basedir
     @dirname = dirname
     @options = options
-    @puppetfile_name = options[:puppetfile_name]
+    @puppetfile_name = options.delete(:puppetfile_name)
 
     @full_path = File.join(@basedir, @dirname)
     @path = Pathname.new(File.join(@basedir, @dirname))
@@ -103,6 +103,13 @@ class R10K::Environment::Base
     @puppetfile.modules
   end
 
+  # @return [Array<R10K::Module::Base>] Whether or not the given module
+  #   conflicts with any modules already defined in the r10k environment
+  #   object.
+  def module_conflicts?(mod)
+    false
+  end
+
   def accept(visitor)
     visitor.visit(:environment, self) do
       puppetfile.accept(visitor)
@@ -137,7 +144,7 @@ class R10K::Environment::Base
   end
 
   def generate_types!
-    argv = [R10K::Settings.puppet_path, 'generate', 'types', '--environment', dirname, '--environmentpath', basedir]
+    argv = [R10K::Settings.puppet_path, 'generate', 'types', '--environment', dirname, '--environmentpath', basedir, '--config', R10K::Settings.puppet_conf]
     subproc = R10K::Util::Subprocess.new(argv)
     subproc.raise_on_fail = true
     subproc.logger = logger

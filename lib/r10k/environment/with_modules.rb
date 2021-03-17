@@ -24,7 +24,7 @@ class R10K::Environment::WithModules < R10K::Environment::Base
   # @param options [String] :moduledir The path to install modules to
   # @param options [Hash] :modules Modules to add to the environment
   def initialize(name, basedir, dirname, options = {})
-    super(name, basedir, dirname, options)
+    super
 
     @managed_content = {}
     @modules = []
@@ -46,10 +46,33 @@ class R10K::Environment::WithModules < R10K::Environment::Base
   #     - The r10k environment object
   #     - A Puppetfile in the environment's content
   def modules
-    return @modules if @puppetfile.nil?
+    return @modules if puppetfile.nil?
 
-    @puppetfile.load unless @puppetfile.loaded?
-    @modules + @puppetfile.modules
+    puppetfile.load unless puppetfile.loaded?
+    @modules + puppetfile.modules
+  end
+
+  def module_conflicts?(mod_b)
+    conflict = @modules.any? { |mod_a| mod_a.name == mod_b.name }
+    return false unless conflict
+
+    msg_vars = {src: mod_b.origin, name: mod_b.name}
+    msg_error = _('Environment and %{src} both define the "%{name}" module' % msg_vars)
+    msg_continue = _("#{msg_error}. The %{src} definition will be ignored" % msg_vars)
+
+    case conflict_opt = @options[:module_conflicts]
+    when 'override_and_warn', nil
+      logger.warn msg_continue
+    when 'override'
+      logger.debug msg_continue
+    when 'error'
+      raise R10K::Error, msg_error
+    else
+      raise R10K::Error, _('Unexpected value for `module_conflicts` setting in %{env} ' \
+                           'environment: %{val}' % {env: self.name, val: conflict_opt})
+    end
+
+    true
   end
 
   def accept(visitor)
@@ -59,7 +82,6 @@ class R10K::Environment::WithModules < R10K::Environment::Base
       end
 
       puppetfile.accept(visitor)
-      validate_no_module_conflicts
     end
   end
 
@@ -88,24 +110,10 @@ class R10K::Environment::WithModules < R10K::Environment::Base
     @managed_content[install_path] = Array.new unless @managed_content.has_key?(install_path)
 
     mod = R10K::Module.new(name, install_path, args, self.name)
-    mod.origin = 'Environment'
+    mod.origin = :environment
 
     @managed_content[install_path] << mod.name
     @modules << mod
-  end
-
-  def validate_no_module_conflicts
-    @puppetfile.load unless @puppetfile.loaded?
-    conflicts = (@modules + @puppetfile.modules)
-                .group_by { |mod| mod.name }
-                .select { |_, v| v.size > 1 }
-                .map(&:first)
-    unless conflicts.empty?
-      msg = _('Puppetfile cannot contain module names defined by environment %{name}') % {name: self.name}
-      msg += ' '
-      msg += _("Remove the conflicting definitions of the following modules: %{conflicts}" % { conflicts: conflicts.join(' ') })
-      raise R10K::Error.new(msg)
-    end
   end
 
   include R10K::Util::Purgeable

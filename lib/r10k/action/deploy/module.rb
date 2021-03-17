@@ -76,7 +76,10 @@ module R10K
                       cachedir: :self,
                       'no-force': :self,
                       'generate-types': :self,
-                      'puppet-path': :self)
+                      'puppet-path': :self,
+                      'puppet-conf': :self,
+                      'private-key': :self,
+                      'oauth-token': :self)
         end
       end
     end

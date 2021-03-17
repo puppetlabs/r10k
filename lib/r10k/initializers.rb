@@ -44,6 +44,7 @@ module R10K
     class DeployInitializer < BaseInitializer
       def call
         with_setting(:puppet_path) { |value| R10K::Settings.puppet_path = value }
+        with_setting(:puppet_conf) { |value| R10K::Settings.puppet_conf = value }
       end
     end
 
@@ -54,6 +55,7 @@ module R10K
         with_setting(:private_key) { |value| R10K::Git.settings[:private_key] = value }
         with_setting(:proxy) { |value| R10K::Git.settings[:proxy] = value }
         with_setting(:repositories) { |value| R10K::Git.settings[:repositories] = value }
+        with_setting(:oauth_token) { |value| R10K::Git.settings[:oauth_token] = value }
       end
     end
 

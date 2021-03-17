@@ -9,7 +9,7 @@ class R10K::Module::Local < R10K::Module::Base
   R10K::Module.register(self)
 
   def self.implement?(name, args)
-    args.is_a?(Hash) && args[:local]
+    args.is_a?(Hash) && (args[:local] || args[:type].to_s == 'local')
   end
 
   include R10K::Logging

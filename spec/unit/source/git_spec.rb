@@ -93,9 +93,57 @@ describe R10K::Source::Git do
     let(:ignore_prefixes) { ['dev', 'test'] }
 
     it "filters branches" do
-      expect(subject.filter_branches(branches, ignore_prefixes)).to eq(['master', 'production', 'not_dev_test_me'])
+      expect(subject.filter_branches_by_regexp(branches, ignore_prefixes)).to eq(['master', 'production', 'not_dev_test_me'])
     end
   end
+
+  describe "filtering branches with command" do
+    let(:branches) { ['master', 'development', 'production'] }
+    if R10K::Util::Platform.windows?
+      let(:filter_command) { 'powershell.exe if ($env:R10K_BRANCH.equals(\"development\")) {exit 1} else {exit 0}' }
+    else
+      let(:filter_command) { 'sh -c "[ $R10K_BRANCH != development ]"' }
+    end
+
+    it "filters branches" do
+      expect(subject.filter_branches_by_command(branches, filter_command)).to eq(['master', 'production'])
+    end
+  end
+
+  describe "generate_environments respects filter_command setting" do
+    before do
+      allow(subject.cache).to receive(:branches).and_return ['master', 'development', 'production']
+      if R10K::Util::Platform.windows?
+        subject.instance_variable_set(:@filter_command, 'powershell.exe if ($env:R10K_BRANCH.equals(\"master\")) {exit 1} else {exit 0}')
+      else
+        subject.instance_variable_set(:@filter_command, '[ $R10K_BRANCH != master ]')
+      end
+    end
+
+    let(:environments) { subject.generate_environments }
+
+    it "creates an environment for each branch not filtered by filter_command" do
+      expect(subject.generate_environments.size).to eq(2)
+    end
+  end
+
+  describe "generate_environments respects filter_command setting and name" do
+    before do
+      allow(subject.cache).to receive(:branches).and_return ['master', 'development', 'production']
+      if R10K::Util::Platform.windows?
+        subject.instance_variable_set(:@filter_command, 'powershell.exe if ($env:R10K_NAME.equals(\"mysource\")) {exit 0} else {exit 1}')
+      else
+        subject.instance_variable_set(:@filter_command, '[ $R10K_NAME = mysource ]')
+      end
+    end
+
+    let(:environments) { subject.generate_environments }
+
+    it "creates an environment for each branch not filtered by filter_command" do
+      expect(subject.generate_environments.size).to eq(3)
+    end
+  end
+
 end
 
 describe R10K::Source::Git, "handling invalid branch names" do

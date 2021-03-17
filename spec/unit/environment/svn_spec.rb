@@ -16,6 +16,18 @@ describe R10K::Environment::SVN do
 
   let(:working_dir) { subject.working_dir }
 
+  describe "initializing" do
+    subject do
+      described_class.new('name', '/dir', 'ref', {
+        :puppetfile_name => 'Puppetfile',
+      })
+    end
+
+    it "accepts valid base class initialization arguments" do
+      expect(subject.name).to eq 'name'
+    end
+  end
+
   describe "storing attributes" do
     it "can return the environment name" do
       expect(subject.name).to eq 'myenv'

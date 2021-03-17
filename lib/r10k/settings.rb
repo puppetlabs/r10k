@@ -12,6 +12,8 @@ module R10K
     class << self
       # Path to puppet executable
       attr_accessor :puppet_path
+      # Path to puppet.conf
+      attr_accessor :puppet_conf
     end
 
     def self.git_settings
@@ -35,6 +37,11 @@ module R10K
                     Only used by the 'rugged' Git provider.",
         }),
 
+        Definition.new(:oauth_token, {
+          :desc => "The path to a token file for Git OAuth remotes.
+                    Only used by the 'rugged' Git provider."
+        }),
+
         URIDefinition.new(:proxy, {
           :desc => "An optional proxy server to use when interacting with Git sources via HTTP(S).",
           :default => :inherit,
@@ -52,11 +59,17 @@ module R10K
               :default => :inherit,
             }),
 
+            Definition.new(:oauth_token, {
+              :desc => "The path to a token file for Git OAuth remotes.
+                        Only used by the 'rugged' Git provider.",
+              :default => :inherit
+            }),
+
             URIDefinition.new(:proxy, {
               :desc => "An optional proxy server to use when interacting with Git sources via HTTP(S).",
               :default => :inherit,
             }),
-            
+
             Definition.new(:ignore_branch_prefixes, {
               :desc => "Array of strings used to prefix branch names that will not be deployed as environments.",
             }),
@@ -131,6 +144,15 @@ module R10K
             end
           end
         }),
+        Definition.new(:puppet_conf, {
+          :desc => "Path to puppet.conf. Defaults to /etc/puppetlabs/puppet/puppet.conf.",
+          :default => '/etc/puppetlabs/puppet/puppet.conf',
+          :validate => lambda do |value|
+            unless File.readable? value
+              raise ArgumentError, "The specified puppet.conf #{value} is not readable"
+            end
+          end
+        }),
       ])
     end
 
@@ -160,7 +182,7 @@ module R10K
 
         Definition.new(:pool_size, {
           :desc => "The amount of threads used to concurrently install modules. The default value is 1: install one module at a time.",
-          :default => 1,
+          :default => 4,
           :validate => lambda do |value|
             if !value.is_a?(Integer)
               raise ArgumentError, "The pool_size setting should be an integer, not a #{value.class}"

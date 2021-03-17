@@ -32,23 +32,29 @@ shared_examples_for "a subprocess runner" do |fixture_root|
     end
   end
 
-  describe "running 'ls' with a different working directory" do
+  describe "running 'ls' or 'dir' with a different working directory" do
     subject do
-      described_class.new(%w[ls]).tap do |o|
-        o.cwd = fixture_root
+      if R10K::Util::Platform.windows?
+        described_class.new(%w[cmd /c dir]).tap do |o|
+          o.cwd = fixture_root
+        end
+      else
+        described_class.new(%w[ls]).tap do |o|
+          o.cwd = fixture_root
+        end
       end
     end
 
     it "returns the contents of the given working directory" do
       result = subject.run
-      expect(result.stdout).to eq 'no-execute.sh'
+      expect(result.stdout).to match('no-execute.sh')
     end
   end
 
   describe "running 'false'" do
     subject { described_class.new(%w[false]) }
 
-    it "sets the exit code to 1" do
+    it "sets the exit code to 1", unless: R10K::Util::Platform.windows? do
       result = subject.run
       expect(result.exit_code).to eq 1
     end

@@ -134,6 +134,7 @@ module R10K
     extend R10K::Settings::Mixin::ClassMethods
 
     def_setting_attr :private_key
+    def_setting_attr :oauth_token
     def_setting_attr :proxy
     def_setting_attr :username
     def_setting_attr :repositories, {}

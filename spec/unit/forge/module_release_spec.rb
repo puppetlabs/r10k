@@ -166,33 +166,37 @@ describe R10K::Forge::ModuleRelease do
   end
 
   describe "#cleanup_unpack_path" do
-    it "ignores the unpack_path if it doesn't exist" do
-      expect(unpack_path).to receive(:exist?).and_return false
-      expect(unpack_path).to_not receive(:parent)
+    it "ignores the unpack_path if the parent doesn't exist" do
+      parent = instance_double('Pathname')
+      expect(parent).to receive(:exist?).and_return false
+      expect(parent).to_not receive(:rmtree)
+      expect(unpack_path).to receive(:parent).and_return(parent)
       subject.cleanup_unpack_path
     end
 
     it "removes the containing directory of unpack_path if it exists" do
       parent = instance_double('Pathname')
       expect(parent).to receive(:rmtree)
-      expect(unpack_path).to receive(:exist?).and_return true
-      expect(unpack_path).to receive(:parent).and_return(parent)
+      expect(parent).to receive(:exist?).and_return true
+      expect(unpack_path).to receive(:parent).and_return(parent).exactly(2).times
       subject.cleanup_unpack_path
     end
   end
 
   describe "#cleanup_download_path" do
-    it "ignores the download_path if it doesn't exist" do
-      expect(download_path).to receive(:exist?).and_return false
-      expect(download_path).to_not receive(:parent)
+    it "ignores the download_path if the parent doesn't exist" do
+      parent = instance_double('Pathname')
+      expect(parent).to receive(:exist?).and_return false
+      expect(parent).to_not receive(:rmtree)
+      expect(download_path).to receive(:parent).and_return(parent)
       subject.cleanup_download_path
     end
 
     it "removes the containing directory of download_path if it exists" do
       parent = instance_double('Pathname')
       expect(parent).to receive(:rmtree)
-      expect(download_path).to receive(:exist?).and_return true
-      expect(download_path).to receive(:parent).and_return(parent)
+      expect(parent).to receive(:exist?).and_return true
+      expect(download_path).to receive(:parent).and_return(parent).exactly(2).times
       subject.cleanup_download_path
     end
   end

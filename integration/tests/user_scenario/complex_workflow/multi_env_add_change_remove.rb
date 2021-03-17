@@ -24,7 +24,7 @@ stage_env_notify_message = 'This is a different message'
 stage_env_notify_message_regex = /#{stage_env_notify_message}/
 
 #Verification for "test" Environment
-test_env_error_message_regex = /Error:.*Could not find environment 'test'/
+test_env_error_message_regex = /Error:.*Could not.*environment '?test'?/
 
 #Verification for "temp" Environment
 test_env_notify_message_regex = /I am in the temp environment/
