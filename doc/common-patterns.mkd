@@ -42,3 +42,4 @@ publicly available hook. These include:
 * [Reaktor](https://github.com/pzim/reaktor)
 * [zack/r10k's Webhooks](https://forge.puppetlabs.com/zack/r10k#webhook-support)
 (Puppet Enterprise only)
+* [Simple Puppet Provisioner](https://github.com/mbaynton/SimplePuppetProvisioner)
