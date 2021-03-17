@@ -55,7 +55,7 @@ site_pp_path = File.join(git_environments_path, 'manifests', 'site.pp')
 site_pp = create_site_pp(master_certname, '  include peonly')
 
 #Verification
-squid_log_regex = /CONNECT forgeapi.puppetlabs.com:443/
+squid_log_regex = /CONNECT forgeapi.puppet.com:443/
 notify_message_regex = /I am in the production environment, this is a PE only module/
 
 #Teardown
