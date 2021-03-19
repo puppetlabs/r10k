@@ -52,11 +52,10 @@ COPY --from=build /workspace/r10k.gem /
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 # ignore apk and gem pinning
 # hadolint ignore=DL3018,DL3028
-RUN chmod a+x /adduser.sh /docker-entrypoint.sh && \
+RUN chmod -R a+x /adduser.sh /docker-entrypoint.sh /docker-entrypoint.d && \
 # Add a puppet user to run r10k as for consistency with puppetserver
     /adduser.sh && \
     chown -R "${PP_USER}:" /docker-entrypoint.d /docker-entrypoint.sh && \
-    chmod -R +x            /docker-entrypoint.d /docker-entrypoint.sh && \
     mkdir -p /docker-custom-entrypoint.d && \
     apk add --no-cache ruby openssh-client git ruby-rugged curl ruby-json ruby-etc && \
     gem install --no-doc /r10k.gem && \
@@ -67,6 +66,8 @@ RUN chmod a+x /adduser.sh /docker-entrypoint.sh && \
     mv "$supercronic" "/usr/local/bin/${supercronic}" && \
     ln -s "/usr/local/bin/${supercronic}" /usr/local/bin/supercronic
 
+# Ignore the check for absolute WORKDIR path, this is need when using environment variables in WORKDIR.
+# https://github.com/hadolint/hadolint/wiki/DL3000
 # hadolint ignore=DL3000
 WORKDIR "/home/${PP_USER}"
 
