@@ -37,6 +37,9 @@ class R10K::Module::Forge < R10K::Module::Base
   def initialize(title, dirname, opts, environment=nil)
     super
 
+    @metadata_file = R10K::Module::MetadataFile.new(path + 'metadata.json')
+    @metadata = @metadata_file.read
+
     if opts.is_a?(Hash)
       setopts(opts, {
         # Standard option interface
@@ -48,8 +51,6 @@ class R10K::Module::Forge < R10K::Module::Base
       @expected_version = opts || current_version || :latest
     end
 
-    @metadata_file = R10K::Module::MetadataFile.new(path + 'metadata.json')
-    @metadata = @metadata_file.read
     @v3_module = PuppetForge::V3::Module.new(:slug => @title)
   end
 

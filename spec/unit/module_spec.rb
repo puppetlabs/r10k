@@ -44,6 +44,31 @@ describe R10K::Module do
         expect(obj.send(:instance_variable_get, :'@expected_version')).to eq('8.0.0')
       end
     end
+
+    describe 'when the module is ostensibly on disk' do
+      before do
+        owner = 'theowner'
+        module_name = 'themodulename'
+        @title = "#{owner}-#{module_name}"
+        metadata = <<~METADATA
+          {
+            "name": "#{@title}",
+            "version": "1.2.0"
+          }
+        METADATA
+        @dirname = Dir.mktmpdir
+        module_path = File.join(@dirname, module_name)
+        FileUtils.mkdir(module_path)
+        File.open("#{module_path}/metadata.json", 'w') do |file|
+           file.write(metadata)
+        end
+      end
+
+      it 'sets the expected version to what is found in the metadata' do
+        obj = R10K::Module.new(@title, @dirname, nil)
+        expect(obj.send(:instance_variable_get, :'@expected_version')).to eq('1.2.0')
+      end
+    end
   end
 
   it "raises an error if delegation fails" do
