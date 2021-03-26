@@ -25,10 +25,13 @@ LABEL org.label-schema.maintainer="Puppet Release Team <release@puppet.com>" \
 COPY adduser.sh docker-entrypoint.sh /
 COPY docker-entrypoint.d /docker-entrypoint.d
 
+ARG PP_USER=puppet
+ENV PP_USER="${PP_USER}"
+
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["help"]
 
-# dyanmic LABELs and ENV vars placed lower for the sake of Docker layer caching
+# dynamic LABELs and ENV vars placed lower for the sake of Docker layer caching
 ENV PUPPERWARE_ANALYTICS_STREAM="$pupperware_analytics_stream"
 
 LABEL org.label-schema.version="$version" \
@@ -38,9 +41,11 @@ LABEL org.label-schema.version="$version" \
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 # ignore apk and gem pinning
 # hadolint ignore=DL3018,DL3028
-RUN chmod a+x /adduser.sh /docker-entrypoint.sh && \
+RUN chmod -R a+x /adduser.sh /docker-entrypoint.sh /docker-entrypoint.d && \
+# Add a puppet user to run r10k as for consistency with puppetserver
     /adduser.sh && \
-    chown -R puppet: /docker-entrypoint.d /docker-entrypoint.sh && \
+    chown -R "${PP_USER}:" /docker-entrypoint.d /docker-entrypoint.sh && \
+    mkdir -p /docker-custom-entrypoint.d && \
     apk add --no-cache ruby openssh-client git ruby-rugged curl ruby-dev make gcc musl-dev && \
     gem install --no-doc r10k:"$version" json etc && \
     curl --fail --silent --show-error --location --remote-name "$supercronic_url" && \
@@ -49,7 +54,9 @@ RUN chmod a+x /adduser.sh /docker-entrypoint.sh && \
     mv "$supercronic" "/usr/local/bin/${supercronic}" && \
     ln -s "/usr/local/bin/${supercronic}" /usr/local/bin/supercronic
 
-USER puppet
-WORKDIR /home/puppet
+# Ignore the check for absolute WORKDIR path, this is need when using environment variables in WORKDIR.
+# https://github.com/hadolint/hadolint/wiki/DL3000
+# hadolint ignore=DL3000
+WORKDIR "/home/${PP_USER}"
 
 COPY release.Dockerfile /
