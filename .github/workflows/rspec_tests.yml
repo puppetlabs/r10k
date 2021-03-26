@@ -3,7 +3,7 @@ name: Rspec tests
 on:
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   rspec_tests:

@@ -3,7 +3,7 @@ name: Tag and release
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - 'lib/r10k/version.rb'
 
