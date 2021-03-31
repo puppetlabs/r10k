@@ -49,7 +49,7 @@ COPY --from=build /workspace/r10k.gem /
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 # ignore apk and gem pinning
 # hadolint ignore=DL3018,DL3028
-RUN chmod a+x /adduser.sh /docker-entrypoint.sh && \
+RUN chmod a+x /adduser.sh /docker-entrypoint.sh /docker-entrypoint.d/*.sh && \
 # Add a puppet user to run r10k as for consistency with puppetserver
     /adduser.sh && \
     chown -R puppet: /docker-entrypoint.d /docker-entrypoint.sh && \
