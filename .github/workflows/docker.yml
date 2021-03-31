@@ -29,7 +29,10 @@ jobs:
       - run: gem install bundler
       - name: Build container
         working-directory: docker
-        run: make lint build test
+        run: |
+          docker system prune --all --force --volumes
+          docker builder prune --force --keep-storage=10GB
+          make lint build test
       - name: Publish container
         working-directory: docker
         run: |

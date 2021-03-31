@@ -38,7 +38,7 @@ LABEL org.label-schema.version="$version" \
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 # ignore apk and gem pinning
 # hadolint ignore=DL3018,DL3028
-RUN chmod a+x /adduser.sh /docker-entrypoint.sh && \
+RUN chmod a+x /adduser.sh /docker-entrypoint.sh /docker-entrypoint.d/*.sh && \
     /adduser.sh && \
     chown -R puppet: /docker-entrypoint.d /docker-entrypoint.sh && \
     apk add --no-cache ruby openssh-client git ruby-rugged curl ruby-dev make gcc musl-dev && \
