@@ -1,43 +1,40 @@
 require 'rspec/core'
 require 'fileutils'
 require 'open3'
+include Pupperware::SpecHelpers
 
-SPEC_DIRECTORY = File.dirname(__FILE__)
+ENV['SPEC_DIRECTORY'] = File.dirname(__FILE__)
+# unifies volume naming
+ENV['COMPOSE_PROJECT_NAME'] ||= 'r10k'
+
+RSpec.configure do |c|
+  c.before(:suite) do
+    ENV['R10K_IMAGE'] = require_test_image
+    pull_images('r10k')
+    teardown_cluster()
+    # no certs to preload, but if the suite adds puppetserver, be explicit
+    docker_compose_up(preload_certs: true)
+  end
+
+  c.after(:suite) do
+    emit_logs
+    teardown_cluster()
+    FileUtils.rm_rf(File.join(ENV['SPEC_DIRECTORY'], 'fixtures', 'modules'))
+  end
+end
 
 describe 'r10k container' do
-  include Pupperware::SpecHelpers
-  def run_r10k(command)
-    run_command("docker run --detach \
-                   --volume #{File.join(SPEC_DIRECTORY, 'fixtures')}:/home/puppet/test \
-                   #{@image} #{command} \
-                   --verbose \
-                   --trace \
-                   --puppetfile test/Puppetfile")
-  end
-
-  before(:all) do
-    @image = require_test_image
-  end
-
-  after(:all) do
-    FileUtils.rm_rf(File.join(SPEC_DIRECTORY, 'fixtures', 'modules'))
-  end
-
   it 'should validate the Puppetfile' do
-    result = run_r10k('puppetfile check')
-    container = result[:stdout].chomp
+    container = get_service_container('r10k_check')
     wait_on_container_exit(container)
     expect(get_container_exit_code(container)).to eq(0)
     emit_log(container)
-    teardown_container(container)
   end
 
   it 'should install the Puppetfile' do
-    result = run_r10k('puppetfile install')
-    container = result[:stdout].chomp
+    container = get_service_container('r10k_install')
     wait_on_container_exit(container)
     expect(get_container_exit_code(container)).to eq(0)
     emit_log(container)
-    teardown_container(container)
   end
 end

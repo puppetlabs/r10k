@@ -1,0 +1,34 @@
+version: '3.7'
+
+services:
+  r10k_check:
+    image: ${R10K_IMAGE:-puppet/r10k}
+    environment:
+      - PUPPERWARE_ANALYTICS_ENABLED=${PUPPERWARE_ANALYTICS_ENABLED:-false}
+    command: ['puppetfile',
+      'check',
+      '--verbose',
+      '--trace',
+      '--puppetfile',
+      'test/Puppetfile'
+    ]
+    volumes:
+      - ${SPEC_DIRECTORY}/fixtures:/home/puppet/test
+
+  r10k_install:
+    image: ${R10K_IMAGE:-puppet/r10k}
+    environment:
+      - PUPPERWARE_ANALYTICS_ENABLED=${PUPPERWARE_ANALYTICS_ENABLED:-false}
+    command: ['puppetfile',
+      'install',
+      '--verbose',
+      '--trace',
+      '--puppetfile',
+      'test/Puppetfile'
+    ]
+    volumes:
+      - ${SPEC_DIRECTORY}/fixtures:/home/puppet/test
+
+networks:
+  default:
+    name: r10k_test
