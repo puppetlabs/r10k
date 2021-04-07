@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 gem 'pupperware',
     :git => 'https://github.com/puppetlabs/pupperware.git',
-    :branch => 'master',
+    :branch => 'main',
     :glob => 'gem/*.gemspec'
 
 group :test do
