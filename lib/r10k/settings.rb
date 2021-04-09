@@ -122,8 +122,13 @@ module R10K
           end,
         }),
 
-        Definition.new(:purge_whitelist, {
+        Definition.new(:purge_allowlist, {
           :desc => "A list of filename patterns to be excluded from any purge operations. Patterns are matched relative to the root of each deployed environment, if you want a pattern to match recursively you need to use the '**' glob in your pattern. Basic shell style globs are supported.",
+          :default => [],
+        }),
+
+        Definition.new(:purge_whitelist, {
+          :desc => "Deprecated; please use purge_allowlist instead. This setting will be removed in a future version.",
           :default => [],
         }),
 

@@ -18,7 +18,8 @@ module R10K
         def initialize(opts, argv, settings = nil)
           settings ||= {}
           @purge_levels = settings.fetch(:deploy, {}).fetch(:purge_levels, [])
-          @user_purge_whitelist = settings.fetch(:deploy, {}).fetch(:purge_whitelist, [])
+          @user_purge_allowlist = read_purge_allowlist(settings.fetch(:deploy, {}).fetch(:purge_whitelist, []),
+                                                       settings.fetch(:deploy, {}).fetch(:purge_allowlist, []))
           @generate_types = settings.fetch(:deploy, {}).fetch(:generate_types, false)
 
           super
@@ -42,6 +43,23 @@ module R10K
         include R10K::Action::Visitor
 
         private
+
+        def read_purge_allowlist (whitelist, allowlist)
+          whitelist_has_content = !whitelist.empty?
+          allowlist_has_content = !allowlist.empty?
+          case
+          when whitelist_has_content == false && allowlist_has_content == false
+            []
+          when whitelist_has_content && allowlist_has_content
+            raise R10K::Error.new "Values found for both purge_whitelist and purge_allowlist. Setting " <<
+                                  "purge_whitelist is deprecated, please only use purge_allowlist."
+          when allowlist_has_content
+            allowlist
+          else
+            logger.warn "Setting purge_whitelist is deprecated; please use purge_allowlist instead."
+            whitelist
+          end
+        end
 
         def visit_deployment(deployment)
           # Ensure that everything can be preloaded. If we cannot preload all
@@ -110,7 +128,7 @@ module R10K
           if @purge_levels.include?(:environment)
             if @visit_ok
               logger.debug("Purging unmanaged content for environment '#{environment.dirname}'...")
-              environment.purge!(:recurse => true, :whitelist => environment.whitelist(@user_purge_whitelist))
+              environment.purge!(:recurse => true, :whitelist => environment.whitelist(@user_purge_allowlist))
             else
               logger.debug("Not purging unmanaged content for environment '#{environment.dirname}' due to prior deploy failures.")
             end

@@ -266,31 +266,31 @@ managed by a Puppetfile include the configured `moduledir` (which defaults to
 "modules") as well as alternate directories specified as an `install_path`
 option to any Puppetfile content declarations.
 
-#### purge\_whitelist
+#### purge\_allowlist
 
-The `purge_whitelist` setting exempts the specified filename patterns from
+The `purge_allowlist` setting exempts the specified filename patterns from
 being purged. This setting is currently only considered during `environment`
 level purging. (See above.) Given value must be a list of shell style filename
 patterns in string format.
 
 See the Ruby [documentation for the `fnmatch` method](http://ruby-doc.org/core-2.2.0/File.html#method-c-fnmatch)
 for more details on valid patterns. Note that the `FNM_PATHNAME` and
-`FNM_DOTMATCH` flags are in effect when r10k considers the whitelist.
+`FNM_DOTMATCH` flags are in effect when r10k considers the allowlist.
 
 Patterns are relative to the root of the environment being purged and *do
-not match recursively* by default. For example, a whitelist value of
+not match recursively* by default. For example, a allowlist value of
 `*myfile*` would only preserve a matching file at the root of the
 environment. To preserve the file throughout the deployed environment,
 a recursive pattern such as `**/*myfile*` would be required.
 
-Files matching a whitelist pattern may still be removed if they exist in
+Files matching a allowlist pattern may still be removed if they exist in
 a folder that is otherwise subject to purging. In this case, an additional
-whitelist rule to preserve the containing folder is required.
+allowlist rule to preserve the containing folder is required.
 
 ```yaml
 ---
 deploy:
-  purge_whitelist: [ 'custom.json', '**/*.xpp' ]
+  purge_allowlist: [ 'custom.json', '**/*.xpp' ]
 ```
 
 
