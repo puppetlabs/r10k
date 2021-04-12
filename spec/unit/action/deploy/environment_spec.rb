@@ -42,6 +42,17 @@ describe R10K::Action::Deploy::Environment do
     it 'can accept a token option' do
       described_class.new({ 'oauth-token': '/nonexistent' }, [])
     end
+
+    describe "initializing errors" do
+      let (:settings) { { deploy: { purge_levels: [:environment],
+                                    purge_whitelist: ['coolfile', 'coolfile2'],
+                                    purge_allowlist: ['anothercoolfile']}}}
+
+      subject { described_class.new({config: "/some/nonexistent/path"}, [], settings)}
+      it 'errors out when both purge_whitelist and purge_allowlist are set' do
+        expect{subject}.to raise_error(R10K::Error, /Values found for both purge_whitelist and purge_allowlist./)
+    end
+   end
   end
 
   describe "when called" do
@@ -173,6 +184,37 @@ describe R10K::Action::Deploy::Environment do
         R10K::Deployment.new(mock_config)
       end
 
+    end
+
+    describe "Purging white/allowlist" do
+
+      let(:settings) { { deploy: { purge_levels: [:environment], purge_allowlist: ['coolfile', 'coolfile2'] } } }
+
+      let(:deployment) do
+        R10K::Deployment.new(mock_config.merge(settings))
+      end
+
+      before do
+        expect(R10K::Deployment).to receive(:new).and_return(deployment)
+      end
+
+      subject { described_class.new({ config: "/some/nonexistent/path", puppetfile: true }, %w[PREFIX_first], settings) }
+
+      it "reads in the purge_allowlist setting and purges accordingly" do
+        expect(subject.logger).to receive(:debug).with(/purging unmanaged content for environment/i)
+        expect(subject.instance_variable_get(:@user_purge_allowlist)).to eq(['coolfile', 'coolfile2'])
+        subject.call
+      end
+
+      describe "purge_whitelist" do
+        let (:settings) { { deploy: { purge_levels: [:environment], purge_whitelist: ['coolfile', 'coolfile2'] } } }
+
+        it "reads in the purge_whitelist setting and still sets it to purge_allowlist and purges accordingly" do
+          expect(subject.logger).to receive(:debug).with(/purging unmanaged content for environment/i)
+          expect(subject.instance_variable_get(:@user_purge_allowlist)).to eq(['coolfile', 'coolfile2'])
+          subject.call
+        end
+      end
     end
 
     describe "purge_levels" do
