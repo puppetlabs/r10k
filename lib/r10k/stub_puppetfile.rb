@@ -3,9 +3,10 @@ require 'pathname'
 require 'r10k/module'
 require 'r10k/util/purgeable'
 require 'r10k/errors'
+require 'r10k/mock_module'
 
 module R10K
-class Puppetfile
+class StubPuppetfile
   # Defines the data members of a Puppetfile
 
   include R10K::Settings::Mixin
@@ -19,7 +20,7 @@ class Puppetfile
   attr_reader :forge
 
   # @!attribute [r] modules
-  #   @return [Array<R10K::Module>]
+  #   @return [Hash<String,R10K::Module>]
   attr_reader :modules
 
   # @!attribute [r] basedir
@@ -33,11 +34,6 @@ class Puppetfile
   # @!attrbute [r] puppetfile_path
   #   @return [String] The path to the Puppetfile
   attr_reader :puppetfile_path
-
-  # @!attrbute [rw] previous_version
-  #   @return [R10K::StubPuppetfile] A simplified version of this Puppetfile
-  #             available on disk prior to the environment sync
-  attr_accessor :previous_version
 
   # @!attribute [rw] environment
   #   @return [R10K::Environment] Optional R10K::Environment that this Puppetfile belongs to.
@@ -61,7 +57,7 @@ class Puppetfile
 
     logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile_path}
 
-    @modules = []
+    @modules = {}
     @managed_content = {}
     @forge   = 'forgeapi.puppetlabs.com'
 
@@ -83,28 +79,16 @@ class Puppetfile
     dsl = R10K::Puppetfile::DSL.new(self)
     dsl.instance_eval(puppetfile_contents, @puppetfile_path)
 
-    validate_no_duplicate_names(@modules)
     @loaded = true
   rescue SyntaxError, LoadError, ArgumentError, NameError => e
-    raise R10K::Error.wrap(e, _("Failed to evaluate %{path}") % {path: @puppetfile_path})
+    # This type of Puppetfile represents an older version of the currently
+    # deploying Puppetfile for comparisons sake, we never want an issue with
+    # the old version to prevent deploying a new Puppetfile. So we swallow
+    # errors here and deal with potential garbage in our @modules variable later.
   end
 
   def loaded?
     @loaded
-  end
-
-  # @param [Array<String>] modules
-  def validate_no_duplicate_names(modules)
-    dupes = modules
-            .group_by { |mod| mod.name }
-            .select { |_, v| v.size > 1 }
-            .map(&:first)
-    unless dupes.empty?
-      msg = _('Puppetfiles cannot contain duplicate module names.')
-      msg += ' '
-      msg += _("Remove the duplicates of the following modules: %{dupes}" % { dupes: dupes.join(' ') })
-      raise R10K::Error.new(msg)
-    end
   end
 
   # @param [String] forge
@@ -135,21 +119,7 @@ class Puppetfile
       args[:default_branch_override] = @default_branch_override
     end
 
-    no_change = false
-    if @previous_version
-      stub_module = R10K::MockModule.new(name, install_path, args)
-      logger.debug _("Checking previous Puppetfile for version %{version} of %{name}" % { version: stub_module.version, name: stub_module.name })
-      if stub_module.version == @previous_version.modules[stub_module.name].version
-        logger.debug _("Expected version has not changed between this and previous deployment, skipping %{name}" % { name: stub_module.name })
-        # The version in this Puppetfile is the same as the version previous
-        # specified in the Puppetfile (or we cannot be sure the versions
-        # specified are static, eg a branch specifier).
-        no_change = true
-      end
-    end
-
-    mod = R10K::Module.new(name, install_path, args, @environment)
-    mod.origin = :puppetfile
+    mod = R10K::MockModule.new(name, install_path, args, @environment)
 
     # Do not load modules if they would conflict with the attached
     # environment
@@ -158,113 +128,10 @@ class Puppetfile
       return @modules
     end
 
-    # Keep track of all the content this Puppetfile is managing to enable purging.
-    @managed_content[install_path] = Array.new unless @managed_content.has_key?(install_path)
-    @managed_content[install_path] << mod.name
-
-    # We want to manage the content (and not purge it) even if we do not want
-    # to sync modules that we assume unchanged.
-    no_change ? @modules : @modules << mod
-  end
-
-  include R10K::Util::Purgeable
-
-  def managed_directories
-    self.load unless @loaded
-
-    dirs = @managed_content.keys
-    dirs.delete(real_basedir)
-    dirs
-  end
-
-  # Returns an array of the full paths to all the content being managed.
-  # @note This implements a required method for the Purgeable mixin
-  # @return [Array<String>]
-  def desired_contents
-    self.load unless @loaded
-
-    @managed_content.flat_map do |install_path, modnames|
-      modnames.collect { |name| File.join(install_path, name) }
-    end
-  end
-
-  def purge_exclusions
-    exclusions = managed_directories
-
-    if environment && environment.respond_to?(:desired_contents)
-      exclusions += environment.desired_contents
-    end
-
-    exclusions
-  end
-
-  def accept(visitor)
-    pool_size = self.settings[:pool_size]
-    if pool_size > 1
-      concurrent_accept(visitor, pool_size)
-    else
-      serial_accept(visitor)
-    end
+    @modules[mod.name] = mod
   end
 
   private
-
-  def serial_accept(visitor)
-    visitor.visit(:puppetfile, self) do
-      modules.each do |mod|
-        mod.accept(visitor)
-      end
-    end
-  end
-
-  def concurrent_accept(visitor, pool_size)
-    logger.debug _("Updating modules with %{pool_size} threads") % {pool_size: pool_size}
-    mods_queue = modules_queue(visitor)
-    thread_pool = pool_size.times.map { visitor_thread(visitor, mods_queue) }
-    thread_exception = nil
-
-    # If any threads raise an exception the deployment is considered a failure.
-    # In that event clear the queue, wait for other threads to finish their
-    # current work, then re-raise the first exception caught.
-    begin
-      thread_pool.each(&:join)
-    rescue => e
-      logger.error _("Error during concurrent deploy of a module: %{message}") % {message: e.message}
-      mods_queue.clear
-      thread_exception ||= e
-      retry
-    ensure
-      raise thread_exception unless thread_exception.nil?
-    end
-  end
-
-  def modules_queue(visitor)
-    Queue.new.tap do |queue|
-      visitor.visit(:puppetfile, self) do
-        modules_by_cachedir = modules.group_by { |mod| mod.cachedir }
-        modules_without_vcs_cachedir = modules_by_cachedir.delete(:none) || []
-
-        modules_without_vcs_cachedir.each {|mod| queue << Array(mod) }
-        modules_by_cachedir.values.each {|mods| queue << mods }
-      end
-    end
-  end
-  public :modules_queue
-
-  def visitor_thread(visitor, mods_queue)
-    Thread.new do
-      begin
-        while mods = mods_queue.pop(true) do
-          mods.each {|mod| mod.accept(visitor) }
-        end
-      rescue ThreadError => e
-        logger.debug _("Module thread %{id} exiting: %{message}") % {message: e.message, id: Thread.current.object_id}
-        Thread.exit
-      rescue => e
-        Thread.main.raise(e)
-      end
-    end
-  end
 
   def puppetfile_contents
     File.read(@puppetfile_path)

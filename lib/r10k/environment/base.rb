@@ -1,4 +1,5 @@
 require 'r10k/util/subprocess'
+require 'r10k/stub_puppetfile'
 
 # This class defines a common interface for environment implementations.
 #
@@ -48,8 +49,17 @@ class R10K::Environment::Base
     @full_path = File.join(@basedir, @dirname)
     @path = Pathname.new(File.join(@basedir, @dirname))
 
+    if File.exist?(File.join(@full_path, @puppetfile_name || 'Puppetfile'))
+      @previous_puppetfile = R10K::StubPuppetfile.new(@full_path, nil, nil, @puppetfile_name)
+    else
+      logger.debug _("Could not find Puppetfile at: %{path}" % { path: File.join(@full_path, @puppetfile_name || 'Puppetfile') })
+    end
+
+    @previous_puppetfile.load if @previous_puppetfile
+
     @puppetfile  = R10K::Puppetfile.new(@full_path, nil, nil, @puppetfile_name)
     @puppetfile.environment = self
+    @puppetfile.previous_version = @previous_puppetfile
   end
 
   # Synchronize the given environment.
