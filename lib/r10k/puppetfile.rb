@@ -138,7 +138,7 @@ class Puppetfile
     no_change = false
     if @previous_version
       stub_module = R10K::MockModule.new(name, install_path, args)
-      logger.debug _("Checking previous Puppetfile for version %{version} of %{name}" % { version: stub_module.version, name: stub_module.name })
+      logger.debug2 _("Checking previous Puppetfile for version %{version} of %{name}" % { version: stub_module.version, name: stub_module.name })
       if stub_module.version == @previous_version.modules[stub_module.name].version
         logger.debug _("Expected version has not changed between this and previous deployment, skipping %{name}" % { name: stub_module.name })
         # The version in this Puppetfile is the same as the version previous

@@ -89,6 +89,8 @@ module R10K
           started_at = Time.new
           @environment_ok = true
 
+          environment.read_previous_puppetfile if @assume_unchanged
+
           status = environment.status
           logger.info _("Deploying environment %{env_path}") % {env_path: environment.path}
 
@@ -186,6 +188,7 @@ module R10K
           super.merge(puppetfile: :self,
                       cachedir: :self,
                       'no-force': :self,
+                      'assume-unchanged': :self,
                       'generate-types': :self,
                       'puppet-path': :self,
                       'puppet-conf': :self,
