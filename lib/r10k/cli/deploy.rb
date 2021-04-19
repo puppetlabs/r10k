@@ -55,7 +55,7 @@ branches.
 
 Environments can provide a Puppetfile at the root of the directory to deploy
 independent Puppet modules. To recursively deploy an environment, pass the
-`--puppetfile` flag to the command.
+`--modules` flag to the command.
 
 **NOTE**: If an environment has a Puppetfile when it is instantiated a
 recursive update will be forced. It is assumed that environments are dependent
@@ -63,7 +63,8 @@ on modules specified in the Puppetfile and an update will be automatically
 scheduled. On subsequent deployments, Puppetfile deployment will default to off.
           DESCRIPTION
 
-          flag :p, :puppetfile, 'Deploy modules from a puppetfile'
+          flag :p, :puppetfile, 'Deploy modules (deprecated, use -m)'
+          flag :m, :modules, 'Deploy modules'
           option nil, :'default-branch-override', 'Specify a branchname to override the default branch in the puppetfile',
                  argument: :required
 

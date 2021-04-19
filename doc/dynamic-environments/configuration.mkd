@@ -249,9 +249,9 @@ found which is neither committed to the control repo branch that maps to that
 environment, nor declared in a Puppetfile committed to that branch.
 
 Enabling this purge level will cause r10k to load and parse the Puppetfile for
-the environment even without the `--puppetfile` flag being set. However,
+the environment even without the `--modules` flag being set. However,
 Puppetfile content will still only be deployed if the environment is new or
-the `--puppetfile` flag is set. Additionally, no environment-level content
+the `--modules` flag is set. Additionally, no environment-level content
 will be purged if any errors are encountered while evaluating the Puppetfile
 or deploying its contents.
 

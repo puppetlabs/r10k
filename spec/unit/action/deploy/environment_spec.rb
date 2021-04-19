@@ -19,6 +19,10 @@ describe R10K::Action::Deploy::Environment do
       described_class.new({puppetfile: true}, [])
     end
 
+    it "can accept a modules option" do
+      described_class.new({modules: true}, [])
+    end
+
     it "can accept a default_branch_override option" do
       described_class.new({:'default-branch-override' => 'default_branch_override_name'}, [])
     end
@@ -69,6 +73,29 @@ describe R10K::Action::Deploy::Environment do
       )
     end
 
+    describe "with puppetfile or modules flag" do
+      let(:deployment) { R10K::Deployment.new(mock_config) }
+      let(:puppetfile) { instance_double("R10K::Puppetfile", modules: []).as_null_object }
+
+      before do
+        expect(R10K::Deployment).to receive(:new).and_return(deployment)
+        expect(R10K::Puppetfile).to receive(:new).and_return(puppetfile).at_least(:once)
+      end
+
+      it "syncs the puppetfile when given the puppetfile flag" do
+        expect(puppetfile).to receive(:accept).and_return([])
+        action = described_class.new({config: "/some/nonexistent/path", puppetfile: true}, [])
+        action.call
+      end
+
+      it "syncs the puppetfile when given the modules flag" do
+        expect(puppetfile).to receive(:accept).and_return([])
+        action = described_class.new({config: "/some/nonexistent/path", modules: true}, [])
+        action.call
+      end
+
+    end
+
     describe "with an environment that doesn't exist" do
       let(:deployment) do
         R10K::Deployment.new(mock_config)
@@ -88,7 +115,7 @@ describe R10K::Action::Deploy::Environment do
     end
 
     describe "with no-force" do
-      subject { described_class.new({ config: "/some/nonexistent/path", puppetfile: true, :'no-force' => true}, %w[first]) }
+      subject { described_class.new({ config: "/some/nonexistent/path", modules: true, :'no-force' => true}, %w[first]) }
 
       it "tries to preserve local modifications" do
         expect(subject.force).to equal(false)
@@ -198,7 +225,7 @@ describe R10K::Action::Deploy::Environment do
         expect(R10K::Deployment).to receive(:new).and_return(deployment)
       end
 
-      subject { described_class.new({ config: "/some/nonexistent/path", puppetfile: true }, %w[PREFIX_first], settings) }
+      subject { described_class.new({ config: "/some/nonexistent/path", modules: true }, %w[PREFIX_first], settings) }
 
       it "reads in the purge_allowlist setting and purges accordingly" do
         expect(subject.logger).to receive(:debug).with(/purging unmanaged content for environment/i)
@@ -228,7 +255,7 @@ describe R10K::Action::Deploy::Environment do
         expect(R10K::Deployment).to receive(:new).and_return(deployment)
       end
 
-      subject { described_class.new({ config: "/some/nonexistent/path", puppetfile: true }, %w[PREFIX_first], settings) }
+      subject { described_class.new({ config: "/some/nonexistent/path", modules: true }, %w[PREFIX_first], settings) }
 
       describe "deployment purge level" do
         let(:purge_levels) { [:deployment] }
@@ -304,7 +331,7 @@ describe R10K::Action::Deploy::Environment do
           described_class.new(
             {
               config: '/some/nonexistent/path',
-              puppetfile: true,
+              modules: true,
               'generate-types': true
             },
             %w[first second]
@@ -358,7 +385,7 @@ describe R10K::Action::Deploy::Environment do
           described_class.new(
             {
               config: '/some/nonexistent/path',
-              puppetfile: true,
+              modules: true,
               'generate-types': false
             },
             %w[first]

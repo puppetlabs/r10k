@@ -113,7 +113,7 @@ module R10K
           environment.sync
           logger.info _("Environment %{env_dir} is now at %{env_signature}") % {env_dir: environment.dirname, env_signature: environment.signature}
 
-          if status == :absent || @puppetfile
+          if status == :absent || @modules
             if status == :absent
               logger.debug(_("Environment %{env_dir} is new, updating all modules") % {env_dir: environment.dirname})
             end
@@ -204,7 +204,8 @@ module R10K
         end
 
         def allowed_initialize_opts
-          super.merge(puppetfile: :self,
+          super.merge(puppetfile: :modules,
+                      modules: :self,
                       cachedir: :self,
                       'no-force': :self,
                       'generate-types': :self,
