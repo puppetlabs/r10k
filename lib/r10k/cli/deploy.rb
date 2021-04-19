@@ -100,7 +100,8 @@ try to deploy the given module names in all environments.
           usage 'display'
           summary 'Display environments and modules in the deployment'
 
-          flag :p, :puppetfile, 'Display Puppetfile modules'
+          flag :p, :puppetfile, 'Display modules (deprecated, use -m)'
+          flag :m, :modules, 'Display modules'
           flag nil, :detail, 'Display detailed information'
           flag nil, :fetch, 'Update available environment lists from all remote sources'
           option nil, :format, 'Display output in a specific format. Valid values: json, yaml. Default: yaml',

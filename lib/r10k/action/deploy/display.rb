@@ -59,14 +59,14 @@ module R10K
         end
 
         def environment_info(env)
-          if !@puppetfile && !@detail
+          if !@modules && !@detail
             env.dirname
           else
             env_info = env.info.merge({
               :status => (env.status rescue nil),
             })
 
-            env_info[:modules] = env.modules.map { |mod| module_info(mod) } if @puppetfile
+            env_info[:modules] = env.modules.map { |mod| module_info(mod) } if @modules
 
             env_info
           end
@@ -81,7 +81,13 @@ module R10K
         end
 
         def allowed_initialize_opts
-          super.merge(puppetfile: :self, detail: :self, format: :self, fetch: :self)
+          super.merge({
+            puppetfile: :modules,
+            modules: :self,
+            detail: :self,
+            format: :self,
+            fetch: :self
+          })
         end
       end
     end
