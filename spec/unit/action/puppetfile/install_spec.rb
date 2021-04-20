@@ -25,7 +25,6 @@ describe R10K::Action::Puppetfile::Install do
     end
 
     before do
-      allow(puppetfile).to receive(:purge!)
       allow(puppetfile).to receive(:modules).and_return(modules)
       allow(puppetfile).to receive(:modules_by_vcs_cachedir).and_return({none: modules})
     end
@@ -50,7 +49,15 @@ describe R10K::Action::Puppetfile::Install do
     end
 
     it "purges the moduledir after installation" do
-      expect(puppetfile).to receive(:purge!)
+      mock_cleaner = double("cleaner")
+      allow(puppetfile).to receive(:desired_contents).and_return(["root/foo"])
+      allow(puppetfile).to receive(:managed_directories).and_return(["root"])
+      allow(puppetfile).to receive(:purge_exclusions).and_return(["root/**/**.rb"])
+
+      expect(R10K::Util::Cleaner).to receive(:new).
+        with(["root"], ["root/foo"], ["root/**/**.rb"]).
+        and_return(mock_cleaner)
+      expect(mock_cleaner).to receive(:purge!)
 
       installer.call
     end
