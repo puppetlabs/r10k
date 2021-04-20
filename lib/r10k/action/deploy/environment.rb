@@ -163,17 +163,20 @@ module R10K
         end
 
         def write_environment_info!(environment, started_at, success)
-          module_deploys = []
-          begin
-            environment.modules.each do |mod|
-              name = mod.name
-              version = mod.version
-              sha = mod.repo.head rescue nil
-              module_deploys.push({:name => name, :version => version, :sha => sha})
+          module_deploys =
+            begin
+              environment.modules.map do |mod|
+                props = mod.properties
+                {
+                  name: mod.name,
+                  version: props[:expected],
+                  sha: props[:type] == :git ? props[:actual] : nil
+                }
+              end
+            rescue
+              logger.debug("Unable to get environment module deploy data for .r10k-deploy.json at #{environment.path}")
+              []
             end
-          rescue
-            logger.debug("Unable to get environment module deploy data for .r10k-deploy.json at #{environment.path}")
-          end
 
           # make this file write as atomic as possible in pure ruby
           final   = "#{environment.path}/.r10k-deploy.json"

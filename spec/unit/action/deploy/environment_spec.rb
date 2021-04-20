@@ -432,9 +432,25 @@ describe R10K::Action::Deploy::Environment do
 
     let(:mock_stateful_repo_1) { instance_double("R10K::Git::StatefulRepository", :head => "123456") }
     let(:mock_stateful_repo_2) { instance_double("R10K::Git::StatefulRepository", :head => "654321") }
-    let(:mock_git_module_1) { instance_double("R10K::Module::Git", :name => "my_cool_module", :version => "1.0", :repo => mock_stateful_repo_1) }
-    let(:mock_git_module_2) { instance_double("R10K::Module::Git", :name => "my_lame_module", :version => "0.0.1", :repo => mock_stateful_repo_2) }
-    let(:mock_forge_module_1) { double(:name => "their_shiny_module", :version => "2.0.0") }
+    let(:mock_git_module_1) do
+      instance_double("R10K::Module::Git",
+                      :name       => "my_cool_module",
+                      :properties => {
+                        :type     => :git,
+                        :expected => "1.0",
+                        :actual   => mock_stateful_repo_1.head
+                      })
+    end
+    let(:mock_git_module_2) do
+      instance_double("R10K::Module::Git",
+                      :name       => "my_uncool_module",
+                      :properties => {
+                        :type     => :git,
+                        :expected => "0.0.1",
+                        :actual   => mock_stateful_repo_2.head
+                      })
+    end
+    let(:mock_forge_module_1) { double(:name => "their_shiny_module", :properties => { :expected => "2.0.0" }) }
     let(:mock_puppetfile) { instance_double("R10K::Puppetfile", :modules => [mock_git_module_1, mock_git_module_2, mock_forge_module_1]) }
 
     before(:all) do
@@ -447,9 +463,8 @@ describe R10K::Action::Deploy::Environment do
       Dir.delete(@tmp_path)
     end
 
-    it "writes the .r10k-deploy file correctly" do
+    it "writes the .r10k-deploy file correctly if all goes well" do
       allow(R10K::Puppetfile).to receive(:new).and_return(mock_puppetfile)
-      allow(mock_forge_module_1).to receive(:repo).and_raise(NoMethodError)
 
       fake_env = Fake_Environment.new(@tmp_path, {:name => "my_cool_environment", :signature => "pablo picasso"})
       allow(fake_env).to receive(:modules).and_return(mock_puppetfile.modules)
@@ -466,13 +481,30 @@ describe R10K::Action::Deploy::Environment do
       expect(r10k_deploy['module_deploys'][0]['name']).to eq("my_cool_module")
       expect(r10k_deploy['module_deploys'][0]['version']).to eq("1.0")
       expect(r10k_deploy['module_deploys'][0]['sha']).to eq("123456")
-      expect(r10k_deploy['module_deploys'][1]['name']).to eq("my_lame_module")
+      expect(r10k_deploy['module_deploys'][1]['name']).to eq("my_uncool_module")
       expect(r10k_deploy['module_deploys'][1]['version']).to eq("0.0.1")
       expect(r10k_deploy['module_deploys'][1]['sha']).to eq("654321")
       expect(r10k_deploy['module_deploys'][2]['name']).to eq("their_shiny_module")
       expect(r10k_deploy['module_deploys'][2]['version']).to eq("2.0.0")
       expect(r10k_deploy['module_deploys'][2]['sha']).to eq(nil)
+    end
 
+    it "writes the .r10k-deploy file correctly if there's a failure" do
+      allow(R10K::Puppetfile).to receive(:new).and_return(mock_puppetfile)
+
+      fake_env = Fake_Environment.new(@tmp_path, {:name => "my_cool_environment", :signature => "pablo picasso"})
+      allow(fake_env).to receive(:modules).and_return(mock_puppetfile.modules)
+      allow(mock_forge_module_1).to receive(:properties).and_raise(StandardError)
+      subject.send(:write_environment_info!, fake_env, "2019-01-01 23:23:22 +0000", true)
+
+      file_contents = File.read("#{@tmp_path}/.r10k-deploy.json")
+      r10k_deploy = JSON.parse(file_contents)
+
+      expect(r10k_deploy['name']).to eq("my_cool_environment")
+      expect(r10k_deploy['signature']).to eq("pablo picasso")
+      expect(r10k_deploy['started_at']).to eq("2019-01-01 23:23:22 +0000")
+      expect(r10k_deploy['deploy_success']).to eq(true)
+      expect(r10k_deploy['module_deploys'].length).to eq(0)
     end
   end
 end
