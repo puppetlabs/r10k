@@ -1,4 +1,5 @@
 require 'r10k/util/setopts'
+require 'r10k/util/cleaner'
 require 'r10k/deployment'
 require 'r10k/logging'
 require 'r10k/action/visitor'
@@ -152,7 +153,9 @@ module R10K
 
           if @purge_levels.include?(:puppetfile)
             logger.debug("Purging unmanaged Puppetfile content for environment '#{puppetfile.environment.dirname}'...")
-            puppetfile.purge!
+            R10K::Util::Cleaner.new(puppetfile.managed_directories,
+                                    puppetfile.desired_contents,
+                                    puppetfile.purge_exclusions).purge!
           end
         end
 
