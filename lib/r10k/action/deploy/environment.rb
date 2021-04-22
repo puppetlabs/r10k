@@ -15,12 +15,11 @@ module R10K
 
         attr_reader :force
 
-        def initialize(opts, argv, settings = nil)
-          settings ||= {}
-          @purge_levels = settings.fetch(:deploy, {}).fetch(:purge_levels, [])
-          @user_purge_allowlist = read_purge_allowlist(settings.fetch(:deploy, {}).fetch(:purge_whitelist, []),
-                                                       settings.fetch(:deploy, {}).fetch(:purge_allowlist, []))
-          @generate_types = settings.fetch(:deploy, {}).fetch(:generate_types, false)
+        def initialize(opts, argv, settings)
+          @purge_levels = settings.dig(:deploy, :purge_levels) || []
+          @user_purge_allowlist = read_purge_allowlist(settings.dig(:deploy, :purge_whitelist) || [],
+                                                       settings.dig(:deploy, :purge_allowlist) || [])
+          @generate_types = settings.dig(:deploy, :generate_types) || false
 
           super
 

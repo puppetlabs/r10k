@@ -10,7 +10,7 @@ module R10K
 
       attr_accessor :settings
 
-      def initialize(opts, argv, settings = {})
+      def initialize(opts, argv, settings)
         @opts = opts
         @argv = argv
         @settings = settings

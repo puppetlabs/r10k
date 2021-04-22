@@ -12,8 +12,7 @@ module R10K
 
         attr_reader :force
 
-        def initialize(opts, argv, settings = nil)
-          settings ||= {}
+        def initialize(opts, argv, settings)
 
           super
 
