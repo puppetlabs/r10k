@@ -30,11 +30,11 @@ CONF
 puppetfile = <<-EOS
 mod 'prod_apache',
   :git => 'git://github.com/puppetlabs/puppetlabs-apache.git',
-  :branch => 'master'
+  :tag => 'v6.0.0'
 
 mod 'test_apache',
   :git => 'git://github.com/puppetlabs/puppetlabs-apache.git',
-  :branch => 'master'
+  :tag => 'v6.0.0'
 EOS
 
 teardown do
