@@ -32,4 +32,30 @@ describe R10K::Action::Deploy::Display do
   end
 
   it_behaves_like "a deploy action that requires a config file"
+
+  describe "collecting info" do
+    subject { described_class.new({config: "/some/nonexistent/path", format: 'json', puppetfile: true, detail: true}, ['first'], {}) }
+
+    let(:mock_config) do
+      R10K::Deployment::MockConfig.new(
+        :sources => {
+          :control => {
+            :type => :mock,
+            :basedir => '/some/nonexistent/path/control',
+            :environments => %w[first second third env-that/will-be-corrected],
+            :prefix => 'PREFIX'
+          }
+        }
+      )
+    end
+
+    let(:deployment) { R10K::Deployment.new(mock_config) }
+
+    it "gathers environment info" do
+      source_info = subject.send(:source_info, deployment.sources.first, ['first'])
+      expect(source_info[:name]).to eq(:control)
+      expect(source_info[:environments].length).to eq(1)
+      expect(source_info[:environments][0][:name]).to eq('first')
+    end
+  end
 end

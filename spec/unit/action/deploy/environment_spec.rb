@@ -344,7 +344,7 @@ describe R10K::Action::Deploy::Environment do
         end
 
         it 'only calls puppet generate types on specified environment' do
-          subject.instance_variable_set(:@argv, %w[first])
+          subject.instance_variable_set(:@requested_environments, %w[first])
           expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
             if environment.dirname == 'first'
               expect(environment).to receive(:generate_types!)

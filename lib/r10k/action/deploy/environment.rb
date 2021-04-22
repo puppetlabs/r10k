@@ -25,7 +25,7 @@ module R10K
 
           # @force here is used to make it easier to reason about
           @force = !@no_force
-          @argv = @argv.map { |arg| arg.gsub(/\W/,'_') }
+          @requested_environments = @argv.map { |arg| arg.gsub(/\W/,'_') }
         end
 
         def call
@@ -68,7 +68,7 @@ module R10K
           deployment.preload!
           deployment.validate!
 
-          undeployable = undeployable_environment_names(deployment.environments, @argv)
+          undeployable = undeployable_environment_names(deployment.environments, @requested_environments)
           if !undeployable.empty?
             @visit_ok = false
             logger.error _("Environment(s) \'%{environments}\' cannot be found in any source and will not be deployed.") % {environments: undeployable.join(", ")}
@@ -84,7 +84,7 @@ module R10K
           if (postcmd = @settings[:postrun])
             if postcmd.grep('$modifiedenvs').any?
               envs = deployment.environments.map { |e| e.dirname }
-              envs.reject! { |e| !@argv.include?(e) } if @argv.any?
+              envs.reject! { |e| !@requested_environments.include?(e) } if @requested_environments.any?
               postcmd = postcmd.map { |e| e.gsub('$modifiedenvs', envs.join(' ')) }
             end
             subproc = R10K::Util::Subprocess.new(postcmd)
@@ -98,7 +98,7 @@ module R10K
         end
 
         def visit_environment(environment)
-          if !(@argv.empty? || @argv.any? { |name| environment.dirname == name })
+          if !(@requested_environments.empty? || @requested_environments.any? { |name| environment.dirname == name })
             logger.debug1(_("Environment %{env_dir} does not match environment name filter, skipping") % {env_dir: environment.dirname})
             return
           end
