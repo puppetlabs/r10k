@@ -53,6 +53,7 @@ describe R10K::Environment::Base do
     before(:each) do
       allow(mock_puppetfile).to receive(:managed_directories).and_return([])
       allow(mock_puppetfile).to receive(:desired_contents).and_return([])
+      allow(mock_puppetfile).to receive(:previous_version=)
       allow(R10K::Puppetfile).to receive(:new).and_return(mock_puppetfile)
     end
 
