@@ -4,7 +4,7 @@ CHANGELOG
 Unreleased
 ----------
 
-- Add '--modules' flag to deploy subcommand as a replacement to '--puppetfile`, deprecate '--puppetfile'. [#1147](https://github.com/puppetlabs/r10k/pull/1147)
+- Add '--modules' flag to `deploy` subcommand as a replacement to '--puppetfile', deprecate '--puppetfile'. [#1147](https://github.com/puppetlabs/r10k/pull/1147)
 - Deprecate 'purge_whitelist' and favor usage of 'purge_allowlist'. [#1144](https://github.com/puppetlabs/r10k/pull/1144)
 - Add 'strip\_component' environment source configuration setting, to allow deploying Git branches named like "env/production" as Puppet environments named like "production". [#1128](https://github.com/puppetlabs/r10k/pull/1128)
 - A warning will be emitted when the user supplies conflicting arguments to module definitions in a Puppetfile, such as when specifying both :commit and :branch [#1130](https://github.com/puppetlabs/r10k/pull/1130)
