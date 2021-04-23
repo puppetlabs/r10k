@@ -18,16 +18,16 @@ Command line invocation
 
 Recursively update all environments:
 
-    r10k deploy environment --puppetfile
+    r10k deploy environment --modules
 
 The simplest way to use r10k is by simply updating all environments and modules
 and takes the brute force approach of "update everything, ever." When this
 command is run r10k will update all sources, create new environments and delete
 old environments, and recursively update all environment modules specified in
-environment Puppetfiles. While this is the simplest method for running r10k, is
-is also the slowest by a very large degree because it does the maximum possible
-work. This should not be something you run interactively, or use on a regular
-basis.
+environment Puppetfiles, yamldirs, etc. While this is the simplest method for
+running r10k, it is also the slowest by a very large degree because it does the
+maximum possible work. This should not be something you run interactively, or
+use on a regular basis.
 
 - - -
 
@@ -55,7 +55,7 @@ only the environment itself will be updated.
 
 Update a single environment and force an update of modules:
 
-    r10k deploy environment my_working_environment --puppetfile
+    r10k deploy environment my_working_environment --modules
 
 This will update the given environment and update all contained modules. This is
 useful if you want to make sure that a given environment is fully up to date.
@@ -64,7 +64,7 @@ useful if you want to make sure that a given environment is fully up to date.
 
 Update a single environment and specify a default branch override:
 
-    r10k deploy environment my_working_environment --puppetfile --default-branch-override default_branch_override
+    r10k deploy environment my_working_environment --modules --default-branch-override default_branch_override
 
 This will update the given environment and update all contained modules, overriding
 the :default_branch entry in the Puppetfile of each module. If the specified override branch is not

@@ -8,6 +8,10 @@ describe R10K::Action::Deploy::Display do
       described_class.new({puppetfile: true}, [])
     end
 
+    it "accepts a modules option" do
+      described_class.new({modules: true}, [])
+    end
+
     it "accepts a detail option" do
       described_class.new({detail: true}, [])
     end
