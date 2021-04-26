@@ -4,48 +4,48 @@ require 'r10k/action/deploy/module'
 
 describe R10K::Action::Deploy::Module do
 
-  subject { described_class.new({config: "/some/nonexistent/path"}, []) }
+  subject { described_class.new({config: "/some/nonexistent/path"}, [], {}) }
 
   it_behaves_like "a deploy action that requires a config file"
   it_behaves_like "a deploy action that can be write locked"
 
   describe "initializing" do
     it "accepts an environment option" do
-      described_class.new({environment: "production"}, [])
+      described_class.new({environment: "production"}, [], {})
     end
 
     it "can accept a no-force option" do
-      described_class.new({:'no-force' => true}, [])
+      described_class.new({:'no-force' => true}, [], {})
     end
 
     it 'can accept a generate-types option' do
-      described_class.new({ 'generate-types': true }, [])
+      described_class.new({ 'generate-types': true }, [], {})
     end
 
     it 'can accept a puppet-path option' do
-      described_class.new({ 'puppet-path': '/nonexistent' }, [])
+      described_class.new({ 'puppet-path': '/nonexistent' }, [], {})
     end
 
     it 'can accept a puppet-conf option' do
-      described_class.new({ 'puppet-conf': '/nonexistent' }, [])
+      described_class.new({ 'puppet-conf': '/nonexistent' }, [], {})
     end
 
     it 'can accept a cachedir option' do
-      described_class.new({ cachedir: '/nonexistent' }, [])
+      described_class.new({ cachedir: '/nonexistent' }, [], {})
     end
 
     it 'can accept a private-key option' do
-      described_class.new({ 'private-key': '/nonexistent' }, [])
+      described_class.new({ 'private-key': '/nonexistent' }, [], {})
     end
 
     it 'can accept a token option' do
-      described_class.new({ 'oauth-token': '/nonexistent' }, [])
+      described_class.new({ 'oauth-token': '/nonexistent' }, [], {})
     end
   end
 
   describe "with no-force" do
 
-    subject { described_class.new({ config: "/some/nonexistent/path", :'no-force' => true}, [] )}
+    subject { described_class.new({ config: "/some/nonexistent/path", :'no-force' => true}, [], {}) }
 
     it "tries to preserve local modifications" do
       expect(subject.force).to equal(false)
@@ -76,7 +76,8 @@ describe R10K::Action::Deploy::Module do
             config: '/some/nonexistent/path',
             'generate-types': true
           },
-          %w[first]
+          %w[first],
+          {}
         )
       end
 
@@ -113,7 +114,8 @@ describe R10K::Action::Deploy::Module do
             config: '/some/nonexistent/path',
             'generate-types': false
           },
-          %w[first]
+          %w[first],
+          {}
         )
       end
 
@@ -133,7 +135,7 @@ describe R10K::Action::Deploy::Module do
 
   describe 'with puppet-path' do
 
-    subject { described_class.new({ config: '/some/nonexistent/path', 'puppet-path': '/nonexistent' }, []) }
+    subject { described_class.new({ config: '/some/nonexistent/path', 'puppet-path': '/nonexistent' }, [], {}) }
 
     it 'sets puppet_path' do
       expect(subject.instance_variable_get(:@puppet_path)).to eq('/nonexistent')
@@ -142,7 +144,7 @@ describe R10K::Action::Deploy::Module do
 
   describe 'with puppet-conf' do
 
-    subject { described_class.new({ config: '/some/nonexistent/path', 'puppet-conf': '/nonexistent' }, []) }
+    subject { described_class.new({ config: '/some/nonexistent/path', 'puppet-conf': '/nonexistent' }, [], {}) }
 
     it 'sets puppet_conf' do
       expect(subject.instance_variable_get(:@puppet_conf)).to eq('/nonexistent')
@@ -151,7 +153,7 @@ describe R10K::Action::Deploy::Module do
 
   describe 'with cachedir' do
 
-    subject { described_class.new({ config: '/some/nonexistent/path', cachedir: '/nonexistent' }, []) }
+    subject { described_class.new({ config: '/some/nonexistent/path', cachedir: '/nonexistent' }, [], {}) }
 
     it 'sets cachedir' do
       expect(subject.instance_variable_get(:@cachedir)).to eq('/nonexistent')
@@ -160,7 +162,7 @@ describe R10K::Action::Deploy::Module do
 
   describe 'with private-key' do
 
-    subject { described_class.new({ config: '/some/nonexistent/path', 'private-key': '/nonexistent' }, []) }
+    subject { described_class.new({ config: '/some/nonexistent/path', 'private-key': '/nonexistent' }, [], {}) }
 
     it 'sets private_key' do
       expect(subject.instance_variable_get(:@private_key)).to eq('/nonexistent')
@@ -169,7 +171,7 @@ describe R10K::Action::Deploy::Module do
 
   describe 'with oauth-token' do
 
-    subject { described_class.new({ config: '/some/nonexistent/path', 'oauth-token': '/nonexistent' }, []) }
+    subject { described_class.new({ config: '/some/nonexistent/path', 'oauth-token': '/nonexistent' }, [], {}) }
 
     it 'sets token_path' do
       expect(subject.instance_variable_get(:@oauth_token)).to eq('/nonexistent')

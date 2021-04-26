@@ -12,13 +12,13 @@ module R10K
 
         attr_reader :force
 
-        def initialize(opts, argv, settings = nil)
-          settings ||= {}
+        def initialize(opts, argv, settings)
 
           super
 
           # @force here is used to make it easier to reason about
           @force = !@no_force
+          @requested_modules = @argv
         end
 
         def call
@@ -48,7 +48,7 @@ module R10K
           if @opts[:environment] && (@opts[:environment] != environment.dirname)
             logger.debug1(_("Only updating modules in environment %{opt_env} skipping environment %{env_path}") % {opt_env: @opts[:environment], env_path: environment.path})
           else
-            logger.debug1(_("Updating modules %{modules} in environment %{env_path}") % {modules: @argv.inspect, env_path: environment.path})
+            logger.debug1(_("Updating modules %{modules} in environment %{env_path}") % {modules: @requested_modules.inspect, env_path: environment.path})
             yield
           end
         end
@@ -59,7 +59,7 @@ module R10K
         end
 
         def visit_module(mod)
-          if @argv.include?(mod.name)
+          if @requested_modules.include?(mod.name)
             logger.info _("Deploying module %{mod_path}") % {mod_path: mod.path}
             mod.sync(force: @force)
             if mod.environment && @generate_types
@@ -67,7 +67,7 @@ module R10K
               mod.environment.generate_types!
             end
           else
-            logger.debug1(_("Only updating modules %{modules}, skipping module %{mod_name}") % {modules: @argv.inspect, mod_name: mod.name})
+            logger.debug1(_("Only updating modules %{modules}, skipping module %{mod_name}") % {modules: @requested_modules.inspect, mod_name: mod.name})
           end
         end
 

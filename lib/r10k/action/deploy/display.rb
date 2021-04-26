@@ -43,7 +43,7 @@ module R10K
           puts output.to_yaml
         end
 
-        def source_info(source, argv=[])
+        def source_info(source, requested_environments = [])
           source_info = {
             :name => source.name,
             :basedir => source.basedir,
@@ -52,7 +52,8 @@ module R10K
           source_info[:prefix] = source.prefix if source.prefix
           source_info[:remote] = source.remote if source.respond_to?(:remote)
 
-          env_list = source.environments.select { |env| argv.empty? || argv.include?(env.name) }
+          select_all_envs = requested_environments.empty?
+          env_list = source.environments.select { |env| select_all_envs || requested_environments.include?(env.name) }
           source_info[:environments] = env_list.map { |env| environment_info(env) }
 
           source_info
