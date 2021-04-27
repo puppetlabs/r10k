@@ -343,9 +343,9 @@ describe R10K::Puppetfile do
       m5 = instance_double('R10K::Module::Base', :cachedir => '/dev/null/D')
       m6 = instance_double('R10K::Module::Base', :cachedir => '/dev/null/D')
 
-      expect(subject).to receive(:modules).and_return([m1, m2, m3, m4, m5, m6])
+      modules = [m1, m2, m3, m4, m5, m6]
 
-      queue = subject.modules_queue(visitor)
+      queue = R10K::ContentSynchronizer.modules_queue(modules, visitor, subject)
       expect(queue.length).to be 4
       queue_array = 4.times.map { queue.pop }
       expect(queue_array).to match_array([[m1], [m2], [m3, m4], [m5, m6]])

@@ -3,6 +3,7 @@ require 'pathname'
 require 'r10k/module'
 require 'r10k/util/purgeable'
 require 'r10k/errors'
+require 'r10k/content_synchronizer'
 
 module R10K
 class Puppetfile
@@ -181,70 +182,13 @@ class Puppetfile
   def accept(visitor)
     pool_size = self.settings[:pool_size]
     if pool_size > 1
-      concurrent_accept(visitor, pool_size)
+      R10K::ContentSynchronizer.concurrent_accept(modules, visitor, self, pool_size, logger)
     else
-      serial_accept(visitor)
+      R10K::ContentSynchronizer.serial_accept(modules, visitor, self)
     end
   end
 
   private
-
-  def serial_accept(visitor)
-    visitor.visit(:puppetfile, self) do
-      modules.each do |mod|
-        mod.accept(visitor)
-      end
-    end
-  end
-
-  def concurrent_accept(visitor, pool_size)
-    logger.debug _("Updating modules with %{pool_size} threads") % {pool_size: pool_size}
-    mods_queue = modules_queue(visitor)
-    thread_pool = pool_size.times.map { visitor_thread(visitor, mods_queue) }
-    thread_exception = nil
-
-    # If any threads raise an exception the deployment is considered a failure.
-    # In that event clear the queue, wait for other threads to finish their
-    # current work, then re-raise the first exception caught.
-    begin
-      thread_pool.each(&:join)
-    rescue => e
-      logger.error _("Error during concurrent deploy of a module: %{message}") % {message: e.message}
-      mods_queue.clear
-      thread_exception ||= e
-      retry
-    ensure
-      raise thread_exception unless thread_exception.nil?
-    end
-  end
-
-  def modules_queue(visitor)
-    Queue.new.tap do |queue|
-      visitor.visit(:puppetfile, self) do
-        modules_by_cachedir = modules.group_by { |mod| mod.cachedir }
-        modules_without_vcs_cachedir = modules_by_cachedir.delete(:none) || []
-
-        modules_without_vcs_cachedir.each {|mod| queue << Array(mod) }
-        modules_by_cachedir.values.each {|mods| queue << mods }
-      end
-    end
-  end
-  public :modules_queue
-
-  def visitor_thread(visitor, mods_queue)
-    Thread.new do
-      begin
-        while mods = mods_queue.pop(true) do
-          mods.each {|mod| mod.accept(visitor) }
-        end
-      rescue ThreadError => e
-        logger.debug _("Module thread %{id} exiting: %{message}") % {message: e.message, id: Thread.current.object_id}
-        Thread.exit
-      rescue => e
-        Thread.main.raise(e)
-      end
-    end
-  end
 
   def puppetfile_contents
     File.read(@puppetfile_path)
