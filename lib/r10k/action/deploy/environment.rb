@@ -14,19 +14,38 @@ module R10K
 
         include R10K::Action::Deploy::DeployHelpers
 
+        # Deprecated
         attr_reader :force
 
-        def initialize(opts, argv, settings)
-          @purge_levels = settings.dig(:deploy, :purge_levels) || []
-          @user_purge_allowlist = read_purge_allowlist(settings.dig(:deploy, :purge_whitelist) || [],
-                                                       settings.dig(:deploy, :purge_allowlist) || [])
-          @generate_types = settings.dig(:deploy, :generate_types) || false
+        attr_reader :settings
 
+        def initialize(opts, argv, settings)
           super
 
-          # @force here is used to make it easier to reason about
-          @force = !@no_force
-          @requested_environments = @argv.map { |arg| arg.gsub(/\W/,'_') }
+          # instance variables below are set by the super class based on the
+          # spec of #allowed_initialize_opts and any command line flags. This
+          # gives a preference order of cli flags > config files > defaults.
+          @settings = @settings.merge({
+            overrides: {
+              environments: {
+                requested_environments: @argv.map { |arg| arg.gsub(/\W/,'_') },
+                default_branch_override: @default_branch_override,
+                generate_types: @generate_types || settings.dig(:deploy, :generate_types) || false,
+                preload_environments: true
+              },
+              modules: {
+                requested_modules: [],
+                deploy_modules: @modules,
+                force: !@no_force, # force here is used to make it easier to reason about
+              },
+              purging: {
+                purge_levels: settings.dig(:deploy, :purge_levels) || [],
+                purge_allowlist: read_purge_allowlist(settings.dig(:deploy, :purge_whitelist) || [],
+                                                      settings.dig(:deploy, :purge_allowlist) || [])
+              },
+              output: {}
+            }
+          })
         end
 
         def call
@@ -66,10 +85,12 @@ module R10K
           # sources then we can't fully enumerate all environments which
           # could be dangerous. If this fails then an exception will be raised
           # and execution will be halted.
-          deployment.preload!
-          deployment.validate!
+          if @settings[:overrides][:environments][:preload_environments]
+            deployment.preload!
+            deployment.validate!
+          end
 
-          undeployable = undeployable_environment_names(deployment.environments, @requested_environments)
+          undeployable = undeployable_environment_names(deployment.environments, @settings[:overrides][:environments][:requested_environments])
           if !undeployable.empty?
             @visit_ok = false
             logger.error _("Environment(s) \'%{environments}\' cannot be found in any source and will not be deployed.") % {environments: undeployable.join(", ")}
@@ -77,7 +98,7 @@ module R10K
 
           yield
 
-          if @purge_levels.include?(:deployment)
+          if @settings[:overrides][:purging][:purge_levels].include?(:deployment)
             logger.debug("Purging unmanaged environments for deployment...")
             deployment.purge!
           end
@@ -85,7 +106,8 @@ module R10K
           if (postcmd = @settings[:postrun])
             if postcmd.grep('$modifiedenvs').any?
               envs = deployment.environments.map { |e| e.dirname }
-              envs.reject! { |e| !@requested_environments.include?(e) } if @requested_environments.any?
+              requested_envs = @settings[:overrides][:environments][:requested_environments]
+              envs.reject! { |e| !requested_envs.include?(e) } if requested_envs.any?
               postcmd = postcmd.map { |e| e.gsub('$modifiedenvs', envs.join(' ')) }
             end
             subproc = R10K::Util::Subprocess.new(postcmd)
@@ -99,7 +121,8 @@ module R10K
         end
 
         def visit_environment(environment)
-          if !(@requested_environments.empty? || @requested_environments.any? { |name| environment.dirname == name })
+          requested_envs = @settings[:overrides][:environments][:requested_environments]
+          if !(requested_envs.empty? || requested_envs.any? { |name| environment.dirname == name })
             logger.debug1(_("Environment %{env_dir} does not match environment name filter, skipping") % {env_dir: environment.dirname})
             return
           end
@@ -113,7 +136,7 @@ module R10K
           environment.sync
           logger.info _("Environment %{env_dir} is now at %{env_signature}") % {env_dir: environment.dirname, env_signature: environment.signature}
 
-          if status == :absent || @modules
+          if status == :absent || @settings[:overrides][:modules][:deploy_modules]
             if status == :absent
               logger.debug(_("Environment %{env_dir} is new, updating all modules") % {env_dir: environment.dirname})
             end
@@ -125,16 +148,16 @@ module R10K
             @visit_ok &&= previous_ok
           end
 
-          if @purge_levels.include?(:environment)
+          if @settings[:overrides][:purging][:purge_levels].include?(:environment)
             if @visit_ok
               logger.debug("Purging unmanaged content for environment '#{environment.dirname}'...")
-              environment.purge!(:recurse => true, :whitelist => environment.whitelist(@user_purge_allowlist))
+              environment.purge!(:recurse => true, :whitelist => environment.whitelist(@settings[:overrides][:purging][:purge_allowlist]))
             else
               logger.debug("Not purging unmanaged content for environment '#{environment.dirname}' due to prior deploy failures.")
             end
           end
 
-          if @generate_types
+          if @settings[:overrides][:environments][:generate_types]
             if @environment_ok
               logger.debug("Generating puppet types for environment '#{environment.dirname}'...")
               environment.generate_types!
@@ -147,11 +170,11 @@ module R10K
         end
 
         def visit_puppetfile(puppetfile)
-          puppetfile.load(@opts[:'default-branch-override'])
+          puppetfile.load(@settings[:overrides][:environments][:default_branch_override])
 
           yield
 
-          if @purge_levels.include?(:puppetfile)
+          if @settings[:overrides][:purging][:purge_levels].include?(:puppetfile)
             logger.debug("Purging unmanaged Puppetfile content for environment '#{puppetfile.environment.dirname}'...")
             R10K::Util::Cleaner.new(puppetfile.managed_directories,
                                     puppetfile.desired_contents,
@@ -161,7 +184,7 @@ module R10K
 
         def visit_module(mod)
           logger.info _("Deploying %{origin} content %{path}") % {origin: mod.origin, path: mod.path}
-          mod.sync(force: @force)
+          mod.sync(force: @settings[:overrides][:modules][:force])
         end
 
         def write_environment_info!(environment, started_at, success)
