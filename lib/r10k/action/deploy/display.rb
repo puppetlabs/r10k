@@ -9,17 +9,38 @@ module R10K
 
         include R10K::Action::Deploy::DeployHelpers
 
+        def initialize(opts, argv, settings)
+          super
+
+          @settings = @settings.merge({
+            overrides: {
+              environments: {
+                preload_environment: @fetch,
+                requested_environments: @argv
+              },
+              modules: {},
+              output: {
+                format: @format,
+                trace: @trace,
+                detail: @detail
+              },
+              purging: {}
+            }
+          })
+        end
+
         def call
           expect_config!
           deployment = R10K::Deployment.new(@settings)
 
-          if @fetch
+          if @settings[:overrides][:environments][:preload_environments]
             deployment.preload!
+            deployment.validate!
           end
 
-          output = { :sources => deployment.sources.map { |source| source_info(source, @argv) } }
+          output = { :sources => deployment.sources.map { |source| source_info(source, @settings[:overrides][:environments][:requested_environments]) } }
 
-          case @format
+          case @settings[:overrides][:output][:format]
           when 'json' then json_format(output)
           else yaml_format(output)
           end
@@ -27,7 +48,7 @@ module R10K
           # exit 0
           true
         rescue => e
-          logger.error R10K::Errors::Formatting.format_exception(e, @trace)
+          logger.error R10K::Errors::Formatting.format_exception(e, @settings[:overrides][:output][:trace])
           false
         end
 
@@ -60,21 +81,22 @@ module R10K
         end
 
         def environment_info(env)
-          if !@modules && !@detail
+          modules = @settings[:overrides][:environments][:deploy_modules]
+          if !modules && !@settings[:overrides][:output][:detail]
             env.dirname
           else
             env_info = env.info.merge({
               :status => (env.status rescue nil),
             })
 
-            env_info[:modules] = env.modules.map { |mod| module_info(mod) } if @modules
+            env_info[:modules] = env.modules.map { |mod| module_info(mod) } if modules
 
             env_info
           end
         end
 
         def module_info(mod)
-          if @detail
+          if @settings[:overrides][:output][:detail]
             { :name => mod.title, :properties => mod.properties }
           else
             mod.title
