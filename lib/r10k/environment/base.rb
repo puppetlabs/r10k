@@ -44,6 +44,7 @@ class R10K::Environment::Base
     @dirname = dirname
     @options = options
     @puppetfile_name = options.delete(:puppetfile_name)
+    @overrides = options.delete(:overrides)
 
     @full_path = File.join(@basedir, @dirname)
     @path = Pathname.new(File.join(@basedir, @dirname))
