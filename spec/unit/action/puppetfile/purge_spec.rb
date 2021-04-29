@@ -17,7 +17,9 @@ describe R10K::Action::Puppetfile::Purge do
   end
 
   before(:each) do
-    allow(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, nil).and_return(puppetfile)
+    allow(R10K::Puppetfile).to receive(:new).
+      with("/some/nonexistent/path", {moduledir: nil, puppetfile_path: nil}).
+      and_return(puppetfile)
   end
 
   it_behaves_like "a puppetfile action"
@@ -40,13 +42,19 @@ describe R10K::Action::Puppetfile::Purge do
     end
 
     it "can use a custom puppetfile path" do
-      expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, "/some/other/path/Puppetfile").and_return(puppetfile)
+      expect(R10K::Puppetfile).to receive(:new).
+        with("/some/nonexistent/path",
+             {moduledir: nil, puppetfile_path: "/some/other/path/Puppetfile"}).
+        and_return(puppetfile)
 
       purger({puppetfile: "/some/other/path/Puppetfile"}).call
     end
 
     it "can use a custom moduledir path" do
-      expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", "/some/other/path/site-modules", nil).and_return(puppetfile)
+      expect(R10K::Puppetfile).to receive(:new).
+        with("/some/nonexistent/path",
+             {moduledir: "/some/other/path/site-modules", puppetfile_path: nil}).
+        and_return(puppetfile)
 
       purger({moduledir: "/some/other/path/site-modules"}).call
     end

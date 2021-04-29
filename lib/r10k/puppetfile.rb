@@ -43,17 +43,32 @@ class Puppetfile
   #   @return [Boolean] Overwrite any locally made changes
   attr_accessor :force
 
+  # @!attribute [r] overrides
+  #   @return [Hash] Various settings overridden from normal configs
+  attr_reader :overrides
+
   # @param [String] basedir
-  # @param [String] moduledir The directory to install the modules, default to #{basedir}/modules
-  # @param [String] puppetfile_path The path to the Puppetfile, default to #{basedir}/Puppetfile
-  # @param [String] puppetfile_name The name of the Puppetfile, default to 'Puppetfile'
-  # @param [Boolean] force Shall we overwrite locally made changes?
-  def initialize(basedir, moduledir = nil, puppetfile_path = nil, puppetfile_name = nil, force = nil )
+  # @param [Hash, String, nil] options_or_moduledir The directory to install the modules or a Hash of options.
+  #         Usage as moduledir is deprecated. Only use as options, defaults to nil
+  # @param [String, nil] puppetfile_path Deprecated - The path to the Puppetfile, defaults to nil
+  # @param [String, nil] puppetfile_name Deprecated - The name of the Puppetfile, defaults to nil
+  # @param [Boolean, nil] force Deprecated - Shall we overwrite locally made changes?
+  def initialize(basedir, options_or_moduledir = nil, deprecated_path_arg = nil, deprecated_name_arg = nil, deprecated_force_arg = nil)
     @basedir         = basedir
-    @force           = force || false
-    @moduledir       = moduledir  || File.join(basedir, 'modules')
-    @puppetfile_name = puppetfile_name || 'Puppetfile'
-    @puppetfile_path = puppetfile_path || File.join(basedir, @puppetfile_name)
+    if options_or_moduledir.is_a? Hash
+      options = options_or_moduledir
+      deprecated_moduledir_arg = nil
+    else
+      options = {}
+      deprecated_moduledir_arg = options_or_moduledir
+    end
+
+    @force           = deprecated_force_arg     || options.delete(:force)           || false
+    @moduledir       = deprecated_moduledir_arg || options.delete(:moduledir)       || File.join(basedir, 'modules')
+    @puppetfile_name = deprecated_name_arg      || options.delete(:puppetfile_name) || 'Puppetfile'
+    @puppetfile_path = deprecated_path_arg      || options.delete(:puppetfile_path) || File.join(basedir, @puppetfile_name)
+
+    @overrides       = options.delete(:overrides) || {}
 
     logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile_path}
 

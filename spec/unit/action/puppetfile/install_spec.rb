@@ -2,8 +2,11 @@ require 'spec_helper'
 require 'r10k/action/puppetfile/install'
 
 describe R10K::Action::Puppetfile::Install do
-  let(:default_opts) { {root: "/some/nonexistent/path"} }
-  let(:puppetfile) { R10K::Puppetfile.new('/some/nonexistent/path', nil, nil) }
+  let(:default_opts) { { root: "/some/nonexistent/path" } }
+  let(:puppetfile) {
+    R10K::Puppetfile.new('/some/nonexistent/path',
+                         {:moduledir => nil, :puppetfile_path => nil, :force => nil})
+  }
 
   def installer(opts = {}, argv = [], settings = {})
     opts = default_opts.merge(opts)
@@ -12,7 +15,10 @@ describe R10K::Action::Puppetfile::Install do
 
   before(:each) do
     allow(puppetfile).to receive(:load!).and_return(nil)
-    allow(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, nil, nil, nil).and_return(puppetfile)
+    allow(R10K::Puppetfile).to receive(:new).
+      with("/some/nonexistent/path",
+           {:moduledir => nil, :puppetfile_path => nil, :force => nil}).
+      and_return(puppetfile)
   end
 
   it_behaves_like "a puppetfile install action"
@@ -65,13 +71,19 @@ describe R10K::Action::Puppetfile::Install do
 
   describe "using custom paths" do
     it "can use a custom puppetfile path" do
-      expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, "/some/other/path/Puppetfile", nil, nil).and_return(puppetfile)
+      expect(R10K::Puppetfile).to receive(:new).
+        with("/some/nonexistent/path",
+             {:moduledir => nil, :force => nil, puppetfile_path: "/some/other/path/Puppetfile"}).
+        and_return(puppetfile)
 
       installer({puppetfile: "/some/other/path/Puppetfile"}).call
     end
 
     it "can use a custom moduledir path" do
-      expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", "/some/other/path/site-modules", nil, nil, nil).and_return(puppetfile)
+      expect(R10K::Puppetfile).to receive(:new).
+        with("/some/nonexistent/path",
+             {:puppetfile_path => nil, :force => nil, moduledir: "/some/other/path/site-modules"}).
+        and_return(puppetfile)
 
       installer({moduledir: "/some/other/path/site-modules"}).call
     end
@@ -84,7 +96,9 @@ describe R10K::Action::Puppetfile::Install do
 
     it "can use the force overwrite option" do
       subject = described_class.new({root: "/some/nonexistent/path", force: true}, [], {})
-      expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, nil, nil, true).and_return(puppetfile)
+      expect(R10K::Puppetfile).to receive(:new).
+        with("/some/nonexistent/path", {:moduledir => nil, :puppetfile_path => nil, :force => true}).
+        and_return(puppetfile)
       subject.call
     end
 

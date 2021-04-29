@@ -6,9 +6,7 @@ describe R10K::Puppetfile do
   subject do
     described_class.new(
       '/some/nonexistent/basedir',
-      nil,
-      nil,
-      'Puppetfile.r10k'
+      {puppetfile_name: 'Puppetfile.r10k'}
     )
   end
 
@@ -23,9 +21,25 @@ end
 describe R10K::Puppetfile do
 
   subject do
-    described_class.new(
-      '/some/nonexistent/basedir'
-    )
+    described_class.new( '/some/nonexistent/basedir', {})
+  end
+
+  describe "backwards compatibility with older calling conventions" do
+    it "honors all arguments correctly" do
+      puppetfile = described_class.new('/some/nonexistant/basedir', '/some/nonexistant/basedir/site-modules', nil, 'Pupupupetfile', true)
+      expect(puppetfile.force).to eq(true)
+      expect(puppetfile.moduledir).to eq('/some/nonexistant/basedir/site-modules')
+      expect(puppetfile.puppetfile_path).to eq('/some/nonexistant/basedir/Pupupupetfile')
+      expect(puppetfile.overrides).to eq({})
+    end
+
+    it "handles defaults correctly" do
+      puppetfile = described_class.new('/some/nonexistant/basedir', nil, nil, nil)
+      expect(puppetfile.force).to eq(false)
+      expect(puppetfile.moduledir).to eq('/some/nonexistant/basedir/modules')
+      expect(puppetfile.puppetfile_path).to eq('/some/nonexistant/basedir/Puppetfile')
+      expect(puppetfile.overrides).to eq({})
+    end
   end
 
   describe "the default moduledir" do
@@ -195,7 +209,7 @@ describe R10K::Puppetfile do
     it "wraps and re-raises syntax errors" do
       path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'invalid-syntax')
       pf_path = File.join(path, 'Puppetfile')
-      subject = described_class.new(path)
+      subject = described_class.new(path, {})
       expect {
         subject.load!
       }.to raise_error do |e|
@@ -206,7 +220,7 @@ describe R10K::Puppetfile do
     it "wraps and re-raises load errors" do
       path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'load-error')
       pf_path = File.join(path, 'Puppetfile')
-      subject = described_class.new(path)
+      subject = described_class.new(path, {})
       expect {
         subject.load!
       }.to raise_error do |e|
@@ -217,7 +231,7 @@ describe R10K::Puppetfile do
     it "wraps and re-raises argument errors" do
       path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'argument-error')
       pf_path = File.join(path, 'Puppetfile')
-      subject = described_class.new(path)
+      subject = described_class.new(path, {})
       expect {
         subject.load!
       }.to raise_error do |e|
@@ -228,7 +242,7 @@ describe R10K::Puppetfile do
     it "rejects Puppetfiles with duplicate module names" do
       path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'duplicate-module-error')
       pf_path = File.join(path, 'Puppetfile')
-      subject = described_class.new(path)
+      subject = described_class.new(path, {})
       expect {
         subject.load!
       }.to raise_error(R10K::Error, /Puppetfiles cannot contain duplicate module names/i)
@@ -237,7 +251,7 @@ describe R10K::Puppetfile do
     it "wraps and re-raises name errors" do
       path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'name-error')
       pf_path = File.join(path, 'Puppetfile')
-      subject = described_class.new(path)
+      subject = described_class.new(path, {})
       expect {
         subject.load!
       }.to raise_error do |e|
@@ -248,21 +262,21 @@ describe R10K::Puppetfile do
     it "accepts a forge module with a version" do
       path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
       pf_path = File.join(path, 'Puppetfile')
-      subject = described_class.new(path)
+      subject = described_class.new(path, {})
       expect { subject.load! }.not_to raise_error
     end
 
     it "accepts a forge module without a version" do
       path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-without-version')
       pf_path = File.join(path, 'Puppetfile')
-      subject = described_class.new(path)
+      subject = described_class.new(path, {})
       expect { subject.load! }.not_to raise_error
     end
 
     it "creates a git module and applies the default branch sepcified in the Puppetfile" do
       path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'default-branch-override')
       pf_path = File.join(path, 'Puppetfile')
-      subject = described_class.new(path)
+      subject = described_class.new(path, {})
       expect { subject.load! }.not_to raise_error
       git_module = subject.modules[0]
       expect(git_module.default_ref).to eq 'here_lies_the_default_branch'
@@ -271,7 +285,7 @@ describe R10K::Puppetfile do
     it "creates a git module and applies the provided default_branch_override" do
       path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'default-branch-override')
       pf_path = File.join(path, 'Puppetfile')
-      subject = described_class.new(path)
+      subject = described_class.new(path, {})
       default_branch_override = 'default_branch_override_name'
       expect { subject.load!(default_branch_override) }.not_to raise_error
       git_module = subject.modules[0]

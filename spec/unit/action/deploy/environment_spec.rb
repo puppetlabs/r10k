@@ -457,7 +457,7 @@ describe R10K::Action::Deploy::Environment do
       def initialize(path, info)
         @path = path
         @info = info
-        @puppetfile = R10K::Puppetfile.new
+        @puppetfile = R10K::Puppetfile.new("", {})
       end
     end
 

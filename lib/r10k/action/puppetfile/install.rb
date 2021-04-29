@@ -11,7 +11,10 @@ module R10K
 
         def call
           @visit_ok = true
-          pf = R10K::Puppetfile.new(@root, @moduledir, @puppetfile, nil , @force)
+          pf = R10K::Puppetfile.new(@root,
+                                    {moduledir: @moduledir,
+                                     puppetfile_path: @puppetfile,
+                                     force: @force})
           pf.accept(self)
           @visit_ok
         end
