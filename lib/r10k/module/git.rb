@@ -39,16 +39,17 @@ class R10K::Module::Git < R10K::Module::Base
     super
     setopts(opts, {
       # Standard option interface
-      :version => :desired_ref,
-      :source  => :remote,
-      :type    => ::R10K::Util::Setopts::Ignore,
+      :version   => :desired_ref,
+      :source    => :remote,
+      :type      => ::R10K::Util::Setopts::Ignore,
+      :overrides => :self,
 
       # Type-specific options
-      :branch  => :desired_ref,
-      :tag     => :desired_ref,
-      :commit  => :desired_ref,
-      :ref     => :desired_ref,
-      :git     => :remote,
+      :branch    => :desired_ref,
+      :tag       => :desired_ref,
+      :commit    => :desired_ref,
+      :ref       => :desired_ref,
+      :git       => :remote,
       :default_branch          => :default_ref,
       :default_branch_override => :default_override_ref,
     })

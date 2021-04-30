@@ -40,16 +40,17 @@ class R10K::Module::SVN < R10K::Module::Base
     super
     setopts(opts, {
       # Standard option interface
-      :source   => :url,
-      :version  => :expected_revision,
-      :type     => ::R10K::Util::Setopts::Ignore,
+      :source    => :url,
+      :version   => :expected_revision,
+      :type      => ::R10K::Util::Setopts::Ignore,
+      :overrides => :self,
 
       # Type-specific options
-      :svn      => :url,
-      :rev      => :expected_revision,
-      :revision => :expected_revision,
-      :username => :self,
-      :password => :self
+      :svn       => :url,
+      :rev       => :expected_revision,
+      :revision  => :expected_revision,
+      :username  => :self,
+      :password  => :self
     })
 
     @working_dir = R10K::SVN::WorkingDir.new(@path, :username => @username, :password => @password)

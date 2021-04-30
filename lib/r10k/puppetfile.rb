@@ -135,16 +135,20 @@ class Puppetfile
   # @param [String] name
   # @param [*Object] args
   def add_module(name, args)
-    if args.is_a?(Hash) && install_path = args.delete(:install_path)
-      install_path = resolve_install_path(install_path)
-      validate_install_path(install_path, name)
-    else
-      install_path = @moduledir
+    if args.is_a?(Hash)
+      args[:overrides] = @overrides
+
+      if install_path = args.delete(:install_path)
+        install_path = resolve_install_path(install_path)
+        validate_install_path(install_path, name)
+      end
+
+      if @default_branch_override != nil
+        args[:default_branch_override] = @default_branch_override
+      end
     end
 
-    if args.is_a?(Hash) && @default_branch_override != nil
-      args[:default_branch_override] = @default_branch_override
-    end
+    install_path ||= @moduledir
 
     mod = R10K::Module.new(name, install_path, args, @environment)
     mod.origin = :puppetfile
