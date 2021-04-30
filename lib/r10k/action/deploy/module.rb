@@ -62,11 +62,11 @@ module R10K
         end
 
         def visit_environment(environment)
-          requested_envs = @settings[:overrides][:environments][:requested_environments]
-          if !requested_envs.empty? && requested_envs.none? { |env| env != environment.dirname }
+          requested_envs = @settings.dig(:overrides, :environments, :requested_environments)
+          if !requested_envs.empty? && requested_envs.include?(environment.dirname)
             logger.debug1(_("Only updating modules in environment(s) %{opt_env} skipping environment %{env_path}") % {opt_env: requested_envs.inspect, env_path: environment.path})
           else
-            logger.debug1(_("Updating modules %{modules} in environment %{env_path}") % {modules: @settings[:overrides][:modules][:requested_modules].inspect, env_path: environment.path})
+            logger.debug1(_("Updating modules %{modules} in environment %{env_path}") % {modules: @settings.dig(:overrides, :modules, :requested_modules).inspect, env_path: environment.path})
             yield
           end
         end
@@ -77,11 +77,11 @@ module R10K
         end
 
         def visit_module(mod)
-          requested_mods = @settings[:overrides][:modules][:requested_modules]
+          requested_mods = @settings.dig(:overrides, :modules, :requested_modules)
           if requested_mods.include?(mod.name)
             logger.info _("Deploying module %{mod_path}") % {mod_path: mod.path}
-            mod.sync(force: @settings[:overrides][:modules][:force])
-            if mod.environment && @settings[:overrides][:environments][:generate_types]
+            mod.sync(force: @settings.dig(:overrides, :modules, :force))
+            if mod.environment && @settings.dig(:overrides, :environments, :generate_types)
               logger.debug("Generating puppet types for environment '#{mod.environment.dirname}'...")
               mod.environment.generate_types!
             end

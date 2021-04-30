@@ -33,14 +33,14 @@ module R10K
           expect_config!
           deployment = R10K::Deployment.new(@settings)
 
-          if @settings[:overrides][:environments][:preload_environments]
+          if @settings.dig(:overrides, :environments, :preload_environments)
             deployment.preload!
             deployment.validate!
           end
 
-          output = { :sources => deployment.sources.map { |source| source_info(source, @settings[:overrides][:environments][:requested_environments]) } }
+          output = { :sources => deployment.sources.map { |source| source_info(source, @settings.dig(:overrides, :environments, :requested_environments)) } }
 
-          case @settings[:overrides][:output][:format]
+          case @settings.dig(:overrides, :output, :format)
           when 'json' then json_format(output)
           else yaml_format(output)
           end
@@ -48,7 +48,7 @@ module R10K
           # exit 0
           true
         rescue => e
-          logger.error R10K::Errors::Formatting.format_exception(e, @settings[:overrides][:output][:trace])
+          logger.error R10K::Errors::Formatting.format_exception(e, @settings.dig(:overrides, :output, :trace))
           false
         end
 
@@ -81,8 +81,8 @@ module R10K
         end
 
         def environment_info(env)
-          modules = @settings[:overrides][:environments][:deploy_modules]
-          if !modules && !@settings[:overrides][:output][:detail]
+          modules = @settings.dig(:overrides, :environments, :deploy_modules)
+          if !modules && !@settings.dig(:overrides, :output, :detail)
             env.dirname
           else
             env_info = env.info.merge({
@@ -96,7 +96,7 @@ module R10K
         end
 
         def module_info(mod)
-          if @settings[:overrides][:output][:detail]
+          if @settings.dig(:overrides, :output, :detail)
             { :name => mod.title, :properties => mod.properties }
           else
             mod.title
