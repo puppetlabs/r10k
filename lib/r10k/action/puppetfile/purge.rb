@@ -1,4 +1,5 @@
 require 'r10k/puppetfile'
+require 'r10k/util/cleaner'
 require 'r10k/action/base'
 require 'r10k/errors/formatting'
 
@@ -10,7 +11,10 @@ module R10K
         def call
           pf = R10K::Puppetfile.new(@root, @moduledir, @puppetfile)
           pf.load!
-          pf.purge!
+          R10K::Util::Cleaner.new(pf.managed_directories,
+                                  pf.desired_contents,
+                                  pf.purge_exclusions).purge!
+
           true
         rescue => e
           logger.error R10K::Errors::Formatting.format_exception(e, @trace)

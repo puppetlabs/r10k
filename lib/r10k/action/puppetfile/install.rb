@@ -2,6 +2,7 @@ require 'r10k/puppetfile'
 require 'r10k/errors/formatting'
 require 'r10k/action/visitor'
 require 'r10k/action/base'
+require 'r10k/util/cleaner'
 
 module R10K
   module Action
@@ -21,8 +22,12 @@ module R10K
 
         def visit_puppetfile(pf)
           pf.load!
+
           yield
-          pf.purge!
+
+          R10K::Util::Cleaner.new(pf.managed_directories,
+                                  pf.desired_contents,
+                                  pf.purge_exclusions).purge!
         end
 
         def visit_module(mod)

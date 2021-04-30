@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'r10k/util/purgeable'
+require 'r10k/util/cleaner'
 
 RSpec.describe R10K::Util::Purgeable do
   let(:managed_directories) do
@@ -21,14 +22,7 @@ RSpec.describe R10K::Util::Purgeable do
     ]
   end
 
-  let(:test_class) do
-    Struct.new(:managed_directories, :desired_contents) do
-      include R10K::Util::Purgeable
-      include R10K::Logging
-    end
-  end
-
-  subject { test_class.new(managed_directories, desired_contents) }
+  subject { R10K::Util::Cleaner.new(managed_directories, desired_contents) }
 
   context 'without recurse option' do
     let(:recurse) { false }
