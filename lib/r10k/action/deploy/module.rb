@@ -19,10 +19,12 @@ module R10K
 
           super
 
+          requested_env = @opts[:environment] ? [@opts[:environment].gsub(/\W/, '_')] : []
+
           @settings = @settings.merge({
             overrides: {
               environments: {
-                requested_environments: [@opts[:environment]],
+                requested_environments: requested_env,
                 generate_types: @generate_types
               },
               modules: {

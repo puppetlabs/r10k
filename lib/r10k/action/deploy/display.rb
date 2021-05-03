@@ -16,7 +16,7 @@ module R10K
             overrides: {
               environments: {
                 preload_environment: @fetch,
-                requested_environments: @argv
+                requested_environments: @argv.map { |arg| arg.gsub(/\W/, '_') }
               },
               modules: {},
               output: {
