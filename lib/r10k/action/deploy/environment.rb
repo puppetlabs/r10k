@@ -183,7 +183,6 @@ module R10K
         end
 
         def visit_module(mod)
-          logger.info _("Deploying %{origin} content %{path}") % {origin: mod.origin, path: mod.path}
           mod.sync
         end
 

@@ -62,9 +62,8 @@ class R10K::Module::Base
 
   # Synchronize this module with the indicated state.
   # @param [Hash] opts Deprecated
-  # @abstract
   def sync(opts={})
-    raise NotImplementedError
+    logger.info _("Checking module %{path}") % {path: path}
   end
 
   # Return the desired version of this module

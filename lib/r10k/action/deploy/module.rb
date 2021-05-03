@@ -79,7 +79,6 @@ module R10K
         def visit_module(mod)
           requested_mods = @settings.dig(:overrides, :modules, :requested_modules)
           if requested_mods.include?(mod.name)
-            logger.info _("Deploying module %{mod_path}") % {mod_path: mod.path}
             mod.sync
             if mod.environment && @settings.dig(:overrides, :environments, :generate_types)
               logger.debug("Generating puppet types for environment '#{mod.environment.dirname}'...")

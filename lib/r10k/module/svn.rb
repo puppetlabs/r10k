@@ -72,6 +72,8 @@ class R10K::Module::SVN < R10K::Module::Base
 
   # @param [Hash] opts Deprecated
   def sync(opts={})
+    super
+
     case status
     when :absent
       install
