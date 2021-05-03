@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.4.1-151-g93d38cb\n"
+"Project-Id-Version: r10k 3.4.1-211-g6b094c8\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2021-03-15 17:00+0000\n"
-"PO-Revision-Date: 2021-03-15 17:00+0000\n"
+"POT-Creation-Date: 2021-05-03 21:18+0000\n"
+"PO-Revision-Date: 2021-05-03 21:18+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -31,55 +31,55 @@ msgstr ""
 msgid "Reason: %{write_lock}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:57
+#: ../lib/r10k/action/deploy/environment.rb:96
 msgid "Environment(s) \\'%{environments}\\' cannot be found in any source and will not be deployed."
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:85
+#: ../lib/r10k/action/deploy/environment.rb:126
 msgid "Environment %{env_dir} does not match environment name filter, skipping"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:93
+#: ../lib/r10k/action/deploy/environment.rb:134
 msgid "Deploying environment %{env_path}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:96
+#: ../lib/r10k/action/deploy/environment.rb:137
 msgid "Environment %{env_dir} is now at %{env_signature}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:100
+#: ../lib/r10k/action/deploy/environment.rb:141
 msgid "Environment %{env_dir} is new, updating all modules"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:143
+#: ../lib/r10k/action/deploy/environment.rb:186
 msgid "Deploying %{origin} content %{path}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/module.rb:49
-msgid "Only updating modules in environment %{opt_env} skipping environment %{env_path}"
+#: ../lib/r10k/action/deploy/module.rb:67
+msgid "Only updating modules in environment(s) %{opt_env} skipping environment %{env_path}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/module.rb:51
+#: ../lib/r10k/action/deploy/module.rb:69
 msgid "Updating modules %{modules} in environment %{env_path}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/module.rb:63
+#: ../lib/r10k/action/deploy/module.rb:82
 msgid "Deploying module %{mod_path}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/module.rb:70
+#: ../lib/r10k/action/deploy/module.rb:89
 msgid "Only updating modules %{modules}, skipping module %{mod_name}"
 msgstr ""
 
-#: ../lib/r10k/action/puppetfile/check.rb:14
+#: ../lib/r10k/action/puppetfile/check.rb:16
 msgid "Syntax OK"
 msgstr ""
 
-#: ../lib/r10k/action/puppetfile/install.rb:30
+#: ../lib/r10k/action/puppetfile/install.rb:38
 msgid "Updating module %{mod_path}"
 msgstr ""
 
-#: ../lib/r10k/action/puppetfile/install.rb:33
+#: ../lib/r10k/action/puppetfile/install.rb:41
 msgid "Cannot track control repo branch for content '%{name}' when not part of a 'deploy' action, will use default if available."
 msgstr ""
 
@@ -95,6 +95,18 @@ msgstr ""
 msgid "No config file explicitly given and no default config file could be found, default settings will be used."
 msgstr ""
 
+#: ../lib/r10k/content_synchronizer.rb:13
+msgid "Updating modules with %{pool_size} threads"
+msgstr ""
+
+#: ../lib/r10k/content_synchronizer.rb:24
+msgid "Error during concurrent deploy of a module: %{message}"
+msgstr ""
+
+#: ../lib/r10k/content_synchronizer.rb:52
+msgid "Module thread %{id} exiting: %{message}"
+msgstr ""
+
 #: ../lib/r10k/deployment.rb:90
 msgid "Environment collision at %{env_path} between %{source}:%{env_name} and %{osource}:%{oenv_name}"
 msgstr ""
@@ -103,7 +115,7 @@ msgstr ""
 msgid "Unable to load sources; the supplied configuration does not define the 'sources' key"
 msgstr ""
 
-#: ../lib/r10k/environment/base.rb:61 ../lib/r10k/environment/base.rb:77 ../lib/r10k/environment/base.rb:86 ../lib/r10k/source/base.rb:69
+#: ../lib/r10k/environment/base.rb:65 ../lib/r10k/environment/base.rb:81 ../lib/r10k/environment/base.rb:90 ../lib/r10k/source/base.rb:69
 msgid "%{class} has not implemented method %{method}"
 msgstr ""
 
@@ -331,11 +343,11 @@ msgstr ""
 msgid "Module name (%{title}) must match either 'modulename' or 'owner/modulename'"
 msgstr ""
 
-#: ../lib/r10k/module/forge.rb:81 ../lib/r10k/module/forge.rb:110
+#: ../lib/r10k/module/forge.rb:83 ../lib/r10k/module/forge.rb:112
 msgid "The module %{title} does not exist on %{url}."
 msgstr ""
 
-#: ../lib/r10k/module/forge.rb:185
+#: ../lib/r10k/module/forge.rb:187
 msgid "Forge module names must match 'owner/modulename', instead got #{title}"
 msgstr ""
 
@@ -347,39 +359,27 @@ msgstr ""
 msgid "Could not read metadata.json"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:57
+#: ../lib/r10k/puppetfile.rb:73
 msgid "Using Puppetfile '%{puppetfile}'"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:71
+#: ../lib/r10k/puppetfile.rb:87
 msgid "Puppetfile %{path} missing or unreadable"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:84
+#: ../lib/r10k/puppetfile.rb:100
 msgid "Failed to evaluate %{path}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:98
+#: ../lib/r10k/puppetfile.rb:114
 msgid "Puppetfiles cannot contain duplicate module names."
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:100
+#: ../lib/r10k/puppetfile.rb:116
 msgid "Remove the duplicates of the following modules: %{dupes}"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:201
-msgid "Updating modules with %{pool_size} threads"
-msgstr ""
-
-#: ../lib/r10k/puppetfile.rb:212
-msgid "Error during concurrent deploy of a module: %{message}"
-msgstr ""
-
-#: ../lib/r10k/puppetfile.rb:241
-msgid "Module thread %{id} exiting: %{message}"
-msgstr ""
-
-#: ../lib/r10k/puppetfile.rb:300
+#: ../lib/r10k/puppetfile.rb:263
 msgid "unrecognized declaration '%{method}'"
 msgstr ""
 
@@ -470,19 +470,19 @@ msgstr ""
 msgid "Unable to determine current branches for Git source '%{name}' (%{basedir})"
 msgstr ""
 
-#: ../lib/r10k/source/git.rb:105
+#: ../lib/r10k/source/git.rb:110
 msgid "Environment %{env_name} contained non-word characters, correcting name to %{corrected_env_name}"
 msgstr ""
 
-#: ../lib/r10k/source/git.rb:109
+#: ../lib/r10k/source/git.rb:119
 msgid "Environment %{env_name} contained non-word characters, ignoring it."
 msgstr ""
 
-#: ../lib/r10k/source/git.rb:128 ../lib/r10k/source/svn.rb:113
+#: ../lib/r10k/source/git.rb:138 ../lib/r10k/source/svn.rb:113
 msgid "Branch %{branch} filtered out by ignore_branch_prefixes %{ibp}"
 msgstr ""
 
-#: ../lib/r10k/source/git.rb:139
+#: ../lib/r10k/source/git.rb:149
 msgid "Branch `%{name}:%{branch}` filtered out by filter_command %{cmd}"
 msgstr ""
 
