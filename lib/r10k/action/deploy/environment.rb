@@ -184,7 +184,7 @@ module R10K
 
         def visit_module(mod)
           logger.info _("Deploying %{origin} content %{path}") % {origin: mod.origin, path: mod.path}
-          mod.sync(force: @settings.dig(:overrides, :modules, :force))
+          mod.sync
         end
 
         def write_environment_info!(environment, started_at, success)

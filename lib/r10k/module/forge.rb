@@ -58,6 +58,7 @@ class R10K::Module::Forge < R10K::Module::Base
     @v3_module = PuppetForge::V3::Module.new(:slug => @title)
   end
 
+  # @param [Hash] opts Deprecated
   def sync(opts={})
     case status
     when :absent

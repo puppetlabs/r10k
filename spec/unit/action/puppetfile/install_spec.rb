@@ -5,7 +5,7 @@ describe R10K::Action::Puppetfile::Install do
   let(:default_opts) { { root: "/some/nonexistent/path" } }
   let(:puppetfile) {
     R10K::Puppetfile.new('/some/nonexistent/path',
-                         {:moduledir => nil, :puppetfile_path => nil, :force => nil})
+                         {:moduledir => nil, :puppetfile_path => nil, :force => false})
   }
 
   def installer(opts = {}, argv = [], settings = {})
@@ -17,7 +17,7 @@ describe R10K::Action::Puppetfile::Install do
     allow(puppetfile).to receive(:load!).and_return(nil)
     allow(R10K::Puppetfile).to receive(:new).
       with("/some/nonexistent/path",
-           {:moduledir => nil, :puppetfile_path => nil, :force => nil}).
+           {:moduledir => nil, :puppetfile_path => nil, :force => false}).
       and_return(puppetfile)
   end
 
@@ -73,7 +73,7 @@ describe R10K::Action::Puppetfile::Install do
     it "can use a custom puppetfile path" do
       expect(R10K::Puppetfile).to receive(:new).
         with("/some/nonexistent/path",
-             {:moduledir => nil, :force => nil, puppetfile_path: "/some/other/path/Puppetfile"}).
+             {:moduledir => nil, :force => false, puppetfile_path: "/some/other/path/Puppetfile"}).
         and_return(puppetfile)
 
       installer({puppetfile: "/some/other/path/Puppetfile"}).call
@@ -82,7 +82,7 @@ describe R10K::Action::Puppetfile::Install do
     it "can use a custom moduledir path" do
       expect(R10K::Puppetfile).to receive(:new).
         with("/some/nonexistent/path",
-             {:puppetfile_path => nil, :force => nil, moduledir: "/some/other/path/site-modules"}).
+             {:puppetfile_path => nil, :force => false, moduledir: "/some/other/path/site-modules"}).
         and_return(puppetfile)
 
       installer({moduledir: "/some/other/path/site-modules"}).call

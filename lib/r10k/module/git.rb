@@ -54,6 +54,9 @@ class R10K::Module::Git < R10K::Module::Base
       :default_branch_override => :default_override_ref,
     })
 
+    force = @overrides && @overrides.dig(:modules, :force)
+    @force = force == false ? false : true
+
     @desired_ref ||= 'master'
 
     if @desired_ref == :control_branch && @environment && @environment.respond_to?(:ref)
@@ -75,8 +78,9 @@ class R10K::Module::Git < R10K::Module::Base
     }
   end
 
+  # @param [Hash] opts Deprecated
   def sync(opts={})
-    force = opts && opts.fetch(:force, true)
+    force = opts[:force] || @force
     @repo.sync(version, force)
   end
 

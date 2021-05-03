@@ -70,6 +70,7 @@ class R10K::Module::SVN < R10K::Module::Base
     end
   end
 
+  # @param [Hash] opts Deprecated
   def sync(opts={})
     case status
     when :absent

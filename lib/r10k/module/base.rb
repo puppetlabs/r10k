@@ -61,6 +61,7 @@ class R10K::Module::Base
   end
 
   # Synchronize this module with the indicated state.
+  # @param [Hash] opts Deprecated
   # @abstract
   def sync(opts={})
     raise NotImplementedError

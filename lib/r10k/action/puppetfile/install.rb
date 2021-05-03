@@ -14,7 +14,7 @@ module R10K
           pf = R10K::Puppetfile.new(@root,
                                     {moduledir: @moduledir,
                                      puppetfile_path: @puppetfile,
-                                     force: @force})
+                                     force: @force || false})
           pf.accept(self)
           @visit_ok
         end
@@ -34,14 +34,13 @@ module R10K
         end
 
         def visit_module(mod)
-          @force ||= false
           logger.info _("Updating module %{mod_path}") % {mod_path: mod.path}
 
           if mod.respond_to?(:desired_ref) && mod.desired_ref == :control_branch
             logger.warn _("Cannot track control repo branch for content '%{name}' when not part of a 'deploy' action, will use default if available." % {name: mod.name})
           end
 
-          mod.sync(force: @force)
+          mod.sync
         end
 
         def allowed_initialize_opts
