@@ -11,15 +11,15 @@ describe R10K::Module::Forge do
 
   describe "implementing the Puppetfile spec" do
     it "should implement 'branan/eight_hundred', '8.0.0'" do
-      expect(described_class).to be_implement('branan/eight_hundred', '8.0.0')
+      expect(described_class).to be_implement('branan/eight_hundred', { version: '8.0.0' })
     end
 
     it "should implement 'branan-eight_hundred', '8.0.0'" do
-      expect(described_class).to be_implement('branan-eight_hundred', '8.0.0')
+      expect(described_class).to be_implement('branan-eight_hundred', { version: '8.0.0' })
     end
 
     it "should fail with an invalid title" do
-      expect(described_class).to_not be_implement('branan!eight_hundred', '8.0.0')
+      expect(described_class).to_not be_implement('branan!eight_hundred', { version: '8.0.0' })
     end
   end
 
@@ -30,7 +30,7 @@ describe R10K::Module::Forge do
   end
 
   describe "setting attributes" do
-    subject { described_class.new('branan/eight_hundred', '/moduledir', '8.0.0') }
+    subject { described_class.new('branan/eight_hundred', '/moduledir', { version: '8.0.0' }) }
 
     it "sets the name" do
       expect(subject.name).to eq 'eight_hundred'
@@ -50,7 +50,7 @@ describe R10K::Module::Forge do
   end
 
   describe "properties" do
-    subject { described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0') }
+    subject { described_class.new('branan/eight_hundred', fixture_modulepath, { version: '8.0.0' }) }
 
     it "sets the module type to :forge" do
       expect(subject.properties).to include(:type => :forge)
@@ -67,7 +67,7 @@ describe R10K::Module::Forge do
   end
 
   context "when a module is deprecated" do
-    subject { described_class.new('puppetlabs/corosync', fixture_modulepath, :latest) }
+    subject { described_class.new('puppetlabs/corosync', fixture_modulepath, { version: :latest }) }
 
     it "warns on sync if module is not already insync" do
       allow(subject).to receive(:status).and_return(:absent)
@@ -96,12 +96,12 @@ describe R10K::Module::Forge do
 
   describe '#expected_version' do
     it "returns an explicitly given expected version" do
-      subject = described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0')
+      subject = described_class.new('branan/eight_hundred', fixture_modulepath, { version: '8.0.0' })
       expect(subject.expected_version).to eq '8.0.0'
     end
 
     it "uses the latest version from the forge when the version is :latest" do
-      subject = described_class.new('branan/eight_hundred', fixture_modulepath, :latest)
+      subject = described_class.new('branan/eight_hundred', fixture_modulepath, { version: :latest })
       expect(subject.v3_module).to receive_message_chain(:current_release, :version).and_return('8.8.8')
       expect(subject.expected_version).to eq '8.8.8'
     end
@@ -109,7 +109,7 @@ describe R10K::Module::Forge do
 
   describe "determining the status" do
 
-    subject { described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0') }
+    subject { described_class.new('branan/eight_hundred', fixture_modulepath, { version: '8.0.0' }) }
 
     it "is :absent if the module directory is absent" do
       allow(subject).to receive(:exist?).and_return false
@@ -154,7 +154,7 @@ describe R10K::Module::Forge do
   end
 
   describe "#sync" do
-    subject { described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0') }
+    subject { described_class.new('branan/eight_hundred', fixture_modulepath, { version: '8.0.0' }) }
 
     it 'does nothing when the module is in sync' do
       allow(subject).to receive(:status).and_return :insync
@@ -186,7 +186,7 @@ describe R10K::Module::Forge do
 
   describe '#install' do
     it 'installs the module from the forge' do
-      subject = described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0')
+      subject = described_class.new('branan/eight_hundred', fixture_modulepath, { version: '8.0.0' })
       release = instance_double('R10K::Forge::ModuleRelease')
       expect(R10K::Forge::ModuleRelease).to receive(:new).with('branan-eight_hundred', '8.0.0').and_return(release)
       expect(release).to receive(:install).with(subject.path)
@@ -196,7 +196,7 @@ describe R10K::Module::Forge do
 
   describe '#uninstall' do
     it 'removes the module path' do
-      subject = described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0')
+      subject = described_class.new('branan/eight_hundred', fixture_modulepath, { version: '8.0.0' })
       expect(FileUtils).to receive(:rm_rf).with(subject.path.to_s)
       subject.uninstall
     end
@@ -204,7 +204,7 @@ describe R10K::Module::Forge do
 
   describe '#reinstall' do
     it 'uninstalls and then installs the module' do
-      subject = described_class.new('branan/eight_hundred', fixture_modulepath, '8.0.0')
+      subject = described_class.new('branan/eight_hundred', fixture_modulepath, { version: '8.0.0' })
       expect(subject).to receive(:uninstall)
       expect(subject).to receive(:install)
       subject.reinstall

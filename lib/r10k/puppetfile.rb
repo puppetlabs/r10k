@@ -133,22 +133,29 @@ class Puppetfile
   end
 
   # @param [String] name
-  # @param [*Object] args
+  # @param [Hash, String, Symbol] args Calling with anything but a Hash is
+  #   deprecated. The DSL will now convert String and Symbol versions to
+  #   Hashes of the shape
+  #     { version: <String or Symbol> }
+  #
   def add_module(name, args)
-    if args.is_a?(Hash)
-      args[:overrides] = @overrides
-
-      if install_path = args.delete(:install_path)
-        install_path = resolve_install_path(install_path)
-        validate_install_path(install_path, name)
-      end
-
-      if @default_branch_override != nil
-        args[:default_branch_override] = @default_branch_override
-      end
+    if !args.is_a?(Hash)
+      args = { version: args }
     end
 
-    install_path ||= @moduledir
+    args[:overrides] = @overrides
+
+    if install_path = args.delete(:install_path)
+      install_path = resolve_install_path(install_path)
+      validate_install_path(install_path, name)
+    else
+      install_path = @moduledir
+    end
+
+    if @default_branch_override != nil
+      args[:default_branch_override] = @default_branch_override
+    end
+
 
     mod = R10K::Module.new(name, install_path, args, @environment)
     mod.origin = :puppetfile
@@ -248,7 +255,13 @@ class Puppetfile
     end
 
     def mod(name, args = nil)
-      @librarian.add_module(name, args)
+      if args.is_a?(Hash)
+        opts = args
+      else
+        opts = { version: args }
+      end
+
+      @librarian.add_module(name, opts)
     end
 
     def forge(location)

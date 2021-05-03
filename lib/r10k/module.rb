@@ -17,7 +17,7 @@ module R10K::Module
   #
   # @param [String] name The unique name of the module
   # @param [String] basedir The root to install the module in
-  # @param [Object] args An arbitary value or set of values that specifies the implementation
+  # @param [Hash] args An arbitary Hash that specifies the implementation
   # @param [R10K::Environment] environment Optional environment that this module is a part of
   #
   # @return [Object < R10K::Module] A member of the implementing subclass

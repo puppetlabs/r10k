@@ -68,15 +68,15 @@ describe R10K::Puppetfile do
   end
 
   describe "adding modules" do
-    it "should accept Forge modules with a string arg" do
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, '1.2.3', anything).and_call_original
+    it "should transform Forge modules with a string arg to have a version key" do
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '1.2.3'), anything).and_call_original
 
       expect { subject.add_module('puppet/test_module', '1.2.3') }.to change { subject.modules }
       expect(subject.modules.collect(&:name)).to include('test_module')
     end
 
     it "should not accept Forge modules with a version comparison" do
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, '< 1.2.0', anything).and_call_original
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '< 1.2.0'), anything).and_call_original
 
       expect {
         subject.add_module('puppet/test_module', '< 1.2.0')
@@ -181,7 +181,7 @@ describe R10K::Puppetfile do
 
   describe '#managed_directories' do
     it 'returns an array of paths that can be purged' do
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, '1.2.3', anything).and_call_original
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '1.2.3'), anything).and_call_original
 
       subject.add_module('puppet/test_module', '1.2.3')
       expect(subject.managed_directories).to match_array(["/some/nonexistent/basedir/modules"])

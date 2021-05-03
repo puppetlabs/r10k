@@ -7,7 +7,7 @@ class R10K::Module::SVN < R10K::Module::Base
   R10K::Module.register(self)
 
   def self.implement?(name, args)
-    args.is_a?(Hash) && (args.has_key?(:svn) || args[:type].to_s == 'svn')
+    args.has_key?(:svn) || args[:type].to_s == 'svn'
   end
 
   # @!attribute [r] expected_revision

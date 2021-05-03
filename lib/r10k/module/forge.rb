@@ -13,7 +13,12 @@ class R10K::Module::Forge < R10K::Module::Base
   R10K::Module.register(self)
 
   def self.implement?(name, args)
-    (args.is_a?(Hash) && args[:type].to_s == 'forge') || (!!(name.match %r[\w+[/-]\w+]) && valid_version?(args))
+    args[:type].to_s == 'forge' ||
+      (!!
+       ((args.keys & %i{git svn type}).empty? &&
+        args.has_key?(:version) &&
+        name.match(%r[\w+[/-]\w+]) &&
+        valid_version?(args[:version])))
   end
 
   def self.valid_version?(expected_version)
@@ -40,17 +45,15 @@ class R10K::Module::Forge < R10K::Module::Base
     @metadata_file = R10K::Module::MetadataFile.new(path + 'metadata.json')
     @metadata = @metadata_file.read
 
-    if opts.is_a?(Hash)
-      setopts(opts, {
-        # Standard option interface
-        :version   => :expected_version,
-        :source    => ::R10K::Util::Setopts::Ignore,
-        :type      => ::R10K::Util::Setopts::Ignore,
-        :overrides => :self,
-      })
-    else
-      @expected_version = opts || current_version || :latest
-    end
+    setopts(opts, {
+      # Standard option interface
+      :version   => :expected_version,
+      :source    => ::R10K::Util::Setopts::Ignore,
+      :type      => ::R10K::Util::Setopts::Ignore,
+      :overrides => :self,
+    })
+
+    @expected_version ||= current_version || :latest
 
     @v3_module = PuppetForge::V3::Module.new(:slug => @title)
   end

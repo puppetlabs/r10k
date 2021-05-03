@@ -8,7 +8,7 @@ class R10K::Module::Git < R10K::Module::Base
   R10K::Module.register(self)
 
   def self.implement?(name, args)
-    args.is_a?(Hash) && (args.has_key?(:git) || args[:type].to_s == 'git')
+    args.has_key?(:git) || args[:type].to_s == 'git'
   rescue
     false
   end
