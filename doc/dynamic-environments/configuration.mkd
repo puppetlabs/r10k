@@ -586,13 +586,13 @@ When using the YAML source type, every environment is enumerated in a single yam
 ---
 production:
   type: git
-  remote: git@github.com:puppetlabs/control-repo.git
-  ref: 8820892
+  source: git@github.com:puppetlabs/control-repo.git
+  version: 8820892
 
 development:
   type: git
-  remote: git@github.com:puppetlabs/control-repo.git
-  ref: 8820892
+  source: git@github.com:puppetlabs/control-repo.git
+  version: 8820892
 ```
 
 ### YAMLdir Environment Source
@@ -623,8 +623,8 @@ The contents of the file should be a hash specifying the enviornment type, and a
 # production.yaml
 ---
 type: git
-remote: git@github.com:puppetlabs/control-repo.git
-ref: 8820892
+source: git@github.com:puppetlabs/control-repo.git
+version: 8820892
 ```
 
 ### Exec environment Source
