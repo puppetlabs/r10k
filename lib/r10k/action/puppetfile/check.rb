@@ -8,7 +8,9 @@ module R10K
       class Check < R10K::Action::Base
 
         def call
-          pf = R10K::Puppetfile.new(@root, @moduledir, @puppetfile)
+          pf = R10K::Puppetfile.new(@root,
+                                    {moduledir: @moduledir,
+                                     puppetfile_path: @puppetfile})
           begin
             pf.load!
             $stderr.puts _("Syntax OK")

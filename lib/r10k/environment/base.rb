@@ -44,11 +44,15 @@ class R10K::Environment::Base
     @dirname = dirname
     @options = options
     @puppetfile_name = options.delete(:puppetfile_name)
+    @overrides = options.delete(:overrides)
 
     @full_path = File.join(@basedir, @dirname)
     @path = Pathname.new(File.join(@basedir, @dirname))
 
-    @puppetfile  = R10K::Puppetfile.new(@full_path, nil, nil, @puppetfile_name)
+    @puppetfile  = R10K::Puppetfile.new(@full_path,
+                                        {overrides: @options[:overrides],
+                                         force: @options.dig(:overrides, :modules, :force),
+                                         puppetfile_name: @puppetfile_name})
     @puppetfile.environment = self
   end
 

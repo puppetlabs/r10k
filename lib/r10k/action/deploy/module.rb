@@ -10,15 +10,32 @@ module R10K
 
         include R10K::Action::Deploy::DeployHelpers
 
+        # Deprecated
         attr_reader :force
+
+        attr_reader :settings
 
         def initialize(opts, argv, settings)
 
           super
 
-          # @force here is used to make it easier to reason about
-          @force = !@no_force
-          @requested_modules = @argv
+          requested_env = @opts[:environment] ? [@opts[:environment].gsub(/\W/, '_')] : []
+
+          @settings = @settings.merge({
+            overrides: {
+              environments: {
+                requested_environments: requested_env,
+                generate_types: @generate_types
+              },
+              modules: {
+                requested_modules: @argv,
+                # force here is used to make it easier to reason about
+                force: !@no_force
+              },
+              purging: {},
+              output: {}
+            }
+          })
         end
 
         def call
@@ -45,10 +62,11 @@ module R10K
         end
 
         def visit_environment(environment)
-          if @opts[:environment] && (@opts[:environment] != environment.dirname)
-            logger.debug1(_("Only updating modules in environment %{opt_env} skipping environment %{env_path}") % {opt_env: @opts[:environment], env_path: environment.path})
+          requested_envs = @settings.dig(:overrides, :environments, :requested_environments)
+          if !requested_envs.empty? && requested_envs.include?(environment.dirname)
+            logger.debug1(_("Only updating modules in environment(s) %{opt_env} skipping environment %{env_path}") % {opt_env: requested_envs.inspect, env_path: environment.path})
           else
-            logger.debug1(_("Updating modules %{modules} in environment %{env_path}") % {modules: @requested_modules.inspect, env_path: environment.path})
+            logger.debug1(_("Updating modules %{modules} in environment %{env_path}") % {modules: @settings.dig(:overrides, :modules, :requested_modules).inspect, env_path: environment.path})
             yield
           end
         end
@@ -59,15 +77,16 @@ module R10K
         end
 
         def visit_module(mod)
-          if @requested_modules.include?(mod.name)
+          requested_mods = @settings.dig(:overrides, :modules, :requested_modules)
+          if requested_mods.include?(mod.name)
             logger.info _("Deploying module %{mod_path}") % {mod_path: mod.path}
-            mod.sync(force: @force)
-            if mod.environment && @generate_types
+            mod.sync(force: @settings.dig(:overrides, :modules, :force))
+            if mod.environment && @settings.dig(:overrides, :environments, :generate_types)
               logger.debug("Generating puppet types for environment '#{mod.environment.dirname}'...")
               mod.environment.generate_types!
             end
           else
-            logger.debug1(_("Only updating modules %{modules}, skipping module %{mod_name}") % {modules: @requested_modules.inspect, mod_name: mod.name})
+            logger.debug1(_("Only updating modules %{modules}, skipping module %{mod_name}") % {modules: requested_mods.inspect, mod_name: mod.name})
           end
         end
 

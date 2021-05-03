@@ -46,12 +46,12 @@ class R10K::Environment::SVN < R10K::Environment::Base
     super
     setopts(options, {
       # Standard option interface
-      :source  => :remote,
-      :version => :expected_revision,
-      :type    => ::R10K::Util::Setopts::Ignore,
+      :source   => :remote,
+      :version  => :expected_revision,
+      :type     => ::R10K::Util::Setopts::Ignore,
 
       # Type-specific options
-      :remote => :self,
+      :remote   => :self,
       :username => :self,
       :password => :self,
     })

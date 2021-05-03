@@ -48,7 +48,7 @@ describe R10K::Action::Deploy::Module do
     subject { described_class.new({ config: "/some/nonexistent/path", :'no-force' => true}, [], {}) }
 
     it "tries to preserve local modifications" do
-      expect(subject.force).to equal(false)
+      expect(subject.settings[:overrides][:modules][:force]).to equal(false)
     end
   end
 
@@ -91,7 +91,7 @@ describe R10K::Action::Deploy::Module do
       end
 
       it 'generate_types is true' do
-        expect(subject.instance_variable_get(:@generate_types)).to eq(true)
+        expect(subject.settings[:overrides][:environments][:generate_types]).to eq(true)
       end
 
       it 'only calls puppet generate types on environments with specified module' do
@@ -120,7 +120,7 @@ describe R10K::Action::Deploy::Module do
       end
 
       it 'generate_types is false' do
-        expect(subject.instance_variable_get(:@generate_types)).to eq(false)
+        expect(subject.settings[:overrides][:environments][:generate_types]).to eq(false)
       end
 
       it 'does not call puppet generate types' do |it|

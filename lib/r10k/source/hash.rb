@@ -170,7 +170,7 @@ class R10K::Source::Hash < R10K::Source::Base
 
   def environments
     @environments ||= environments_hash.map do |name, hash|
-      R10K::Environment.from_hash(name, hash)
+      R10K::Environment.from_hash(name, hash.merge({overrides: @options[:overrides]}))
     end
   end
 

@@ -97,14 +97,15 @@ class R10K::Environment::WithModules < R10K::Environment::Base
     if args.is_a?(Hash)
       # symbolize keys in the args hash
       args = args.inject({}) { |memo,(k,v)| memo[k.to_sym] = v; memo }
+      args[:overrides] = @overrides
+
+      if install_path = args.delete(:install_path)
+        install_path = resolve_install_path(install_path)
+        validate_install_path(install_path, name)
+      end
     end
 
-    if args.is_a?(Hash) && install_path = args.delete(:install_path)
-      install_path = resolve_install_path(install_path)
-      validate_install_path(install_path, name)
-    else
-      install_path = @moduledir
-    end
+    install_path ||= @moduledir
 
     # Keep track of all the content this environment is managing to enable purging.
     @managed_content[install_path] = Array.new unless @managed_content.has_key?(install_path)

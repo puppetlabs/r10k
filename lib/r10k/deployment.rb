@@ -118,7 +118,7 @@ module R10K
         raise R10K::Error, _("Unable to load sources; the supplied configuration does not define the 'sources' key")
       end
       @_sources = sources.map do |(name, hash)|
-        R10K::Source.from_hash(name, hash)
+        R10K::Source.from_hash(name, hash.merge({overrides: @config[:overrides]}))
       end
     end
 

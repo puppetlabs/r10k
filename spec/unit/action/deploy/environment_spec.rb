@@ -118,7 +118,7 @@ describe R10K::Action::Deploy::Environment do
       subject { described_class.new({ config: "/some/nonexistent/path", modules: true, :'no-force' => true}, %w[first], {}) }
 
       it "tries to preserve local modifications" do
-        expect(subject.force).to equal(false)
+        expect(subject.settings[:overrides][:modules][:force]).to equal(false)
       end
     end
 
@@ -229,7 +229,7 @@ describe R10K::Action::Deploy::Environment do
 
       it "reads in the purge_allowlist setting and purges accordingly" do
         expect(subject.logger).to receive(:debug).with(/purging unmanaged content for environment/i)
-        expect(subject.instance_variable_get(:@user_purge_allowlist)).to eq(['coolfile', 'coolfile2'])
+        expect(subject.settings[:overrides][:purging][:purge_allowlist]).to eq(['coolfile', 'coolfile2'])
         subject.call
       end
 
@@ -238,7 +238,7 @@ describe R10K::Action::Deploy::Environment do
 
         it "reads in the purge_whitelist setting and still sets it to purge_allowlist and purges accordingly" do
           expect(subject.logger).to receive(:debug).with(/purging unmanaged content for environment/i)
-          expect(subject.instance_variable_get(:@user_purge_allowlist)).to eq(['coolfile', 'coolfile2'])
+          expect(subject.settings[:overrides][:purging][:purge_allowlist]).to eq(['coolfile', 'coolfile2'])
           subject.call
         end
       end
@@ -340,11 +340,13 @@ describe R10K::Action::Deploy::Environment do
         end
 
         it 'generate_types is true' do
-          expect(subject.instance_variable_get(:@generate_types)).to eq(true)
+          expect(subject.settings[:overrides][:environments][:generate_types]).to eq(true)
         end
 
         it 'only calls puppet generate types on specified environment' do
-          subject.instance_variable_set(:@requested_environments, %w[first])
+          settings = subject.instance_variable_get(:@settings)
+          settings[:overrides][:environments][:requested_environments] = %w{first}
+          subject.instance_variable_set(:@settings, settings)
           expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
             if environment.dirname == 'first'
               expect(environment).to receive(:generate_types!)
@@ -395,7 +397,7 @@ describe R10K::Action::Deploy::Environment do
         end
 
         it 'generate_types is false' do
-          expect(subject.instance_variable_get(:@generate_types)).to eq(false)
+          expect(subject.settings[:overrides][:environments][:generate_types]).to eq(false)
         end
 
         it 'does not call puppet generate types' do
@@ -455,7 +457,7 @@ describe R10K::Action::Deploy::Environment do
       def initialize(path, info)
         @path = path
         @info = info
-        @puppetfile = R10K::Puppetfile.new
+        @puppetfile = R10K::Puppetfile.new("", {})
       end
     end
 

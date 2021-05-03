@@ -11,7 +11,7 @@ describe R10K::Action::Puppetfile::Check do
   end
 
   before(:each) do
-    allow(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, nil).and_return(puppetfile)
+    allow(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", {moduledir: nil, puppetfile_path: nil}).and_return(puppetfile)
   end
 
   it_behaves_like "a puppetfile action"
@@ -34,7 +34,7 @@ describe R10K::Action::Puppetfile::Check do
   it "respects --puppetfile option" do
     allow($stderr).to receive(:puts)
 
-    expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", nil, "/custom/puppetfile/path").and_return(puppetfile)
+    expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", {moduledir: nil, puppetfile_path: "/custom/puppetfile/path"}).and_return(puppetfile)
 
     checker({puppetfile: "/custom/puppetfile/path"}).call
   end

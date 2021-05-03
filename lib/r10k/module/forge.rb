@@ -43,9 +43,10 @@ class R10K::Module::Forge < R10K::Module::Base
     if opts.is_a?(Hash)
       setopts(opts, {
         # Standard option interface
-        :version => :expected_version,
-        :source  => ::R10K::Util::Setopts::Ignore,
-        :type    => ::R10K::Util::Setopts::Ignore,
+        :version   => :expected_version,
+        :source    => ::R10K::Util::Setopts::Ignore,
+        :type      => ::R10K::Util::Setopts::Ignore,
+        :overrides => :self,
       })
     else
       @expected_version = opts || current_version || :latest
