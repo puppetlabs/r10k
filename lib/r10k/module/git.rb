@@ -59,8 +59,12 @@ class R10K::Module::Git < R10K::Module::Base
 
     @desired_ref ||= 'master'
 
-    if @desired_ref == :control_branch && @environment && @environment.respond_to?(:ref)
-      @desired_ref = @environment.ref
+    if @desired_ref == :control_branch
+      if @environment && @environment.respond_to?(:ref)
+        @desired_ref = @environment.ref
+      else
+        logger.warn _("Cannot track control repo branch for content '%{name}' when not part of a git-backed environment, will use default if available." % {name: name})
+      end
     end
 
     @repo = R10K::Git::StatefulRepository.new(@remote, @dirname, @name)
