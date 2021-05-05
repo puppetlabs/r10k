@@ -47,10 +47,9 @@ class R10K::Module::Forge < R10K::Module::Base
 
     setopts(opts, {
       # Standard option interface
-      :version   => :expected_version,
-      :source    => ::R10K::Util::Setopts::Ignore,
-      :type      => ::R10K::Util::Setopts::Ignore,
-      :overrides => :self,
+      :version => :expected_version,
+      :source  => ::R10K::Util::Setopts::Ignore,
+      :type    => ::R10K::Util::Setopts::Ignore,
     })
 
     @expected_version ||= current_version || :latest
@@ -60,15 +59,15 @@ class R10K::Module::Forge < R10K::Module::Base
 
   # @param [Hash] opts Deprecated
   def sync(opts={})
-    super
-
-    case status
-    when :absent
-      install
-    when :outdated
-      upgrade
-    when :mismatched
-      reinstall
+    if will_sync?
+      case status
+      when :absent
+        install
+      when :outdated
+        upgrade
+      when :mismatched
+        reinstall
+      end
     end
   end
 

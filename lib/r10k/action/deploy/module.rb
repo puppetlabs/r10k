@@ -28,7 +28,7 @@ module R10K
                 generate_types: @generate_types
               },
               modules: {
-                requested_modules: @argv,
+                requested_modules: @argv.map.to_a,
                 # force here is used to make it easier to reason about
                 force: !@no_force
               },
@@ -77,15 +77,12 @@ module R10K
         end
 
         def visit_module(mod)
-          requested_mods = @settings.dig(:overrides, :modules, :requested_modules)
-          if requested_mods.include?(mod.name)
-            mod.sync
-            if mod.environment && @settings.dig(:overrides, :environments, :generate_types)
-              logger.debug("Generating puppet types for environment '#{mod.environment.dirname}'...")
-              mod.environment.generate_types!
-            end
-          else
-            logger.debug1(_("Only updating modules %{modules}, skipping module %{mod_name}") % {modules: requested_mods.inspect, mod_name: mod.name})
+          mod.sync
+
+          requested_mods = @settings.dig(:overrides, :modules, :requested_modules) || []
+          if requested_mods.include?(mod.name) && mod.environment && @settings.dig(:overrides, :environments, :generate_types)
+            logger.debug("Generating puppet types for environment '#{mod.environment.dirname}'...")
+            mod.environment.generate_types!
           end
         end
 

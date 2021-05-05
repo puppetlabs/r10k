@@ -36,25 +36,25 @@ class R10K::Module::Git < R10K::Module::Base
   include R10K::Util::Setopts
 
   def initialize(title, dirname, opts, environment=nil)
+
     super
     setopts(opts, {
       # Standard option interface
-      :version   => :desired_ref,
-      :source    => :remote,
-      :type      => ::R10K::Util::Setopts::Ignore,
-      :overrides => :self,
+      :version                 => :desired_ref,
+      :source                  => :remote,
+      :type                    => ::R10K::Util::Setopts::Ignore,
 
       # Type-specific options
-      :branch    => :desired_ref,
-      :tag       => :desired_ref,
-      :commit    => :desired_ref,
-      :ref       => :desired_ref,
-      :git       => :remote,
+      :branch                  => :desired_ref,
+      :tag                     => :desired_ref,
+      :commit                  => :desired_ref,
+      :ref                     => :desired_ref,
+      :git                     => :remote,
       :default_branch          => :default_ref,
       :default_branch_override => :default_override_ref,
     })
 
-    force = @overrides && @overrides.dig(:modules, :force)
+    force = @overrides.dig(:modules, :force)
     @force = force == false ? false : true
 
     @desired_ref ||= 'master'
@@ -84,10 +84,8 @@ class R10K::Module::Git < R10K::Module::Base
 
   # @param [Hash] opts Deprecated
   def sync(opts={})
-    super
-
     force = opts[:force] || @force
-    @repo.sync(version, force)
+    @repo.sync(version, force) if will_sync?
   end
 
   def status

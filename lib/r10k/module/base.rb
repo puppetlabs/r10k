@@ -51,7 +51,11 @@ class R10K::Module::Base
     @owner, @name = parse_title(@title)
     @path = Pathname.new(File.join(@dirname, @name))
     @environment = environment
+    @overrides = args.delete(:overrides) || {}
     @origin = 'external' # Expect Puppetfile or R10k::Environment to set this to a specific value
+
+    @requested_modules = @overrides.dig(:modules, :requested_modules) || []
+    @to_be_synced = (@requested_modules.empty? || @requested_modules.include?(@name))
   end
 
   # @deprecated
@@ -63,8 +67,19 @@ class R10K::Module::Base
   # Synchronize this module with the indicated state.
   # @param [Hash] opts Deprecated
   def sync(opts={})
-    logger.info _("Checking module %{path}") % {path: path}
+    raise NotImplementedError
   end
+
+  def will_sync?
+    if @to_be_synced
+      logger.info _("Checking module %{path}") % {path: path}
+      true
+    else
+      logger.debug1(_("Only updating modules %{modules}, skipping module %{name}") % {modules: @requested_modules.inspect, name: name})
+      false
+    end
+  end
+
 
   # Return the desired version of this module
   # @abstract

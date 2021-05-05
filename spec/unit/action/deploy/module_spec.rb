@@ -84,7 +84,7 @@ describe R10K::Action::Deploy::Module do
       before do
         allow(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
           expect(environment.puppetfile).to receive(:modules).and_return(
-            [R10K::Module::Local.new(environment.name, '/fakedir', [], environment)]
+            [R10K::Module::Local.new(environment.name, '/fakedir', {}, environment)]
           )
           original.call(environment, &block)
         end
@@ -177,4 +177,57 @@ describe R10K::Action::Deploy::Module do
       expect(subject.instance_variable_get(:@oauth_token)).to eq('/nonexistent')
     end
   end
+
+  describe 'with modules' do
+
+    subject { described_class.new({ config: '/some/nonexistent/path' }, ['mod1', 'mod2'], {}) }
+
+    let(:cache) { instance_double("R10K::Git::Cache", 'sanitized_dirname' => 'foo', 'cached?' => true, 'sync' => true) }
+    let(:repo) { instance_double("R10K::Git::StatefulRepository", cache: cache, resolve: 'main') }
+
+    it 'does not sync modules not given' do
+      allow(R10K::Deployment).to receive(:new).and_wrap_original do |original, settings, &block|
+        original.call(settings.merge({
+          sources: {
+            main: {
+              remote: 'git://not/a/remote',
+              basedir: '/not/a/basedir',
+              type: 'git'
+            }
+          }
+        }))
+      end
+
+      allow(R10K::Git::StatefulRepository).to receive(:new).and_return(repo)
+      allow(R10K::Git).to receive_message_chain(:cache, :generate).and_return(cache)
+      allow_any_instance_of(R10K::Source::Git).to receive(:branch_names).and_return([R10K::Environment::Name.new('first', {})])
+
+      expect(subject).to receive(:visit_puppetfile).and_wrap_original do |original, puppetfile, &block|
+        expect(puppetfile).to receive(:load) do
+          puppetfile.add_module('mod1', { git: 'git://remote' })
+          puppetfile.add_module('mod2', { git: 'git://remote' })
+          puppetfile.add_module('mod3', { git: 'git://remote' })
+        end
+
+        original.call(puppetfile, &block)
+      end
+
+      expect(subject).to receive(:visit_module).and_wrap_original do |original, mod, &block|
+        if ['mod1', 'mod2'].include?(mod.name)
+          expect(mod.will_sync?).to be(true)
+        else
+          expect(mod.will_sync?).to be(false)
+        end
+
+        expect(mod).to receive(:sync).and_call_original
+
+        original.call(mod)
+      end.exactly(3).times
+
+      expect(repo).to receive(:sync).twice
+
+      subject.call
+    end
+  end
 end
+

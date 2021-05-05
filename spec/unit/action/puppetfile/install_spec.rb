@@ -26,7 +26,7 @@ describe R10K::Action::Puppetfile::Install do
   describe "installing modules" do
     let(:modules) do
       (1..4).map do |idx|
-        R10K::Module::Base.new("author/modname#{idx}", "/some/nonexistent/path/modname#{idx}", nil)
+        R10K::Module::Base.new("author/modname#{idx}", "/some/nonexistent/path/modname#{idx}", {})
       end
     end
 
