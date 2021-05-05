@@ -15,7 +15,7 @@ module R10K
           @settings = @settings.merge({
             overrides: {
               environments: {
-                preload_environment: @fetch,
+                preload_environments: @fetch,
                 requested_environments: @argv.map { |arg| arg.gsub(/\W/, '_') }
               },
               modules: {},
