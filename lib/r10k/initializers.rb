@@ -4,6 +4,7 @@ require 'r10k/git'
 require 'r10k/git/cache'
 
 require 'r10k/forge/module_release'
+require 'r10k/tarball'
 
 module R10K
   module Initializers
@@ -34,6 +35,7 @@ module R10K
 
         with_setting(:cachedir) { |value| R10K::Git::Cache.settings[:cache_root] = value }
         with_setting(:cachedir) { |value| R10K::Forge::ModuleRelease.settings[:cache_root] = value }
+        with_setting(:cachedir) { |value| R10K::Tarball.settings[:cache_root] = value }
         with_setting(:pool_size) { |value| R10K::Puppetfile.settings[:pool_size] = value }
 
         with_setting(:git) { |value| GitInitializer.new(value).call }
@@ -73,6 +75,12 @@ module R10K
             raise R10K::Error, "Cannot specify a Forge authorization token without configuring a custom baseurl."
           end
         }
+      end
+    end
+
+    class TarballInitializer < BaseInitializer
+      def call
+        with_setting(:proxy) { |value| R10K::Tarball.settings[:proxy] = value }
       end
     end
   end
