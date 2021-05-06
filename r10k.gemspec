@@ -32,18 +32,18 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'gettext-setup', '~>0.24'
   # These two pins narrow what is allowed by gettext-setup,
-  # to preserver compatability with Ruby 2.4
+  # to preserve compatability with Ruby 2.4
   s.add_dependency 'fast_gettext', '~> 1.1.0'
   s.add_dependency 'gettext', ['>= 3.0.2', '< 3.3.0']
 
   s.add_dependency 'jwt', '~> 2.2.3'
+  s.add_dependency 'minitar', '~> 0.9.0'
 
   s.add_development_dependency 'rspec', '~> 3.1'
 
   s.add_development_dependency 'rake'
 
   s.add_development_dependency 'yard', '~> 0.9.11'
-  s.add_development_dependency 'minitar', '~> 0.9.0'
 
   s.files        = %x[git ls-files].split($/)
   s.require_path = 'lib'
