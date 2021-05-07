@@ -78,7 +78,7 @@ class R10K::Environment::WithModules < R10K::Environment::Base
   def accept(visitor)
     visitor.visit(:environment, self) do
       @modules.each do |mod|
-        mod.accept(visitor)
+        mod.sync
       end
 
       puppetfile.accept(visitor)

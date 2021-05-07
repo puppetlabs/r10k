@@ -82,10 +82,16 @@ describe R10K::Action::Deploy::Module do
       end
 
       before do
+        @modules = []
         allow(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
-          expect(environment.puppetfile).to receive(:modules).and_return(
-            [R10K::Module::Local.new(environment.name, '/fakedir', {}, environment)]
-          ).twice
+          mod = R10K::Module::Local.new(environment.name, '/fakedir', {}, environment)
+          if mod.name == 'first'
+            expect(environment).to receive(:generate_types!)
+          else
+            expect(environment).not_to receive(:generate_types!)
+          end
+          @modules << mod
+          expect(environment.puppetfile).to receive(:modules).and_return([mod]).twice
           original.call(environment, &block)
         end
       end
@@ -95,15 +101,8 @@ describe R10K::Action::Deploy::Module do
       end
 
       it 'only calls puppet generate types on environments with specified module' do
-        expect(subject).to receive(:visit_module).and_wrap_original do |original, mod, &block|
-          if mod.name == 'first'
-            expect(mod.environment).to receive(:generate_types!)
-          else
-            expect(mod.environment).not_to receive(:generate_types!)
-          end
-          original.call(mod, &block)
-        end.twice
         subject.call
+        expect(@modules.length).to be(2)
       end
     end
 
@@ -208,21 +207,18 @@ describe R10K::Action::Deploy::Module do
           puppetfile.add_module('mod2', { git: 'git://remote' })
           puppetfile.add_module('mod3', { git: 'git://remote' })
         end
+        puppetfile.modules.each do |mod|
+          if ['mod1', 'mod2'].include?(mod.name)
+            expect(mod.will_sync?).to be(true)
+          else
+            expect(mod.will_sync?).to be(false)
+          end
+
+          expect(mod).to receive(:sync).and_call_original
+        end
 
         original.call(puppetfile, &block)
       end
-
-      expect(subject).to receive(:visit_module).and_wrap_original do |original, mod, &block|
-        if ['mod1', 'mod2'].include?(mod.name)
-          expect(mod.will_sync?).to be(true)
-        else
-          expect(mod.will_sync?).to be(false)
-        end
-
-        expect(mod).to receive(:sync).and_call_original
-
-        original.call(mod)
-      end.exactly(3).times
 
       expect(repo).to receive(:sync).twice
 

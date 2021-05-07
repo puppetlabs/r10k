@@ -11,11 +11,17 @@ module R10K
 
         def call
           @visit_ok = true
-          pf = R10K::Puppetfile.new(@root,
-                                    {moduledir: @moduledir,
-                                     puppetfile_path: @puppetfile,
-                                     force: @force || false})
-          pf.accept(self)
+          begin
+            pf = R10K::Puppetfile.new(@root,
+                                      {moduledir: @moduledir,
+                                       puppetfile_path: @puppetfile,
+                                       force: @force || false})
+            pf.accept(self)
+          rescue => e
+            @visit_ok = false
+            logger.error R10K::Errors::Formatting.format_exception(e, @trace)
+          end
+
           @visit_ok
         end
 
@@ -31,10 +37,6 @@ module R10K
           R10K::Util::Cleaner.new(pf.managed_directories,
                                   pf.desired_contents,
                                   pf.purge_exclusions).purge!
-        end
-
-        def visit_module(mod)
-          mod.sync
         end
 
         def allowed_initialize_opts

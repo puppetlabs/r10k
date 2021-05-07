@@ -102,6 +102,7 @@ class R10K::Module::Base
     raise NotImplementedError
   end
 
+  # Deprecated
   def accept(visitor)
     visitor.visit(:module, self)
   end

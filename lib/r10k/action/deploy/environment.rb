@@ -51,11 +51,17 @@ module R10K
         def call
           @visit_ok = true
 
-          expect_config!
-          deployment = R10K::Deployment.new(@settings)
-          check_write_lock!(@settings)
+          begin
+            expect_config!
+            deployment = R10K::Deployment.new(@settings)
+            check_write_lock!(@settings)
 
-          deployment.accept(self)
+            deployment.accept(self)
+          rescue => e
+            @visit_ok = false
+            logger.error R10K::Errors::Formatting.format_exception(e, @trace)
+          end
+
           @visit_ok
         end
 
@@ -180,10 +186,6 @@ module R10K
                                     puppetfile.desired_contents,
                                     puppetfile.purge_exclusions).purge!
           end
-        end
-
-        def visit_module(mod)
-          mod.sync
         end
 
         def write_environment_info!(environment, started_at, success)

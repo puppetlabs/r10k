@@ -301,7 +301,7 @@ describe R10K::Puppetfile do
       subject.accept(visitor)
     end
 
-    it "passes the visitor to each module if the visitor yields" do
+    it "synchronizes each module if the visitor yields" do
       visitor = spy('visitor')
       expect(visitor).to receive(:visit) do |type, other, &block|
         expect(type).to eq :puppetfile
@@ -311,8 +311,8 @@ describe R10K::Puppetfile do
 
       mod1 = instance_double('R10K::Module::Base', :cachedir => :none)
       mod2 = instance_double('R10K::Module::Base', :cachedir => :none)
-      expect(mod1).to receive(:accept).with(visitor)
-      expect(mod2).to receive(:accept).with(visitor)
+      expect(mod1).to receive(:sync)
+      expect(mod2).to receive(:sync)
       expect(subject).to receive(:modules).and_return([mod1, mod2])
 
       subject.accept(visitor)
@@ -332,8 +332,8 @@ describe R10K::Puppetfile do
 
       mod1 = instance_double('R10K::Module::Base', :cachedir => :none)
       mod2 = instance_double('R10K::Module::Base', :cachedir => :none)
-      expect(mod1).to receive(:accept).with(visitor)
-      expect(mod2).to receive(:accept).with(visitor)
+      expect(mod1).to receive(:sync)
+      expect(mod2).to receive(:sync)
       expect(subject).to receive(:modules).and_return([mod1, mod2])
 
       expect(Thread).to receive(:new).exactly(pool_size).and_call_original

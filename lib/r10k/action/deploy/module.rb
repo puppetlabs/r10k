@@ -40,12 +40,17 @@ module R10K
 
         def call
           @visit_ok = true
+          begin
+            expect_config!
+            deployment = R10K::Deployment.new(@settings)
+            check_write_lock!(@settings)
 
-          expect_config!
-          deployment = R10K::Deployment.new(@settings)
-          check_write_lock!(@settings)
+            deployment.accept(self)
+          rescue => e
+            @visit_ok = false
+            logger.error R10K::Errors::Formatting.format_exception(e, @trace)
+          end
 
-          deployment.accept(self)
           @visit_ok
         end
 
@@ -77,16 +82,11 @@ module R10K
               environment.generate_types!
             end
           end
-
         end
 
         def visit_puppetfile(puppetfile)
           puppetfile.load
           yield
-        end
-
-        def visit_module(mod)
-          mod.sync
         end
 
         def allowed_initialize_opts
