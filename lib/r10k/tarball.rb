@@ -142,6 +142,11 @@ module R10K
       names
     end
 
+    def cache_sha256digest
+      raise "Cache not present" unless File.exist?(cache_path)
+      file_digest(cache_path)
+    end
+
     private
 
     CHUNK_SIZE = 64 * 1024 # 64 kb
