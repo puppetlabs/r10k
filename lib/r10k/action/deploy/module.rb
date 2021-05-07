@@ -15,8 +15,14 @@ module R10K
 
         attr_reader :settings
 
+        # @param opts [Hash] A hash of options defined in #allowed_initialized_opts
+        #   and managed by the SetOps mixin within the Action::Base class.
+        #   Corresponds to the CLI flags and options.
+        # @param argv [CRI::ArgumentList] A list-like collection of the remaining
+        #   arguments to the CLI invocation (after removing flags and options).
+        # @param settings [Hash] A hash of configuration loaded from the relevant
+        #   config (r10k.yaml).
         def initialize(opts, argv, settings)
-
           super
 
           requested_env = @opts[:environment] ? [@opts[:environment].gsub(/\W/, '_')] : []
