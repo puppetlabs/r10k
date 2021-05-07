@@ -85,7 +85,7 @@ describe R10K::Action::Deploy::Module do
         allow(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
           expect(environment.puppetfile).to receive(:modules).and_return(
             [R10K::Module::Local.new(environment.name, '/fakedir', {}, environment)]
-          )
+          ).twice
           original.call(environment, &block)
         end
       end

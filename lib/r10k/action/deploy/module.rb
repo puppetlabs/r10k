@@ -67,8 +67,17 @@ module R10K
             logger.debug1(_("Only updating modules in environment(s) %{opt_env} skipping environment %{env_path}") % {opt_env: requested_envs.inspect, env_path: environment.path})
           else
             logger.debug1(_("Updating modules %{modules} in environment %{env_path}") % {modules: @settings.dig(:overrides, :modules, :requested_modules).inspect, env_path: environment.path})
+
             yield
+
+            requested_mods = @settings.dig(:overrides, :modules, :requested_modules) || []
+            generate_types = @settings.dig(:overrides, :environments, :generate_types)
+            if generate_types && !((environment.modules.map(&:name) & requested_mods).empty?)
+              logger.debug("Generating puppet types for environment '#{environment.dirname}'...")
+              environment.generate_types!
+            end
           end
+
         end
 
         def visit_puppetfile(puppetfile)
@@ -78,12 +87,6 @@ module R10K
 
         def visit_module(mod)
           mod.sync
-
-          requested_mods = @settings.dig(:overrides, :modules, :requested_modules) || []
-          if requested_mods.include?(mod.name) && mod.environment && @settings.dig(:overrides, :environments, :generate_types)
-            logger.debug("Generating puppet types for environment '#{mod.environment.dirname}'...")
-            mod.environment.generate_types!
-          end
         end
 
         def allowed_initialize_opts
