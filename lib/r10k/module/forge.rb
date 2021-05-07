@@ -13,12 +13,16 @@ class R10K::Module::Forge < R10K::Module::Base
   R10K::Module.register(self)
 
   def self.implement?(name, args)
-    args[:type].to_s == 'forge' ||
-      (!!
-       ((args.keys & %i{git svn type}).empty? &&
-        args.has_key?(:version) &&
-        name.match(%r[\w+[/-]\w+]) &&
-        valid_version?(args[:version])))
+    if args.is_a?(Hash)
+      args[:type].to_s == 'forge' ||
+        (!!
+         ((args.keys & %i{git svn type}).empty? &&
+          args.has_key?(:version) &&
+          name.match(%r[\w+[/-]\w+]) &&
+          valid_version?(args[:version])))
+    else
+      !!(name.match(%r[\w+[/-]\w+]) && valid_version?(args))
+    end
   end
 
   def self.valid_version?(expected_version)
