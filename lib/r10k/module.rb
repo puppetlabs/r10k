@@ -53,4 +53,5 @@ module R10K::Module
   require 'r10k/module/local'
   require 'r10k/module/forge'
   require 'r10k/module/definition'
+  require 'r10k/module/tarball'
 end
