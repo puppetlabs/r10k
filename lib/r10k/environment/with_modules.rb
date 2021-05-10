@@ -96,7 +96,7 @@ class R10K::Environment::WithModules < R10K::Environment::Base
   end
 
   # @param [String] name
-  # @param [*Object] args
+  # @param [Hash] args
   def add_module(name, args)
     # symbolize keys in the args hash
     args = args.inject({}) { |memo,(k,v)| memo[k.to_sym] = v; memo }
