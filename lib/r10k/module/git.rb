@@ -85,7 +85,7 @@ class R10K::Module::Git < R10K::Module::Base
   # @param [Hash] opts Deprecated
   def sync(opts={})
     force = opts[:force] || @force
-    @repo.sync(version, force) if will_sync?
+    @repo.sync(version, force) if should_sync?
   end
 
   def status

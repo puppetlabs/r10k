@@ -209,9 +209,9 @@ describe R10K::Action::Deploy::Module do
         end
         puppetfile.modules.each do |mod|
           if ['mod1', 'mod2'].include?(mod.name)
-            expect(mod.will_sync?).to be(true)
+            expect(mod.should_sync?).to be(true)
           else
-            expect(mod.will_sync?).to be(false)
+            expect(mod.should_sync?).to be(false)
           end
 
           expect(mod).to receive(:sync).and_call_original

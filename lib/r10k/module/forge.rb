@@ -59,7 +59,7 @@ class R10K::Module::Forge < R10K::Module::Base
 
   # @param [Hash] opts Deprecated
   def sync(opts={})
-    if will_sync?
+    if should_sync?
       case status
       when :absent
         install
