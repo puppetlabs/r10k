@@ -210,6 +210,14 @@ describe R10K::Module::Git do
             expect(mod.desired_ref).to eq(:control_branch)
           end
 
+          it "warns control branch may be unresolvable" do
+            logger = double("logger")
+            allow_any_instance_of(described_class).to receive(:logger).and_return(logger)
+            expect(logger).to receive(:warn).with(/Cannot track control repo branch.*boolean.*/)
+
+            test_module(branch: :control_branch)
+          end
+
           context "when default ref is provided and resolvable" do
             it "uses default ref" do
               expect(mock_repo).to receive(:resolve).with('default').and_return('abc123')

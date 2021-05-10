@@ -19,6 +19,13 @@ module R10K
 
         attr_reader :settings
 
+        # @param opts [Hash] A hash of options defined in #allowed_initialized_opts
+        #   and managed by the SetOps mixin within the Action::Base class.
+        #   Corresponds to the CLI flags and options.
+        # @param argv [CRI::ArgumentList] A list-like collection of the remaining
+        #   arguments to the CLI invocation (after removing flags and options).
+        # @param settings [Hash] A hash of configuration loaded from the relevant
+        #   config (r10k.yaml).
         def initialize(opts, argv, settings)
           super
 
@@ -51,11 +58,17 @@ module R10K
         def call
           @visit_ok = true
 
-          expect_config!
-          deployment = R10K::Deployment.new(@settings)
-          check_write_lock!(@settings)
+          begin
+            expect_config!
+            deployment = R10K::Deployment.new(@settings)
+            check_write_lock!(@settings)
 
-          deployment.accept(self)
+            deployment.accept(self)
+          rescue => e
+            @visit_ok = false
+            logger.error R10K::Errors::Formatting.format_exception(e, @trace)
+          end
+
           @visit_ok
         end
 
@@ -180,11 +193,6 @@ module R10K
                                     puppetfile.desired_contents,
                                     puppetfile.purge_exclusions).purge!
           end
-        end
-
-        def visit_module(mod)
-          logger.info _("Deploying %{origin} content %{path}") % {origin: mod.origin, path: mod.path}
-          mod.sync(force: @settings.dig(:overrides, :modules, :force))
         end
 
         def write_environment_info!(environment, started_at, success)

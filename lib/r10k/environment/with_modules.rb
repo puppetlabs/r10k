@@ -78,7 +78,7 @@ class R10K::Environment::WithModules < R10K::Environment::Base
   def accept(visitor)
     visitor.visit(:environment, self) do
       @modules.each do |mod|
-        mod.accept(visitor)
+        mod.sync
       end
 
       puppetfile.accept(visitor)
@@ -87,25 +87,27 @@ class R10K::Environment::WithModules < R10K::Environment::Base
 
   def load_modules(module_hash)
     module_hash.each do |name, args|
+      if !args.is_a?(Hash)
+        args = { version: args }
+      end
+
       add_module(name, args)
     end
   end
 
   # @param [String] name
-  # @param [*Object] args
+  # @param [Hash] args
   def add_module(name, args)
-    if args.is_a?(Hash)
-      # symbolize keys in the args hash
-      args = args.inject({}) { |memo,(k,v)| memo[k.to_sym] = v; memo }
-      args[:overrides] = @overrides
+    # symbolize keys in the args hash
+    args = args.inject({}) { |memo,(k,v)| memo[k.to_sym] = v; memo }
+    args[:overrides] = @overrides
 
-      if install_path = args.delete(:install_path)
-        install_path = resolve_install_path(install_path)
-        validate_install_path(install_path, name)
-      end
+    if install_path = args.delete(:install_path)
+      install_path = resolve_install_path(install_path)
+      validate_install_path(install_path, name)
+    else
+      install_path = @moduledir
     end
-
-    install_path ||= @moduledir
 
     # Keep track of all the content this environment is managing to enable purging.
     @managed_content[install_path] = Array.new unless @managed_content.has_key?(install_path)

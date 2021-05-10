@@ -15,8 +15,14 @@ module R10K
 
         attr_reader :settings
 
+        # @param opts [Hash] A hash of options defined in #allowed_initialized_opts
+        #   and managed by the SetOps mixin within the Action::Base class.
+        #   Corresponds to the CLI flags and options.
+        # @param argv [CRI::ArgumentList] A list-like collection of the remaining
+        #   arguments to the CLI invocation (after removing flags and options).
+        # @param settings [Hash] A hash of configuration loaded from the relevant
+        #   config (r10k.yaml).
         def initialize(opts, argv, settings)
-
           super
 
           requested_env = @opts[:environment] ? [@opts[:environment].gsub(/\W/, '_')] : []
@@ -28,7 +34,7 @@ module R10K
                 generate_types: @generate_types
               },
               modules: {
-                requested_modules: @argv,
+                requested_modules: @argv.map.to_a,
                 # force here is used to make it easier to reason about
                 force: !@no_force
               },
@@ -40,12 +46,17 @@ module R10K
 
         def call
           @visit_ok = true
+          begin
+            expect_config!
+            deployment = R10K::Deployment.new(@settings)
+            check_write_lock!(@settings)
 
-          expect_config!
-          deployment = R10K::Deployment.new(@settings)
-          check_write_lock!(@settings)
+            deployment.accept(self)
+          rescue => e
+            @visit_ok = false
+            logger.error R10K::Errors::Formatting.format_exception(e, @trace)
+          end
 
-          deployment.accept(self)
           @visit_ok
         end
 
@@ -67,27 +78,21 @@ module R10K
             logger.debug1(_("Only updating modules in environment(s) %{opt_env} skipping environment %{env_path}") % {opt_env: requested_envs.inspect, env_path: environment.path})
           else
             logger.debug1(_("Updating modules %{modules} in environment %{env_path}") % {modules: @settings.dig(:overrides, :modules, :requested_modules).inspect, env_path: environment.path})
+
             yield
+
+            requested_mods = @settings.dig(:overrides, :modules, :requested_modules) || []
+            generate_types = @settings.dig(:overrides, :environments, :generate_types)
+            if generate_types && !((environment.modules.map(&:name) & requested_mods).empty?)
+              logger.debug("Generating puppet types for environment '#{environment.dirname}'...")
+              environment.generate_types!
+            end
           end
         end
 
         def visit_puppetfile(puppetfile)
           puppetfile.load
           yield
-        end
-
-        def visit_module(mod)
-          requested_mods = @settings.dig(:overrides, :modules, :requested_modules)
-          if requested_mods.include?(mod.name)
-            logger.info _("Deploying module %{mod_path}") % {mod_path: mod.path}
-            mod.sync(force: @settings.dig(:overrides, :modules, :force))
-            if mod.environment && @settings.dig(:overrides, :environments, :generate_types)
-              logger.debug("Generating puppet types for environment '#{mod.environment.dirname}'...")
-              mod.environment.generate_types!
-            end
-          else
-            logger.debug1(_("Only updating modules %{modules}, skipping module %{mod_name}") % {modules: requested_mods.inspect, mod_name: mod.name})
-          end
         end
 
         def allowed_initialize_opts

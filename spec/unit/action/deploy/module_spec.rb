@@ -82,10 +82,16 @@ describe R10K::Action::Deploy::Module do
       end
 
       before do
+        @modules = []
         allow(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
-          expect(environment.puppetfile).to receive(:modules).and_return(
-            [R10K::Module::Local.new(environment.name, '/fakedir', [], environment)]
-          )
+          mod = R10K::Module::Local.new(environment.name, '/fakedir', {}, environment)
+          if mod.name == 'first'
+            expect(environment).to receive(:generate_types!)
+          else
+            expect(environment).not_to receive(:generate_types!)
+          end
+          @modules << mod
+          expect(environment.puppetfile).to receive(:modules).and_return([mod]).twice
           original.call(environment, &block)
         end
       end
@@ -95,15 +101,8 @@ describe R10K::Action::Deploy::Module do
       end
 
       it 'only calls puppet generate types on environments with specified module' do
-        expect(subject).to receive(:visit_module).and_wrap_original do |original, mod, &block|
-          if mod.name == 'first'
-            expect(mod.environment).to receive(:generate_types!)
-          else
-            expect(mod.environment).not_to receive(:generate_types!)
-          end
-          original.call(mod, &block)
-        end.twice
         subject.call
+        expect(@modules.length).to be(2)
       end
     end
 
@@ -177,4 +176,54 @@ describe R10K::Action::Deploy::Module do
       expect(subject.instance_variable_get(:@oauth_token)).to eq('/nonexistent')
     end
   end
+
+  describe 'with modules' do
+
+    subject { described_class.new({ config: '/some/nonexistent/path' }, ['mod1', 'mod2'], {}) }
+
+    let(:cache) { instance_double("R10K::Git::Cache", 'sanitized_dirname' => 'foo', 'cached?' => true, 'sync' => true) }
+    let(:repo) { instance_double("R10K::Git::StatefulRepository", cache: cache, resolve: 'main') }
+
+    it 'does not sync modules not given' do
+      allow(R10K::Deployment).to receive(:new).and_wrap_original do |original, settings, &block|
+        original.call(settings.merge({
+          sources: {
+            main: {
+              remote: 'git://not/a/remote',
+              basedir: '/not/a/basedir',
+              type: 'git'
+            }
+          }
+        }))
+      end
+
+      allow(R10K::Git::StatefulRepository).to receive(:new).and_return(repo)
+      allow(R10K::Git).to receive_message_chain(:cache, :generate).and_return(cache)
+      allow_any_instance_of(R10K::Source::Git).to receive(:branch_names).and_return([R10K::Environment::Name.new('first', {})])
+
+      expect(subject).to receive(:visit_puppetfile).and_wrap_original do |original, puppetfile, &block|
+        expect(puppetfile).to receive(:load) do
+          puppetfile.add_module('mod1', { git: 'git://remote' })
+          puppetfile.add_module('mod2', { git: 'git://remote' })
+          puppetfile.add_module('mod3', { git: 'git://remote' })
+        end
+        puppetfile.modules.each do |mod|
+          if ['mod1', 'mod2'].include?(mod.name)
+            expect(mod.should_sync?).to be(true)
+          else
+            expect(mod.should_sync?).to be(false)
+          end
+
+          expect(mod).to receive(:sync).and_call_original
+        end
+
+        original.call(puppetfile, &block)
+      end
+
+      expect(repo).to receive(:sync).twice
+
+      subject.call
+    end
+  end
 end
+

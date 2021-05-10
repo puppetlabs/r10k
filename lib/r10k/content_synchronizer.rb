@@ -4,7 +4,7 @@ module R10K
     def self.serial_accept(modules, visitor, loader)
       visitor.visit(:puppetfile, loader) do
         modules.each do |mod|
-          mod.accept(visitor)
+          mod.sync
         end
       end
     end
@@ -12,7 +12,7 @@ module R10K
     def self.concurrent_accept(modules, visitor, loader, pool_size, logger)
       logger.debug _("Updating modules with %{pool_size} threads") % {pool_size: pool_size}
       mods_queue = modules_queue(modules, visitor, loader)
-      thread_pool = pool_size.times.map { visitor_thread(visitor, mods_queue, logger) }
+      thread_pool = pool_size.times.map { sync_thread(mods_queue, logger) }
       thread_exception = nil
 
       # If any threads raise an exception the deployment is considered a failure.
@@ -42,11 +42,11 @@ module R10K
       end
     end
 
-    def self.visitor_thread(visitor, mods_queue, logger)
+    def self.sync_thread(mods_queue, logger)
       Thread.new do
         begin
           while mods = mods_queue.pop(true) do
-            mods.each {|mod| mod.accept(visitor) }
+            mods.each { |mod| mod.sync }
           end
         rescue ThreadError => e
           logger.debug _("Module thread %{id} exiting: %{message}") % {message: e.message, id: Thread.current.object_id}

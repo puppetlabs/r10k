@@ -8,7 +8,7 @@ class R10K::Module::Git < R10K::Module::Base
   R10K::Module.register(self)
 
   def self.implement?(name, args)
-    args.is_a?(Hash) && (args.has_key?(:git) || args[:type].to_s == 'git')
+    args.has_key?(:git) || args[:type].to_s == 'git'
   rescue
     false
   end
@@ -36,28 +36,35 @@ class R10K::Module::Git < R10K::Module::Base
   include R10K::Util::Setopts
 
   def initialize(title, dirname, opts, environment=nil)
+
     super
     setopts(opts, {
       # Standard option interface
-      :version   => :desired_ref,
-      :source    => :remote,
-      :type      => ::R10K::Util::Setopts::Ignore,
-      :overrides => :self,
+      :version                 => :desired_ref,
+      :source                  => :remote,
+      :type                    => ::R10K::Util::Setopts::Ignore,
 
       # Type-specific options
-      :branch    => :desired_ref,
-      :tag       => :desired_ref,
-      :commit    => :desired_ref,
-      :ref       => :desired_ref,
-      :git       => :remote,
+      :branch                  => :desired_ref,
+      :tag                     => :desired_ref,
+      :commit                  => :desired_ref,
+      :ref                     => :desired_ref,
+      :git                     => :remote,
       :default_branch          => :default_ref,
       :default_branch_override => :default_override_ref,
     })
 
+    force = @overrides.dig(:modules, :force)
+    @force = force == false ? false : true
+
     @desired_ref ||= 'master'
 
-    if @desired_ref == :control_branch && @environment && @environment.respond_to?(:ref)
-      @desired_ref = @environment.ref
+    if @desired_ref == :control_branch
+      if @environment && @environment.respond_to?(:ref)
+        @desired_ref = @environment.ref
+      else
+        logger.warn _("Cannot track control repo branch for content '%{name}' when not part of a git-backed environment, will use default if available." % {name: name})
+      end
     end
 
     @repo = R10K::Git::StatefulRepository.new(@remote, @dirname, @name)
@@ -75,9 +82,10 @@ class R10K::Module::Git < R10K::Module::Base
     }
   end
 
+  # @param [Hash] opts Deprecated
   def sync(opts={})
-    force = opts && opts.fetch(:force, true)
-    @repo.sync(version, force)
+    force = opts[:force] || @force
+    @repo.sync(version, force) if should_sync?
   end
 
   def status

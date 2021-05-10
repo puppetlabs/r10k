@@ -68,15 +68,15 @@ describe R10K::Puppetfile do
   end
 
   describe "adding modules" do
-    it "should accept Forge modules with a string arg" do
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, '1.2.3', anything).and_call_original
+    it "should transform Forge modules with a string arg to have a version key" do
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '1.2.3'), anything).and_call_original
 
       expect { subject.add_module('puppet/test_module', '1.2.3') }.to change { subject.modules }
       expect(subject.modules.collect(&:name)).to include('test_module')
     end
 
     it "should not accept Forge modules with a version comparison" do
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, '< 1.2.0', anything).and_call_original
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '< 1.2.0'), anything).and_call_original
 
       expect {
         subject.add_module('puppet/test_module', '< 1.2.0')
@@ -181,7 +181,7 @@ describe R10K::Puppetfile do
 
   describe '#managed_directories' do
     it 'returns an array of paths that can be purged' do
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, '1.2.3', anything).and_call_original
+      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '1.2.3'), anything).and_call_original
 
       subject.add_module('puppet/test_module', '1.2.3')
       expect(subject.managed_directories).to match_array(["/some/nonexistent/basedir/modules"])
@@ -301,7 +301,7 @@ describe R10K::Puppetfile do
       subject.accept(visitor)
     end
 
-    it "passes the visitor to each module if the visitor yields" do
+    it "synchronizes each module if the visitor yields" do
       visitor = spy('visitor')
       expect(visitor).to receive(:visit) do |type, other, &block|
         expect(type).to eq :puppetfile
@@ -311,8 +311,8 @@ describe R10K::Puppetfile do
 
       mod1 = instance_double('R10K::Module::Base', :cachedir => :none)
       mod2 = instance_double('R10K::Module::Base', :cachedir => :none)
-      expect(mod1).to receive(:accept).with(visitor)
-      expect(mod2).to receive(:accept).with(visitor)
+      expect(mod1).to receive(:sync)
+      expect(mod2).to receive(:sync)
       expect(subject).to receive(:modules).and_return([mod1, mod2])
 
       subject.accept(visitor)
@@ -332,8 +332,8 @@ describe R10K::Puppetfile do
 
       mod1 = instance_double('R10K::Module::Base', :cachedir => :none)
       mod2 = instance_double('R10K::Module::Base', :cachedir => :none)
-      expect(mod1).to receive(:accept).with(visitor)
-      expect(mod2).to receive(:accept).with(visitor)
+      expect(mod1).to receive(:sync)
+      expect(mod2).to receive(:sync)
       expect(subject).to receive(:modules).and_return([mod1, mod2])
 
       expect(Thread).to receive(:new).exactly(pool_size).and_call_original

@@ -7,7 +7,7 @@ class R10K::Module::SVN < R10K::Module::Base
   R10K::Module.register(self)
 
   def self.implement?(name, args)
-    args.is_a?(Hash) && (args.has_key?(:svn) || args[:type].to_s == 'svn')
+    args.has_key?(:svn) || args[:type].to_s == 'svn'
   end
 
   # @!attribute [r] expected_revision
@@ -40,17 +40,16 @@ class R10K::Module::SVN < R10K::Module::Base
     super
     setopts(opts, {
       # Standard option interface
-      :source    => :url,
-      :version   => :expected_revision,
-      :type      => ::R10K::Util::Setopts::Ignore,
-      :overrides => :self,
+      :source   => :url,
+      :version  => :expected_revision,
+      :type     => ::R10K::Util::Setopts::Ignore,
 
       # Type-specific options
-      :svn       => :url,
-      :rev       => :expected_revision,
-      :revision  => :expected_revision,
-      :username  => :self,
-      :password  => :self
+      :svn      => :url,
+      :rev      => :expected_revision,
+      :revision => :expected_revision,
+      :username => :self,
+      :password => :self
     })
 
     @working_dir = R10K::SVN::WorkingDir.new(@path, :username => @username, :password => @password)
@@ -70,14 +69,17 @@ class R10K::Module::SVN < R10K::Module::Base
     end
   end
 
+  # @param [Hash] opts Deprecated
   def sync(opts={})
-    case status
-    when :absent
-      install
-    when :mismatched
-      reinstall
-    when :outdated
-      update
+    if should_sync?
+      case status
+      when :absent
+        install
+      when :mismatched
+        reinstall
+      when :outdated
+        update
+      end
     end
   end
 

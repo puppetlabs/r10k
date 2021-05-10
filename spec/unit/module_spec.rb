@@ -30,12 +30,12 @@ describe R10K::Module do
     [ 'bar/quux',
       'bar-quux',
     ].each do |scenario|
-      it "accepts a name matching #{scenario} and args nil" do
-        obj = R10K::Module.new(scenario, '/modulepath', nil)
+      it "accepts a name matching #{scenario} and version nil" do
+        obj = R10K::Module.new(scenario, '/modulepath', { version: nil })
         expect(obj).to be_a_kind_of(R10K::Module::Forge)
       end
     end
-    [ '8.0.0',
+    [ {version: '8.0.0'},
       {type: 'forge', version: '8.0.0'},
     ].each do |scenario|
       it "accepts a name matching bar-quux and args #{scenario.inspect}" do
@@ -65,7 +65,7 @@ describe R10K::Module do
       end
 
       it 'sets the expected version to what is found in the metadata' do
-        obj = R10K::Module.new(@title, @dirname, nil)
+        obj = R10K::Module.new(@title, @dirname, {version: nil})
         expect(obj.send(:instance_variable_get, :'@expected_version')).to eq('1.2.0')
       end
     end
@@ -73,7 +73,7 @@ describe R10K::Module do
 
   it "raises an error if delegation fails" do
     expect {
-      R10K::Module.new('bar!quux', '/modulepath', ["NOPE NOPE NOPE NOPE!"])
+      R10K::Module.new('bar!quux', '/modulepath', {version: ["NOPE NOPE NOPE NOPE!"]})
     }.to raise_error RuntimeError, /doesn't have an implementation/
   end
 end
