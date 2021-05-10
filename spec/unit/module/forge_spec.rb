@@ -77,7 +77,7 @@ describe R10K::Module::Forge do
       logger_dbl = double(Log4r::Logger)
       allow_any_instance_of(described_class).to receive(:logger).and_return(logger_dbl)
 
-      allow(logger_dbl).to receive(:info).with(/Checking module.*/)
+      allow(logger_dbl).to receive(:info).with(/Deploying module to.*/)
       expect(logger_dbl).to receive(:warn).with(/puppet forge module.*puppetlabs-corosync.*has been deprecated/i)
 
       subject.sync
@@ -89,7 +89,7 @@ describe R10K::Module::Forge do
       logger_dbl = double(Log4r::Logger)
       allow_any_instance_of(described_class).to receive(:logger).and_return(logger_dbl)
 
-      allow(logger_dbl).to receive(:info).with(/Checking module.*/)
+      allow(logger_dbl).to receive(:info).with(/Deploying module to.*/)
       expect(logger_dbl).to_not receive(:warn).with(/puppet forge module.*puppetlabs-corosync.*has been deprecated/i)
 
       subject.sync

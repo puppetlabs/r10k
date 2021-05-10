@@ -72,7 +72,7 @@ class R10K::Module::Base
 
   def should_sync?
     if @should_sync
-      logger.info _("Checking module %{path}") % {path: path}
+      logger.info _("Deploying module to %{path}") % {path: path}
       true
     else
       logger.debug1(_("Only updating modules %{modules}, skipping module %{name}") % {modules: @requested_modules.inspect, name: name})
