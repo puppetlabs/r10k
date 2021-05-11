@@ -3,15 +3,28 @@ module R10K
 
     def self.serial_accept(modules, visitor, loader)
       visitor.visit(:puppetfile, loader) do
-        modules.each do |mod|
-          mod.sync
-        end
+        serial_sync(modules)
+      end
+    end
+
+    def self.serial_sync(modules)
+      modules.each do |mod|
+        mod.sync
       end
     end
 
     def self.concurrent_accept(modules, visitor, loader, pool_size, logger)
+      mods_queue = modules_visit_queue(modules, visitor, loader)
+      sync_queue(mods_queue, pool_size, logger)
+    end
+
+    def self.concurrent_sync(modules, pool_size, logger)
+      mods_queue = modules_sync_queue(modules)
+      sync_queue(mods_queue, pool_size, logger)
+    end
+
+    def self.sync_queue(mods_queue, pool_size, logger)
       logger.debug _("Updating modules with %{pool_size} threads") % {pool_size: pool_size}
-      mods_queue = modules_queue(modules, visitor, loader)
       thread_pool = pool_size.times.map { sync_thread(mods_queue, logger) }
       thread_exception = nil
 
@@ -30,16 +43,26 @@ module R10K
       end
     end
 
-    def self.modules_queue(modules, visitor, loader)
+    def self.modules_visit_queue(modules, visitor, loader)
       Queue.new.tap do |queue|
         visitor.visit(:puppetfile, loader) do
-          modules_by_cachedir = modules.group_by { |mod| mod.cachedir }
-          modules_without_vcs_cachedir = modules_by_cachedir.delete(:none) || []
-
-          modules_without_vcs_cachedir.each {|mod| queue << Array(mod) }
-          modules_by_cachedir.values.each {|mods| queue << mods }
+          enqueue_modules(queue, modules)
         end
       end
+    end
+
+    def self.modules_sync_queue(modules)
+      Queue.new.tap do |queue|
+        enqueue_modules(queue, modules)
+      end
+    end
+
+    def self.enqueue_modules(queue, modules)
+      modules_by_cachedir = modules.group_by { |mod| mod.cachedir }
+      modules_without_vcs_cachedir = modules_by_cachedir.delete(:none) || []
+
+      modules_without_vcs_cachedir.each {|mod| queue << Array(mod) }
+      modules_by_cachedir.values.each {|mods| queue << mods }
     end
 
     def self.sync_thread(mods_queue, logger)

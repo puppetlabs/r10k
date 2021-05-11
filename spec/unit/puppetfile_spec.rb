@@ -359,7 +359,7 @@ describe R10K::Puppetfile do
 
       modules = [m1, m2, m3, m4, m5, m6]
 
-      queue = R10K::ContentSynchronizer.modules_queue(modules, visitor, subject)
+      queue = R10K::ContentSynchronizer.modules_visit_queue(modules, visitor, subject)
       expect(queue.length).to be 4
       queue_array = 4.times.map { queue.pop }
       expect(queue_array).to match_array([[m1], [m2], [m3, m4], [m5, m6]])
