@@ -10,34 +10,28 @@ module R10K
       class Install < R10K::Action::Base
 
         def call
-          @visit_ok = true
+          @ok = true
           begin
             pf = R10K::Puppetfile.new(@root,
                                       {moduledir: @moduledir,
                                        puppetfile_path: @puppetfile,
                                        force: @force || false})
-            pf.accept(self)
+            pf.load!
+            pf.sync
+
+            R10K::Util::Cleaner.new(pf.managed_directories,
+                                    pf.desired_contents,
+                                    pf.purge_exclusions).purge!
+
           rescue => e
-            @visit_ok = false
+            @ok = false
             logger.error R10K::Errors::Formatting.format_exception(e, @trace)
           end
 
-          @visit_ok
+          @ok
         end
 
         private
-
-        include R10K::Action::Visitor
-
-        def visit_puppetfile(pf)
-          pf.load!
-
-          yield
-
-          R10K::Util::Cleaner.new(pf.managed_directories,
-                                  pf.desired_contents,
-                                  pf.purge_exclusions).purge!
-        end
 
         def allowed_initialize_opts
           super.merge(root: :self, puppetfile: :self, moduledir: :self, force: :self )
