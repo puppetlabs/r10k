@@ -79,7 +79,7 @@ module R10K
           else
             logger.debug1(_("Updating modules %{modules} in environment %{env_path}") % {modules: @settings.dig(:overrides, :modules, :requested_modules).inspect, env_path: environment.path})
 
-            yield
+            environment.deploy
 
             requested_mods = @settings.dig(:overrides, :modules, :requested_modules) || []
             generate_types = @settings.dig(:overrides, :environments, :generate_types)
@@ -88,11 +88,6 @@ module R10K
               environment.generate_types!
             end
           end
-        end
-
-        def visit_puppetfile(puppetfile)
-          puppetfile.load
-          yield
         end
 
         def allowed_initialize_opts

@@ -201,23 +201,24 @@ describe R10K::Action::Deploy::Module do
       allow(R10K::Git).to receive_message_chain(:cache, :generate).and_return(cache)
       allow_any_instance_of(R10K::Source::Git).to receive(:branch_names).and_return([R10K::Environment::Name.new('first', {})])
 
-      expect(subject).to receive(:visit_puppetfile).and_wrap_original do |original, puppetfile, &block|
-        expect(puppetfile).to receive(:load) do
-          puppetfile.add_module('mod1', { git: 'git://remote' })
-          puppetfile.add_module('mod2', { git: 'git://remote' })
-          puppetfile.add_module('mod3', { git: 'git://remote' })
+      expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
+        pf = environment.puppetfile
+        expect(pf).to receive(:load) do
+          pf.add_module('mod1', { git: 'git://remote' })
+          pf.add_module('mod2', { git: 'git://remote' })
+          pf.add_module('mod3', { git: 'git://remote' })
         end
-        puppetfile.modules.each do |mod|
+
+        pf.modules.each do |mod|
           if ['mod1', 'mod2'].include?(mod.name)
             expect(mod.should_sync?).to be(true)
           else
             expect(mod.should_sync?).to be(false)
           end
-
           expect(mod).to receive(:sync).and_call_original
         end
 
-        original.call(puppetfile, &block)
+        original.call(environment, &block)
       end
 
       expect(repo).to receive(:sync).twice
