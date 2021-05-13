@@ -1,7 +1,11 @@
+require 'r10k/logging'
+
 # This class defines a common interface for source implementations.
 #
 # @since 1.3.0
 class R10K::Source::Base
+
+  include R10K::Logging
 
   # @!attribute [r] basedir
   #   @return [String] The path this source will place environments in
