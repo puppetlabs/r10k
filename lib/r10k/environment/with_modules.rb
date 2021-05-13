@@ -1,4 +1,3 @@
-require 'r10k/logging'
 require 'r10k/util/purgeable'
 
 # This abstract base class implements an environment that can include module
@@ -6,8 +5,6 @@ require 'r10k/util/purgeable'
 #
 # @since 3.4.0
 class R10K::Environment::WithModules < R10K::Environment::Base
-
-  include R10K::Logging
 
   # @!attribute [r] moduledir
   #   @return [String] The directory to install environment-defined modules
@@ -83,6 +80,14 @@ class R10K::Environment::WithModules < R10K::Environment::Base
 
       puppetfile.accept(visitor)
     end
+  end
+
+  def deploy
+    @modules.each do |mod|
+      mod.sync
+    end
+
+    super
   end
 
   def load_modules(module_hash)

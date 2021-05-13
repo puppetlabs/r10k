@@ -214,6 +214,15 @@ class Puppetfile
     end
   end
 
+  def sync
+    pool_size = self.settings[:pool_size]
+    if pool_size > 1
+      R10K::ContentSynchronizer.concurrent_sync(modules, pool_size, logger)
+    else
+      R10K::ContentSynchronizer.serial_sync(modules)
+    end
+  end
+
   private
 
   def puppetfile_contents

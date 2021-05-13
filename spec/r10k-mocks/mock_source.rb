@@ -8,6 +8,6 @@ class R10K::Source::Mock < R10K::Source::Base
     corrected_environment_names = @options[:environments].map do |env|
       R10K::Environment::Name.new(env, :prefix => @prefix, :invalid => 'correct_and_warn')
     end
-    corrected_environment_names.map { |env| R10K::Environment::Mock.new(env.name, @basedir, env.dirname) }
+    corrected_environment_names.map { |env| R10K::Environment::Mock.new(env.name, @basedir, env.dirname, { overrides: @options[:overrides] }) }
   end
 end

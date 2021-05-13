@@ -11,8 +11,6 @@ require 'r10k/environment/name'
 # @since 1.3.0
 class R10K::Source::Git < R10K::Source::Base
 
-  include R10K::Logging
-
   R10K::Source.register(:git, self)
   # Register git as the default source
   R10K::Source.register(nil, self)

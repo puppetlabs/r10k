@@ -120,8 +120,6 @@
 #
 class R10K::Source::Hash < R10K::Source::Base
 
-  include R10K::Logging
-
   # @param hash [Hash] A hash to validate.
   # @return [Boolean] False if the hash is obviously invalid. A true return
   #   means _maybe_ it's valid.

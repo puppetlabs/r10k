@@ -103,8 +103,6 @@ class R10K::Source::SVN < R10K::Source::Base
     @environments.map {|env| env.dirname }
   end
 
-  include R10K::Logging
-
   def filter_branches(branches, ignore_prefixes)
     filter = Regexp.new("^(#{ignore_prefixes.join('|')})")
     branches = branches.reject do |branch|

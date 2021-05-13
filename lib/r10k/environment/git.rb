@@ -1,4 +1,3 @@
-require 'r10k/logging'
 require 'r10k/puppetfile'
 require 'r10k/git/stateful_repository'
 require 'forwardable'
@@ -7,8 +6,6 @@ require 'forwardable'
 #
 # @since 1.3.0
 class R10K::Environment::Git < R10K::Environment::WithModules
-
-  include R10K::Logging
 
   R10K::Environment.register(:git, self)
   # Register git as the default environment type

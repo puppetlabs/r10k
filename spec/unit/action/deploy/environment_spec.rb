@@ -83,13 +83,13 @@ describe R10K::Action::Deploy::Environment do
       end
 
       it "syncs the puppetfile when given the puppetfile flag" do
-        expect(puppetfile).to receive(:accept).and_return([])
+        expect(puppetfile).to receive(:sync)
         action = described_class.new({config: "/some/nonexistent/path", puppetfile: true}, [], {})
         action.call
       end
 
       it "syncs the puppetfile when given the modules flag" do
-        expect(puppetfile).to receive(:accept).and_return([])
+        expect(puppetfile).to receive(:sync)
         action = described_class.new({config: "/some/nonexistent/path", modules: true}, [], {})
         action.call
       end
@@ -206,21 +206,13 @@ describe R10K::Action::Deploy::Environment do
       end
     end
 
-    describe 'extracting credentials' do
-      let(:deployment) do
-        R10K::Deployment.new(mock_config)
-      end
-
-    end
-
     describe "Purging white/allowlist" do
 
       let(:settings) { { deploy: { purge_levels: [:environment], purge_allowlist: ['coolfile', 'coolfile2'] } } }
-
+      let(:overrides) { { environments: {}, modules: {}, purging: { purge_levels: [:environment], purge_allowlist: ['coolfile', 'coolfile2'] } } }
       let(:deployment) do
-        R10K::Deployment.new(mock_config.merge(settings))
+        R10K::Deployment.new(mock_config.merge(overrides))
       end
-
       before do
         expect(R10K::Deployment).to receive(:new).and_return(deployment)
       end
@@ -246,9 +238,22 @@ describe R10K::Action::Deploy::Environment do
 
     describe "purge_levels" do
       let(:settings) { { deploy: { purge_levels: purge_levels } } }
+      let(:overrides) do
+        {
+          environments: {
+            requested_environments: ['PREFIX_first']
+          },
+          modules: {
+            deploy_modules: true
+          },
+          purging: {
+            purge_levels: purge_levels
+          }
+        }
+      end
 
       let(:deployment) do
-        R10K::Deployment.new(mock_config.merge(settings))
+        R10K::Deployment.new(mock_config.merge({ overrides: overrides }))
       end
 
       before do
@@ -261,9 +266,13 @@ describe R10K::Action::Deploy::Environment do
         let(:purge_levels) { [:deployment] }
 
         it "only logs about purging deployment" do
+          expect(subject).to receive(:visit_environment).and_wrap_original do |original, env, &block|
+            expect(env.logger).to_not receive(:debug).with(/purging unmanaged puppetfile content/i)
+            original.call(env)
+          end.at_least(:once)
+
           expect(subject.logger).to receive(:debug).with(/purging unmanaged environments for deployment/i)
           expect(subject.logger).to_not receive(:debug).with(/purging unmanaged content for environment/i)
-          expect(subject.logger).to_not receive(:debug).with(/purging unmanaged puppetfile content/i)
 
           subject.call
         end
@@ -273,15 +282,23 @@ describe R10K::Action::Deploy::Environment do
         let(:purge_levels) { [:environment] }
 
         it "only logs about purging environment" do
+          expect(subject).to receive(:visit_environment).and_wrap_original do |original, env, &block|
+            expect(env.logger).to_not receive(:debug).with(/purging unmanaged puppetfile content/i)
+            original.call(env)
+          end.at_least(:once)
           expect(subject.logger).to receive(:debug).with(/purging unmanaged content for environment/i)
           expect(subject.logger).to_not receive(:debug).with(/purging unmanaged environments for deployment/i)
-          expect(subject.logger).to_not receive(:debug).with(/purging unmanaged puppetfile content/i)
 
           subject.call
         end
 
         it "logs that environment was not purged if deploy failed" do
-          expect(subject).to receive(:visit_puppetfile) { subject.instance_variable_set(:@visit_ok, false) }
+          expect(subject).to receive(:visit_environment).and_wrap_original do |original, env, &block|
+            if env.name =~ /first/
+              expect(env).to receive(:deploy) { subject.instance_variable_set(:@visit_ok, false) }
+            end
+            original.call(env)
+          end.at_least(:once)
 
           expect(subject.logger).to receive(:debug).with(/not purging unmanaged content for environment/i)
 
@@ -293,7 +310,13 @@ describe R10K::Action::Deploy::Environment do
         let(:purge_levels) { [:puppetfile] }
 
         it "only logs about purging puppetfile" do
-          expect(subject.logger).to receive(:debug).with(/purging unmanaged puppetfile content/i)
+          expect(subject).to receive(:visit_environment).and_wrap_original do |original, env, &block|
+            if env.name =~ /first/
+              expect(env.logger).to receive(:debug).with(/purging unmanaged puppetfile content/i)
+            end
+            original.call(env)
+          end.at_least(:once)
+
           expect(subject.logger).to_not receive(:debug).with(/purging unmanaged environments for deployment/i)
           expect(subject.logger).to_not receive(:debug).with(/purging unmanaged content for environment/i)
 
@@ -359,8 +382,8 @@ describe R10K::Action::Deploy::Environment do
         end
 
         it 'does not call puppet generate types on puppetfile failure' do
-          allow(subject).to receive(:visit_puppetfile) { subject.instance_variable_set(:@visit_ok, false) }
           expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
+            allow(environment).to receive(:deploy) { subject.instance_variable_set(:@visit_ok, false) }
             expect(environment).not_to receive(:generate_types!)
             original.call(environment, &block)
           end.twice
@@ -368,10 +391,11 @@ describe R10K::Action::Deploy::Environment do
         end
 
         it 'calls puppet generate types on previous puppetfile failure' do
-          allow(subject).to receive(:visit_puppetfile) do |puppetfile|
-            subject.instance_variable_set(:@visit_ok, false) if puppetfile.environment.dirname == 'first'
-          end
           expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
+            allow(environment).to receive(:deploy) do
+              subject.instance_variable_set(:@visit_ok, false) if environment.dirname == 'first'
+            end
+
             if environment.dirname == 'second'
               expect(environment).to receive(:generate_types!)
             else

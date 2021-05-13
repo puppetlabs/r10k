@@ -156,10 +156,13 @@ module R10K
 
             previous_ok = @visit_ok
             @visit_ok = true
-            yield
+
+            environment.deploy
+
             @environment_ok = @visit_ok
             @visit_ok &&= previous_ok
           end
+
 
           if @settings.dig(:overrides, :purging, :purge_levels).include?(:environment)
             if @visit_ok
@@ -180,19 +183,6 @@ module R10K
           end
 
           write_environment_info!(environment, started_at, @visit_ok)
-        end
-
-        def visit_puppetfile(puppetfile)
-          puppetfile.load(@settings.dig(:overrides, :environments, :default_branch_override))
-
-          yield
-
-          if @settings.dig(:overrides, :purging, :purge_levels).include?(:puppetfile)
-            logger.debug("Purging unmanaged Puppetfile content for environment '#{puppetfile.environment.dirname}'...")
-            R10K::Util::Cleaner.new(puppetfile.managed_directories,
-                                    puppetfile.desired_contents,
-                                    puppetfile.purge_exclusions).purge!
-          end
         end
 
         def write_environment_info!(environment, started_at, success)

@@ -1,9 +1,12 @@
 require 'r10k/util/subprocess'
+require 'r10k/logging'
 
 # This class defines a common interface for environment implementations.
 #
 # @since 1.3.0
 class R10K::Environment::Base
+
+  include R10K::Logging
 
   # @!attribute [r] name
   #   @return [String] A name for this environment that is unique to the given source
@@ -117,6 +120,19 @@ class R10K::Environment::Base
   def accept(visitor)
     visitor.visit(:environment, self) do
       puppetfile.accept(visitor)
+    end
+  end
+
+  def deploy
+    puppetfile.load(@overrides.dig(:environments, :default_branch_override))
+
+    puppetfile.sync
+
+    if (@overrides.dig(:purging, :purge_levels) || []).include?(:puppetfile)
+      logger.debug("Purging unmanaged Puppetfile content for environment '#{dirname}'...")
+      R10K::Util::Cleaner.new(puppetfile.managed_directories,
+                              puppetfile.desired_contents,
+                              puppetfile.purge_exclusions).purge!
     end
   end
 
