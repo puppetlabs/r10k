@@ -85,6 +85,14 @@ class R10K::Environment::WithModules < R10K::Environment::Base
     end
   end
 
+  def deploy
+    @modules.each do |mod|
+      mod.sync
+    end
+
+    super
+  end
+
   def load_modules(module_hash)
     module_hash.each do |name, args|
       if !args.is_a?(Hash)

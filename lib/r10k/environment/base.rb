@@ -120,6 +120,19 @@ class R10K::Environment::Base
     end
   end
 
+  def deploy
+    puppetfile.load(@overrides.dig(:environments, :default_branch_override))
+
+    puppetfile.sync
+
+    if (@overrides.dig(:purging, :purge_levels) || []).include?(:puppetfile)
+      logger.debug("Purging unmanaged Puppetfile content for environment '#{dirname}'...")
+      R10K::Util::Cleaner.new(puppetfile.managed_directories,
+                              puppetfile.desired_contents,
+                              puppetfile.purge_exclusions).purge!
+    end
+  end
+
   def whitelist(user_whitelist=[])
     user_whitelist.collect { |pattern| File.join(@full_path, pattern) }
   end
