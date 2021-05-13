@@ -1,9 +1,12 @@
 require 'r10k/util/subprocess'
+require 'r10k/logging'
 
 # This class defines a common interface for environment implementations.
 #
 # @since 1.3.0
 class R10K::Environment::Base
+
+  include R10K::Logging
 
   # @!attribute [r] name
   #   @return [String] A name for this environment that is unique to the given source
