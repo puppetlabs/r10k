@@ -74,7 +74,7 @@ module R10K
 
         def visit_environment(environment)
           requested_envs = @settings.dig(:overrides, :environments, :requested_environments)
-          if !requested_envs.empty? && requested_envs.include?(environment.dirname)
+          if !requested_envs.empty? && !requested_envs.include?(environment.dirname)
             logger.debug1(_("Only updating modules in environment(s) %{opt_env} skipping environment %{env_path}") % {opt_env: requested_envs.inspect, env_path: environment.path})
           else
             logger.debug1(_("Updating modules %{modules} in environment %{env_path}") % {modules: @settings.dig(:overrides, :modules, :requested_modules).inspect, env_path: environment.path})

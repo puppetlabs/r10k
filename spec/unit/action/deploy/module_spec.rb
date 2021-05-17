@@ -226,5 +226,61 @@ describe R10K::Action::Deploy::Module do
       subject.call
     end
   end
+
+  describe 'with environments' do
+    subject { described_class.new({ config: '/some/nonexistent/path', environment: 'first' }, ['mod1'], {}) }
+
+    let(:cache) { instance_double("R10K::Git::Cache", 'sanitized_dirname' => 'foo', 'cached?' => true, 'sync' => true) }
+    let(:repo) { instance_double("R10K::Git::StatefulRepository", cache: cache, resolve: 'main') }
+
+    it 'only syncs to the given environments' do
+      allow(R10K::Deployment).to receive(:new).and_wrap_original do |original, settings, &block|
+        original.call(settings.merge({
+          sources: {
+            main: {
+              remote: 'git://not/a/remote',
+              basedir: '/not/a/basedir',
+              type: 'git'
+            }
+          }
+        }))
+      end
+
+      allow(R10K::Git::StatefulRepository).to receive(:new).and_return(repo)
+      allow(R10K::Git).to receive_message_chain(:cache, :generate).and_return(cache)
+      allow_any_instance_of(R10K::Source::Git).to receive(:branch_names).and_return([R10K::Environment::Name.new('first', {}),
+                                                                                     R10K::Environment::Name.new('second', {})])
+
+      expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
+        pf = environment.puppetfile
+
+        if environment.name == 'first'
+          expect(pf).to receive(:load) do
+            pf.add_module('mod1', { git: 'git://remote' })
+            pf.add_module('mod2', { git: 'git://remote' })
+          end
+
+          pf.modules.each do |mod|
+            if mod.name == 'mod1'
+              expect(mod.should_sync?).to be(true)
+            else
+              expect(mod.should_sync?).to be(false)
+            end
+            expect(mod).to receive(:sync).and_call_original
+          end
+        else
+          expect(pf).not_to receive(:load)
+        end
+
+        original.call(environment, &block)
+      end.twice
+
+      expect(repo).to receive(:sync).once
+      expect(subject.logger).to receive(:debug1).with(/Updating modules.*in environment.*first/i)
+      expect(subject.logger).to receive(:debug1).with(/skipping environment.*second/i)
+
+      subject.call
+    end
+  end
 end
 
