@@ -154,50 +154,50 @@ describe R10K::Puppetfile do
     # end
   end
 
-  describe "#purge_exclusions" do
-    let(:managed_dirs) { ['dir1', 'dir2'] }
+  # describe "#purge_exclusions" do
+  #   let(:managed_dirs) { ['dir1', 'dir2'] }
 
-    before(:each) do
-      allow(subject).to receive(:managed_directories).and_return(managed_dirs)
-    end
+  #   before(:each) do
+  #     allow(subject).to receive(:managed_directories).and_return(managed_dirs)
+  #   end
 
-    it "includes managed_directories" do
-      expect(subject.purge_exclusions).to match_array(managed_dirs)
-    end
+  #   it "includes managed_directories" do
+  #     expect(subject.purge_exclusions).to match_array(managed_dirs)
+  #   end
 
-    context "when belonging to an environment" do
-      let(:env_contents) { ['env1', 'env2' ] }
+  #   context "when belonging to an environment" do
+  #     let(:env_contents) { ['env1', 'env2' ] }
 
-      before(:each) do
-        mock_env = double(:environment, desired_contents: env_contents)
-        allow(subject).to receive(:environment).and_return(mock_env)
-      end
+  #     before(:each) do
+  #       mock_env = double(:environment, desired_contents: env_contents)
+  #       allow(subject).to receive(:environment).and_return(mock_env)
+  #     end
 
-      it "includes environment's desired_contents" do
-        expect(subject.purge_exclusions).to match_array(managed_dirs + env_contents)
-      end
-    end
-  end
+  #     it "includes environment's desired_contents" do
+  #       expect(subject.purge_exclusions).to match_array(managed_dirs + env_contents)
+  #     end
+  #   end
+  # end
 
-  describe '#managed_directories' do
-    it 'returns an array of paths that can be purged' do
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '1.2.3'), anything).and_call_original
+  # describe '#managed_directories' do
+  #   it 'returns an array of paths that can be purged' do
+  #     allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '1.2.3'), anything).and_call_original
 
-      subject.add_module('puppet/test_module', '1.2.3')
-      expect(subject.managed_directories).to match_array(["/some/nonexistent/basedir/modules"])
-    end
+  #     subject.add_module('puppet/test_module', '1.2.3')
+  #     expect(subject.managed_directories).to match_array(["/some/nonexistent/basedir/modules"])
+  #   end
 
-    context 'with a module with install_path == \'\'' do
-      it 'basedir isn\'t in the list of paths to purge' do
-        module_opts = { install_path: '', git: 'git@example.com:puppet/test_module.git' }
+  #   context 'with a module with install_path == \'\'' do
+  #     it 'basedir isn\'t in the list of paths to purge' do
+  #       module_opts = { install_path: '', git: 'git@example.com:puppet/test_module.git' }
 
-        allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.basedir, module_opts, anything).and_call_original
+  #       allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.basedir, module_opts, anything).and_call_original
 
-        subject.add_module('puppet/test_module', module_opts)
-        expect(subject.managed_directories).to be_empty
-      end
-    end
-  end
+  #       subject.add_module('puppet/test_module', module_opts)
+  #       expect(subject.managed_directories).to be_empty
+  #     end
+  #   end
+  # end
 
   describe "evaluating a Puppetfile" do
     def expect_wrapped_error(orig, pf_path, wrapped_error)

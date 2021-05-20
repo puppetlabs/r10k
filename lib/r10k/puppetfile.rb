@@ -43,6 +43,10 @@ class Puppetfile
   #   @return [Hash] Various settings overridden from normal configs
   attr_reader :overrides
 
+  # @!attribute [r] loader
+  #   @return [R10K::ModuleLoader::Puppetfile] The internal module loader
+  attr_reader :loader
+
   # @param [String] basedir
   # @param [Hash, String, nil] options_or_moduledir The directory to install the modules or a Hash of options.
   #         Usage as moduledir is deprecated. Only use as options, defaults to nil
@@ -138,32 +142,24 @@ class Puppetfile
   end
 
   def managed_directories
-    self.load unless @loaded
+    self.load
 
-    dirs = managed_content.keys
-    dirs.delete(real_basedir)
-    dirs
+    @loader.managed_directories
   end
 
   # Returns an array of the full paths to all the content being managed.
   # @note This implements a required method for the Purgeable mixin
   # @return [Array<String>]
   def desired_contents
-    self.load unless self.loaded?
+    self.load
 
-    managed_content.flat_map do |install_path, modnames|
-      modnames.collect { |name| File.join(install_path, name) }
-    end
+    @loader.desired_contents
   end
 
   def purge_exclusions
-    exclusions = managed_directories
+    self.load
 
-    if environment && environment.respond_to?(:desired_contents)
-      exclusions += environment.desired_contents
-    end
-
-    exclusions
+    @loader.purge_exclusions
   end
 
   def accept(visitor)

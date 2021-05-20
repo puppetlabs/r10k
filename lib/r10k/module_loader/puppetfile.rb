@@ -7,7 +7,8 @@ module R10K
       include R10K::Logging
 
       attr_accessor :default_branch_override, :environment
-      attr_reader :modules, :managed_content, :moduledir
+      attr_reader :modules, :moduledir,
+        :managed_directories, :desired_contents, :purge_exclusions
 
       # @param [Hash] options
       # @option options [String] :puppetfile
@@ -25,6 +26,10 @@ module R10K
 
         @modules = []
         @managed_content = {}
+
+        @managed_directories = []
+        @desired_contents = []
+        @purge_exclusions = []
       end
 
       def load!
@@ -37,6 +42,17 @@ module R10K
         dsl.instance_eval(File.read(@puppetfile), @puppetfile)
 
         validate_no_duplicate_names(@modules)
+        set_managed_directories
+        set_desired_contents
+        set_purge_exclusions
+
+        {
+          modules: @modules,
+          managed_directories: @managed_directories,
+          desired_contents: @desired_contents,
+          purge_exclusions: @purge_exclusions
+        }
+
       rescue SyntaxError, LoadError, ArgumentError, NameError => e
         raise R10K::Error.wrap(e, _("Failed to evaluate %{path}") % {path: @puppetfile})
       end
@@ -132,6 +148,28 @@ module R10K
         end
 
         true
+      end
+
+      def set_managed_directories
+        @managed_directories = @managed_content.keys.reject { |dir| dir == real_basedir }
+      end
+
+      # Returns an array of the full paths to all the content being managed.
+      # @return [Array<String>]
+      def set_desired_contents
+        @desired_contents = @managed_content.flat_map do |install_path, modnames|
+          modnames.collect { |name| File.join(install_path, name) }
+        end
+      end
+
+      def set_purge_exclusions
+        exclusions = managed_directories
+
+        if environment && environment.respond_to?(:desired_contents)
+          exclusions += environment.desired_contents
+        end
+
+        @purge_exclusions = exclusions
       end
 
       def real_basedir
