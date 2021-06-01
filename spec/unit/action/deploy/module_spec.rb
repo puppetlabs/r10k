@@ -182,7 +182,7 @@ describe R10K::Action::Deploy::Module do
     subject { described_class.new({ config: '/some/nonexistent/path' }, ['mod1', 'mod2'], {}) }
 
     let(:cache) { instance_double("R10K::Git::Cache", 'sanitized_dirname' => 'foo', 'cached?' => true, 'sync' => true) }
-    let(:repo) { instance_double("R10K::Git::StatefulRepository", cache: cache, resolve: 'main') }
+    let(:repo) { instance_double("R10K::Git::StatefulRepository", cache: cache, resolve: 'main', tracked_paths: []) }
 
     it 'does not sync modules not given' do
       allow(R10K::Deployment).to receive(:new).and_wrap_original do |original, settings, &block|
@@ -202,14 +202,20 @@ describe R10K::Action::Deploy::Module do
       allow_any_instance_of(R10K::Source::Git).to receive(:branch_names).and_return([R10K::Environment::Name.new('first', {})])
 
       expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
-        pf = environment.puppetfile
-        expect(pf).to receive(:load) do
-          pf.add_module('mod1', { git: 'git://remote' })
-          pf.add_module('mod2', { git: 'git://remote' })
-          pf.add_module('mod3', { git: 'git://remote' })
+        puppetfile = environment.puppetfile
+        loader = puppetfile.loader
+        expect(puppetfile).to receive(:load) do
+          loader.add_module('mod1', { git: 'git://remote' })
+          loader.add_module('mod2', { git: 'git://remote' })
+          loader.add_module('mod3', { git: 'git://remote' })
+
+          allow(loader).to receive(:puppetfile_content).and_return('')
+          loaded_content = loader.load!
+          puppetfile.instance_variable_set(:@loaded_content, loaded_content)
+          puppetfile.instance_variable_set(:@loaded, true)
         end
 
-        pf.modules.each do |mod|
+        loader.modules.each do |mod|
           if ['mod1', 'mod2'].include?(mod.name)
             expect(mod.should_sync?).to be(true)
           else
@@ -231,7 +237,7 @@ describe R10K::Action::Deploy::Module do
     subject { described_class.new({ config: '/some/nonexistent/path', environment: 'first' }, ['mod1'], {}) }
 
     let(:cache) { instance_double("R10K::Git::Cache", 'sanitized_dirname' => 'foo', 'cached?' => true, 'sync' => true) }
-    let(:repo) { instance_double("R10K::Git::StatefulRepository", cache: cache, resolve: 'main') }
+    let(:repo) { instance_double("R10K::Git::StatefulRepository", cache: cache, resolve: 'main', tracked_paths: []) }
 
     it 'only syncs to the given environments' do
       allow(R10K::Deployment).to receive(:new).and_wrap_original do |original, settings, &block|
@@ -252,15 +258,21 @@ describe R10K::Action::Deploy::Module do
                                                                                      R10K::Environment::Name.new('second', {})])
 
       expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
-        pf = environment.puppetfile
+        puppetfile = environment.puppetfile
 
         if environment.name == 'first'
-          expect(pf).to receive(:load) do
-            pf.add_module('mod1', { git: 'git://remote' })
-            pf.add_module('mod2', { git: 'git://remote' })
+          loader = puppetfile.loader
+          expect(puppetfile).to receive(:load) do
+            loader.add_module('mod1', { git: 'git://remote' })
+            loader.add_module('mod2', { git: 'git://remote' })
+
+            allow(loader).to receive(:puppetfile_content).and_return('')
+            loaded_content = loader.load!
+            puppetfile.instance_variable_set(:@loaded_content, loaded_content)
+            puppetfile.instance_variable_set(:@loaded, true)
           end
 
-          pf.modules.each do |mod|
+          loader.modules.each do |mod|
             if mod.name == 'mod1'
               expect(mod.should_sync?).to be(true)
             else
@@ -269,7 +281,7 @@ describe R10K::Action::Deploy::Module do
             expect(mod).to receive(:sync).and_call_original
           end
         else
-          expect(pf).not_to receive(:load)
+          expect(puppetfile).not_to receive(:load)
         end
 
         original.call(environment, &block)

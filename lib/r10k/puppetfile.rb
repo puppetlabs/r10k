@@ -8,8 +8,13 @@ require 'r10k/module_loader/puppetfile/dsl'
 require 'r10k/module_loader/puppetfile'
 
 module R10K
+
+# Deprecated, use R10K::ModuleLoader::Puppetfile#load! to load content,
+# provide the `:modules` key of the returned Hash to
+# R10K::ContentSynchronizer (either the `serial_sync` or `concurrent_sync`)
+# and the remaining keys (`:managed_directories`, `:desired_contents`, and
+# `:purge_exclusions`) to R10K::Util::Cleaner.
 class Puppetfile
-  # Defines the data members of a Puppetfile
 
   NotGiven = BasicObject.new
 
@@ -77,20 +82,27 @@ class Puppetfile
     @forge   = 'forgeapi.puppetlabs.com'
 
     @loader = ::R10K::ModuleLoader::Puppetfile.new(
-      puppetfile: @puppetfile_path,
-      moduledir: @moduledir,
-      forge: @forge,
       basedir: @basedir,
+      moduledir: @moduledir,
+      puppetfile: @puppetfile_path,
+      forge: @forge,
       overrides: @overrides,
       environment: @environment
     )
+
+    @loaded_content = {
+      modules: [],
+      managed_directories: [],
+      desired_contents: [],
+      purge_exclusions: []
+    }
 
     @loaded = false
   end
 
   def load(default_branch_override = NotGiven)
     if self.loaded?
-      return true 
+      return @loaded_content
     else
       self.load!(default_branch_override)
     end
@@ -102,8 +114,15 @@ class Puppetfile
       @loader.default_branch_override = dbo
     end
 
-    @loader.load!
+    if !File.readable?(@puppetfile_path)
+      logger.debug _("Puppetfile %{path} missing or unreadable") % {path: @puppetfile_path.inspect}
+      return false
+    end
+
+    @loaded_content = @loader.load!
     @loaded = true
+
+    @loaded_content
   end
 
   def loaded?
@@ -111,7 +130,7 @@ class Puppetfile
   end
 
   def modules
-    @loader.modules
+    @loaded_content[:modules]
   end
 
   def add_module(name, args)
@@ -137,10 +156,6 @@ class Puppetfile
 
   include R10K::Util::Purgeable
 
-  def managed_content
-    @loader.managed_content
-  end
-
   def managed_directories
     self.load
 
@@ -153,13 +168,13 @@ class Puppetfile
   def desired_contents
     self.load
 
-    @loader.desired_contents
+    @loaded_content[:desired_contents]
   end
 
   def purge_exclusions
     self.load
 
-    @loader.purge_exclusions
+    @loaded_content[:purge_exclusions]
   end
 
   def accept(visitor)

@@ -1,31 +1,39 @@
-require 'r10k/logging'
-
 module R10K
   module ModuleLoader
     class Puppetfile
 
-      include R10K::Logging
+      DEFAULT_MODULEDIR = 'modules'
+      DEFAULT_PUPPETFILE_NAME = 'Puppetfile'
+      DEFAULT_FORGE_API = 'forgeapi.puppetlabs.com'
 
       attr_accessor :default_branch_override, :environment
       attr_reader :modules, :moduledir,
         :managed_directories, :desired_contents, :purge_exclusions
 
-      # @param [Hash] options
-      # @option options [String] :puppetfile
-      # @option options [String] :moduledir
-      # @option options [String] :basedir
-      # @option options [String] :forge
-      # @option options [Hash] :overrides
-      # @option options [R10K::Environment] :environment
-      def initialize(puppetfile:, moduledir:, forge:, basedir:, overrides:, environment:)
-        @puppetfile  = puppetfile
-        @moduledir   = moduledir
+      # @param basedir [String] The path that contains the moduledir &
+      #     Puppetfile by default. May be an environment, project, or
+      #     simple directory.
+      # @param puppetfile [String] The full path to the Puppetfile
+      # @param moduledir [String] The full path to the moduledir
+      # @param forge [String] The url (without protocol) to the Forge
+      # @param overrides [Hash] Configuration for loaded modules' behavior
+      # @param environment [R10K::Environment] The environment loading may be
+      #     taking place within
+      def initialize(basedir:,
+                     moduledir: File.join(basedir, DEFAULT_MODULEDIR),
+                     puppetfile: File.join(basedir, DEFAULT_PUPPETFILE_NAME),
+                     forge: DEFAULT_FORGE_API,
+                     overrides: {},
+                     environment: nil)
+
         @basedir     = basedir
+        @moduledir   = moduledir
+        @puppetfile  = puppetfile
+        @forge       = forge
         @overrides   = overrides
         @environment = environment
 
         @modules = []
-        @managed_content = {}
 
         @managed_directories = []
         @desired_contents = []
@@ -33,29 +41,33 @@ module R10K
       end
 
       def load!
-        if !File.readable?(@puppetfile)
-          logger.debug _("Puppetfile %{path} missing or unreadable") % {path: @puppetfile.inspect}
-          return false
-        end
-
         dsl = R10K::ModuleLoader::Puppetfile::DSL.new(self)
-        dsl.instance_eval(File.read(@puppetfile), @puppetfile)
+        dsl.instance_eval(puppetfile_content(@puppetfile), @puppetfile)
 
-        validate_no_duplicate_names(@modules)
-        set_managed_directories
-        set_desired_contents
-        set_purge_exclusions
+        validate_no_duplicate_names!(@modules)
+        @modules.freeze
+
+        managed_content = @modules.group_by(&:dirname).freeze
+
+        @managed_directories = determine_managed_directories(managed_content).freeze
+        @desired_contents = determine_desired_contents(managed_content).freeze
+        @purge_exclusions = determine_purge_exclusions(@managed_directories.clone).freeze
 
         {
           modules: @modules,
           managed_directories: @managed_directories,
           desired_contents: @desired_contents,
           purge_exclusions: @purge_exclusions
-        }
+        }.freeze
 
       rescue SyntaxError, LoadError, ArgumentError, NameError => e
         raise R10K::Error.wrap(e, _("Failed to evaluate %{path}") % {path: @puppetfile})
       end
+
+
+      ##
+      ## set_forge, set_moduledir, and add_module are used directly by the DSL class
+      ##
 
       # @param [String] forge
       def set_forge(forge)
@@ -86,7 +98,7 @@ module R10K
 
         if install_path = args.delete(:install_path)
           install_path = resolve_install_path(install_path)
-          validate_install_path(install_path, name)
+          validate_install_path!(install_path, name)
         else
           install_path = @moduledir
         end
@@ -105,18 +117,13 @@ module R10K
           return @modules
         end
 
-        # Keep track of all the content this Puppetfile is managing to enable purging.
-        @managed_content[install_path] = Array.new unless @managed_content.has_key?(install_path)
-        @managed_content[install_path] << mod.name
-
         @modules << mod
       end
 
-
-
      private
-      # @param [Array<String>] modules
-      def validate_no_duplicate_names(modules)
+
+      # @param [Array<R10K::Module>] modules
+      def validate_no_duplicate_names!(modules)
         dupes = modules
                 .group_by { |mod| mod.name }
                 .select { |_, v| v.size > 1 }
@@ -142,7 +149,7 @@ module R10K
         pn.cleanpath.to_s
       end
 
-      def validate_install_path(path, modname)
+      def validate_install_path!(path, modname)
         unless /^#{Regexp.escape(real_basedir)}.*/ =~ path
           raise R10K::Error.new("Puppetfile cannot manage content '#{modname}' outside of containing environment: #{path} is not within #{real_basedir}")
         end
@@ -150,32 +157,34 @@ module R10K
         true
       end
 
-      def set_managed_directories
-        @managed_directories = @managed_content.keys.reject { |dir| dir == real_basedir }
+      def determine_managed_directories(managed_content)
+        managed_content.keys.reject { |dir| dir == real_basedir }
       end
 
       # Returns an array of the full paths to all the content being managed.
       # @return [Array<String>]
-      def set_desired_contents
-        @desired_contents = @managed_content.flat_map do |install_path, modnames|
-          modnames.collect { |name| File.join(install_path, name) }
+      def determine_desired_contents(managed_content)
+        managed_content.flat_map do |install_path, mods|
+          mods.collect { |mod| File.join(install_path, mod.name) }
         end
       end
 
-      def set_purge_exclusions
-        exclusions = managed_directories
-
+      def determine_purge_exclusions(managed_dirs)
         if environment && environment.respond_to?(:desired_contents)
-          exclusions += environment.desired_contents
+          managed_dirs + environment.desired_contents
+        else
+          managed_dirs
         end
-
-        @purge_exclusions = exclusions
       end
 
       def real_basedir
         Pathname.new(@basedir).cleanpath.to_s
       end
 
+      # For testing purposes only
+      def puppetfile_content(path)
+        File.read(path)
+      end
     end
   end
 end
