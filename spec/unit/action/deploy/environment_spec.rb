@@ -265,6 +265,15 @@ describe R10K::Action::Deploy::Environment do
       describe "deployment purge level" do
         let(:purge_levels) { [:deployment] }
 
+
+        it "updates the source's cache before it purges environments" do
+          deployment.sources.each do |source|
+            expect(source).to receive(:reload!).ordered
+          end
+          expect(deployment).to receive(:purge!).ordered
+          subject.call
+        end
+
         it "only logs about purging deployment" do
           expect(subject).to receive(:visit_environment).and_wrap_original do |original, env, &block|
             expect(env.logger).to_not receive(:debug).with(/purging unmanaged puppetfile content/i)

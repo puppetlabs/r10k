@@ -65,6 +65,10 @@ class R10K::Source::SVN < R10K::Source::Base
     @ignore_branch_prefixes = options[:ignore_branch_prefixes]
   end
 
+  def reload!
+    @environments = generate_environments()
+  end
+
   # Enumerate the environments associated with this SVN source.
   #
   # @return [Array<R10K::Environment::SVN>] An array of environments created

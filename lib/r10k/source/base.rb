@@ -63,6 +63,16 @@ class R10K::Source::Base
 
   end
 
+  # Perform actions to reload environments after the `preload!`. Similar
+  # to preload!, and likely to include network queries and rerunning
+  # environment generation.
+  #
+  # @api public
+  # @abstract
+  # @return [void]
+  def reload!
+  end
+
   # Enumerate the environments associated with this SVN source.
   #
   # @api public
