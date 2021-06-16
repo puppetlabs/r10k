@@ -4,6 +4,11 @@ CHANGELOG
 Unreleased
 ----------
 
+3.9.1
+-----
+
+- Invalid module specifications in a Puppetfile will cause the R10K run to abort earlier than before. Prior to this release, the R10K run would complete, sync all other modules, and return an exit code of 1. R10K will now stop syncing modules and abort immediately. [#1161](https://github.com/puppetlabs/r10k/pull/1161)
+
 3.9.0
 -----
 
