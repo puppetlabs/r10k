@@ -31,12 +31,11 @@ describe R10K::Module do
       'bar-quux',
     ].each do |scenario|
       it "accepts a name matching #{scenario} and version nil" do
-        obj = R10K::Module.new(scenario, '/modulepath', { version: nil })
+        obj = R10K::Module.new(scenario, '/modulepath', { type: 'forge', version: nil })
         expect(obj).to be_a_kind_of(R10K::Module::Forge)
       end
     end
-    [ {version: '8.0.0'},
-      {type: 'forge', version: '8.0.0'},
+    [ {type: 'forge', version: '8.0.0'},
     ].each do |scenario|
       it "accepts a name matching bar-quux and args #{scenario.inspect}" do
         obj = R10K::Module.new('bar-quux', '/modulepath', scenario)
@@ -65,7 +64,7 @@ describe R10K::Module do
       end
 
       it 'sets the expected version to what is found in the metadata' do
-        obj = R10K::Module.new(@title, @dirname, {version: nil})
+        obj = R10K::Module.new(@title, @dirname, {type: 'forge', version: nil})
         expect(obj.send(:instance_variable_get, :'@expected_version')).to eq('1.2.0')
       end
     end
@@ -82,7 +81,6 @@ describe R10K::Module do
       ['name', {type: 'git', source: 'git url'}],
       ['name', {svn: 'svn url'}],
       ['name', {type: 'svn', source: 'svn url'}],
-      ['namespace-name', {version: '8.0.0'}],
       ['namespace-name', {type: 'forge', version: '8.0.0'}]
     ].each do |(name, options)|
       it 'can handle the default_branch_override option' do
