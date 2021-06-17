@@ -4,6 +4,10 @@ CHANGELOG
 Unreleased
 ----------
 
+3.9.2
+
+- Makes the third parameter to R10K::Actions optional, restoring backwards compatability broken in 3.9.1.
+
 3.9.1
 -----
 

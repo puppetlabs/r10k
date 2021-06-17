@@ -22,11 +22,14 @@ module R10K
         # @param opts [Hash] A hash of options defined in #allowed_initialized_opts
         #   and managed by the SetOps mixin within the Action::Base class.
         #   Corresponds to the CLI flags and options.
-        # @param argv [CRI::ArgumentList] A list-like collection of the remaining
-        #   arguments to the CLI invocation (after removing flags and options).
+        # @param argv [Enumerable] Typically CRI::ArgumentList or Array. A list-like
+        #   collection of the remaining arguments to the CLI invocation (after
+        #   removing flags and options).
         # @param settings [Hash] A hash of configuration loaded from the relevant
         #   config (r10k.yaml).
-        def initialize(opts, argv, settings)
+        #
+        # @note All arguments will be required in the next major version
+        def initialize(opts, argv, settings = {})
           super
 
           # instance variables below are set by the super class based on the
