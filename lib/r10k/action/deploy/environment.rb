@@ -116,6 +116,9 @@ module R10K
 
           if @settings.dig(:overrides, :purging, :purge_levels).include?(:deployment)
             logger.debug("Purging unmanaged environments for deployment...")
+            deployment.sources.each do |source|
+              source.reload!
+            end
             deployment.purge!
           end
         ensure

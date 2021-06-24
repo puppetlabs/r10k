@@ -93,6 +93,11 @@ class R10K::Source::Git < R10K::Source::Base
     end
   end
 
+  def reload!
+    @cache.sync!
+    @environments = generate_environments()
+  end
+
   def generate_environments
     envs = []
     branch_names.each do |bn|

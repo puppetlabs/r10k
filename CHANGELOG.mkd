@@ -2,6 +2,8 @@ CHANGELOG
 =========
 
 Unreleased
+
+- Added an interface to R10K::Source::Base named `reload!` for updating the environments list for a given deployment; `reload!` is called before deployment purges to make r10k deploy pools more threadsafe. [#1172](https://github.com/puppetlabs/r10k/pull/1172)
 ----------
 
 3.9.2
