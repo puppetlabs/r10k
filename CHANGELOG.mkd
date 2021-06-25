@@ -4,7 +4,13 @@ CHANGELOG
 Unreleased
 ----------
 
+3.9.3
+-----
+
+- Fixes a regression when using `--default_branch_override` with Puppetfiles containing Forge modules. [#1173](https://github.com/puppetlabs/r10k/issues/1173)
+
 3.9.2
+-----
 
 - Makes the third parameter to R10K::Actions optional, restoring backwards compatability broken in 3.9.1.
 

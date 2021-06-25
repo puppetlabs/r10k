@@ -119,14 +119,6 @@ describe R10K::Module::Git do
       allow(mock_repo).to receive(:head).and_return('abc123')
     end
 
-    context "when option is unrecognized" do
-      let(:opts) { { unrecognized: true } }
-
-      it "raises an error" do
-        expect { test_module(opts) }.to raise_error(ArgumentError, /cannot handle option 'unrecognized'/)
-      end
-    end
-
     describe "desired ref" do
       context "when no desired ref is given" do
         it "defaults to master" do
