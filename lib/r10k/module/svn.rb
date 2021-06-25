@@ -50,7 +50,7 @@ class R10K::Module::SVN < R10K::Module::Base
       :revision => :expected_revision,
       :username => :self,
       :password => :self
-    })
+    }, :raise_on_unhandled => false)
 
     @working_dir = R10K::SVN::WorkingDir.new(@path, :username => @username, :password => @password)
   end

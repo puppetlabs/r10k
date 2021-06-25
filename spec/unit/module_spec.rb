@@ -76,4 +76,21 @@ describe R10K::Module do
       R10K::Module.new('bar!quux', '/modulepath', {version: ["NOPE NOPE NOPE NOPE!"]})
     }.to raise_error RuntimeError, /doesn't have an implementation/
   end
+
+  describe 'when a user passes a `default_branch_override`' do
+    [ ['name', {git: 'git url'}],
+      ['name', {type: 'git', source: 'git url'}],
+      ['name', {svn: 'svn url'}],
+      ['name', {type: 'svn', source: 'svn url'}],
+      ['namespace-name', {version: '8.0.0'}],
+      ['namespace-name', {type: 'forge', version: '8.0.0'}]
+    ].each do |(name, options)|
+      it 'can handle the default_branch_override option' do
+        expect {
+          obj = R10K::Module.new(name, '/modulepath', options.merge({default_branch_override: 'foo'}))
+          expect(obj).to be_a_kind_of(R10K::Module::Base)
+        }.not_to raise_error
+      end
+    end
+  end
 end
