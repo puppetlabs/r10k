@@ -50,7 +50,7 @@ class R10K::Module::Forge < R10K::Module::Base
       :version => :expected_version,
       :source  => ::R10K::Util::Setopts::Ignore,
       :type    => ::R10K::Util::Setopts::Ignore,
-    })
+    }, :raise_on_unhandled => false)
 
     @expected_version ||= current_version || :latest
 
