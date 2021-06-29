@@ -133,6 +133,7 @@ class Puppetfile
     @loaded_content[:modules]
   end
 
+  # @see R10K::ModuleLoader::Puppetfile#add_module for upcoming signature changes
   def add_module(name, args)
     @loader.add_module(name, args)
   end

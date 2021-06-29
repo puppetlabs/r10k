@@ -82,19 +82,27 @@ module R10K
       end
 
       # @param [String] name
-      # @param [Hash, String, Symbol] args Calling with anything but a Hash is
-      #   deprecated. The DSL will now convert String and Symbol versions to
-      #   Hashes of the shape
+      # @param [Hash, String, Symbol, nil] module_info Calling with
+      #   anything but a Hash is deprecated. The DSL will now convert
+      #   String and Symbol versions to Hashes of the shape
       #     { version: <String or Symbol> }
       #
-      def add_module(name, args)
-        if !args.is_a?(Hash)
-          args = { version: args }
+      #   String inputs should be valid module versions, the Symbol
+      #   `:latest` is allowed, as well as `nil`.
+      #
+      #   Non-Hash inputs are only ever used by Forge modules. In
+      #   future versions this method will require the caller (the
+      #   DSL class, not the Puppetfile author) to do this conversion
+      #   itself.
+      #
+      def add_module(name, module_info)
+        if !module_info.is_a?(Hash)
+          module_info = { version: module_info }
         end
 
-        args[:overrides] = @overrides
+        module_info[:overrides] = @overrides
 
-        if install_path = args.delete(:install_path)
+        if install_path = module_info.delete(:install_path)
           install_path = resolve_path(@basedir, install_path)
           validate_install_path!(install_path, name)
         else
@@ -102,10 +110,10 @@ module R10K
         end
 
         if @default_branch_override != nil
-          args[:default_branch_override] = @default_branch_override
+          module_info[:default_branch_override] = @default_branch_override
         end
 
-        mod = R10K::Module.new(name, install_path, args, @environment)
+        mod = R10K::Module.new(name, install_path, module_info, @environment)
         mod.origin = :puppetfile
 
         # Do not load modules if they would conflict with the attached
