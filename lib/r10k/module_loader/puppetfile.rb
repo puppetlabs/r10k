@@ -13,22 +13,24 @@ module R10K
       # @param basedir [String] The path that contains the moduledir &
       #     Puppetfile by default. May be an environment, project, or
       #     simple directory.
-      # @param puppetfile [String] The full path to the Puppetfile
-      # @param moduledir [String] The full path to the moduledir
+      # @param puppetfile [String] The path to the Puppetfile, either an
+      #     absolute full path or a relative path with regards to the basedir.
+      # @param moduledir [String] The path to the moduledir, either an
+      #     absolute full path or a relative path with regards to the basedir.
       # @param forge [String] The url (without protocol) to the Forge
       # @param overrides [Hash] Configuration for loaded modules' behavior
       # @param environment [R10K::Environment] The environment loading may be
       #     taking place within
       def initialize(basedir:,
-                     moduledir: File.join(basedir, DEFAULT_MODULEDIR),
-                     puppetfile: File.join(basedir, DEFAULT_PUPPETFILE_NAME),
+                     moduledir: DEFAULT_MODULEDIR,
+                     puppetfile: DEFAULT_PUPPETFILE_NAME,
                      forge: DEFAULT_FORGE_API,
                      overrides: {},
                      environment: nil)
 
-        @basedir     = basedir
-        @moduledir   = moduledir
-        @puppetfile  = puppetfile
+        @basedir     = cleanpath(basedir)
+        @moduledir   = resolve_path(@basedir, moduledir)
+        @puppetfile  = resolve_path(@basedir, puppetfile)
         @forge       = forge
         @overrides   = overrides
         @environment = environment
@@ -76,11 +78,7 @@ module R10K
 
       # @param [String] moduledir
       def set_moduledir(moduledir)
-        @moduledir = if Pathname.new(moduledir).absolute?
-          moduledir
-        else
-          File.join(@basedir, moduledir)
-        end
+        @moduledir = resolve_path(@basedir, moduledir)
       end
 
       # @param [String] name
@@ -97,7 +95,7 @@ module R10K
         args[:overrides] = @overrides
 
         if install_path = args.delete(:install_path)
-          install_path = resolve_install_path(install_path)
+          install_path = resolve_path(@basedir, install_path)
           validate_install_path!(install_path, name)
         else
           install_path = @moduledir
@@ -136,29 +134,24 @@ module R10K
         end
       end
 
-      def resolve_install_path(path)
-        pn = Pathname.new(path)
-
-        unless pn.absolute?
-          pn = Pathname.new(File.join(@basedir, path))
+      def resolve_path(base, path)
+        if Pathname.new(path).absolute?
+          cleanpath(path)
+        else
+          cleanpath(File.join(base, path))
         end
-
-        # .cleanpath is as good as we can do without touching the filesystem.
-        # The .realpath methods will also choke if some of the intermediate
-        # paths are missing, even though we will create them later as needed.
-        pn.cleanpath.to_s
       end
 
       def validate_install_path!(path, modname)
-        unless /^#{Regexp.escape(real_basedir)}.*/ =~ path
-          raise R10K::Error.new("Puppetfile cannot manage content '#{modname}' outside of containing environment: #{path} is not within #{real_basedir}")
+        unless /^#{Regexp.escape(@basedir)}.*/ =~ path
+          raise R10K::Error.new("Puppetfile cannot manage content '#{modname}' outside of containing environment: #{path} is not within #{@basedir}")
         end
 
         true
       end
 
       def determine_managed_directories(managed_content)
-        managed_content.keys.reject { |dir| dir == real_basedir }
+        managed_content.keys.reject { |dir| dir == @basedir }
       end
 
       # Returns an array of the full paths to all the content being managed.
@@ -177,8 +170,12 @@ module R10K
         end
       end
 
-      def real_basedir
-        Pathname.new(@basedir).cleanpath.to_s
+      # .cleanpath is as good as we can do without touching the filesystem.
+      # The .realpath methods will choke if some of the intermediate paths
+      # are missing, even though in some cases we will create them later as
+      # needed.
+      def cleanpath(path)
+        Pathname.new(path).cleanpath.to_s
       end
 
       # For testing purposes only

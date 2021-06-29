@@ -4,25 +4,47 @@ require 'r10k/module_loader/puppetfile'
 describe R10K::ModuleLoader::Puppetfile do
   describe 'initial parameters' do
     describe 'honor' do
-      subject do
-        R10K::ModuleLoader::Puppetfile.new(basedir: '/test/basedir/env',
-                                           moduledir: '/test/basedir/env/dist-modules',
-                                           puppetfile: '/test/basedir/env/puppetfile.prod',
-                                           forge: 'localforge.internal.corp',
-                                           overrides: { modules: { deploy_modules: true } },
-                                           environment: R10K::Environment::Git.new('env',
-                                                                                   '/test/basedir/',
-                                                                                   'env',
-                                                                                   { remote: 'git://foo/remote',
-                                                                                     ref: 'env' }))
+      let(:options) do
+        {
+          basedir: '/test/basedir/env',
+          forge: 'localforge.internal.corp',
+          overrides: { modules: { deploy_modules: true } },
+          environment: R10K::Environment::Git.new('env',
+                                                  '/test/basedir/',
+                                                  'env',
+                                                  { remote: 'git://foo/remote',
+                                                    ref: 'env' })
+        }
       end
 
-      it 'the moduledir' do
-        expect(subject.instance_variable_get(:@moduledir)).to eq('/test/basedir/env/dist-modules')
+      subject { R10K::ModuleLoader::Puppetfile.new(**options) }
+
+      describe 'the moduledir' do
+        it 'respects absolute paths' do
+          absolute_options = options.merge({moduledir: '/opt/puppetlabs/special/modules'})
+          puppetfile = R10K::ModuleLoader::Puppetfile.new(**absolute_options)
+          expect(puppetfile.instance_variable_get(:@moduledir)).to eq('/opt/puppetlabs/special/modules')
+        end
+
+        it 'roots the moduledir in the basepath if a relative path is specified' do
+          relative_options = options.merge({moduledir: 'my/special/modules'})
+          puppetfile = R10K::ModuleLoader::Puppetfile.new(**relative_options)
+          expect(puppetfile.instance_variable_get(:@moduledir)).to eq('/test/basedir/env/my/special/modules')
+        end
       end
 
-      it 'the Puppetfile' do
-        expect(subject.instance_variable_get(:@puppetfile)).to eq('/test/basedir/env/puppetfile.prod')
+      describe 'the Puppetfile' do
+        it 'respects absolute paths' do
+          absolute_options = options.merge({puppetfile: '/opt/puppetlabs/special/Puppetfile'})
+          puppetfile = R10K::ModuleLoader::Puppetfile.new(**absolute_options)
+          expect(puppetfile.instance_variable_get(:@puppetfile)).to eq('/opt/puppetlabs/special/Puppetfile')
+        end
+
+        it 'roots the Puppetfile in the basepath if a relative path is specified' do
+          relative_options = options.merge({puppetfile: 'Puppetfile.global'})
+          puppetfile = R10K::ModuleLoader::Puppetfile.new(**relative_options)
+          expect(puppetfile.instance_variable_get(:@puppetfile)).to eq('/test/basedir/env/Puppetfile.global')
+        end
       end
 
       it 'the forge' do
@@ -267,6 +289,22 @@ describe R10K::ModuleLoader::Puppetfile do
       @path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
       pf_path = File.join(@path, 'Puppetfile')
       expect { subject.load! }.not_to raise_error
+    end
+
+    describe 'setting a custom moduledir' do
+      it 'allows setting an absolute moduledir' do
+        @path = '/fake/basedir'
+        allow(subject).to receive(:puppetfile_content).and_return('moduledir "/fake/moduledir"')
+        subject.load!
+        expect(subject.instance_variable_get(:@moduledir)).to eq('/fake/moduledir')
+      end
+
+      it 'roots relative moduledirs in the basedir' do
+        @path = '/fake/basedir'
+        allow(subject).to receive(:puppetfile_content).and_return('moduledir "my/moduledir"')
+        subject.load!
+        expect(subject.instance_variable_get(:@moduledir)).to eq(File.join(@path, 'my/moduledir'))
+      end
     end
 
     it 'accepts a forge module without a version' do
