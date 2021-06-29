@@ -116,10 +116,9 @@ module R10K
         mod = R10K::Module.new(name, install_path, module_info, @environment)
         mod.origin = :puppetfile
 
-        # Do not load modules if they would conflict with the attached
+        # Do not save modules if they would conflict with the attached
         # environment
         if @environment && @environment.module_conflicts?(mod)
-          mod = nil
           return @modules
         end
 
