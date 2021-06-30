@@ -79,6 +79,36 @@ describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby? 
     end
   end
 
+  describe "generating github app tokens" do
+    it 'errors if app id has invalid characters' do
+      R10K::Git.settings[:github_app_id] = "123A567890"
+      expect { subject.github_app_token(nil, "fake", "300")
+      }.to raise_error(R10K::Git::GitError, /App id contains invalid characters/)
+    end
+    it 'errors if app ttl has invalid characters' do
+      R10K::Git.settings[:github_app_ttl] = "abc"
+      expect { subject.github_app_token("123456", "fake", nil)
+      }.to raise_error(R10K::Git::GitError, /Token ttl contains invalid characters/)
+    end
+    it 'errors if private file does not exist' do
+      R10K::Git.settings[:github_app_key] = "/missing/token/file"
+      expect(File).to receive(:readable?).with("/missing/token/file").and_return false
+      expect {
+        subject.github_app_token("123456", R10K::Git.settings[:github_app_key], "300")
+      }.to raise_error(R10K::Git::GitError, /App key is missing or unreadable/)
+    end
+    it 'errors if private file exists but is not a valid SSL private key' do
+      token_file = Tempfile.new('token')
+      token_file.write('my_token')
+      token_file.close
+      R10K::Git.settings[:github_app_key] = token_file.path
+      expect(File).to receive(:readable?).with(token_file.path).and_return true
+      expect {
+        subject.github_app_token("123456", R10K::Git.settings[:github_app_key], "300")
+      }.to raise_error(R10K::Git::GitError, /App key is not a valid SSL private key/)
+    end
+  end
+
   describe "generating token credentials" do
     it 'errors if token file does not exist' do
       R10K::Git.settings[:oauth_token] = "/missing/token/file"

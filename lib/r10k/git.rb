@@ -135,6 +135,9 @@ module R10K
 
     def_setting_attr :private_key
     def_setting_attr :oauth_token
+    def_setting_attr :github_app_id
+    def_setting_attr :github_app_key
+    def_setting_attr :github_app_ttl
     def_setting_attr :proxy
     def_setting_attr :username
     def_setting_attr :repositories, {}

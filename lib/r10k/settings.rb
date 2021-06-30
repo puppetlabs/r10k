@@ -42,6 +42,22 @@ module R10K
                     Only used by the 'rugged' Git provider."
         }),
 
+        Definition.new(:github_app_id, {
+          :desc => "The Github App id for Git SSL remotes.
+                    Only used by the 'rugged' Git provider."
+        }),
+
+        Definition.new(:github_app_key, {
+          :desc => "The Github App private key for Git SSL remotes.
+                    Only used by the 'rugged' Git provider."
+        }),
+
+        Definition.new(:github_app_ttl, {
+          :desc => "The ttl expiration for SSL tokens.
+                    Only used by the 'rugged' Git provider.",
+          :default => "120",
+        }),
+
         URIDefinition.new(:proxy, {
           :desc => "An optional proxy server to use when interacting with Git sources via HTTP(S).",
           :default => :inherit,
@@ -61,6 +77,24 @@ module R10K
 
             Definition.new(:oauth_token, {
               :desc => "The path to a token file for Git OAuth remotes.
+                        Only used by the 'rugged' Git provider.",
+              :default => :inherit
+            }),
+
+            Definition.new(:github_app_id, {
+              :desc => "The Github App id for Git SSL remotes.
+                        Only used by the 'rugged' Git provider.",
+              :default => :inherit
+            }),
+
+            Definition.new(:github_app_key, {
+              :desc => "The Github App private key for Git SSL remotes.
+                        Only used by the 'rugged' Git provider.",
+              :default => :inherit
+            }),
+
+            Definition.new(:github_app_ttl, {
+              :desc => "The ttl expiration for Git SSL tokens.
                         Only used by the 'rugged' Git provider.",
               :default => :inherit
             }),

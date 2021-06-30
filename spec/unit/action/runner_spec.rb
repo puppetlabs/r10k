@@ -165,9 +165,59 @@ describe R10K::Action::Runner do
       runner.call
     end
 
-    it "does not modify the loglevel if :loglevel is not provided" do
+    it "does not modify the loglevel if :logle1vel is not provided" do
       expect(R10K::Logging).to_not receive(:level=)
       runner.call
+    end
+  end
+
+  describe "configuring github app credentials" do
+    it 'errors if app id is passed without ssl key' do
+      runner = described_class.new(
+        { 'github-app-id': '/nonexistent', },
+        %w[args yes],
+        action_class
+      )
+      expect{ runner.call }.to raise_error(R10K::Error, /Both id and private key are required/)
+    end
+
+    it 'errors if ssl key is passed without app id' do
+      runner = described_class.new(
+        { 'github-app-key': '/nonexistent', },
+        %w[args yes],
+        action_class
+      )
+      expect{ runner.call }.to raise_error(R10K::Error, /Both id and private key are required/)
+    end
+
+    it 'errors if both token and app id paths are passed' do
+      runner = described_class.new(
+        { 'github-app-id': '/nonexistent', 'oauth-token': '/also/fake' },
+        %w[args yes],
+        action_class
+      )
+      expect{ runner.call }.to raise_error(R10K::Error, /both a Github App and a token/)
+    end
+
+    it 'errors if both token and ssh key paths are passed' do
+      runner = described_class.new(
+        { 'github-app-key': '/nonexistent', 'private-key': '/also/fake' },
+        %w[args yes],
+        action_class
+      )
+      expect{ runner.call }.to raise_error(R10K::Error, /Cannot specify both/)
+    end
+
+    it 'saves the parameters in settings hash' do
+      runner = described_class.new(
+        { 'github-app-id': '123456', 'github-app-key': '/my/ssl/key', 'github-app-ttl': '600' },
+        %w[args yes],
+        action_class
+      )
+      runner.call
+      expect(runner.instance.settings[:git][:github_app_id]).to eq('123456')
+      expect(runner.instance.settings[:git][:github_app_key]).to eq('/my/ssl/key')
+      expect(runner.instance.settings[:git][:github_app_ttl]).to eq('600')
     end
   end
 
