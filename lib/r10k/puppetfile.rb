@@ -9,7 +9,7 @@ require 'r10k/module_loader/puppetfile'
 
 module R10K
 
-# Deprecated, use R10K::ModuleLoader::Puppetfile#load! to load content,
+# Deprecated, use R10K::ModuleLoader::Puppetfile#load to load content,
 # provide the `:modules` key of the returned Hash to
 # R10K::ContentSynchronizer (either the `serial_sync` or `concurrent_sync`)
 # and the remaining keys (`:managed_directories`, `:desired_contents`, and
@@ -119,7 +119,7 @@ class Puppetfile
       return false
     end
 
-    @loaded_content = @loader.load!
+    @loaded_content = @loader.load
     @loaded = true
 
     @loaded_content

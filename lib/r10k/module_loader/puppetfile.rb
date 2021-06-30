@@ -42,11 +42,11 @@ module R10K
         @purge_exclusions = []
       end
 
-      def load!
+      def load
         dsl = R10K::ModuleLoader::Puppetfile::DSL.new(self)
         dsl.instance_eval(puppetfile_content(@puppetfile), @puppetfile)
 
-        validate_no_duplicate_names!(@modules)
+        validate_no_duplicate_names(@modules)
         @modules.freeze
 
         managed_content = @modules.group_by(&:dirname).freeze
@@ -104,7 +104,7 @@ module R10K
 
         if install_path = module_info.delete(:install_path)
           install_path = resolve_path(@basedir, install_path)
-          validate_install_path!(install_path, name)
+          validate_install_path(install_path, name)
         else
           install_path = @moduledir
         end
@@ -128,10 +128,10 @@ module R10K
      private
 
       # @param [Array<R10K::Module>] modules
-      def validate_no_duplicate_names!(modules)
+      def validate_no_duplicate_names(modules)
         dupes = modules
                 .group_by { |mod| mod.name }
-                .select { |_, v| v.size > 1 }
+                .select { |_, mods| mods.size > 1 }
                 .map(&:first)
         unless dupes.empty?
           msg = _('Puppetfiles cannot contain duplicate module names.')
@@ -149,7 +149,7 @@ module R10K
         end
       end
 
-      def validate_install_path!(path, modname)
+      def validate_install_path(path, modname)
         unless /^#{Regexp.escape(@basedir)}.*/ =~ path
           raise R10K::Error.new("Puppetfile cannot manage content '#{modname}' outside of containing environment: #{path} is not within #{@basedir}")
         end
@@ -177,10 +177,10 @@ module R10K
         end
       end
 
-      # .cleanpath is as good as we can do without touching the filesystem.
-      # The .realpath methods will choke if some of the intermediate paths
-      # are missing, even though in some cases we will create them later as
-      # needed.
+      # .cleanpath is as close to a canonical path as we can do without touching
+      # the filesystem. The .realpath methods will choke if some of the
+      # intermediate paths are missing, even though in some cases we will create
+      # them later as needed.
       def cleanpath(path)
         Pathname.new(path).cleanpath.to_s
       end

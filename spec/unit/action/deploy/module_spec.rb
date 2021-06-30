@@ -202,6 +202,12 @@ describe R10K::Action::Deploy::Module do
       allow_any_instance_of(R10K::Source::Git).to receive(:branch_names).and_return([R10K::Environment::Name.new('first', {})])
 
       expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
+        # For this test we want to have realistic Modules and access to
+        # their internal Repos to validate the sync. Unfortunately, to
+        # do so we do some invasive mocking, effectively implementing
+        # our own R10K::Puppetfile#load. We directly update the Puppetfile's
+        # internal ModuleLoader and then call `load` on it so it will create
+        # the correct loaded_content.
         puppetfile = environment.puppetfile
         loader = puppetfile.loader
         expect(puppetfile).to receive(:load) do
@@ -210,12 +216,12 @@ describe R10K::Action::Deploy::Module do
           loader.add_module('mod3', { git: 'git://remote' })
 
           allow(loader).to receive(:puppetfile_content).and_return('')
-          loaded_content = loader.load!
+          loaded_content = loader.load
           puppetfile.instance_variable_set(:@loaded_content, loaded_content)
           puppetfile.instance_variable_set(:@loaded, true)
         end
 
-        loader.modules.each do |mod|
+        puppetfile.modules.each do |mod|
           if ['mod1', 'mod2'].include?(mod.name)
             expect(mod.should_sync?).to be(true)
           else
@@ -261,18 +267,24 @@ describe R10K::Action::Deploy::Module do
         puppetfile = environment.puppetfile
 
         if environment.name == 'first'
+          # For this test we want to have realistic Modules and access to
+          # their internal Repos to validate the sync. Unfortunately, to
+          # do so we do some invasive mocking, effectively implementing
+          # our own R10K::Puppetfile#load. We directly update the Puppetfile's
+          # internal ModuleLoader and then call `load` on it so it will create
+          # the correct loaded_content.
           loader = puppetfile.loader
           expect(puppetfile).to receive(:load) do
             loader.add_module('mod1', { git: 'git://remote' })
             loader.add_module('mod2', { git: 'git://remote' })
 
             allow(loader).to receive(:puppetfile_content).and_return('')
-            loaded_content = loader.load!
+            loaded_content = loader.load
             puppetfile.instance_variable_set(:@loaded_content, loaded_content)
             puppetfile.instance_variable_set(:@loaded, true)
           end
 
-          loader.modules.each do |mod|
+          puppetfile.modules.each do |mod|
             if mod.name == 'mod1'
               expect(mod.should_sync?).to be(true)
             else
