@@ -99,6 +99,84 @@ describe R10K::Puppetfile do
     end
   end
 
+  describe 'default_branch_override' do
+    it 'is passed correctly to module loader init' do
+      # This path doesn't matter so long as it has a Puppetfile within it
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
+      subject = described_class.new(path, {overrides: {environments: {default_branch_override: 'foo'}}})
+
+      repo = instance_double('R10K::Git::StatefulRepository')
+      allow(repo).to receive(:resolve).with('foo').and_return(true)
+      allow(R10K::Git::StatefulRepository).to receive(:new).and_return(repo)
+
+      allow(subject.loader).to receive(:puppetfile_content).and_return <<-EOPF
+        # Track control branch and fall-back to main if no matching branch.
+        mod 'hieradata',
+          :git => 'git@git.example.com:organization/hieradata.git',
+          :branch => :control_branch,
+          :default_branch => 'main'
+        EOPF
+
+      expect(subject.logger).not_to receive(:warn).
+        with(/Mismatch between passed and initialized.*preferring passed value/)
+
+      subject.load
+
+      loaded_module = subject.modules.first
+      expect(loaded_module.version).to eq('foo')
+    end
+
+    it 'overrides module loader init if needed' do
+      # This path doesn't matter so long as it has a Puppetfile within it
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
+      subject = described_class.new(path, {overrides: {environments: {default_branch_override: 'foo'}}})
+
+      repo = instance_double('R10K::Git::StatefulRepository')
+      allow(repo).to receive(:resolve).with('bar').and_return(true)
+      allow(R10K::Git::StatefulRepository).to receive(:new).and_return(repo)
+
+      allow(subject.loader).to receive(:puppetfile_content).and_return <<-EOPF
+        # Track control branch and fall-back to main if no matching branch.
+        mod 'hieradata',
+          :git => 'git@git.example.com:organization/hieradata.git',
+          :branch => :control_branch,
+          :default_branch => 'main'
+        EOPF
+
+      expect(subject.logger).to receive(:warn).
+        with(/Mismatch between passed and initialized.*preferring passed value/)
+
+      subject.load('bar')
+      loaded_module = subject.modules.first
+      expect(loaded_module.version).to eq('bar')
+    end
+
+    it 'does not warn if passed and initialized default_branch_overrides match' do
+      # This path doesn't matter so long as it has a Puppetfile within it
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
+      subject = described_class.new(path, {overrides: {environments: {default_branch_override: 'foo'}}})
+
+      repo = instance_double('R10K::Git::StatefulRepository')
+      allow(repo).to receive(:resolve).with('foo').and_return(true)
+      allow(R10K::Git::StatefulRepository).to receive(:new).and_return(repo)
+
+      allow(subject.loader).to receive(:puppetfile_content).and_return <<-EOPF
+        # Track control branch and fall-back to main if no matching branch.
+        mod 'hieradata',
+          :git => 'git@git.example.com:organization/hieradata.git',
+          :branch => :control_branch,
+          :default_branch => 'main'
+        EOPF
+
+      expect(subject.logger).not_to receive(:warn).
+        with(/Mismatch between passed and initialized.*preferring passed value/)
+
+      subject.load('foo')
+      loaded_module = subject.modules.first
+      expect(loaded_module.version).to eq('foo')
+    end
+  end
+
   describe "accepting a visitor" do
     it "passes itself to the visitor" do
       visitor = spy('visitor')

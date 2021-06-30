@@ -16,8 +16,6 @@ module R10K
 # `:purge_exclusions`) to R10K::Util::Cleaner.
 class Puppetfile
 
-  NotGiven = BasicObject.new
-
   include R10K::Settings::Mixin
 
   def_setting_attr :pool_size, 4
@@ -75,7 +73,7 @@ class Puppetfile
     @environment     = options.delete(:environment)
 
     @overrides       = options.delete(:overrides) || {}
-    @default_branch_override = @overrides.dig(:environments, :default_branch_overrides)
+    @default_branch_override = @overrides.dig(:environments, :default_branch_override)
 
     logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile_path}
 
@@ -100,7 +98,11 @@ class Puppetfile
     @loaded = false
   end
 
-  def load(default_branch_override = NotGiven)
+  # @param [String] default_branch_override The default branch to use
+  #   instead of one specified in the module declaration, if applicable.
+  #   Deprecated, use R10K::ModuleLoader::Puppetfile directly and pass
+  #   the default_branch_override as an option on initialization.
+  def load(default_branch_override = nil)
     if self.loaded?
       return @loaded_content
     else
@@ -108,10 +110,14 @@ class Puppetfile
     end
   end
 
-  def load!(dbo = NotGiven)
-    if (dbo != NotGiven) && (dbo != @default_branch_override)
+  # @param [String] default_branch_override The default branch to use
+  #   instead of one specified in the module declaration, if applicable.
+  #   Deprecated, use R10K::ModuleLoader::Puppetfile directly and pass
+  #   the default_branch_override as an option on initialization.
+  def load!(default_branch_override = nil)
+    if default_branch_override && (default_branch_override != @default_branch_override)
       logger.warn("Mismatch between passed and initialized default branch overrides, preferring passed value.")
-      @loader.default_branch_override = dbo
+      @loader.default_branch_override = default_branch_override
     end
 
     if !File.readable?(@puppetfile_path)

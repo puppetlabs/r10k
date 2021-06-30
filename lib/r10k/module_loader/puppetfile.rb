@@ -34,6 +34,7 @@ module R10K
         @forge       = forge
         @overrides   = overrides
         @environment = environment
+        @default_branch_override = @overrides.dig(:environments, :default_branch_override)
 
         @modules = []
 
