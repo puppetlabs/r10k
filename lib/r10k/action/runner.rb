@@ -108,9 +108,24 @@ module R10K
       def add_credential_overrides(overrides)
         sshkey_path = @opts[:'private-key']
         token_path = @opts[:'oauth-token']
+        app_id = @opts[:'github-app-id']
+        app_private_key_path = @opts[:'github-app-key']
+        app_ttl = @opts[:'github-app-ttl']
 
         if sshkey_path && token_path
           raise R10K::Error, "Cannot specify both an SSH key and a token to use with this deploy."
+        end
+
+        if sshkey_path && app_private_key_path
+          raise R10K::Error, "Cannot specify both a SSH key and a SSL key to use with this deploy."
+        end
+
+        if app_id && token_path
+          raise R10K::Error, "Cannot specify both a Github App and a token to use with this deploy."
+        end
+
+        if app_id && ! app_private_key_path or app_private_key_path && ! app_id
+          raise R10K::Error, "Both id and private key are required with Github App to use with this deploy."
         end
 
         if sshkey_path
@@ -127,6 +142,18 @@ module R10K
           if repo_settings = overrides[:git][:repositories]
             repo_settings.each do |repo|
               repo[:oauth_token] = token_path
+            end
+          end
+        elsif app_id
+          overrides[:git] ||= {}
+          overrides[:git][:github_app_id] = app_id
+          overrides[:git][:github_app_key] = app_private_key_path
+          overrides[:git][:github_app_ttl] = app_ttl
+          if repo_settings = overrides[:git][:repositories]
+            repo_settings.each do |repo|
+              repo[:github_app_id] = app_id
+              repo[:github_app_key] = app_private_key_path
+              repo[:github_app_ttl] = app_ttl
             end
           end
         end
