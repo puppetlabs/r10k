@@ -18,7 +18,7 @@ module R10K::CLI
 
         description <<-DESCRIPTION
 `r10k deploy` implements the Git branch to Puppet environment workflow
-(https://puppet.com/docs/puppet/latest/environments_about.html).
+(https://github.com/puppetlabs/r10k/blob/main/doc/dynamic-environments/workflow-guide.mkd).
         DESCRIPTION
 
         option nil, :cachedir, 'Specify a cachedir, overriding the value in config', argument: :required
