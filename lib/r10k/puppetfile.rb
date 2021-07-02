@@ -115,14 +115,14 @@ class Puppetfile
   #   Deprecated, use R10K::ModuleLoader::Puppetfile directly and pass
   #   the default_branch_override as an option on initialization.
   def load!(default_branch_override = nil)
-    if default_branch_override && (default_branch_override != @default_branch_override)
-      logger.warn("Mismatch between passed and initialized default branch overrides, preferring passed value.")
-      @loader.default_branch_override = default_branch_override
-    end
-
     if !File.readable?(@puppetfile_path)
       logger.debug _("Puppetfile %{path} missing or unreadable") % {path: @puppetfile_path.inspect}
       return false
+    end
+
+    if default_branch_override && (default_branch_override != @default_branch_override)
+      logger.warn("Mismatch between passed and initialized default branch overrides, preferring passed value.")
+      @loader.default_branch_override = default_branch_override
     end
 
     @loaded_content = @loader.load
@@ -166,7 +166,7 @@ class Puppetfile
   def managed_directories
     self.load
 
-    @loader.managed_directories
+    @loaded_content[:managed_directories]
   end
 
   # Returns an array of the full paths to all the content being managed.

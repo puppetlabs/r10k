@@ -91,14 +91,14 @@ describe R10K::ModuleLoader::Puppetfile do
     subject { R10K::ModuleLoader::Puppetfile.new(basedir: basedir) }
 
     it 'should transform Forge modules with a string arg to have a version key' do
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '1.2.3'), anything).and_call_original
+      expect(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '1.2.3'), anything).and_call_original
 
       expect { subject.add_module('puppet/test_module', '1.2.3') }.to change { subject.modules }
       expect(subject.modules.collect(&:name)).to include('test_module')
     end
 
     it 'should not accept Forge modules with a version comparison' do
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '< 1.2.0'), anything).and_call_original
+      expect(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '< 1.2.0'), anything).and_call_original
 
       expect {
         subject.add_module('puppet/test_module', '< 1.2.0')
@@ -110,7 +110,7 @@ describe R10K::ModuleLoader::Puppetfile do
     it 'should accept non-Forge modules with a hash arg' do
       module_opts = { git: 'git@example.com:puppet/test_module.git' }
 
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, module_opts, anything).and_call_original
+      expect(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, module_opts, anything).and_call_original
 
       expect { subject.add_module('puppet/test_module', module_opts) }.to change { subject.modules }
       expect(subject.modules.collect(&:name)).to include('test_module')
@@ -122,7 +122,7 @@ describe R10K::ModuleLoader::Puppetfile do
         git: 'git@example.com:puppet/test_module.git',
       }
 
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', File.join(basedir, 'vendor'), module_opts, anything).and_call_original
+      expect(R10K::Module).to receive(:new).with('puppet/test_module', File.join(basedir, 'vendor'), module_opts, anything).and_call_original
 
       expect { subject.add_module('puppet/test_module', module_opts) }.to change { subject.modules }
       expect(subject.modules.collect(&:name)).to include('test_module')
@@ -136,7 +136,7 @@ describe R10K::ModuleLoader::Puppetfile do
         git: 'git@example.com:puppet/test_module.git',
       }
 
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', install_path, module_opts, anything).and_call_original
+      expect(R10K::Module).to receive(:new).with('puppet/test_module', install_path, module_opts, anything).and_call_original
 
       expect { subject.add_module('puppet/test_module', module_opts) }.to change { subject.modules }
       expect(subject.modules.collect(&:name)).to include('test_module')
@@ -163,10 +163,10 @@ describe R10K::ModuleLoader::Puppetfile do
     it 'should disable and not add modules that conflict with the environment' do
       env = instance_double('R10K::Environment::Base')
       mod = instance_double('R10K::Module::Base', name: 'conflict', origin: :puppetfile, 'origin=': nil)
-      loader = described_class.new(basedir: basedir, environment: env)
+      loader = R10K::ModuleLoader::Puppetfile.new(basedir: basedir, environment: env)
       allow(env).to receive(:'module_conflicts?').with(mod).and_return(true)
 
-      allow(R10K::Module).to receive(:new).with('conflict', anything, anything, anything).and_return(mod)
+      expect(R10K::Module).to receive(:new).with('conflict', anything, anything, anything).and_return(mod)
       expect { loader.add_module('conflict', {}) }.not_to change { loader.modules }
     end
   end
@@ -200,8 +200,8 @@ describe R10K::ModuleLoader::Puppetfile do
       allow(subject).to receive(:puppetfile_content).and_return('')
     end
 
-    it 'returns an array of paths that can be purged' do
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '1.2.3'), anything).and_call_original
+    it 'returns an array of paths that #purge! will operate within' do
+      expect(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '1.2.3'), anything).and_call_original
       subject.add_module('puppet/test_module', '1.2.3')
       subject.load
 
@@ -213,7 +213,7 @@ describe R10K::ModuleLoader::Puppetfile do
       it "basedir isn't in the list of paths to purge" do
         module_opts = { install_path: '', git: 'git@example.com:puppet/test_module.git' }
 
-        allow(R10K::Module).to receive(:new).with('puppet/test_module', basedir, module_opts, anything).and_call_original
+        expect(R10K::Module).to receive(:new).with('puppet/test_module', basedir, module_opts, anything).and_call_original
         subject.add_module('puppet/test_module', module_opts)
         subject.load
 

@@ -19,8 +19,8 @@ module R10K
       #     absolute full path or a relative path with regards to the basedir.
       # @param forge [String] The url (without protocol) to the Forge
       # @param overrides [Hash] Configuration for loaded modules' behavior
-      # @param environment [R10K::Environment] The environment loading may be
-      #     taking place within
+      # @param environment [R10K::Environment] When provided, the environment
+      #     in which loading takes place
       def initialize(basedir:,
                      moduledir: DEFAULT_MODULEDIR,
                      puppetfile: DEFAULT_PUPPETFILE_NAME,
@@ -52,16 +52,16 @@ module R10K
 
         managed_content = @modules.group_by(&:dirname).freeze
 
-        @managed_directories = determine_managed_directories(managed_content).freeze
-        @desired_contents = determine_desired_contents(managed_content).freeze
-        @purge_exclusions = determine_purge_exclusions(@managed_directories.clone).freeze
+        @managed_directories = determine_managed_directories(managed_content)
+        @desired_contents = determine_desired_contents(managed_content)
+        @purge_exclusions = determine_purge_exclusions(@managed_directories)
 
         {
           modules: @modules,
           managed_directories: @managed_directories,
           desired_contents: @desired_contents,
           purge_exclusions: @purge_exclusions
-        }.freeze
+        }
 
       rescue SyntaxError, LoadError, ArgumentError, NameError => e
         raise R10K::Error.wrap(e, _("Failed to evaluate %{path}") % {path: @puppetfile})
@@ -110,7 +110,7 @@ module R10K
           install_path = @moduledir
         end
 
-        if @default_branch_override != nil
+        if @default_branch_override
           module_info[:default_branch_override] = @default_branch_override
         end
 
