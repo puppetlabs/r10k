@@ -3,7 +3,7 @@ CHANGELOG
 
 Unreleased
 
-- Attempting to download the latest version for a module that has no Forge releases will now issue a meaningful error.
+- (RK-135) Attempting to download the latest version for a module that has no Forge releases will now issue a meaningful error. [#1177](https://github.com/puppetlabs/r10k/pull/1177)
 - Added an interface to R10K::Source::Base named `reload!` for updating the environments list for a given deployment; `reload!` is called before deployment purges to make r10k deploy pools more threadsafe. [#1172](https://github.com/puppetlabs/r10k/pull/1172)
 ----------
 
