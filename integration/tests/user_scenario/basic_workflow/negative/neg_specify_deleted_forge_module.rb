@@ -10,7 +10,7 @@ last_commit = git_last_commit(master, git_environments_path)
 r10k_fqp = get_r10k_fqp(master)
 
 #Verification
-error_notification_regex = /Does 'puppetlabs-regret' have at least one published release?/
+error_notification_regex = /The module puppetlabs-regret does not appear to have any published releases/
 
 #File
 puppet_file = <<-PUPPETFILE
@@ -40,12 +40,6 @@ git_add_commit_push(master, 'production', 'Add module.', git_environments_path)
 
 #Tests
 step "Deploy production environment via r10k with specified module deleted"
-on(master, "#{r10k_fqp} deploy environment -p -v", :acceptable_exit_codes => 1) do |result|
-  if get_puppet_version(master) < 4.0
-    assert_match(error_notification_regex, result.stderr, 'Unexpected error was detected!')
-  else
-    expect_failure('expected to fail due to RK-135') do
-      assert_match(error_notification_regex, result.stderr, 'Unexpected error was detected!')
-    end
-  end
+on(master, "#{r10k_fqp} deploy environment -p -v --trace", :acceptable_exit_codes => 1) do |result|
+  assert_match(error_notification_regex, result.stderr, 'Unexpected error was detected!')
 end

@@ -104,8 +104,15 @@ describe R10K::Module::Forge do
 
     it "uses the latest version from the forge when the version is :latest" do
       subject = described_class.new('branan/eight_hundred', fixture_modulepath, { version: :latest })
-      expect(subject.v3_module).to receive_message_chain(:current_release, :version).and_return('8.8.8')
+      release = double("Module Release", version: '8.8.8')
+      expect(subject.v3_module).to receive(:current_release).and_return(release).twice
       expect(subject.expected_version).to eq '8.8.8'
+    end
+
+    it "throws when there are no available versions" do
+      subject = described_class.new('branan/eight_hundred', fixture_modulepath, { version: :latest })
+      expect(subject.v3_module).to receive(:current_release).and_return(nil)
+      expect { subject.expected_version }.to raise_error(PuppetForge::ReleaseNotFound)
     end
   end
 
