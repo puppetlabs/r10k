@@ -92,6 +92,9 @@ module R10K
         URIDefinition.new(:baseurl, {
           :desc => "The URL to the Puppet Forge to use for downloading modules."
         }),
+        Definition.new(:authorization_token, {
+          :desc => "The token for Puppet Forge authorization. Leave blank for unauthorized or license-based connections."
+        })
       ])
     end
 
