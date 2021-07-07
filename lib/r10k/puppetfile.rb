@@ -140,7 +140,7 @@ class Puppetfile
   #
   def add_module(name, args)
     if !args.is_a?(Hash)
-      args = { version: args }
+      args = { type: 'forge', version: args }
     end
 
     args[:overrides] = @overrides
@@ -267,7 +267,7 @@ class Puppetfile
       if args.is_a?(Hash)
         opts = args
       else
-        opts = { version: args }
+        opts = { type: 'forge', version: args }
       end
 
       @librarian.add_module(name, opts)
