@@ -8,9 +8,9 @@ module R10K
     end
 
     def self.serial_sync(modules)
-      modules.each do |mod|
-        mod.sync
-      end
+      sync_error = non_raising_sync(modules)
+
+      raise sync_error if sync_error
     end
 
     def self.concurrent_accept(modules, visitor, loader, pool_size, logger)
@@ -68,16 +68,36 @@ module R10K
     def self.sync_thread(mods_queue, logger)
       Thread.new do
         begin
-          while mods = mods_queue.pop(true) do
-            mods.each { |mod| mod.sync }
+          sync_error = nil
+          while mods = mods_queue.pop(raise_threaderror_when_complete = true) do
+            sync_error ||= non_raising_sync(mods)
           end
-        rescue ThreadError => e
-          logger.debug _("Module thread %{id} exiting: %{message}") % {message: e.message, id: Thread.current.object_id}
-          Thread.exit
+
         rescue => e
-          Thread.main.raise(e)
+          if sync_error
+            logger.debug _("Module thread %{id} failed") % {id: Thread.current.object_id}
+            Thread.main.raise(sync_error)
+          elsif e.is_a?(ThreadError)
+            logger.debug _("Module thread %{id} exiting: %{message}") % {message: e.message, id: Thread.current.object_id}
+            Thread.exit
+          else
+            Thread.main.raise(e)
+          end
         end
       end
+    end
+
+    def self.non_raising_sync(modules)
+      error = nil
+      modules.each do |mod|
+        begin
+          mod.sync
+        rescue => e
+          error = e
+        end
+      end
+
+      return error
     end
   end
 end
