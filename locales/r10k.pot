@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.9.3-5-g4c4b74d\n"
+"Project-Id-Version: r10k 3.9.3-10-gfedc81a\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2021-07-02 06:28+0000\n"
-"PO-Revision-Date: 2021-07-02 06:28+0000\n"
+"POT-Creation-Date: 2021-07-07 21:13+0000\n"
+"PO-Revision-Date: 2021-07-07 21:13+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -522,23 +522,23 @@ msgstr ""
 msgid "pe_license feature is not available, PE only Puppet modules will not be downloadable."
 msgstr ""
 
-#: ../lib/r10k/util/purgeable.rb:52
-msgid "Not purging %{item} due to internal exclusion match: %{exclusion_match}"
+#: ../lib/r10k/util/purgeable.rb:87
+msgid "Not purging %{path} due to internal exclusion match: %{exclusion_match}"
 msgstr ""
 
-#: ../lib/r10k/util/purgeable.rb:54
-msgid "Not purging %{item} due to whitelist match: %{whitelist_match}"
+#: ../lib/r10k/util/purgeable.rb:89
+msgid "Not purging %{path} due to whitelist match: %{allowlist_match}"
 msgstr ""
 
-#: ../lib/r10k/util/purgeable.rb:71
+#: ../lib/r10k/util/purgeable.rb:133
 msgid "No unmanaged contents in %{managed_dirs}, nothing to purge"
 msgstr ""
 
-#: ../lib/r10k/util/purgeable.rb:76
+#: ../lib/r10k/util/purgeable.rb:138
 msgid "Removing unmanaged path %{path}"
 msgstr ""
 
-#: ../lib/r10k/util/purgeable.rb:81
+#: ../lib/r10k/util/purgeable.rb:143
 msgid "Unable to remove unmanaged path: %{path}"
 msgstr ""
 
