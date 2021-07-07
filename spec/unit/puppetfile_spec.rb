@@ -67,230 +67,113 @@ describe R10K::Puppetfile do
     end
   end
 
-  describe "adding modules" do
-    it "should transform Forge modules with a string arg to have a version key" do
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '1.2.3'), anything).and_call_original
-
-      expect { subject.add_module('puppet/test_module', '1.2.3') }.to change { subject.modules }
-      expect(subject.modules.collect(&:name)).to include('test_module')
-    end
-
-    it "should not accept Forge modules with a version comparison" do
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '< 1.2.0'), anything).and_call_original
-
-      expect {
-        subject.add_module('puppet/test_module', '< 1.2.0')
-      }.to raise_error(RuntimeError, /module puppet\/test_module.*doesn't have an implementation/i)
-
-      expect(subject.modules.collect(&:name)).not_to include('test_module')
-    end
-
-    it "should accept non-Forge modules with a hash arg" do
-      module_opts = { git: 'git@example.com:puppet/test_module.git' }
-
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, module_opts, anything).and_call_original
-
-      expect { subject.add_module('puppet/test_module', module_opts) }.to change { subject.modules }
-      expect(subject.modules.collect(&:name)).to include('test_module')
-    end
-
-    it "should accept non-Forge modules with a valid relative :install_path option" do
-      module_opts = {
-        install_path: 'vendor',
-        git: 'git@example.com:puppet/test_module.git',
-      }
-
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', File.join(subject.basedir, 'vendor'), module_opts, anything).and_call_original
-
-      expect { subject.add_module('puppet/test_module', module_opts) }.to change { subject.modules }
-      expect(subject.modules.collect(&:name)).to include('test_module')
-    end
-
-    it "should accept non-Forge modules with a valid absolute :install_path option" do
-      install_path = File.join(subject.basedir, 'vendor')
-
-      module_opts = {
-        install_path: install_path,
-        git: 'git@example.com:puppet/test_module.git',
-      }
-
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', install_path, module_opts, anything).and_call_original
-
-      expect { subject.add_module('puppet/test_module', module_opts) }.to change { subject.modules }
-      expect(subject.modules.collect(&:name)).to include('test_module')
-    end
-
-    it "should reject non-Forge modules with an invalid relative :install_path option" do
-      module_opts = {
-        install_path: '../../vendor',
-        git: 'git@example.com:puppet/test_module.git',
-      }
-
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', File.join(subject.basedir, 'vendor'), module_opts, anything).and_call_original
-
-      expect { subject.add_module('puppet/test_module', module_opts) }.to raise_error(R10K::Error, /cannot manage content.*is not within/i).and not_change { subject.modules }
-    end
-
-    it "should reject non-Forge modules with an invalid absolute :install_path option" do
-      module_opts = {
-        install_path: '/tmp/mydata/vendor',
-        git: 'git@example.com:puppet/test_module.git',
-      }
-
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', File.join(subject.basedir, 'vendor'), module_opts, anything).and_call_original
-
-      expect { subject.add_module('puppet/test_module', module_opts) }.to raise_error(R10K::Error, /cannot manage content.*is not within/i).and not_change { subject.modules }
-    end
-
-    it "should disable and not add modules that conflict with the environment" do
-      env = instance_double('R10K::Environment::Base')
-      mod = instance_double('R10K::Module::Base', name: 'conflict', origin: :puppetfile)
-      allow(mod).to receive(:origin=).and_return(nil)
-      allow(subject).to receive(:environment).and_return(env)
-      allow(env).to receive(:'module_conflicts?').with(mod).and_return(true)
-
-      allow(R10K::Module).to receive(:new).with('test', anything, anything, anything).and_return(mod)
-      expect { subject.add_module('test', {}) }.not_to change { subject.modules }
-    end
-  end
-
-  describe "#purge_exclusions" do
-    let(:managed_dirs) { ['dir1', 'dir2'] }
-
-    before(:each) do
-      allow(subject).to receive(:managed_directories).and_return(managed_dirs)
-    end
-
-    it "includes managed_directories" do
-      expect(subject.purge_exclusions).to match_array(managed_dirs)
-    end
-
-    context "when belonging to an environment" do
-      let(:env_contents) { ['env1', 'env2' ] }
-
-      before(:each) do
-        mock_env = double(:environment, desired_contents: env_contents)
-        allow(subject).to receive(:environment).and_return(mock_env)
-      end
-
-      it "includes environment's desired_contents" do
-        expect(subject.purge_exclusions).to match_array(managed_dirs + env_contents)
-      end
-    end
-  end
-
-  describe '#managed_directories' do
-    it 'returns an array of paths that can be purged' do
-      allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '1.2.3'), anything).and_call_original
-
-      subject.add_module('puppet/test_module', '1.2.3')
-      expect(subject.managed_directories).to match_array(["/some/nonexistent/basedir/modules"])
-    end
-
-    context 'with a module with install_path == \'\'' do
-      it 'basedir isn\'t in the list of paths to purge' do
-        module_opts = { install_path: '', git: 'git@example.com:puppet/test_module.git' }
-
-        allow(R10K::Module).to receive(:new).with('puppet/test_module', subject.basedir, module_opts, anything).and_call_original
-
-        subject.add_module('puppet/test_module', module_opts)
-        expect(subject.managed_directories).to be_empty
-      end
-    end
-  end
-
-  describe "evaluating a Puppetfile" do
-    def expect_wrapped_error(orig, pf_path, wrapped_error)
-      expect(orig).to be_a_kind_of(R10K::Error)
-      expect(orig.message).to eq("Failed to evaluate #{pf_path}")
-      expect(orig.original).to be_a_kind_of(wrapped_error)
-    end
-
-    it "wraps and re-raises syntax errors" do
-      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'invalid-syntax')
-      pf_path = File.join(path, 'Puppetfile')
-      subject = described_class.new(path, {})
-      expect {
-        subject.load!
-      }.to raise_error do |e|
-        expect_wrapped_error(e, pf_path, SyntaxError)
-      end
-    end
-
-    it "wraps and re-raises load errors" do
-      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'load-error')
-      pf_path = File.join(path, 'Puppetfile')
-      subject = described_class.new(path, {})
-      expect {
-        subject.load!
-      }.to raise_error do |e|
-        expect_wrapped_error(e, pf_path, LoadError)
-      end
-    end
-
-    it "wraps and re-raises argument errors" do
-      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'argument-error')
-      pf_path = File.join(path, 'Puppetfile')
-      subject = described_class.new(path, {})
-      expect {
-        subject.load!
-      }.to raise_error do |e|
-        expect_wrapped_error(e, pf_path, ArgumentError)
-      end
-    end
-
-    it "rejects Puppetfiles with duplicate module names" do
-      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'duplicate-module-error')
-      pf_path = File.join(path, 'Puppetfile')
-      subject = described_class.new(path, {})
-      expect {
-        subject.load!
-      }.to raise_error(R10K::Error, /Puppetfiles cannot contain duplicate module names/i)
-    end
-
-    it "wraps and re-raises name errors" do
-      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'name-error')
-      pf_path = File.join(path, 'Puppetfile')
-      subject = described_class.new(path, {})
-      expect {
-        subject.load!
-      }.to raise_error do |e|
-        expect_wrapped_error(e, pf_path, NameError)
-      end
-    end
-
-    it "accepts a forge module with a version" do
+  describe "loading a Puppetfile" do
+    it "returns the loaded content" do
       path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
-      pf_path = File.join(path, 'Puppetfile')
       subject = described_class.new(path, {})
-      expect { subject.load! }.not_to raise_error
+
+      loaded_content = subject.load
+      expect(loaded_content).to be_an_instance_of(Hash)
+
+      has_some_data = loaded_content.values.none?(&:empty?)
+      expect(has_some_data).to be true
     end
 
-    it "accepts a forge module without a version" do
-      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-without-version')
-      pf_path = File.join(path, 'Puppetfile')
+    it "is idempotent" do
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
       subject = described_class.new(path, {})
-      expect { subject.load! }.not_to raise_error
+
+      expect(subject.loader).to receive(:load).and_call_original.once
+
+      loaded_content1 = subject.load
+      expect(subject.loaded?).to be true
+      loaded_content2 = subject.load
+
+      expect(loaded_content2).to eq(loaded_content1)
     end
 
-    it "creates a git module and applies the default branch sepcified in the Puppetfile" do
-      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'default-branch-override')
-      pf_path = File.join(path, 'Puppetfile')
+    it "returns false if Puppetfile doesn't exist" do
+      path = '/rando/path/that/wont/exist'
       subject = described_class.new(path, {})
-      expect { subject.load! }.not_to raise_error
-      git_module = subject.modules[0]
-      expect(git_module.default_ref).to eq 'here_lies_the_default_branch'
+      expect(subject.load).to eq false
+    end
+  end
+
+  describe 'default_branch_override' do
+    it 'is passed correctly to module loader init' do
+      # This path doesn't matter so long as it has a Puppetfile within it
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
+      subject = described_class.new(path, {overrides: {environments: {default_branch_override: 'foo'}}})
+
+      repo = instance_double('R10K::Git::StatefulRepository')
+      allow(repo).to receive(:resolve).with('foo').and_return(true)
+      allow(R10K::Git::StatefulRepository).to receive(:new).and_return(repo)
+
+      allow(subject.loader).to receive(:puppetfile_content).and_return <<-EOPF
+        # Track control branch and fall-back to main if no matching branch.
+        mod 'hieradata',
+          :git => 'git@git.example.com:organization/hieradata.git',
+          :branch => :control_branch,
+          :default_branch => 'main'
+        EOPF
+
+      expect(subject.logger).not_to receive(:warn).
+        with(/Mismatch between passed and initialized.*preferring passed value/)
+
+      subject.load
+
+      loaded_module = subject.modules.first
+      expect(loaded_module.version).to eq('foo')
     end
 
-    it "creates a git module and applies the provided default_branch_override" do
-      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'default-branch-override')
-      pf_path = File.join(path, 'Puppetfile')
-      subject = described_class.new(path, {})
-      default_branch_override = 'default_branch_override_name'
-      expect { subject.load!(default_branch_override) }.not_to raise_error
-      git_module = subject.modules[0]
-      expect(git_module.default_override_ref).to eq default_branch_override
-      expect(git_module.default_ref).to eq "here_lies_the_default_branch"
+    it 'overrides module loader init if needed' do
+      # This path doesn't matter so long as it has a Puppetfile within it
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
+      subject = described_class.new(path, {overrides: {environments: {default_branch_override: 'foo'}}})
+
+      repo = instance_double('R10K::Git::StatefulRepository')
+      allow(repo).to receive(:resolve).with('bar').and_return(true)
+      allow(R10K::Git::StatefulRepository).to receive(:new).and_return(repo)
+
+      allow(subject.loader).to receive(:puppetfile_content).and_return <<-EOPF
+        # Track control branch and fall-back to main if no matching branch.
+        mod 'hieradata',
+          :git => 'git@git.example.com:organization/hieradata.git',
+          :branch => :control_branch,
+          :default_branch => 'main'
+        EOPF
+
+      expect(subject.logger).to receive(:warn).
+        with(/Mismatch between passed and initialized.*preferring passed value/)
+
+      subject.load('bar')
+      loaded_module = subject.modules.first
+      expect(loaded_module.version).to eq('bar')
+    end
+
+    it 'does not warn if passed and initialized default_branch_overrides match' do
+      # This path doesn't matter so long as it has a Puppetfile within it
+      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
+      subject = described_class.new(path, {overrides: {environments: {default_branch_override: 'foo'}}})
+
+      repo = instance_double('R10K::Git::StatefulRepository')
+      allow(repo).to receive(:resolve).with('foo').and_return(true)
+      allow(R10K::Git::StatefulRepository).to receive(:new).and_return(repo)
+
+      allow(subject.loader).to receive(:puppetfile_content).and_return <<-EOPF
+        # Track control branch and fall-back to main if no matching branch.
+        mod 'hieradata',
+          :git => 'git@git.example.com:organization/hieradata.git',
+          :branch => :control_branch,
+          :default_branch => 'main'
+        EOPF
+
+      expect(subject.logger).not_to receive(:warn).
+        with(/Mismatch between passed and initialized.*preferring passed value/)
+
+      subject.load('foo')
+      loaded_module = subject.modules.first
+      expect(loaded_module.version).to eq('foo')
     end
   end
 

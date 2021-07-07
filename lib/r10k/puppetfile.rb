@@ -4,10 +4,17 @@ require 'r10k/module'
 require 'r10k/util/purgeable'
 require 'r10k/errors'
 require 'r10k/content_synchronizer'
+require 'r10k/module_loader/puppetfile/dsl'
+require 'r10k/module_loader/puppetfile'
 
 module R10K
+
+# Deprecated, use R10K::ModuleLoader::Puppetfile#load to load content,
+# provide the `:modules` key of the returned Hash to
+# R10K::ContentSynchronizer (either the `serial_sync` or `concurrent_sync`)
+# and the remaining keys (`:managed_directories`, `:desired_contents`, and
+# `:purge_exclusions`) to R10K::Util::Cleaner.
 class Puppetfile
-  # Defines the data members of a Puppetfile
 
   include R10K::Settings::Mixin
 
@@ -19,25 +26,17 @@ class Puppetfile
   #   @return [String] The URL to use for the Puppet Forge
   attr_reader :forge
 
-  # @!attribute [r] modules
-  #   @return [Array<R10K::Module>]
-  attr_reader :modules
-
   # @!attribute [r] basedir
   #   @return [String] The base directory that contains the Puppetfile
   attr_reader :basedir
-
-  # @!attribute [r] moduledir
-  #   @return [String] The directory to install the modules #{basedir}/modules
-  attr_reader :moduledir
 
   # @!attrbute [r] puppetfile_path
   #   @return [String] The path to the Puppetfile
   attr_reader :puppetfile_path
 
-  # @!attribute [rw] environment
+  # @!attribute [r] environment
   #   @return [R10K::Environment] Optional R10K::Environment that this Puppetfile belongs to.
-  attr_accessor :environment
+  attr_reader :environment
 
   # @!attribute [rw] force
   #   @return [Boolean] Overwrite any locally made changes
@@ -46,6 +45,10 @@ class Puppetfile
   # @!attribute [r] overrides
   #   @return [Hash] Various settings overridden from normal configs
   attr_reader :overrides
+
+  # @!attribute [r] loader
+  #   @return [R10K::ModuleLoader::Puppetfile] The internal module loader
+  attr_reader :loader
 
   # @param [String] basedir
   # @param [Hash, String, nil] options_or_moduledir The directory to install the modules or a Hash of options.
@@ -67,142 +70,118 @@ class Puppetfile
     @moduledir       = deprecated_moduledir_arg || options.delete(:moduledir)       || File.join(basedir, 'modules')
     @puppetfile_name = deprecated_name_arg      || options.delete(:puppetfile_name) || 'Puppetfile'
     @puppetfile_path = deprecated_path_arg      || options.delete(:puppetfile_path) || File.join(basedir, @puppetfile_name)
+    @environment     = options.delete(:environment)
 
     @overrides       = options.delete(:overrides) || {}
+    @default_branch_override = @overrides.dig(:environments, :default_branch_override)
 
     logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile_path}
 
-    @modules = []
-    @managed_content = {}
     @forge   = 'forgeapi.puppetlabs.com'
+
+    @loader = ::R10K::ModuleLoader::Puppetfile.new(
+      basedir: @basedir,
+      moduledir: @moduledir,
+      puppetfile: @puppetfile_path,
+      forge: @forge,
+      overrides: @overrides,
+      environment: @environment
+    )
+
+    @loaded_content = {
+      modules: [],
+      managed_directories: [],
+      desired_contents: [],
+      purge_exclusions: []
+    }
 
     @loaded = false
   end
 
+  # @param [String] default_branch_override The default branch to use
+  #   instead of one specified in the module declaration, if applicable.
+  #   Deprecated, use R10K::ModuleLoader::Puppetfile directly and pass
+  #   the default_branch_override as an option on initialization.
   def load(default_branch_override = nil)
-    return true if self.loaded?
-    if File.readable? @puppetfile_path
-      self.load!(default_branch_override)
+    if self.loaded?
+      return @loaded_content
     else
-      logger.debug _("Puppetfile %{path} missing or unreadable") % {path: @puppetfile_path.inspect}
+      self.load!(default_branch_override)
     end
   end
 
+  # @param [String] default_branch_override The default branch to use
+  #   instead of one specified in the module declaration, if applicable.
+  #   Deprecated, use R10K::ModuleLoader::Puppetfile directly and pass
+  #   the default_branch_override as an option on initialization.
   def load!(default_branch_override = nil)
-    @default_branch_override = default_branch_override
+    if !File.readable?(@puppetfile_path)
+      logger.debug _("Puppetfile %{path} missing or unreadable") % {path: @puppetfile_path.inspect}
+      return false
+    end
 
-    dsl = R10K::Puppetfile::DSL.new(self)
-    dsl.instance_eval(puppetfile_contents, @puppetfile_path)
+    if default_branch_override && (default_branch_override != @default_branch_override)
+      logger.warn("Mismatch between passed and initialized default branch overrides, preferring passed value.")
+      @loader.default_branch_override = default_branch_override
+    end
 
-    validate_no_duplicate_names(@modules)
+    @loaded_content = @loader.load
     @loaded = true
-  rescue SyntaxError, LoadError, ArgumentError, NameError => e
-    raise R10K::Error.wrap(e, _("Failed to evaluate %{path}") % {path: @puppetfile_path})
+
+    @loaded_content
   end
 
   def loaded?
     @loaded
   end
 
-  # @param [Array<String>] modules
-  def validate_no_duplicate_names(modules)
-    dupes = modules
-            .group_by { |mod| mod.name }
-            .select { |_, v| v.size > 1 }
-            .map(&:first)
-    unless dupes.empty?
-      msg = _('Puppetfiles cannot contain duplicate module names.')
-      msg += ' '
-      msg += _("Remove the duplicates of the following modules: %{dupes}" % { dupes: dupes.join(' ') })
-      raise R10K::Error.new(msg)
-    end
+  def modules
+    @loaded_content[:modules]
   end
 
-  # @param [String] forge
-  def set_forge(forge)
-    @forge = forge
-  end
-
-  # @param [String] moduledir
-  def set_moduledir(moduledir)
-    @moduledir = if Pathname.new(moduledir).absolute?
-      moduledir
-    else
-      File.join(basedir, moduledir)
-    end
-  end
-
-  # @param [String] name
-  # @param [Hash, String, Symbol] args Calling with anything but a Hash is
-  #   deprecated. The DSL will now convert String and Symbol versions to
-  #   Hashes of the shape
-  #     { version: <String or Symbol> }
-  #
+  # @see R10K::ModuleLoader::Puppetfile#add_module for upcoming signature changes
   def add_module(name, args)
-    if !args.is_a?(Hash)
-      args = { version: args }
-    end
+    @loader.add_module(name, args)
+  end
 
-    args[:overrides] = @overrides
+  def set_moduledir(dir)
+    @loader.set_moduledir(dir)
+  end
 
-    if install_path = args.delete(:install_path)
-      install_path = resolve_install_path(install_path)
-      validate_install_path(install_path, name)
-    else
-      install_path = @moduledir
-    end
+  def set_forge(forge)
+    @loader.set_forge(forge)
+  end
 
-    if @default_branch_override != nil
-      args[:default_branch_override] = @default_branch_override
-    end
+  def moduledir
+    @loader.moduledir
+  end
 
-
-    mod = R10K::Module.new(name, install_path, args, @environment)
-    mod.origin = :puppetfile
-
-    # Do not load modules if they would conflict with the attached
-    # environment
-    if environment && environment.module_conflicts?(mod)
-      mod = nil
-      return @modules
-    end
-
-    # Keep track of all the content this Puppetfile is managing to enable purging.
-    @managed_content[install_path] = Array.new unless @managed_content.has_key?(install_path)
-    @managed_content[install_path] << mod.name
-
-    @modules << mod
+  def environment=(env)
+    @loader.environment = env
+    @environment = env
   end
 
   include R10K::Util::Purgeable
 
   def managed_directories
-    self.load unless @loaded
+    self.load
 
-    dirs = @managed_content.keys
-    dirs.delete(real_basedir)
-    dirs
+    @loaded_content[:managed_directories]
   end
 
   # Returns an array of the full paths to all the content being managed.
   # @note This implements a required method for the Purgeable mixin
   # @return [Array<String>]
   def desired_contents
-    self.load unless @loaded
+    self.load
 
-    @managed_content.flat_map do |install_path, modnames|
-      modnames.collect { |name| File.join(install_path, name) }
-    end
+    @loaded_content[:desired_contents]
   end
 
   def purge_exclusions
-    exclusions = managed_directories
+    self.load
 
-    if environment && environment.respond_to?(:desired_contents)
-      exclusions += environment.desired_contents
-    end
-
-    exclusions
+    @loaded_content[:purge_exclusions]
   end
 
   def accept(visitor)
@@ -225,65 +204,10 @@ class Puppetfile
 
   private
 
-  def puppetfile_contents
-    File.read(@puppetfile_path)
-  end
-
-  def resolve_install_path(path)
-    pn = Pathname.new(path)
-
-    unless pn.absolute?
-      pn = Pathname.new(File.join(basedir, path))
-    end
-
-    # .cleanpath is as good as we can do without touching the filesystem.
-    # The .realpath methods will also choke if some of the intermediate
-    # paths are missing, even though we will create them later as needed.
-    pn.cleanpath.to_s
-  end
-
-  def validate_install_path(path, modname)
-    unless /^#{Regexp.escape(real_basedir)}.*/ =~ path
-      raise R10K::Error.new("Puppetfile cannot manage content '#{modname}' outside of containing environment: #{path} is not within #{real_basedir}")
-    end
-
-    true
-  end
-
   def real_basedir
     Pathname.new(basedir).cleanpath.to_s
   end
 
-  class DSL
-    # A barebones implementation of the Puppetfile DSL
-    #
-    # @api private
-
-    def initialize(librarian)
-      @librarian = librarian
-    end
-
-    def mod(name, args = nil)
-      if args.is_a?(Hash)
-        opts = args
-      else
-        opts = { version: args }
-      end
-
-      @librarian.add_module(name, opts)
-    end
-
-    def forge(location)
-      @librarian.set_forge(location)
-    end
-
-    def moduledir(location)
-      @librarian.set_moduledir(location)
-    end
-
-    def method_missing(method, *args)
-      raise NoMethodError, _("unrecognized declaration '%{method}'") % {method: method}
-    end
-  end
+  DSL = R10K::ModuleLoader::Puppetfile::DSL
 end
 end
