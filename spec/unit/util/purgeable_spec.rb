@@ -19,6 +19,7 @@ RSpec.describe R10K::Util::Purgeable do
       'spec/fixtures/unit/util/purgeable/managed_one/managed_subdir_1/subdir_new_1',
       'spec/fixtures/unit/util/purgeable/managed_two/expected_2',
       'spec/fixtures/unit/util/purgeable/managed_two/new_2',
+      'spec/fixtures/unit/util/purgeable/managed_two/.hidden',
     ]
   end
 
@@ -98,7 +99,13 @@ RSpec.describe R10K::Util::Purgeable do
 
     describe '#current_contents' do
       it 'collects contents of all managed directories recursively' do
-        expect(subject.current_contents(recurse)).to contain_exactly(/\/expected_1/, /\/expected_2/, /\/unmanaged_1/, /\/unmanaged_2/, /\/managed_subdir_1/, /\/subdir_expected_1/, /\/subdir_unmanaged_1/)
+        expect(subject.current_contents(recurse)).
+          to contain_exactly(/\/expected_1/, /\/expected_2/,
+                             /\/unmanaged_1/, /\/unmanaged_2/,
+                             /\/managed_subdir_1/,
+                             /\/subdir_expected_1/, /\/subdir_unmanaged_1/,
+                             /\/managed_subdir_2/, /\/ignored_1/,
+                             /\/\.hidden/)
       end
     end
 
@@ -114,7 +121,8 @@ RSpec.describe R10K::Util::Purgeable do
         let(:whitelist) { [] }
 
         it 'collects current_contents that should not exist recursively' do
-          expect(subject.stale_contents(recurse, exclusions, whitelist)).to contain_exactly(/\/unmanaged_1/, /\/unmanaged_2/, /\/subdir_unmanaged_1/)
+          expect(subject.stale_contents(recurse, exclusions, whitelist)).
+            to contain_exactly(/\/unmanaged_1/, /\/unmanaged_2/, /\/subdir_unmanaged_1/, /\/ignored_1/)
         end
       end
 
@@ -124,7 +132,17 @@ RSpec.describe R10K::Util::Purgeable do
 
         it 'collects current_contents that should not exist except whitelisted items' do
           expect(subject.logger).to receive(:debug).with(/unmanaged_1.*whitelist match/i)
-          expect(subject.stale_contents(recurse, exclusions, whitelist)).to contain_exactly(/\/unmanaged_2/, /\/subdir_unmanaged_1/)
+
+          expect(subject.stale_contents(recurse, exclusions, whitelist)).
+            to contain_exactly(/\/unmanaged_2/, /\/subdir_unmanaged_1/, /\/ignored_1/)
+        end
+
+        it 'does not collect contents that match recursive globbed whitelist items as intermediate values' do
+          recursive_whitelist = ['**/managed_subdir_1/**/*']
+          expect(subject.logger).not_to receive(:debug).with(/ignored_1/)
+
+          expect(subject.stale_contents(recurse, exclusions, recursive_whitelist)).
+            to contain_exactly(/\/unmanaged_2/, /\/managed_one\/unmanaged_1/)
         end
       end
 
@@ -134,7 +152,17 @@ RSpec.describe R10K::Util::Purgeable do
 
         it 'collects current_contents that should not exist except excluded items' do
           expect(subject.logger).to receive(:debug2).with(/unmanaged_2.*internal exclusion match/i)
-          expect(subject.stale_contents(recurse, exclusions, whitelist)).to contain_exactly(/\/unmanaged_1/, /\/subdir_unmanaged_1/)
+
+          expect(subject.stale_contents(recurse, exclusions, whitelist)).
+            to contain_exactly(/\/unmanaged_1/, /\/subdir_unmanaged_1/, /\/ignored_1/)
+        end
+
+        it 'does not collect contents that match recursive globbed exclusion items as intermediate values' do
+          recursive_exclusions = ['**/managed_subdir_1/**/*']
+          expect(subject.logger).not_to receive(:debug).with(/ignored_1/)
+
+          expect(subject.stale_contents(recurse, recursive_exclusions, whitelist)).
+            to contain_exactly(/\/unmanaged_2/, /\/managed_one\/unmanaged_1/)
         end
       end
     end
@@ -179,7 +207,11 @@ RSpec.describe R10K::Util::Purgeable do
     end
 
     context "recursive whitelist glob" do
-      let(:whitelist) { managed_directories.collect { |dir| File.join(dir, "**", "*unmanaged*") } }
+      let(:whitelist) do
+        managed_directories.flat_map do |dir|
+          [File.join(dir, "**", "*unmanaged*"), File.join(dir, "**", "managed_subdir_2")]
+        end
+      end
       let(:purge_opts) { { recurse: true, whitelist: whitelist } }
 
       describe '#purge!' do
@@ -214,7 +246,7 @@ RSpec.describe R10K::Util::Purgeable do
     context "when class does not implement #purge_exclusions" do
       describe '#purge!' do
         it 'purges normally' do
-          expect(FileUtils).to receive(:rm_r).at_least(3).times
+          expect(FileUtils).to receive(:rm_r).at_least(4).times
 
           subject.purge!(purge_opts)
         end
