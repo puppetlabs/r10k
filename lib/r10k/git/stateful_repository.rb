@@ -31,6 +31,10 @@ class R10K::Git::StatefulRepository
   end
 
   def resolve(ref)
+    if ref == :latest
+      @cache.sync!
+      ref = "HEAD"
+    end
     @cache.sync if sync_cache?(ref)
     @cache.resolve(ref)
   end

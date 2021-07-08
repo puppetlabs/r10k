@@ -125,7 +125,8 @@ When Git is used, the module version can be specified by using `:ref`, `:tag`,
 
 When a module is installed using `:ref`, r10k uses some simple heuristics to
 determine the type of Git object that should be checked out. This can be used
-with a git commit, branch reference, or a tag.
+with a git commit, branch reference, or a tag. It can also be `:latest` to track
+HEAD.
 
 When a module is installed using `:tag` or `:commit`, r10k assumes that the
 given object is a tag or commit and can do some optimizations around fetching
@@ -161,6 +162,11 @@ mod 'apache',
 mod 'apache',
   :git    => 'https://github.com/puppetlabs/puppetlabs-apache',
   :branch => 'docs_experiment'
+
+# Install puppetlabs/apache and track HEAD
+mod 'apache',
+  :git    => 'https://github.com/puppetlabs/puppetlabs-apache',
+  :ref    => :latest
 
 # Install puppetlabs/apache and use standard interface parameters pinned to the
 # '2098a17' commit.
