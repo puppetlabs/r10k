@@ -165,7 +165,7 @@ describe R10K::Action::Runner do
       runner.call
     end
 
-    it "does not modify the loglevel if :logle1vel is not provided" do
+    it "does not modify the loglevel if :loglevel is not provided" do
       expect(R10K::Logging).to_not receive(:level=)
       runner.call
     end
