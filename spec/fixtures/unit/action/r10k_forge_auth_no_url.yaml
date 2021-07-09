@@ -1,4 +1,3 @@
 ---
 forge:
-  baseurl: 'http://private-forge.com'
   authorization_token: 'faketoken'

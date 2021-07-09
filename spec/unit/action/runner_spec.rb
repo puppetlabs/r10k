@@ -219,14 +219,24 @@ describe R10K::Action::Runner do
 
   describe "configuration authorization" do
     context "settings auth" do
-      let(:options) { { config: "spec/fixtures/unit/action/r10k_forge_auth.yaml" } }
-
       it "sets the configured token as the forge authorization header" do
+        options = { config: "spec/fixtures/unit/action/r10k_forge_auth.yaml" }
         runner = described_class.new(options, %w[args yes], action_class)
+
+        expect(PuppetForge).to receive(:host=).with('http://private-forge.com')
         expect(PuppetForge::Connection).to receive(:authorization=).with('faketoken')
+        expect(PuppetForge::Connection).to receive(:authorization).and_return('faketoken')
         expect(R10K::Util::License).not_to receive(:load)
         runner.setup_settings
         runner.setup_authorization
+      end
+
+      it 'errors if no custom forge URL is set' do
+        options = { config: "spec/fixtures/unit/action/r10k_forge_auth_no_url.yaml" }
+        runner = described_class.new(options, %w[args yes], action_class)
+        expect(PuppetForge::Connection).not_to receive(:authorization=).with('faketoken')
+
+        expect { runner.setup_settings }.to raise_error(R10K::Error, /Cannot specify a Forge auth/)
       end
     end
 
