@@ -1,10 +1,11 @@
 require 'git_utils'
 require 'r10k_utils'
 require 'master_manipulator'
-test_name 'CODEMGMT-73 - C63184 - Single Environment Purge Unmanaged Modules'
+test_name 'CODEMGMT-78 - Puppetfile Purge --puppetfile & --moduledir flag usage'
 
 #Init
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
+moduledir = on(master, puppet('config', 'print', 'environmentpath')).stdout.strip + '/production/modules'
 git_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_environments_path)
 r10k_fqp = get_r10k_fqp(master)
@@ -13,8 +14,6 @@ r10k_fqp = get_r10k_fqp(master)
 motd_path = '/etc/motd'
 motd_contents = 'Hello!'
 motd_contents_regex = /\A#{motd_contents}\z/
-
-error_message_regex = /Blah/
 
 #File
 puppet_file = <<-PUPPETFILE
@@ -48,9 +47,6 @@ stub_forge_on(master)
 step 'Checkout "production" Branch'
 git_on(master, 'checkout production', git_environments_path)
 
-step 'Manually Install the "motd" Module from the Forge'
-on(master, puppet('module install puppetlabs-motd'))
-
 step 'Create "Puppetfile" for the "production" Environment'
 create_remote_file(master, puppet_file_path, puppet_file)
 
@@ -60,13 +56,13 @@ inject_site_pp(master, site_pp_path, site_pp)
 step 'Push Changes'
 git_add_commit_push(master, 'production', 'Update site.pp and add module.', git_environments_path)
 
-#Tests
 step 'Deploy Environments via r10k'
 on(master, "#{r10k_fqp} deploy environment -v -p")
 
-step 'Plug-in Sync Agents'
-on(agents, puppet("plugin download --server #{master}"))
+step 'Manually Install the "motd" Module from the Forge'
+on(master, puppet("module install puppetlabs-motd --modulepath #{moduledir}"))
 
+#Tests
 agents.each do |agent|
   step 'Run Puppet Agent Against "production" Environment'
   on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => 2) do |result|
@@ -80,14 +76,12 @@ agents.each do |agent|
 end
 
 step 'Use r10k to Purge Unmanaged Modules'
-on(master, "#{r10k_fqp} puppetfile purge -v", :acceptable_exit_codes => 1)
+on(master, "#{r10k_fqp} puppetfile purge -v --puppetfile #{puppet_file_path} --moduledir #{moduledir}")
 
 #Agent will fail because r10k will purge the "motd" module
 agents.each do |agent|
   step 'Attempt to Run Puppet Agent'
-  on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => 0) do |result|
-    expect_failure('Expected to fail due to CODEMGMT-78') do
-      assert_match(error_message_regex, result.stderr, 'Expected error was not detected!')
-    end
+  on(agent, puppet('agent', '--test', '--environment production'), :acceptable_exit_codes => 1) do |result|
+    assert_match(/Could not find declared class motd/, result.stderr, 'Module was not purged')
   end
 end
