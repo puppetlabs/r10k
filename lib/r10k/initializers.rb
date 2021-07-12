@@ -63,6 +63,13 @@ module R10K
       def call
         with_setting(:baseurl) { |value| PuppetForge.host = value }
         with_setting(:proxy) { |value| PuppetForge::Connection.proxy = value }
+        with_setting(:authorization_token) { |value|
+          if @settings[:baseurl]
+            PuppetForge::Connection.authorization = value
+          else
+            raise R10K::Error, "Cannot specify a Forge authorization token without configuring a custom baseurl."
+          end
+        }
       end
     end
   end

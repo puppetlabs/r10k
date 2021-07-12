@@ -218,42 +218,66 @@ describe R10K::Action::Runner do
   end
 
   describe "configuration authorization" do
-    context "when license is not present" do
-      before(:each) do
-        expect(R10K::Util::License).to receive(:load).and_return(nil)
+    context "settings auth" do
+      it "sets the configured token as the forge authorization header" do
+        options = { config: "spec/fixtures/unit/action/r10k_forge_auth.yaml" }
+        runner = described_class.new(options, %w[args yes], action_class)
+
+        expect(PuppetForge).to receive(:host=).with('http://private-forge.com')
+        expect(PuppetForge::Connection).to receive(:authorization=).with('faketoken')
+        expect(PuppetForge::Connection).to receive(:authorization).and_return('faketoken')
+        expect(R10K::Util::License).not_to receive(:load)
+        runner.setup_settings
+        runner.setup_authorization
       end
 
-      it "does not set authorization header on connection class" do
-        expect(PuppetForge::Connection).not_to receive(:authorization=)
-        runner.setup_authorization
+      it 'errors if no custom forge URL is set' do
+        options = { config: "spec/fixtures/unit/action/r10k_forge_auth_no_url.yaml" }
+        runner = described_class.new(options, %w[args yes], action_class)
+        expect(PuppetForge::Connection).not_to receive(:authorization=).with('faketoken')
+
+        expect { runner.setup_settings }.to raise_error(R10K::Error, /Cannot specify a Forge auth/)
       end
     end
 
-    context "when license is present but invalid" do
-      before(:each) do
-        expect(R10K::Util::License).to receive(:load).and_raise(R10K::Error.new('invalid license'))
+    context "license auth" do
+      context "when license is not present" do
+        before(:each) do
+          expect(R10K::Util::License).to receive(:load).and_return(nil)
+        end
+
+        it "does not set authorization header on connection class" do
+          expect(PuppetForge::Connection).not_to receive(:authorization=)
+          runner.setup_authorization
+        end
       end
 
-      it "issues warning to logger" do
-        expect(runner.logger).to receive(:warn).with(/invalid license/)
-        runner.setup_authorization
+      context "when license is present but invalid" do
+        before(:each) do
+          expect(R10K::Util::License).to receive(:load).and_raise(R10K::Error.new('invalid license'))
+        end
+
+        it "issues warning to logger" do
+          expect(runner.logger).to receive(:warn).with(/invalid license/)
+          runner.setup_authorization
+        end
+
+        it "does not set authorization header on connection class" do
+          expect(PuppetForge::Connection).not_to receive(:authorization=)
+          runner.setup_authorization
+        end
       end
 
-      it "does not set authorization header on connection class" do
-        expect(PuppetForge::Connection).not_to receive(:authorization=)
-        runner.setup_authorization
-      end
-    end
+      context "when license is present and valid" do
+        before(:each) do
+          mock_license = double('pe-license', :authorization_token => 'test token')
+          expect(R10K::Util::License).to receive(:load).and_return(mock_license)
+        end
 
-    context "when license is present and valid" do
-      before(:each) do
-        mock_license = double('pe-license', :authorization_token => 'test token')
-        expect(R10K::Util::License).to receive(:load).and_return(mock_license)
-      end
-
-      it "sets authorization header on connection class" do
-        expect(PuppetForge::Connection).to receive(:authorization=).with('test token')
-        runner.setup_authorization
+        it "sets authorization header on connection class" do
+          expect(PuppetForge::Connection).to receive(:authorization=).with('test token')
+          runner.setup_authorization
+        end
       end
     end
   end

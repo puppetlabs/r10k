@@ -250,8 +250,12 @@ describe R10K::Settings do
 
     describe "forge settings" do
       it "passes settings through to the forge settings" do
-        output = subject.evaluate("forge" => {"baseurl" => "https://forge.tessier-ashpool.freeside", "proxy" => "https://proxy.tessier-ashpool.freesize:3128"})
-        expect(output[:forge]).to eq(:baseurl => "https://forge.tessier-ashpool.freeside", :proxy => "https://proxy.tessier-ashpool.freesize:3128")
+        output = subject.evaluate("forge" => {"baseurl" => "https://forge.tessier-ashpool.freeside",
+                                              "proxy" => "https://proxy.tessier-ashpool.freesize:3128",
+                                              "authorization_token" => "faketoken"})
+        expect(output[:forge]).to eq(:baseurl => "https://forge.tessier-ashpool.freeside",
+                                     :proxy => "https://proxy.tessier-ashpool.freesize:3128",
+                                     :authorization_token => "faketoken")
       end
     end
   end

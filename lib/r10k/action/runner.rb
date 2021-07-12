@@ -67,15 +67,20 @@ module R10K
         exit(8)
       end
 
+      # Set up authorization from license file if it wasn't
+      # already set via the config
       def setup_authorization
-        begin
-          license = R10K::Util::License.load
+        if PuppetForge::Connection.authorization.nil?
+          begin
+            license = R10K::Util::License.load
 
-          if license.respond_to?(:authorization_token)
-            PuppetForge::Connection.authorization = license.authorization_token
+            if license.respond_to?(:authorization_token)
+              logger.debug "Using token from license to connect to the Forge."
+              PuppetForge::Connection.authorization = license.authorization_token
+            end
+          rescue R10K::Error => e
+            logger.warn e.message
           end
-        rescue R10K::Error => e
-          logger.warn e.message
         end
       end
 
