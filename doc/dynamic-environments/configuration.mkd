@@ -165,9 +165,16 @@ interactions. See the global proxy setting documentation for more information an
 The 'baseurl' setting indicates where Forge modules should be installed from.
 This defaults to 'https://forgeapi.puppetlabs.com'
 
+#### authorization_token
+
+The 'authorization_token' setting allows you to provide a token for authenticating to a
+custom Forge server. When set, 'baseurl' must also be set.
+You will need to prepend your token with 'Bearer ' if using Artifactory as your Forge server.
+
 ```yaml
 forge:
   baseurl: 'https://private-forge.mysite'
+  authorization_token: 'Bearer mysupersecretauthtoken'
 ```
 
 Deployment options
