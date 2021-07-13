@@ -48,9 +48,9 @@ module R10K
         dsl.instance_eval(puppetfile_content(@puppetfile), @puppetfile)
 
         validate_no_duplicate_names(@modules)
-        @modules.freeze
+        @modules
 
-        managed_content = @modules.group_by(&:dirname).freeze
+        managed_content = @modules.group_by(&:dirname)
 
         @managed_directories = determine_managed_directories(managed_content)
         @desired_contents = determine_desired_contents(managed_content)

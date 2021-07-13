@@ -68,34 +68,57 @@ describe R10K::Puppetfile do
   end
 
   describe "loading a Puppetfile" do
-    it "returns the loaded content" do
-      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
-      subject = described_class.new(path, {})
+    context 'using load' do
+      it "returns the loaded content" do
+        path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
+        subject = described_class.new(path, {})
 
-      loaded_content = subject.load
-      expect(loaded_content).to be_an_instance_of(Hash)
+        loaded_content = subject.load
+        expect(loaded_content).to be_an_instance_of(Hash)
 
-      has_some_data = loaded_content.values.none?(&:empty?)
-      expect(has_some_data).to be true
+        has_some_data = loaded_content.values.none?(&:empty?)
+        expect(has_some_data).to be true
+      end
+
+      it "is idempotent" do
+        path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
+        subject = described_class.new(path, {})
+
+        expect(subject.loader).to receive(:load).and_call_original.once
+
+        loaded_content1 = subject.load
+        expect(subject.loaded?).to be true
+        loaded_content2 = subject.load
+
+        expect(loaded_content2).to eq(loaded_content1)
+      end
+
+      it "returns nil if Puppetfile doesn't exist" do
+        path = '/rando/path/that/wont/exist'
+        subject = described_class.new(path, {})
+        expect(subject.load).to eq nil
+      end
     end
 
-    it "is idempotent" do
-      path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
-      subject = described_class.new(path, {})
+    context 'using load!' do
+      it "returns the loaded content" do
+        path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
+        subject = described_class.new(path, {})
 
-      expect(subject.loader).to receive(:load).and_call_original.once
+        loaded_content = subject.load!
+        expect(loaded_content).to be_an_instance_of(Hash)
 
-      loaded_content1 = subject.load
-      expect(subject.loaded?).to be true
-      loaded_content2 = subject.load
+        has_some_data = loaded_content.values.none?(&:empty?)
+        expect(has_some_data).to be true
+      end
 
-      expect(loaded_content2).to eq(loaded_content1)
-    end
-
-    it "returns false if Puppetfile doesn't exist" do
-      path = '/rando/path/that/wont/exist'
-      subject = described_class.new(path, {})
-      expect(subject.load).to eq false
+      it "raises if Puppetfile doesn't exist" do
+        path = '/rando/path/that/wont/exist'
+        subject = described_class.new(path, {})
+        expect {
+          subject.load!
+        }.to raise_error(/No such file or directory.*\/rando\/path\/.*/)
+      end
     end
   end
 
