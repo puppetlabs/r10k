@@ -3,7 +3,7 @@ require 'r10k/action/puppetfile/check'
 
 describe R10K::Action::Puppetfile::Check do
   let(:default_opts) { {root: "/some/nonexistent/path"} }
-  let(:puppetfile) { instance_double('R10K::Puppetfile', :load! => true) }
+  let(:loader) { instance_double('R10K::ModuleLoader::Puppetfile', :load => {}) }
 
   def checker(opts = {}, argv = [], settings = {})
     opts = default_opts.merge(opts)
@@ -11,7 +11,11 @@ describe R10K::Action::Puppetfile::Check do
   end
 
   before(:each) do
-    allow(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", {moduledir: nil, puppetfile_path: nil}).and_return(puppetfile)
+    allow(R10K::ModuleLoader::Puppetfile).
+      to receive(:new).
+      with({
+        basedir: "/some/nonexistent/path",
+      }).and_return(loader)
   end
 
   it_behaves_like "a puppetfile action"
@@ -23,8 +27,11 @@ describe R10K::Action::Puppetfile::Check do
   end
 
   it "prints an error message when validating the Puppetfile syntax raised an error" do
-    allow(puppetfile).to receive(:load!).and_raise(R10K::Error.new("Boom!"))
-    allow(R10K::Errors::Formatting).to receive(:format_exception).with(instance_of(R10K::Error), anything).and_return("Formatted error message")
+    allow(loader).to receive(:load).and_raise(R10K::Error.new("Boom!"))
+    allow(R10K::Errors::Formatting).
+      to receive(:format_exception).
+      with(instance_of(R10K::Error), anything).
+      and_return("Formatted error message")
 
     expect($stderr).to receive(:puts).with("Formatted error message")
 
@@ -34,7 +41,12 @@ describe R10K::Action::Puppetfile::Check do
   it "respects --puppetfile option" do
     allow($stderr).to receive(:puts)
 
-    expect(R10K::Puppetfile).to receive(:new).with("/some/nonexistent/path", {moduledir: nil, puppetfile_path: "/custom/puppetfile/path"}).and_return(puppetfile)
+    expect(R10K::ModuleLoader::Puppetfile).
+      to receive(:new).
+      with({
+        basedir: "/some/nonexistent/path",
+        puppetfile: "/custom/puppetfile/path"
+      }).and_return(loader)
 
     checker({puppetfile: "/custom/puppetfile/path"}).call
   end

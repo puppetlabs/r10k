@@ -1,6 +1,6 @@
-require 'r10k/puppetfile'
 require 'r10k/action/base'
 require 'r10k/errors/formatting'
+require 'r10k/module_loader/puppetfile'
 
 module R10K
   module Action
@@ -8,11 +8,13 @@ module R10K
       class Check < R10K::Action::Base
 
         def call
-          pf = R10K::Puppetfile.new(@root,
-                                    {moduledir: @moduledir,
-                                     puppetfile_path: @puppetfile})
+          options = { basedir: @root }
+          options[:moduledir] = @moduledir if @moduledir
+          options[:puppetfile] = @puppetfile if @puppetfile
+
+          loader = R10K::ModuleLoader::Puppetfile.new(**options)
           begin
-            pf.load!
+            loader.load
             $stderr.puts _("Syntax OK")
             true
           rescue => e
