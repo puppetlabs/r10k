@@ -1,7 +1,7 @@
-require 'r10k/puppetfile'
-require 'r10k/util/cleaner'
 require 'r10k/action/base'
 require 'r10k/errors/formatting'
+require 'r10k/module_loader/puppetfile'
+require 'r10k/util/cleaner'
 
 module R10K
   module Action
@@ -9,13 +9,16 @@ module R10K
       class Purge < R10K::Action::Base
 
         def call
-          pf = R10K::Puppetfile.new(@root,
-                                    {moduledir: @moduledir,
-                                     puppetfile_path: @puppetfile})
-          pf.load!
-          R10K::Util::Cleaner.new(pf.managed_directories,
-                                  pf.desired_contents,
-                                  pf.purge_exclusions).purge!
+          options = { basedir: @root }
+
+          options[:moduledir]  = @moduledir  if @moduledir
+          options[:puppetfile] = @puppetfile if @puppetfile
+
+          loader = R10K::ModuleLoader::Puppetfile.new(**options)
+          loaded_content = loader.load
+          R10K::Util::Cleaner.new(loaded_content[:managed_directories],
+                                  loaded_content[:desired_contents],
+                                  loaded_content[:purge_exclusions]).purge!
 
           true
         rescue => e
