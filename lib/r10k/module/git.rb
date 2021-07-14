@@ -99,7 +99,9 @@ class R10K::Module::Git < R10K::Module::Base
   private
 
   def validate_ref(desired, default, default_override)
-    if desired && desired != :control_branch && @repo.resolve(desired)
+    if desired && desired == :latest
+      return @repo.resolve(desired)
+    elsif desired && desired != :control_branch && @repo.resolve(desired)
       return desired
     elsif default_override && @repo.resolve(default_override)
       return default_override
