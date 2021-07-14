@@ -16,7 +16,7 @@ module R10K
             options[:puppetfile] = @puppetfile if @puppetfile
 
             loader = R10K::ModuleLoader::Puppetfile.new(**options)
-            loaded_content = loader.load
+            loaded_content = loader.load!
 
             pool_size = @settings[:pool_size] || 4
             modules   = loaded_content[:modules]

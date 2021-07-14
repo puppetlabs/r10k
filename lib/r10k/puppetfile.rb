@@ -120,7 +120,7 @@ class Puppetfile
       @loader.default_branch_override = default_branch_override
     end
 
-    @loaded_content = @loader.load
+    @loaded_content = @loader.load!
     @loaded = true
 
     @loaded_content

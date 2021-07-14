@@ -5,7 +5,7 @@ describe R10K::Action::Puppetfile::Purge do
   let(:default_opts) { {root: "/some/nonexistent/path"} }
   let(:puppetfile) do
     instance_double('R10K::ModuleLoader::Puppetfile',
-                    :load => {
+                    :load! => {
                       :modules             => %w{mod},
                       :managed_directories => %w{foo},
                       :desired_contents    => %w{bar},

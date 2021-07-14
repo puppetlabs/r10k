@@ -51,6 +51,20 @@ module R10K
       end
 
       def load
+        if !File.readable?(@puppetfile_path)
+          logger.debug _("Puppetfile %{path} missing or unreadable") % {path: @puppetfile_path.inspect}
+          {
+            modules: [],
+            managed_directories: [],
+            desired_contents: [],
+            purge_exclusions: []
+          }
+        else
+          self.load!
+        end
+      end
+
+      def load!
         dsl = R10K::ModuleLoader::Puppetfile::DSL.new(self)
         dsl.instance_eval(puppetfile_content(@puppetfile_path), @puppetfile_path)
 

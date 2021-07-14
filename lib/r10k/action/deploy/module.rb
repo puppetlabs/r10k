@@ -39,6 +39,7 @@ module R10K
               },
               modules: {
                 exclude_spec: settings.dig(:deploy, :exclude_spec),
+                pool_size: @settings[:pool_size] || 4,
                 requested_modules: @argv.map.to_a,
                 # force here is used to make it easier to reason about
                 force: !@no_force

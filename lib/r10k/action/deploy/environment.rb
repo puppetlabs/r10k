@@ -47,6 +47,7 @@ module R10K
                 exclude_spec: settings.dig(:deploy, :exclude_spec),
                 requested_modules: [],
                 deploy_modules: @modules,
+                pool_size: @settings[:pool_size] || 4,
                 force: !@no_force, # force here is used to make it easier to reason about
               },
               purging: {

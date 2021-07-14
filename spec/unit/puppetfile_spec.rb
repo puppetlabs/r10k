@@ -114,7 +114,7 @@ describe R10K::Puppetfile do
         path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
         subject = described_class.new(path, {})
 
-        expect(subject.loader).to receive(:load).and_call_original.once
+        expect(subject.loader).to receive(:load!).and_call_original.once
 
         loaded_content1 = subject.load
         expect(subject.loaded?).to be true

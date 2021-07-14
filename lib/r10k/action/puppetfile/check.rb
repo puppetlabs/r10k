@@ -14,7 +14,7 @@ module R10K
 
           loader = R10K::ModuleLoader::Puppetfile.new(**options)
           begin
-            loader.load
+            loader.load!
             $stderr.puts _("Syntax OK")
             true
           rescue => e

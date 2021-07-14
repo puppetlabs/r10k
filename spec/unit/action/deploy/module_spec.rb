@@ -77,6 +77,11 @@ describe R10K::Action::Deploy::Module do
             basedir: '/some/nonexistent/path/control',
             environments: %w[first second]
           }
+        },
+        overrides: {
+          modules: {
+            pool_size: 4
+          }
         }
       )
     end
@@ -107,7 +112,7 @@ describe R10K::Action::Deploy::Module do
             expect(environment).not_to receive(:generate_types!)
           end
           @modules << mod
-          expect(environment.puppetfile).to receive(:modules).and_return([mod]).twice
+          expect(environment.puppetfile).to receive(:modules).and_return([mod]).once
           original.call(environment, &block)
         end
       end
@@ -248,29 +253,27 @@ describe R10K::Action::Deploy::Module do
         # For this test we want to have realistic Modules and access to
         # their internal Repos to validate the sync. Unfortunately, to
         # do so we do some invasive mocking, effectively implementing
-        # our own R10K::Puppetfile#load. We directly update the Puppetfile's
-        # internal ModuleLoader and then call `load` on it so it will create
-        # the correct loaded_content.
-        puppetfile = environment.puppetfile
-        loader = puppetfile.loader
-        expect(puppetfile).to receive(:load) do
+        # our own R10K::ModuleLoader::Puppetfile#load. We directly update
+        # the Environment's internal ModuleLoader and then call `load` on
+        # it so it will create the correct loaded_content.
+        loader = environment.loader
+        allow(loader).to receive(:puppetfile_content).and_return('')
+        expect(loader).to receive(:load) do
           loader.add_module('mod1', { git: 'git://remote' })
           loader.add_module('mod2', { git: 'git://remote' })
           loader.add_module('mod3', { git: 'git://remote' })
 
-          allow(loader).to receive(:puppetfile_content).and_return('')
-          loaded_content = loader.load
-          puppetfile.instance_variable_set(:@loaded_content, loaded_content)
-          puppetfile.instance_variable_set(:@loaded, true)
-        end
-
-        puppetfile.modules.each do |mod|
-          if ['mod1', 'mod2'].include?(mod.name)
-            expect(mod.should_sync?).to be(true)
-          else
-            expect(mod.should_sync?).to be(false)
+          loaded_content = loader.load!
+          loaded_content[:modules].each do |mod|
+            if ['mod1', 'mod2'].include?(mod.name)
+              expect(mod.should_sync?).to be(true)
+            else
+              expect(mod.should_sync?).to be(false)
+            end
+            expect(mod).to receive(:sync).and_call_original
           end
-          expect(mod).to receive(:sync).and_call_original
+
+          loaded_content
         end
 
         original.call(environment, &block)
@@ -307,36 +310,35 @@ describe R10K::Action::Deploy::Module do
                                                                                      R10K::Environment::Name.new('second', {})])
 
       expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
-        puppetfile = environment.puppetfile
+        loader = environment.loader
 
         if environment.name == 'first'
           # For this test we want to have realistic Modules and access to
           # their internal Repos to validate the sync. Unfortunately, to
           # do so we do some invasive mocking, effectively implementing
-          # our own R10K::Puppetfile#load. We directly update the Puppetfile's
-          # internal ModuleLoader and then call `load` on it so it will create
-          # the correct loaded_content.
-          loader = puppetfile.loader
-          expect(puppetfile).to receive(:load) do
+          # our own R10K::ModuleLoader::Puppetfile#load. We directly update
+          # the Environment's internal ModuleLoader and then call `load` on
+          # it so it will create the correct loaded_content.
+          allow(loader).to receive(:puppetfile_content).and_return('')
+          expect(loader).to receive(:load) do
             loader.add_module('mod1', { git: 'git://remote' })
             loader.add_module('mod2', { git: 'git://remote' })
 
-            allow(loader).to receive(:puppetfile_content).and_return('')
-            loaded_content = loader.load
-            puppetfile.instance_variable_set(:@loaded_content, loaded_content)
-            puppetfile.instance_variable_set(:@loaded, true)
+            loaded_content = loader.load!
+            loaded_content[:modules].each do |mod|
+              if mod.name == 'mod1'
+                expect(mod.should_sync?).to be(true)
+              else
+                expect(mod.should_sync?).to be(false)
+              end
+              expect(mod).to receive(:sync).and_call_original
+            end
+
+            loaded_content
           end
 
-          puppetfile.modules.each do |mod|
-            if mod.name == 'mod1'
-              expect(mod.should_sync?).to be(true)
-            else
-              expect(mod.should_sync?).to be(false)
-            end
-            expect(mod).to receive(:sync).and_call_original
-          end
         else
-          expect(puppetfile).not_to receive(:load)
+          expect(loader).not_to receive(:load)
         end
 
         original.call(environment, &block)

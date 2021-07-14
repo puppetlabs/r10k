@@ -15,7 +15,7 @@ module R10K
           options[:puppetfile] = @puppetfile if @puppetfile
 
           loader = R10K::ModuleLoader::Puppetfile.new(**options)
-          loaded_content = loader.load
+          loaded_content = loader.load!
           R10K::Util::Cleaner.new(loaded_content[:managed_directories],
                                   loaded_content[:desired_contents],
                                   loaded_content[:purge_exclusions]).purge!
