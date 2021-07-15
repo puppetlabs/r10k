@@ -2,12 +2,16 @@ CHANGELOG
 =========
 
 Unreleased
+----------
+
+3.10.0
+------
 
 - Add `authorization_token` setting to allow authentication to a custom Forge server. [#1181](https://github.com/puppetlabs/r10k/pull/1181)
 - (RK-135) Attempting to download the latest version for a module that has no Forge releases will now issue a meaningful error. [#1177](https://github.com/puppetlabs/r10k/pull/1177)
 - Added an interface to R10K::Source::Base named `reload!` for updating the environments list for a given deployment; `reload!` is called before deployment purges to make r10k deploy pools more threadsafe. [#1172](https://github.com/puppetlabs/r10k/pull/1172)
 - Remove username and password from remote url in cache directory name [#1186](https://github.com/puppetlabs/r10k/pull/1186)
-----------
+- Purging efficiency is greatly improved. R10K will no longer recurse into directories that match recursive purge exclusions. This should significantly improve the deploy times for those users who enable the "environment" purge level. [#1178](https://github.com/puppetlabs/r10k/pull/1178)
 
 3.9.3
 -----
