@@ -116,16 +116,12 @@ module R10K
           raise R10K::Error, "Cannot specify both an SSH key and a token to use with this deploy."
         end
 
-        if sshkey_path && app_private_key_path
-          raise R10K::Error, "Cannot specify both a SSH key and a SSL key to use with this deploy."
+        if sshkey_path && app_private_key_path || app_private_key_path && token_path || app_id && token_path || app_id && sshkey_path
+          raise R10K::Error, "Cannot specify both an SSH key and an SSL key or token to use with this deploy."
         end
 
-        if app_id && token_path
-          raise R10K::Error, "Cannot specify both a Github App and a token to use with this deploy."
-        end
-
-        if app_id && ! app_private_key_path or app_private_key_path && ! app_id
-          raise R10K::Error, "Both id and private key are required with Github App to use with this deploy."
+        if app_id && ! app_private_key_path || app_private_key_path && ! app_id
+          raise R10K::Error, "Must specify both id and SSL private key to use Github App for this deploy."
         end
 
         if sshkey_path
