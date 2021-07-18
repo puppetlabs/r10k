@@ -151,14 +151,18 @@ class R10K::Git::Rugged::Credentials
 
     begin
       ssl_key = OpenSSL::PKey::RSA.new(File.read(private_key).strip)
-      ssl_key.private?
+      unless ssl_key.private?
+        raise R10K::Git::GitError, _('App key is not a valid SSL private key')
+      end
     rescue OpenSSL::PKey::RSAError
-      raise R10K::Git::GitError, _('App key is not a valid SSL private key')
+      raise R10K::Git::GitError, _('App key is not a valid SSL key')
     end
 
-    logger.debug2 _("Using Github App token from %{token_path} and id %{app_id}") % { token_path: private_key, app_id: app_id }
+    logger.debug2 _("Using Github App id %{app_id} with token from %{token_path}") % { token_path: private_key, app_id: app_id }
 
-    payload = { iat: Time.now.to_i, exp: Time.now.to_i + ttl.to_i, iss: app_id }
+    jwt_issue_time = Time.now.to_i - 60
+    jwt_exp_time = (jwt_issue_time + 60) + ttl.to_i
+    payload = { iat: jwt_issue_time, exp: jwt_exp_time, iss: app_id }
     jwt = JWT.encode(payload, ssl_key, "RS256")
 
     get = URI.parse("https://api.github.com/app/installations")
@@ -170,6 +174,11 @@ class R10K::Git::Rugged::Credentials
       http.request(get_request)
     end
 
+    unless (get_response.class < Net::HTTPSuccess)
+      logger.debug2 _("Unexpected response code: #{get_response.code}\nResponse body: #{get_response.body}")
+      raise R10K::Git::GitError, _("Error using private key to generate access token url")
+    end
+
     access_tokens_url = JSON.parse(get_response.body)[0]['access_tokens_url']
 
     post = URI.parse(access_tokens_url)
@@ -179,6 +188,11 @@ class R10K::Git::Rugged::Credentials
     post_req_options = { use_ssl: post.scheme == "https", }
     post_response = Net::HTTP.start(post.hostname, post.port, post_req_options) do |http|
       http.request(post_request)
+    end
+
+    unless (get_response.class < Net::HTTPSuccess)
+      logger.debug2 _("Unexpected response code: #{get_response.code}\nResponse body: #{get_response.body}")
+      raise R10K::Git::GitError, _("Error using private key to generate access token url")
     end
 
     token = JSON.parse(post_response.body)['token']
