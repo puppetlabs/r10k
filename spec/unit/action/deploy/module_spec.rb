@@ -41,6 +41,18 @@ describe R10K::Action::Deploy::Module do
     it 'can accept a token option' do
       described_class.new({ 'oauth-token': '/nonexistent' }, [], {})
     end
+
+    it 'can accept an app id option' do
+      described_class.new({ 'github-app-id': '/nonexistent' }, [], {})
+    end
+
+    it 'can accept a ttl option' do
+      described_class.new({ 'github-app-ttl': '/nonexistent' }, [], {})
+    end
+
+    it 'can accept a ssl private key option' do
+      described_class.new({ 'github-app-key': '/nonexistent' }, [], {})
+    end
   end
 
   describe "with no-force" do
@@ -174,6 +186,33 @@ describe R10K::Action::Deploy::Module do
 
     it 'sets token_path' do
       expect(subject.instance_variable_get(:@oauth_token)).to eq('/nonexistent')
+    end
+  end
+
+  describe 'with github-app-id' do
+
+    subject { described_class.new({ config: '/some/nonexistent/path', 'github-app-id': '/nonexistent' }, [], {}) }
+
+    it 'sets github-app-id' do
+      expect(subject.instance_variable_get(:@github_app_id)).to eq('/nonexistent')
+    end
+  end
+
+  describe 'with github-app-key' do
+
+    subject { described_class.new({ config: '/some/nonexistent/path', 'github-app-key': '/nonexistent' }, [], {}) }
+
+    it 'sets github-app-key' do
+      expect(subject.instance_variable_get(:@github_app_key)).to eq('/nonexistent')
+    end
+  end
+
+  describe 'with github-app-ttl' do
+
+    subject { described_class.new({ config: '/some/nonexistent/path', 'github-app-ttl': '/nonexistent' }, [], {}) }
+
+    it 'sets github-app-ttl' do
+      expect(subject.instance_variable_get(:@github_app_ttl)).to eq('/nonexistent')
     end
   end
 
