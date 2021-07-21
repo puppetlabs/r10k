@@ -90,7 +90,7 @@ module R10K
       def resolve
         if !@value.nil?
           @value
-        elsif @default
+        elsif !@default.nil?
           if @default == :inherit
             # walk all the way up to root, starting with grandparent
             ancestor = parent

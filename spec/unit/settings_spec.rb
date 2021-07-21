@@ -95,6 +95,24 @@ describe R10K::Settings do
   describe "deploy settings" do
     subject { described_class.deploy_settings }
 
+    describe 'deploy_spec' do
+      it 'is false by default' do
+        expect(subject.evaluate({})[:deploy_spec]).to eq(false)
+      end
+      it 'can be set to true' do
+        expect(subject.evaluate({"deploy_spec" => true})[:deploy_spec]).to eq(true)
+      end
+      it "raises an error for non-boolean values" do
+        expect {
+          subject.evaluate({"deploy_spec" => 'invalid_string'})
+        }.to raise_error do |err|
+          expect(err.message).to match(/Validation failed for 'deploy' settings group/)
+          expect(err.errors.size).to eq 1
+          expect(err.errors[:deploy_spec]).to be_a_kind_of(ArgumentError)
+          expect(err.errors[:deploy_spec].message).to match(/`deploy_spec` can only be a boolean value, not 'invalid_string'/)
+        end
+      end
+    end
     describe "write_lock" do
       it "accepts a string with a reason for the write lock" do
         output = subject.evaluate("write_lock" => "No maintenance window active, code freeze till 2038-01-19")

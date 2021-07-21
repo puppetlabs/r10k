@@ -44,10 +44,13 @@ module R10K
 
         overrides = {}
         overrides[:cachedir] = @opts[:cachedir] if @opts.key?(:cachedir)
-        overrides[:deploy] = {} if @opts.key?(:'puppet-path') || @opts.key?(:'generate-types')
-        overrides[:deploy][:puppet_path] = @opts[:'puppet-path'] if @opts.key?(:'puppet-path')
-        overrides[:deploy][:puppet_conf] = @opts[:'puppet-conf'] unless @opts[:'puppet-conf'].nil?
-        overrides[:deploy][:generate_types] = @opts[:'generate-types'] if @opts.key?(:'generate-types')
+        if @opts.key?(:'puppet-path') || @opts.key?(:'generate-types') || @opts.key?(:'deploy-spec') || @opts.key?(:'puppet-conf')
+          overrides[:deploy] = {}
+          overrides[:deploy][:puppet_path] = @opts[:'puppet-path'] if @opts.key?(:'puppet-path')
+          overrides[:deploy][:puppet_conf] = @opts[:'puppet-conf'] if @opts.key?(:'puppet-conf')
+          overrides[:deploy][:generate_types] = @opts[:'generate-types'] if @opts.key?(:'generate-types')
+          overrides[:deploy][:deploy_spec] = @opts[:'deploy-spec'] if @opts.key?(:'deploy-spec')
+        end
 
         with_overrides = config_settings.merge(overrides) do |key, oldval, newval|
           newval = oldval.merge(newval) if oldval.is_a? Hash
