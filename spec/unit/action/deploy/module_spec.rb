@@ -306,5 +306,140 @@ describe R10K::Action::Deploy::Module do
       subject.call
     end
   end
+
+
+  describe "postrun" do
+    let(:mock_config) do
+      R10K::Deployment::MockConfig.new(
+        :sources => {
+          :control => {
+            :type => :mock,
+            :basedir => '/some/nonexistent/path/control',
+            :environments => %w[first second third],
+          }
+        }
+      )
+    end
+
+    context "basic postrun hook" do
+      let(:settings) { { postrun: ["/path/to/executable", "arg1", "arg2"] } }
+      let(:deployment) { R10K::Deployment.new(mock_config.merge(settings)) }
+
+      before do
+        expect(R10K::Deployment).to receive(:new).and_return(deployment)
+      end
+
+      subject do
+        described_class.new({config: "/some/nonexistent/path" },
+                            ['mod1'], settings)
+      end
+
+      it "is passed to Subprocess" do
+        mock_subprocess = double
+        allow(mock_subprocess).to receive(:logger=)
+        expect(mock_subprocess).to receive(:execute)
+
+        expect(R10K::Util::Subprocess).to receive(:new).
+          with(["/path/to/executable", "arg1", "arg2"]).
+          and_return(mock_subprocess)
+
+        expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
+          modified = subject.instance_variable_get(:@modified_envs) << environment
+          subject.instance_variable_set(:modified_envs, modified)
+        end.exactly(3).times
+
+        subject.call
+      end
+    end
+
+    context "supports environments" do
+      context "with one environment" do
+        let(:settings) { { postrun: ["/generate/types/wrapper", "$modifiedenvs"] } }
+        let(:deployment) { R10K::Deployment.new(mock_config.merge(settings)) }
+
+        before do
+          expect(R10K::Deployment).to receive(:new).and_return(deployment)
+        end
+
+        subject do
+          described_class.new({ config: '/some/nonexistent/path',
+                                environment: 'first' },
+                               ['mod1'], settings)
+        end
+
+        it "properly substitutes the environment" do
+          mock_subprocess = double
+          allow(mock_subprocess).to receive(:logger=)
+          expect(mock_subprocess).to receive(:execute)
+
+          mock_mod = double('mock_mod', name: 'mod1')
+
+          expect(R10K::Util::Subprocess).to receive(:new).
+            with(["/generate/types/wrapper", "first"]).
+            and_return(mock_subprocess)
+
+          expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
+            if environment.name == 'first'
+              expect(environment).to receive(:deploy).and_return(true)
+              expect(environment).to receive(:modules).and_return([mock_mod])
+            end
+            original.call(environment, &block)
+          end.exactly(3).times
+
+          subject.call
+        end
+      end
+
+      context "with all environments" do
+        let(:settings) { { postrun: ["/generate/types/wrapper", "$modifiedenvs"] } }
+        let(:deployment) { R10K::Deployment.new(mock_config.merge(settings)) }
+
+        before do
+          expect(R10K::Deployment).to receive(:new).and_return(deployment)
+        end
+
+        subject do
+          described_class.new({ config: '/some/nonexistent/path' },
+                               ['mod1'], settings)
+        end
+
+        it "properly substitutes the environment where modules were deployed" do
+          mock_subprocess = double
+          allow(mock_subprocess).to receive(:logger=)
+          expect(mock_subprocess).to receive(:execute)
+
+          expect(R10K::Util::Subprocess).to receive(:new).
+            with(["/generate/types/wrapper", "first third"]).
+            and_return(mock_subprocess)
+
+          mock_mod = double('mock_mod', name: 'mod1')
+
+          expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
+            expect(environment).to receive(:deploy).and_return(true)
+            if ['first', 'third'].include?(environment.name)
+              expect(environment).to receive(:modules).and_return([mock_mod])
+            end
+            original.call(environment, &block)
+          end.exactly(3).times
+
+          subject.call
+        end
+
+        it "does not execute the command if no envs had the module" do
+          expect(R10K::Util::Subprocess).not_to receive(:new)
+
+          mock_mod2 = double('mock_mod', name: 'mod2')
+          expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
+            expect(environment).to receive(:deploy).and_return(true)
+            # Envs have a different module than the one we asked to deploy
+            expect(environment).to receive(:modules).and_return([mock_mod2])
+            original.call(environment, &block)
+          end.exactly(3).times
+
+          subject.call
+        end
+      end
+    end
+  end
 end
 

@@ -29,6 +29,7 @@ module R10K
           super
 
           requested_env = @opts[:environment] ? [@opts[:environment].gsub(/\W/, '_')] : []
+          @modified_envs = []
 
           @settings = @settings.merge({
             overrides: {
@@ -69,6 +70,21 @@ module R10K
 
         def visit_deployment(deployment)
           yield
+        ensure
+          if (postcmd = @settings[:postrun])
+            if @modified_envs.any?
+              if postcmd.grep('$modifiedenvs').any?
+                envs_to_run = @modified_envs.join(' ')
+                logger.debug "Running postrun command for environments #{envs_to_run}."
+                postcmd = postcmd.map { |e| e.gsub('$modifiedenvs', envs_to_run) }
+              end
+              subproc = R10K::Util::Subprocess.new(postcmd)
+              subproc.logger = logger
+              subproc.execute
+            else
+              logger.debug "No environments were modified, not executing postrun command."
+            end
+          end
         end
 
         def visit_source(source)
@@ -85,10 +101,15 @@ module R10K
             environment.deploy
 
             requested_mods = @settings.dig(:overrides, :modules, :requested_modules) || []
-            generate_types = @settings.dig(:overrides, :environments, :generate_types)
-            if generate_types && !((environment.modules.map(&:name) & requested_mods).empty?)
-              logger.debug("Generating puppet types for environment '#{environment.dirname}'...")
-              environment.generate_types!
+            # We actually synced a module in this env
+            if !((environment.modules.map(&:name) & requested_mods).empty?)
+              # Record modified environment for postrun command
+              @modified_envs << environment.dirname
+
+              if generate_types = @settings.dig(:overrides, :environments, :generate_types)
+                logger.debug("Generating puppet types for environment '#{environment.dirname}'...")
+                environment.generate_types!
+              end
             end
           end
         end

@@ -188,7 +188,7 @@ module R10K
         }),
 
         Definition.new(:postrun, {
-          :desc => "The command r10k should run after deploying environments.",
+          :desc => "The command r10k should run after deploying environments or modules.",
           :validate => lambda do |value|
             if !value.is_a?(Array)
               raise ArgumentError, "The postrun setting should be an array of strings, not a #{value.class}"
