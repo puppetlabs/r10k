@@ -4,6 +4,8 @@ CHANGELOG
 Unreleased
 ----------
 
+- (CODEMGMT-1421) Add skeleton for deploy_spec option [#1189](https://github.com/puppetlabs/r10k/pull/1189)
+
 3.10.0
 ------
 

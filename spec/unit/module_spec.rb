@@ -77,7 +77,7 @@ describe R10K::Module do
     }.to raise_error RuntimeError, /doesn't have an implementation/
   end
 
-  describe 'when a user passes a `default_branch_override`' do
+  describe 'Given a set of initialization parameters for R10K::Module' do
     [ ['name', {git: 'git url'}],
       ['name', {type: 'git', source: 'git url'}],
       ['name', {svn: 'svn url'}],
@@ -90,6 +90,17 @@ describe R10K::Module do
           obj = R10K::Module.new(name, '/modulepath', options.merge({default_branch_override: 'foo'}))
           expect(obj).to be_a_kind_of(R10K::Module::Base)
         }.not_to raise_error
+      end
+      describe 'the deploy_spec setting' do
+        it 'sets the deploy_spec instance variable' do
+          obj = R10K::Module.new(name, '/modulepath', options.merge({deploy_spec: true}))
+          expect(obj.instance_variable_get("@deploy_spec")).to eq(true)
+        end
+        it 'can be overridden by the overrides map' do
+          options = options.merge({deploy_spec: false, overrides: {modules: {deploy_spec: true}}})
+          obj = R10K::Module.new(name, '/modulepath', options)
+          expect(obj.instance_variable_get("@deploy_spec")).to eq(true)
+        end
       end
     end
   end

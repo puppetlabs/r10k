@@ -52,6 +52,8 @@ class R10K::Module::Base
     @path = Pathname.new(File.join(@dirname, @name))
     @environment = environment
     @overrides = args.delete(:overrides) || {}
+    @deploy_spec = args.delete(:deploy_spec)
+    @deploy_spec = @overrides[:modules].delete(:deploy_spec) if @overrides.dig(:modules, :deploy_spec)
     @origin = 'external' # Expect Puppetfile or R10k::Environment to set this to a specific value
 
     @requested_modules = @overrides.dig(:modules, :requested_modules) || []

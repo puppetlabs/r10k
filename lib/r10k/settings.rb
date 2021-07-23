@@ -161,7 +161,15 @@ module R10K
             end
           end
         }),
-      ])
+        Definition.new(:deploy_spec, {
+          :desc => "Whether or not to deploy the spec dir of a module. Defaults to false.",
+          :default => false,
+          :validate => lambda do |value|
+            unless !!value == value
+              raise ArgumentError, "`deploy_spec` can only be a boolean value, not '#{value}'"
+            end
+          end
+        })])
     end
 
     def self.global_settings
