@@ -5,6 +5,7 @@ Unreleased
 ----------
 
 - (CODEMGMT-1454) Ensure missing repo caches are re-synced [#1210](https://github.com/puppetlabs/r10k/pull/1210)
+- (PF-2437) Allow token authentication to be used with the Forge. [#1192](https://github.com/puppetlabs/r10k/pull/1192)
 
 3.11.0
 ------
