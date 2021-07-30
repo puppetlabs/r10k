@@ -130,7 +130,8 @@ with a git commit, branch reference, or a tag.
 When a module is installed using `:tag` or `:commit`, r10k assumes that the
 given object is a tag or commit and can do some optimizations around fetching
 the object. If the tag or commit is already available r10k will skip network
-operations when updating the repo, which can speed up install times.
+operations when updating the repo, which can speed up install times. When
+`:ref` is set to track `HEAD`, it will synchronize the module on each run.
 
 Module versions can also be specified using `:branch` to track a specific
 branch reference.

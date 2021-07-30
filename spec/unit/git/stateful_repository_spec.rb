@@ -19,6 +19,11 @@ describe R10K::Git::StatefulRepository do
       expect(subject.sync_cache?(ref)).to eq true
     end
 
+    it "is true if the ref is HEAD" do
+      expect(cache).to receive(:exist?).and_return true
+      expect(subject.sync_cache?('HEAD')).to eq true
+    end
+
     it "is true if the ref is unresolvable" do
       expect(cache).to receive(:exist?).and_return true
       expect(cache).to receive(:ref_type).with('0.9.x').and_return(:unknown)
