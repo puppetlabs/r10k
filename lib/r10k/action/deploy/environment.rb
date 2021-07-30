@@ -44,6 +44,7 @@ module R10K
                 preload_environments: true
               },
               modules: {
+                deploy_spec: settings.dig(:deploy, :deploy_spec),
                 requested_modules: [],
                 deploy_modules: @modules,
                 force: !@no_force, # force here is used to make it easier to reason about

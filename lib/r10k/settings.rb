@@ -161,7 +161,15 @@ module R10K
             end
           end
         }),
-      ])
+        Definition.new(:deploy_spec, {
+          :desc => "Whether or not to deploy the spec dir of a module. Defaults to false.",
+          :default => false,
+          :validate => lambda do |value|
+            unless !!value == value
+              raise ArgumentError, "`deploy_spec` can only be a boolean value, not '#{value}'"
+            end
+          end
+        })])
     end
 
     def self.global_settings
@@ -180,7 +188,7 @@ module R10K
         }),
 
         Definition.new(:postrun, {
-          :desc => "The command r10k should run after deploying environments.",
+          :desc => "The command r10k should run after deploying environments or modules.",
           :validate => lambda do |value|
             if !value.is_a?(Array)
               raise ArgumentError, "The postrun setting should be an array of strings, not a #{value.class}"
