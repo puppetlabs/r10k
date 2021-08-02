@@ -145,20 +145,20 @@ class R10K::Git::Rugged::Credentials
   end
 
   def github_app_token(app_id, private_key, ttl)
-    raise R10K::Git::GitError, _('App id contains invalid characters.') unless app_id =~ /^\d+$/
-    raise R10K::Git::GitError, _('Token ttl contains invalid characters.') unless ttl =~ /^\d+$/
-    raise R10K::Git::GitError, _('App key is missing or unreadable') unless File.readable?(private_key)
+    raise R10K::Git::GitError, _('Github App id contains invalid characters.') unless app_id =~ /^\d+$/
+    raise R10K::Git::GitError, _('Github App token ttl contains invalid characters.') unless ttl =~ /^\d+$/
+    raise R10K::Git::GitError, _('Github App key is missing or unreadable') unless File.readable?(private_key)
 
     begin
       ssl_key = OpenSSL::PKey::RSA.new(File.read(private_key).strip)
       unless ssl_key.private?
-        raise R10K::Git::GitError, _('App key is not a valid SSL private key')
+        raise R10K::Git::GitError, _('Github App key is not a valid SSL private key')
       end
     rescue OpenSSL::PKey::RSAError
-      raise R10K::Git::GitError, _('App key is not a valid SSL key')
+      raise R10K::Git::GitError, _('Github App key is not a valid SSL key')
     end
 
-    logger.debug2 _("Using Github App id %{app_id} with token from %{token_path}") % { token_path: private_key, app_id: app_id }
+    logger.debug2 _("Using Github App id %{app_id} with SSL key from %{key_path}") % { key_path: private_key, app_id: app_id }
 
     jwt_issue_time = Time.now.to_i - 60
     jwt_exp_time = (jwt_issue_time + 60) + ttl.to_i
@@ -176,7 +176,7 @@ class R10K::Git::Rugged::Credentials
 
     unless (get_response.class < Net::HTTPSuccess)
       logger.debug2 _("Unexpected response code: #{get_response.code}\nResponse body: #{get_response.body}")
-      raise R10K::Git::GitError, _("Error using private key to generate access token url")
+      raise R10K::Git::GitError, _("Error using private key to generate access token #{access_token_url}")
     end
 
     access_tokens_url = JSON.parse(get_response.body)[0]['access_tokens_url']
@@ -190,16 +190,16 @@ class R10K::Git::Rugged::Credentials
       http.request(post_request)
     end
 
-    unless (get_response.class < Net::HTTPSuccess)
-      logger.debug2 _("Unexpected response code: #{get_response.code}\nResponse body: #{get_response.body}")
-      raise R10K::Git::GitError, _("Error using private key to generate access token url")
+    unless (post_response.class < Net::HTTPSuccess)
+      logger.debug2 _("Unexpected response code: #{post_response.code}\nResponse body: #{post_response.body}")
+      raise R10K::Git::GitError, _("Error using private key to generate access token #{access_token_url}")
     end
 
     token = JSON.parse(post_response.body)['token']
 
-    raise R10K::Git::GitError, _("Supplied OAuth token contains invalid characters.") unless valid_token?(token)
+    raise R10K::Git::GitError, _("Github App token contains invalid characters.") unless valid_token?(token)
 
-    logger.debug2 _("token generated, expires at: %{expire}") % {expire: JSON.parse(post_response.body)['expires_at']}
+    logger.debug2 _("Github App token generated, expires at: %{expire}") % {expire: JSON.parse(post_response.body)['expires_at']}
     token
   end
 end

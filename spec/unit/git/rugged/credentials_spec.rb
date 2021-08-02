@@ -86,7 +86,7 @@ describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby? 
     end
     it 'errors if app ttl has invalid characters' do
       expect { subject.github_app_token("123456", "fake", "abc")
-      }.to raise_error(R10K::Git::GitError, /Token ttl contains invalid characters/)
+      }.to raise_error(R10K::Git::GitError, /Github App token ttl contains/)
     end
     it 'errors if private file does not exist' do
       R10K::Git.settings[:github_app_key] = "/missing/token/file"

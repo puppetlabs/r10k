@@ -237,6 +237,18 @@ describe R10K::Action::Runner do
       expect(runner.instance.settings[:git][:github_app_key]).to eq('/my/ssl/key')
       expect(runner.instance.settings[:git][:github_app_ttl]).to eq('600')
     end
+
+    it 'saves the parameters in settings hash without ttl and uses its default value' do
+      runner = described_class.new(
+        { 'github-app-id': '123456', 'github-app-key': '/my/ssl/key', },
+        %w[args yes],
+        action_class
+      )
+      runner.call
+      expect(runner.instance.settings[:git][:github_app_id]).to eq('123456')
+      expect(runner.instance.settings[:git][:github_app_key]).to eq('/my/ssl/key')
+      expect(runner.instance.settings[:git][:github_app_ttl]).to eq('120')
+    end
   end
 
   describe "configuring git credentials" do
