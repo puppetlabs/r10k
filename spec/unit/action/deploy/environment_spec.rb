@@ -546,7 +546,6 @@ describe R10K::Action::Deploy::Environment do
                       })
     end
     let(:mock_forge_module_1) { double(:name => "their_shiny_module", :properties => { :expected => "2.0.0" }) }
-    let(:mock_puppetfile) { instance_double("R10K::Puppetfile", :modules => [mock_git_module_1, mock_git_module_2, mock_forge_module_1]) }
 
     before(:all) do
       @tmp_path = "./tmp-r10k-test-dir/"
@@ -559,10 +558,8 @@ describe R10K::Action::Deploy::Environment do
     end
 
     it "writes the .r10k-deploy file correctly if all goes well" do
-      allow(R10K::Puppetfile).to receive(:new).and_return(mock_puppetfile)
-
       fake_env = Fake_Environment.new(@tmp_path, {:name => "my_cool_environment", :signature => "pablo picasso"})
-      allow(fake_env).to receive(:modules).and_return(mock_puppetfile.modules)
+      allow(fake_env).to receive(:modules).and_return([mock_git_module_1, mock_git_module_2, mock_forge_module_1])
       subject.send(:write_environment_info!, fake_env, "2019-01-01 23:23:22 +0000", true)
 
       file_contents = File.read("#{@tmp_path}/.r10k-deploy.json")
@@ -585,10 +582,8 @@ describe R10K::Action::Deploy::Environment do
     end
 
     it "writes the .r10k-deploy file correctly if there's a failure" do
-      allow(R10K::Puppetfile).to receive(:new).and_return(mock_puppetfile)
-
       fake_env = Fake_Environment.new(@tmp_path, {:name => "my_cool_environment", :signature => "pablo picasso"})
-      allow(fake_env).to receive(:modules).and_return(mock_puppetfile.modules)
+      allow(fake_env).to receive(:modules).and_return([mock_git_module_1, mock_git_module_2, mock_forge_module_1])
       allow(mock_forge_module_1).to receive(:properties).and_raise(StandardError)
       subject.send(:write_environment_info!, fake_env, "2019-01-01 23:23:22 +0000", true)
 
