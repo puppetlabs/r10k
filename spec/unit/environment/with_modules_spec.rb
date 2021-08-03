@@ -66,7 +66,7 @@ describe R10K::Environment::WithModules do
   describe "modules method" do
     it "returns the configured modules, and Puppetfile modules" do
       puppetfile_mod = instance_double('R10K::Module::Base', name: 'zebra')
-      expect(subject.puppetfile).to receive(:modules).and_return [puppetfile_mod]
+      expect(subject.loader).to receive(:load).and_return({modules: [puppetfile_mod]})
       returned_modules = subject.modules
       expect(returned_modules.map(&:name).sort).to eq(%w[concat exec stdlib zebra])
     end

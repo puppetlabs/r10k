@@ -66,6 +66,7 @@ class R10K::Environment::Base
     loader_options[:puppetfile] = @puppetfile_name if @puppetfile_name
     @loader = R10K::ModuleLoader::Puppetfile.new(**loader_options)
 
+    @base_modules = nil
     @managed_directories = [ @full_path ]
     @desired_contents = []
     @purge_exclusions = []
@@ -118,8 +119,12 @@ class R10K::Environment::Base
   # @return [Array<R10K::Module::Base>] All modules defined in the Puppetfile
   #   associated with this environment.
   def modules
-    @puppetfile.load
-    @puppetfile.modules
+    if @base_modules.nil?
+      loaded_content = @loader.load
+      @base_modules = loaded_content[:modules]
+    end
+
+    @base_modules
   end
 
   # @return [Array<R10K::Module::Base>] Whether or not the given module
@@ -137,9 +142,9 @@ class R10K::Environment::Base
 
   def deploy
     loaded_content = @loader.load
-    @modules = loaded_content[:modules]
+    @base_modules = loaded_content[:modules]
 
-    if ! @modules.empty?
+    if ! @base_modules.empty?
       pool_size = @overrides.dig(:modules, :pool_size)
       R10K::ContentSynchronizer.concurrent_sync(loaded_content[:modules], pool_size, logger)
     end

@@ -112,7 +112,12 @@ describe R10K::Action::Deploy::Module do
             expect(environment).not_to receive(:generate_types!)
           end
           @modules << mod
-          expect(environment.puppetfile).to receive(:modules).and_return([mod]).once
+          allow(environment.loader).to receive(:load).and_return({
+            modules: [mod],
+            desired_contents: [],
+            managed_directories: [],
+            purge_exclusions: []
+          }).once
           original.call(environment, &block)
         end
       end

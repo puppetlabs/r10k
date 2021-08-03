@@ -23,6 +23,7 @@ class R10K::Environment::WithModules < R10K::Environment::Base
   def initialize(name, basedir, dirname, options = {})
     super
 
+    @all_modules = nil
     @managed_content = {}
     @modules = []
     @moduledir = case options[:moduledir]
@@ -43,10 +44,8 @@ class R10K::Environment::WithModules < R10K::Environment::Base
   #     - The r10k environment object
   #     - A Puppetfile in the environment's content
   def modules
-    return @modules if puppetfile.nil?
-
-    puppetfile.load unless puppetfile.loaded?
-    @modules + puppetfile.modules
+    puppetfile_modules = super()
+    @all_modules ||= @modules + puppetfile_modules
   end
 
   def module_conflicts?(mod_b)
