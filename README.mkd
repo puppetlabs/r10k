@@ -66,6 +66,12 @@ a git repository using Bundler for dependencies:
     bundle install
     bundle exec r10k help
 
+### Arch Linux
+
+Arch Linux provides a [system package](https://archlinux.org/packages/community/any/r10k/) for r10k.
+This is built against the [system Ruby](https://archlinux.org/packages/extra/x86_64/ruby/) (which is Ruby 3.0.2 as of 2021-08-03).
+This package is maintained by [Tim Meusel](https://github.com/bastelfreak).
+
 Usage
 -----
 
