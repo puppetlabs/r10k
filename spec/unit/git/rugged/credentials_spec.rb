@@ -90,7 +90,7 @@ describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby? 
     end
     it 'errors if private file does not exist' do
       R10K::Git.settings[:github_app_key] = "/missing/token/file"
-      expect(File).to receive(:readable?).with("/missing/token/file").and_return false
+      expect(File).to receive(:readable?).with(R10K::Git.settings[:github_app_key]).and_return false
       expect {
         subject.github_app_token("123456", R10K::Git.settings[:github_app_key], "300")
       }.to raise_error(R10K::Git::GitError, /App key is missing or unreadable/)

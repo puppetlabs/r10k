@@ -176,7 +176,7 @@ class R10K::Git::Rugged::Credentials
 
     unless (get_response.class < Net::HTTPSuccess)
       logger.debug2 _("Unexpected response code: #{get_response.code}\nResponse body: #{get_response.body}")
-      raise R10K::Git::GitError, _("Error using private key to generate access token #{access_token_url}")
+      raise R10K::Git::GitError, _("Error using private key to get Github App access token from url")
     end
 
     access_tokens_url = JSON.parse(get_response.body)[0]['access_tokens_url']
@@ -192,7 +192,7 @@ class R10K::Git::Rugged::Credentials
 
     unless (post_response.class < Net::HTTPSuccess)
       logger.debug2 _("Unexpected response code: #{post_response.code}\nResponse body: #{post_response.body}")
-      raise R10K::Git::GitError, _("Error using private key to generate access token #{access_token_url}")
+      raise R10K::Git::GitError, _("Error using private key to generate access token from #{access_token_url}")
     end
 
     token = JSON.parse(post_response.body)['token']

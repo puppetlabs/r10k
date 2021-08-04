@@ -7,7 +7,7 @@ Unreleased
 - Always sync git cache on `ref: 'HEAD'` [#1182](https://github.com/puppetlabs/r10k/pull/1182)
 - (CODEMGMT-1421) Add skeleton for deploy_spec option [#1189](https://github.com/puppetlabs/r10k/pull/1189)
 - (RK-369) Make module deploys run the postrun command if any environments were updated. [#982](https://github.com/puppetlabs/r10k/issues/982)
-- Add support for Github App auth token. This allows r10k to authenticate under strict SSO/2FA guidelines that cannot utilize machine users for puppetserver deployment. [#1180](https://github.com/puppetlabs/r10k/pull/1180)
+- Add support for Github App auth token. This allows r10k to authenticate under strict SSO/2FA guidelines that cannot utilize machine users for code deployment. [#1180](https://github.com/puppetlabs/r10k/pull/1180)
 
 3.10.0
 ------
