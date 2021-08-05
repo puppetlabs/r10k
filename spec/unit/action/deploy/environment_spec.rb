@@ -47,6 +47,18 @@ describe R10K::Action::Deploy::Environment do
       described_class.new({ 'oauth-token': '/nonexistent' }, [], {})
     end
 
+    it 'can accept an app id option' do
+      described_class.new({ 'github-app-id': '/nonexistent' }, [], {})
+    end
+
+    it 'can accept a ttl option' do
+      described_class.new({ 'github-app-ttl': '/nonexistent' }, [], {})
+    end
+
+    it 'can accept a ssl private key option' do
+      described_class.new({ 'github-app-key': '/nonexistent' }, [], {})
+    end
+
     describe "initializing errors" do
       let (:settings) { { deploy: { purge_levels: [:environment],
                                     purge_whitelist: ['coolfile', 'coolfile2'],

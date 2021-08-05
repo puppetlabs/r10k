@@ -171,6 +171,86 @@ describe R10K::Action::Runner do
     end
   end
 
+  describe "configuring github app credentials" do
+    it 'errors if app id is passed without ssl key' do
+      runner = described_class.new(
+        { 'github-app-id': '/nonexistent', },
+        %w[args yes],
+        action_class
+      )
+      expect{ runner.call }.to raise_error(R10K::Error, /Must specify both id and SSL private key/)
+    end
+
+    it 'errors if ssl key is passed without app id' do
+      runner = described_class.new(
+        { 'github-app-key': '/nonexistent', },
+        %w[args yes],
+        action_class
+      )
+      expect{ runner.call }.to raise_error(R10K::Error, /Must specify both id and SSL private key/)
+    end
+
+    it 'errors if both app id and token paths are passed' do
+      runner = described_class.new(
+        { 'github-app-id': '/nonexistent', 'oauth-token': '/also/fake' },
+        %w[args yes],
+        action_class
+      )
+      expect{ runner.call }.to raise_error(R10K::Error, /Cannot specify both/)
+    end
+
+    it 'errors if both ssl key and token paths are passed' do
+      runner = described_class.new(
+        { 'github-app-key': '/nonexistent', 'oauth-token': '/also/fake' },
+        %w[args yes],
+        action_class
+      )
+      expect{ runner.call }.to raise_error(R10K::Error, /Cannot specify both/)
+    end
+
+    it 'errors if both ssl key and ssh key paths are passed' do
+      runner = described_class.new(
+        { 'github-app-key': '/nonexistent', 'private-key': '/also/fake' },
+        %w[args yes],
+        action_class
+      )
+      expect{ runner.call }.to raise_error(R10K::Error, /Cannot specify both/)
+    end
+
+    it 'errors if both app id and ssh key are passed' do
+      runner = described_class.new(
+        { 'github-app-id': '/nonexistent', 'private-key': '/also/fake' },
+        %w[args yes],
+        action_class
+      )
+      expect{ runner.call }.to raise_error(R10K::Error, /Cannot specify both/)
+    end
+
+    it 'saves the parameters in settings hash' do
+      runner = described_class.new(
+        { 'github-app-id': '123456', 'github-app-key': '/my/ssl/key', 'github-app-ttl': '600' },
+        %w[args yes],
+        action_class
+      )
+      runner.call
+      expect(runner.instance.settings[:git][:github_app_id]).to eq('123456')
+      expect(runner.instance.settings[:git][:github_app_key]).to eq('/my/ssl/key')
+      expect(runner.instance.settings[:git][:github_app_ttl]).to eq('600')
+    end
+
+    it 'saves the parameters in settings hash without ttl and uses its default value' do
+      runner = described_class.new(
+        { 'github-app-id': '123456', 'github-app-key': '/my/ssl/key', },
+        %w[args yes],
+        action_class
+      )
+      runner.call
+      expect(runner.instance.settings[:git][:github_app_id]).to eq('123456')
+      expect(runner.instance.settings[:git][:github_app_key]).to eq('/my/ssl/key')
+      expect(runner.instance.settings[:git][:github_app_ttl]).to eq('120')
+    end
+  end
+
   describe "configuring git credentials" do
     it 'errors if both token and key paths are passed' do
       runner = described_class.new({ 'oauth-token': '/nonexistent',

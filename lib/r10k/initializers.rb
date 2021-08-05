@@ -56,6 +56,9 @@ module R10K
         with_setting(:proxy) { |value| R10K::Git.settings[:proxy] = value }
         with_setting(:repositories) { |value| R10K::Git.settings[:repositories] = value }
         with_setting(:oauth_token) { |value| R10K::Git.settings[:oauth_token] = value }
+        with_setting(:github_app_id) { |value| R10K::Git.settings[:github_app_id] = value }
+        with_setting(:github_app_key) { |value| R10K::Git.settings[:github_app_key] = value }
+        with_setting(:github_app_ttl) { |value| R10K::Git.settings[:github_app_ttl] = value }
       end
     end
 

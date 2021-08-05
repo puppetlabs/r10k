@@ -35,6 +35,9 @@ module R10K::CLI
         option nil, :'puppet-conf', 'Path to puppet.conf', argument: :required
         option nil, :'private-key', 'Path to SSH key to use when cloning. Only valid with rugged provider', argument: :required
         option nil, :'oauth-token', 'Path to OAuth token to use when cloning. Only valid with rugged provider', argument: :required
+        option nil, :'github-app-id', 'Github App id. Only valid with rugged provider', argument: :required
+        option nil, :'github-app-key', 'Github App private key. Only valid with rugged provider', argument: :required
+        option nil, :'github-app-ttl', 'Github App token expiration, in seconds. Only valid with rugged provider', default: "120", argument: :optional
 
         run do |opts, args, cmd|
           puts cmd.help(:verbose => opts[:verbose])

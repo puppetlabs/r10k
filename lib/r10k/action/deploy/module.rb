@@ -122,7 +122,10 @@ module R10K
                       'puppet-path': :self,
                       'puppet-conf': :self,
                       'private-key': :self,
-                      'oauth-token': :self)
+                      'oauth-token': :self,
+                      'github-app-id': :self,
+                      'github-app-key': :self,
+                      'github-app-ttl': :self)
         end
       end
     end
