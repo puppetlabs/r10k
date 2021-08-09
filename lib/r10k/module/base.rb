@@ -35,6 +35,10 @@ class R10K::Module::Base
   #   @return [String] Where the module was sourced from. E.g., "Puppetfile"
   attr_accessor :origin
 
+  # @!attribute [rw] spec_deletable
+  #   @return [Boolean] set this to true if the spec dir can be safely removed, ie in the moduledir
+  attr_accessor :spec_deletable
+
   # There's been some churn over `author` vs `owner` and `full_name` over
   # `title`, so in the short run it's easier to support both and deprecate one
   # later.
@@ -52,6 +56,7 @@ class R10K::Module::Base
     @path = Pathname.new(File.join(@dirname, @name))
     @environment = environment
     @overrides = args.delete(:overrides) || {}
+    @spec_deletable = true
     @deploy_spec = args.delete(:deploy_spec)
     @deploy_spec = @overrides[:modules].delete(:deploy_spec) if @overrides.dig(:modules, :deploy_spec)
     @origin = 'external' # Expect Puppetfile or R10k::Environment to set this to a specific value
@@ -64,6 +69,36 @@ class R10K::Module::Base
   # @return [String] The full filesystem path to the module.
   def full_path
     path.to_s
+  end
+
+  # Delete the spec dir unless @deploy_spec has been set to true or @spec_deletable is false
+  def maybe_delete_spec_dir
+    unless @deploy_spec
+      if @spec_deletable
+        delete_spec_dir
+      else
+        logger.info _("Spec dir for #{@title} will not be deleted because it is not in the moduledir")
+      end
+    end
+  end
+
+  # Actually remove the spec dir
+  def delete_spec_dir
+    spec_path = @path + 'spec'
+    if spec_path.symlink?
+      spec_path = spec_path.realpath
+    end
+    if spec_path.directory?
+      logger.debug2 _("Deleting spec data at #{spec_path}")
+      # Use the secure flag for the #rm_rf method to avoid security issues
+      # involving TOCTTOU(time of check to time of use); more details here:
+      # https://ruby-doc.org/stdlib-2.7.0/libdoc/fileutils/rdoc/FileUtils.html#method-c-rm_rf
+      # Additionally, #rm_rf also has problems in windows with with symlink targets
+      # also being deleted; this should be revisted if Windows becomes higher priority.
+      FileUtils.rm_rf(spec_path, secure: true)
+    else
+      logger.debug2 _("No spec dir detected at #{spec_path}, skipping deletion")
+    end
   end
 
   # Synchronize this module with the indicated state.

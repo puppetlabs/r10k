@@ -119,6 +119,24 @@ describe R10K::Module::SVN do
     end
   end
 
+  describe 'the default spec dir' do
+    let(:module_org) { "coolorg" }
+    let(:module_name) { "coolmod" }
+    let(:title) { "#{module_org}-#{module_name}" }
+    let(:dirname) { Pathname.new(Dir.mktmpdir) }
+    let(:spec_path) { dirname + module_name + 'spec' }
+    subject { described_class.new(title, dirname, {}) }
+
+    it 'gets deleted by default' do
+
+      FileUtils.mkdir_p(spec_path)
+      expect(subject).to receive(:status).and_return(:absent)
+      expect(subject).to receive(:install).and_return(nil)
+      subject.sync
+      expect(Dir.exist?(spec_path)).to eq false
+    end
+  end
+
   describe "synchronizing" do
 
     subject { described_class.new('foo', '/moduledir', :svn => 'https://github.com/adrienthebo/r10k-fixture-repo', :rev => 123) }

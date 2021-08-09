@@ -107,6 +107,18 @@ describe R10K::ModuleLoader::Puppetfile do
       expect(subject.modules.collect(&:name)).not_to include('test_module')
     end
 
+    it 'should set :spec_deletable to true for modules in the basedir' do
+      module_opts = { git: 'git@example.com:puppet/test_module.git' }
+      subject.add_module('puppet/test_module', module_opts)
+      expect(subject.modules[0].spec_deletable).to be true
+    end
+
+    it 'should set :spec_deletable to false for modules outside the basedir' do
+      module_opts = { git: 'git@example.com:puppet/test_module.git', install_path: 'some/path' }
+      subject.add_module('puppet/test_module', module_opts)
+      expect(subject.modules[0].spec_deletable).to be false
+    end
+
     it 'should accept non-Forge modules with a hash arg' do
       module_opts = { git: 'git@example.com:puppet/test_module.git' }
 
@@ -165,6 +177,7 @@ describe R10K::ModuleLoader::Puppetfile do
       mod = instance_double('R10K::Module::Base', name: 'conflict', origin: :puppetfile, 'origin=': nil)
       loader = R10K::ModuleLoader::Puppetfile.new(basedir: basedir, environment: env)
       allow(env).to receive(:'module_conflicts?').with(mod).and_return(true)
+      allow(mod).to receive(:spec_deletable=)
 
       expect(R10K::Module).to receive(:new).with('conflict', anything, anything, anything).and_return(mod)
       expect { loader.add_module('conflict', {}) }.not_to change { loader.modules }

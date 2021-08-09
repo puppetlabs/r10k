@@ -68,6 +68,7 @@ class R10K::Module::Forge < R10K::Module::Base
       when :mismatched
         reinstall
       end
+      maybe_delete_spec_dir
     end
   end
 

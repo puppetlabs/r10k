@@ -103,11 +103,14 @@ module R10K
 
         module_info[:overrides] = @overrides
 
+        spec_deletable = false
+
         if install_path = module_info.delete(:install_path)
           install_path = resolve_path(@basedir, install_path)
           validate_install_path(install_path, name)
         else
           install_path = @moduledir
+          spec_deletable = true
         end
 
         if @default_branch_override
@@ -116,6 +119,7 @@ module R10K
 
         mod = R10K::Module.new(name, install_path, module_info, @environment)
         mod.origin = :puppetfile
+        mod.spec_deletable = spec_deletable
 
         # Do not save modules if they would conflict with the attached
         # environment
