@@ -15,7 +15,7 @@ initial_env_names = ['production', 'stage']
 
 #Verification
 notify_message_regex = /I am in the production environment/
-stage_env_error_message_regex = /Error:.*Could not.*environment '?stage'?/
+stage_env_message_regex = /Environment 'stage' not found on server/
 
 #Manifest
 site_pp_path = File.join(git_environments_path, 'manifests', 'site.pp')
@@ -83,8 +83,8 @@ agents.each do |agent|
   end
 
   step 'Attempt to Run Puppet Agent Against "stage" Environment'
-  on(agent, puppet('agent', '--test', '--environment stage'), :acceptable_exit_codes => 1) do |result|
-    assert_match(stage_env_error_message_regex, result.stderr, 'Expected error was not detected!')
+  on(agent, puppet('agent', '--test', '--environment stage'), :acceptable_exit_codes => 2) do |result|
+    assert_match(stage_env_message_regex, result.stdout, 'Expected message not found!')
   end
 end
 

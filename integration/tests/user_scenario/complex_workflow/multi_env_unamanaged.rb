@@ -22,7 +22,7 @@ site_pp = create_site_pp(master_certname, '  include helloworld')
 notify_message_prod_env_regex = /I am in the production environment/
 notify_message_test_env_regex = /I am in the test environment/
 removal_message_test_env_regex = /Removing unmanaged path.*test/
-error_message_regex = /Could not retrieve (catalog from remote server|information from environment test)/
+missing_message_regex = /Environment 'test' not found on server/
 
 #Teardown
 teardown do
@@ -72,7 +72,7 @@ end
 
 agents.each do |agent|
   step 'Run Puppet Agent Against "test" Environment'
-  on(agent, puppet('agent', '--test', '--environment test'), :acceptable_exit_codes => 1) do |result|
-    assert_match(error_message_regex, result.stderr, 'Expected message not found!')
+  on(agent, puppet('agent', '--test', '--environment test'), :acceptable_exit_codes => 2) do |result|
+    assert_match(missing_message_regex, result.stdout, 'Expected message not found!')
   end
 end
