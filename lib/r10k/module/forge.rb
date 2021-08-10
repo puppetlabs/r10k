@@ -25,6 +25,10 @@ class R10K::Module::Forge < R10K::Module::Base
     expected_version == :latest || expected_version.nil? || PuppetForge::Util.version_valid?(expected_version)
   end
 
+  def self.statically_defined_version(name, args)
+    args[:version] if args[:version].is_a?(String)
+  end
+
   # @!attribute [r] metadata
   #   @api private
   #   @return [PuppetForge::Metadata]
@@ -34,8 +38,6 @@ class R10K::Module::Forge < R10K::Module::Base
   #   @api private
   #   @return [PuppetForge::V3::Module] The Puppet Forge module metadata
   attr_reader :v3_module
-
-  include R10K::Logging
 
   include R10K::Util::Setopts
 

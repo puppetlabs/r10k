@@ -13,6 +13,21 @@ class R10K::Module::Git < R10K::Module::Base
     false
   end
 
+  # Will be called if self.implement? above returns true. Will return
+  # the version info, if version is statically defined in the modules
+  # declaration.
+  def self.statically_defined_version(name, args)
+    if !args[:type] && (args[:ref] || args[:tag] || args[:commit])
+      if args[:ref] && args[:ref].to_s.match(/[0-9a-f]{40}/)
+        args[:ref]
+      else
+        args[:tag] || args[:commit]
+      end
+    elsif args[:type].to_s == 'git' && args[:version] && args[:version].to_s.match(/[0-9a-f]{40}/)
+      args[:version]
+    end
+  end
+
   # @!attribute [r] repo
   #   @api private
   #   @return [R10K::Git::StatefulRepository]

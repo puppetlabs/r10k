@@ -62,6 +62,32 @@ useful if you want to make sure that a given environment is fully up to date.
 
 - - -
 
+There is also a middle ground between updating all modules and updating no modules.
+It is often desirable to update the environment and then update only those modules
+whose definitions have changed in the Puppetfile, or whose content _could_ have
+changed since the last deployment (eg, Forge modules with their version set to
+`:latest` or Git modules who point to a `branch` ref).
+
+This can be achieved by assuming content is unchanged locally on disk. This is the
+opposite of what one would assume during a module development cycle, when a user
+might be making local edits to test code changes. However, in production, access
+to puppet code is usually locked down, and updates are deployed through automated
+invocations of R10K.
+
+In these cases, deploys where most modules are unchanged and reference exact
+versions (ie, not `:latest` or a branch as mentioned above), this invocation
+may shorten deployment times dozens of seconds if not minutes depending on how
+many modules meet the above criteria (approximately 1 minute for every 400 modules).
+
+To take advantage of this, set as many modules as possible in the Puppetfile to
+explicit, static version. These are released Forge versions, or Git modules using
+the `:tag`, or `:commit` keys. Git `:ref`s containing only the full 40 character
+commit SHA will also be treated as static versions. Then invoke a deploy with:
+
+    r10k deploy environment production --modules --assume-unchanged
+
+- - -
+
 Update a single environment and specify a default branch override:
 
     r10k deploy environment my_working_environment --modules --default-branch-override default_branch_override

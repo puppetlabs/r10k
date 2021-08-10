@@ -44,8 +44,12 @@ class R10K::Environment::WithModules < R10K::Environment::Base
   #     - The r10k environment object
   #     - A Puppetfile in the environment's content
   def modules
-    puppetfile_modules = super()
-    @all_modules ||= @modules + puppetfile_modules
+    if @all_modules.nil?
+      puppetfile_modules = super()
+      @all_modules = @modules + puppetfile_modules
+    end
+
+    @all_modules
   end
 
   def module_conflicts?(mod_b)

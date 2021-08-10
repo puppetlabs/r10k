@@ -1,5 +1,8 @@
-require 'r10k/util/subprocess'
+require 'r10k/content_synchronizer'
 require 'r10k/logging'
+require 'r10k/module_loader/puppetfile'
+require 'r10k/util/cleaner'
+require 'r10k/util/subprocess'
 
 # This class defines a common interface for environment implementations.
 #
@@ -64,7 +67,12 @@ class R10K::Environment::Base
 
     loader_options = { basedir: @full_path, overrides: @overrides, environment: self }
     loader_options[:puppetfile] = @puppetfile_name if @puppetfile_name
+
     @loader = R10K::ModuleLoader::Puppetfile.new(**loader_options)
+
+    if @overrides.dig(:environments, :assume_unchanged)
+      @loader.load_metadata
+    end
 
     @base_modules = nil
     @managed_directories = [ @full_path ]
@@ -120,8 +128,7 @@ class R10K::Environment::Base
   #   associated with this environment.
   def modules
     if @base_modules.nil?
-      loaded_content = @loader.load
-      @base_modules = loaded_content[:modules]
+      load_puppetfile_modules
     end
 
     @base_modules
@@ -141,23 +148,31 @@ class R10K::Environment::Base
   end
 
   def deploy
-    loaded_content = @loader.load
-    @base_modules = loaded_content[:modules]
+    if @base_modules.nil?
+      load_puppetfile_modules
+    end
 
     if ! @base_modules.empty?
       pool_size = @overrides.dig(:modules, :pool_size)
-      R10K::ContentSynchronizer.concurrent_sync(loaded_content[:modules], pool_size, logger)
+      R10K::ContentSynchronizer.concurrent_sync(@base_modules, pool_size, logger)
     end
+
+    if (@overrides.dig(:purging, :purge_levels) || []).include?(:puppetfile)
+      logger.debug("Purging unmanaged Puppetfile content for environment '#{dirname}'...")
+      @puppetfile_cleaner.purge!
+    end
+  end
+
+  def load_puppetfile_modules
+    loaded_content = @loader.load
+    @base_modules = loaded_content[:modules]
 
     @purge_exclusions = determine_purge_exclusions(loaded_content[:managed_directories],
                                                    loaded_content[:desired_contents])
 
-    if (@overrides.dig(:purging, :purge_levels) || []).include?(:puppetfile)
-      logger.debug("Purging unmanaged Puppetfile content for environment '#{dirname}'...")
-      R10K::Util::Cleaner.new(loaded_content[:managed_directories],
-                              loaded_content[:desired_contents],
-                              loaded_content[:purge_exclusions]).purge!
-    end
+    @puppetfile_cleaner = R10K::Util::Cleaner.new(loaded_content[:managed_directories],
+                                                  loaded_content[:desired_contents],
+                                                  loaded_content[:purge_exclusions])
   end
 
   def whitelist(user_whitelist=[])

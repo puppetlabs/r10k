@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'r10k/module_loader/puppetfile'
+require 'tmpdir'
 
 describe R10K::ModuleLoader::Puppetfile do
   describe 'initial parameters' do
@@ -91,14 +92,14 @@ describe R10K::ModuleLoader::Puppetfile do
     subject { R10K::ModuleLoader::Puppetfile.new(basedir: basedir) }
 
     it 'should transform Forge modules with a string arg to have a version key' do
-      expect(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '1.2.3'), anything).and_call_original
+      expect(R10K::Module).to receive(:from_metadata).with('puppet/test_module', subject.moduledir, hash_including(version: '1.2.3'), anything).and_call_original
 
       expect { subject.add_module('puppet/test_module', '1.2.3') }.to change { subject.modules }
       expect(subject.modules.collect(&:name)).to include('test_module')
     end
 
     it 'should not accept Forge modules with a version comparison' do
-      expect(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '< 1.2.0'), anything).and_call_original
+      expect(R10K::Module).to receive(:from_metadata).with('puppet/test_module', subject.moduledir, hash_including(version: '< 1.2.0'), anything).and_call_original
 
       expect {
         subject.add_module('puppet/test_module', '< 1.2.0')
@@ -122,7 +123,7 @@ describe R10K::ModuleLoader::Puppetfile do
     it 'should accept non-Forge modules with a hash arg' do
       module_opts = { git: 'git@example.com:puppet/test_module.git' }
 
-      expect(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, module_opts, anything).and_call_original
+      expect(R10K::Module).to receive(:from_metadata).with('puppet/test_module', subject.moduledir, module_opts, anything).and_call_original
 
       expect { subject.add_module('puppet/test_module', module_opts) }.to change { subject.modules }
       expect(subject.modules.collect(&:name)).to include('test_module')
@@ -134,7 +135,7 @@ describe R10K::ModuleLoader::Puppetfile do
         git: 'git@example.com:puppet/test_module.git',
       }
 
-      expect(R10K::Module).to receive(:new).with('puppet/test_module', File.join(basedir, 'vendor'), module_opts, anything).and_call_original
+      expect(R10K::Module).to receive(:from_metadata).with('puppet/test_module', File.join(basedir, 'vendor'), module_opts, anything).and_call_original
 
       expect { subject.add_module('puppet/test_module', module_opts) }.to change { subject.modules }
       expect(subject.modules.collect(&:name)).to include('test_module')
@@ -148,7 +149,7 @@ describe R10K::ModuleLoader::Puppetfile do
         git: 'git@example.com:puppet/test_module.git',
       }
 
-      expect(R10K::Module).to receive(:new).with('puppet/test_module', install_path, module_opts, anything).and_call_original
+      expect(R10K::Module).to receive(:from_metadata).with('puppet/test_module', install_path, module_opts, anything).and_call_original
 
       expect { subject.add_module('puppet/test_module', module_opts) }.to change { subject.modules }
       expect(subject.modules.collect(&:name)).to include('test_module')
@@ -179,7 +180,7 @@ describe R10K::ModuleLoader::Puppetfile do
       allow(env).to receive(:'module_conflicts?').with(mod).and_return(true)
       allow(mod).to receive(:spec_deletable=)
 
-      expect(R10K::Module).to receive(:new).with('conflict', anything, anything, anything).and_return(mod)
+      expect(R10K::Module).to receive(:from_metadata).with('conflict', anything, anything, anything).and_return(mod)
       expect { loader.add_module('conflict', {}) }.not_to change { loader.modules }
     end
   end
@@ -214,7 +215,7 @@ describe R10K::ModuleLoader::Puppetfile do
     end
 
     it 'returns an array of paths that #purge! will operate within' do
-      expect(R10K::Module).to receive(:new).with('puppet/test_module', subject.moduledir, hash_including(version: '1.2.3'), anything).and_call_original
+      expect(R10K::Module).to receive(:from_metadata).with('puppet/test_module', subject.moduledir, hash_including(version: '1.2.3'), anything).and_call_original
       subject.add_module('puppet/test_module', '1.2.3')
       subject.load!
 
@@ -226,7 +227,7 @@ describe R10K::ModuleLoader::Puppetfile do
       it "basedir isn't in the list of paths to purge" do
         module_opts = { install_path: '', git: 'git@example.com:puppet/test_module.git' }
 
-        expect(R10K::Module).to receive(:new).with('puppet/test_module', basedir, module_opts, anything).and_call_original
+        expect(R10K::Module).to receive(:from_metadata).with('puppet/test_module', basedir, module_opts, anything).and_call_original
         subject.add_module('puppet/test_module', module_opts)
         subject.load!
 
@@ -338,6 +339,53 @@ describe R10K::ModuleLoader::Puppetfile do
       git_module = subject.modules[0]
       expect(git_module.default_override_ref).to eq default_branch_override
       expect(git_module.default_ref).to eq 'here_lies_the_default_branch'
+    end
+
+    describe 'using module metadata' do
+      it 'properly loads module metadata' do
+        @path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'various-modules')
+        metadata = subject.load_metadata[:modules].map { |mod| [ mod.name, mod.version ] }.to_h
+        expect(metadata['apt']).to eq('2.1.1')
+        expect(metadata['stdlib']).to eq(nil)
+        expect(metadata['concat']).to eq(nil)
+        expect(metadata['rpm']).to eq('2.1.1-pre1')
+        expect(metadata['foo']).to eq(nil)
+        expect(metadata['bar']).to eq('v1.2.3')
+        expect(metadata['baz']).to eq('123abc456')
+        expect(metadata['fizz']).to eq('1234567890abcdef1234567890abcdef12345678')
+        expect(metadata['buzz']).to eq(nil)
+      end
+
+      it 'does not load module implementations for static versioned' do
+        @path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'various-modules')
+        subject.load_metadata
+        modules = subject.load[:modules].map { |mod| [ mod.name, mod ] }.to_h
+        expect(modules['apt']).to be_a_kind_of(R10K::Module::Definition)
+        expect(modules['stdlib']).to be_a_kind_of(R10K::Module::Forge)
+        expect(modules['concat']).to be_a_kind_of(R10K::Module::Forge)
+        expect(modules['rpm']).to be_a_kind_of(R10K::Module::Definition)
+        expect(modules['foo']).to be_a_kind_of(R10K::Module::Git)
+        expect(modules['bar']).to be_a_kind_of(R10K::Module::Definition)
+        expect(modules['baz']).to be_a_kind_of(R10K::Module::Definition)
+        expect(modules['fizz']).to be_a_kind_of(R10K::Module::Definition)
+        expect(modules['buzz']).to be_a_kind_of(R10K::Module::Git)
+      end
+
+      it 'loads module implementations whose static versions are different' do
+        fixture_path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'various-modules')
+        @path = Dir.mktmpdir
+        unsynced_pf_path = File.join(fixture_path, 'Puppetfile')
+        FileUtils.cp(unsynced_pf_path, @path)
+
+        subject.load_metadata
+
+        synced_pf_path = File.join(fixture_path, 'Puppetfile.new')
+        FileUtils.cp(synced_pf_path, File.join(@path, 'Puppetfile'))
+
+        modules = subject.load[:modules].map { |mod| [ mod.name, mod ] }.to_h
+
+        expect(modules['apt']).to be_a_kind_of(R10K::Module::Forge)
+      end
     end
   end
 end

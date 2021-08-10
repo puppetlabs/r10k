@@ -63,6 +63,10 @@ describe R10K::Action::Deploy::Environment do
       described_class.new({ :'exclude-spec' => true }, [], {})
     end
 
+    it 'can accept an assume-unchanged option' do
+      described_class.new({ :'assume-unchanged' => true }, [], {})
+    end
+
     describe "initializing errors" do
       let (:settings) { { deploy: { purge_levels: [:environment],
                                     purge_whitelist: ['coolfile', 'coolfile2'],
@@ -93,7 +97,12 @@ describe R10K::Action::Deploy::Environment do
       let(:deployment) { R10K::Deployment.new(mock_config) }
       let(:loader) do
         instance_double("R10K::ModuleLoader::Puppetfile",
-                        :load => {:modules => ['foo']}
+                        :load => {
+                          :modules => ['foo'],
+                          :purge_exclusions => [],
+                          :managed_directories => [],
+                          :desired_contents => []
+                        }
                        ).as_null_object
       end
 
@@ -116,8 +125,39 @@ describe R10K::Action::Deploy::Environment do
         action = described_class.new({config: "/some/nonexistent/path", modules: true}, [], {})
         action.call
       end
-
     end
+
+    describe "with assume-unchanged flag" do
+      let(:loader) do
+        instance_double("R10K::ModuleLoader::Puppetfile",
+                        :load => {
+                          :modules => ['foo'],
+                          :purge_exclusions => [],
+                          :managed_directories => [],
+                          :desired_contents => []
+                        }
+                       ).as_null_object
+      end
+
+      before do
+        expect(R10K::Deployment).to receive(:new).and_wrap_original do |original, settings|
+          original.call(mock_config.merge(settings))
+        end
+        expect(R10K::ModuleLoader::Puppetfile).to receive(:new).
+          and_return(loader).at_least(:once)
+      end
+
+      it "assume unchanged flag causes the module definitons to be preloaded by the loader" do
+        expect(loader).to receive(:load_metadata).exactly(4).times
+        action = described_class.new({:config => "/some/nonexistent/path",
+                                      :modules => true,
+                                      :'assume-unchanged' => true},
+                                      [],
+                                      {})
+        action.call
+      end
+    end
+
 
     describe "with an environment that doesn't exist" do
       let(:deployment) do

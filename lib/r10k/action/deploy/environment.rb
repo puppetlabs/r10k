@@ -41,7 +41,8 @@ module R10K
                 requested_environments: @argv.map { |arg| arg.gsub(/\W/,'_') },
                 default_branch_override: @default_branch_override,
                 generate_types: @generate_types || settings.dig(:deploy, :generate_types) || false,
-                preload_environments: true
+                preload_environments: true,
+                assume_unchanged: @assume_unchanged
               },
               modules: {
                 exclude_spec: settings.dig(:deploy, :exclude_spec),
@@ -238,6 +239,7 @@ module R10K
           super.merge(puppetfile: :modules,
                       modules: :self,
                       cachedir: :self,
+                      'assume-unchanged': :self,
                       'no-force': :self,
                       'exclude-spec': :self,
                       'generate-types': :self,

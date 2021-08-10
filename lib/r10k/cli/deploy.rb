@@ -69,6 +69,7 @@ scheduled. On subsequent deployments, Puppetfile deployment will default to off.
 
           flag :p, :puppetfile, 'Deploy modules (deprecated, use -m)'
           flag :m, :modules, 'Deploy modules'
+          flag nil, :'assume-unchanged', 'Assume previously deployed modules are unchanged'
           option nil, :'default-branch-override', 'Specify a branchname to override the default branch in the puppetfile',
                  argument: :required
 

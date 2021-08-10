@@ -22,17 +22,35 @@ module R10K::Module
   #
   # @return [Object < R10K::Module] A member of the implementing subclass
   def self.new(name, basedir, args, environment=nil)
+    with_implementation(name, args) do |implementation|
+      implementation.new(name, basedir, args, environment)
+    end
+  end
+
+  # Takes the same signature as Module.new but returns an metadata module
+  def self.from_metadata(name, basedir, args, environment=nil)
+    with_implementation(name, args) do |implementation|
+      R10K::Module::Definition.new(name,
+                                   dirname: basedir,
+                                   args: args,
+                                   implementation: implementation,
+                                   environment: environment)
+    end
+  end
+
+  def self.with_implementation(name, args, &block)
     if implementation = @klasses.find { |klass| klass.implement?(name, args) }
-      obj = implementation.new(name, basedir, args, environment)
-      obj
+      block.call(implementation)
     else
       raise _("Module %{name} with args %{args} doesn't have an implementation. (Are you using the right arguments?)") % {name: name, args: args.inspect}
     end
   end
+
 
   require 'r10k/module/base'
   require 'r10k/module/git'
   require 'r10k/module/svn'
   require 'r10k/module/local'
   require 'r10k/module/forge'
+  require 'r10k/module/definition'
 end

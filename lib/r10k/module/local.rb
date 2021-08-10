@@ -1,5 +1,4 @@
 require 'r10k/module'
-require 'r10k/logging'
 
 # A dummy module type that can be used to "protect" Puppet modules that exist
 # inside of the Puppetfile "moduledir" location. Local modules will not be
@@ -11,8 +10,6 @@ class R10K::Module::Local < R10K::Module::Base
   def self.implement?(name, args)
     args.is_a?(Hash) && (args[:local] || args[:type].to_s == 'local')
   end
-
-  include R10K::Logging
 
   def version
     "0.0.0"

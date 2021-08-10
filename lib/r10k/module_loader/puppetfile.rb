@@ -1,4 +1,5 @@
 require 'r10k/logging'
+require 'r10k/module'
 
 module R10K
   module ModuleLoader
@@ -40,6 +41,8 @@ module R10K
         @environment = environment
         @default_branch_override = @overrides.dig(:environments, :default_branch_override)
 
+        @existing_module_metadata = []
+        @existing_module_versions_by_name = {}
         @modules = []
 
         @managed_directories = []
@@ -51,15 +54,7 @@ module R10K
       end
 
       def load
-        if !File.readable?(@puppetfile_path)
-          logger.debug _("Puppetfile %{path} missing or unreadable") % {path: @puppetfile_path.inspect}
-          {
-            modules: [],
-            managed_directories: [],
-            desired_contents: [],
-            purge_exclusions: []
-          }
-        else
+        with_readable_puppetfile(@puppetfile_path) do
           self.load!
         end
       end
@@ -69,7 +64,6 @@ module R10K
         dsl.instance_eval(puppetfile_content(@puppetfile_path), @puppetfile_path)
 
         validate_no_duplicate_names(@modules)
-        @modules
 
         managed_content = @modules.group_by(&:dirname)
 
@@ -88,6 +82,30 @@ module R10K
         raise R10K::Error.wrap(e, _("Failed to evaluate %{path}") % {path: @puppetfile_path})
       end
 
+      def load_metadata
+        with_readable_puppetfile(@puppetfile_path) do
+          self.load_metadata!
+        end
+      end
+
+      def load_metadata!
+        dsl = R10K::ModuleLoader::Puppetfile::DSL.new(self, metadata_only: true)
+        dsl.instance_eval(puppetfile_content(@puppetfile_path), @puppetfile_path)
+
+        @existing_module_versions_by_name = @existing_module_metadata.map {|mod| [ mod.name, mod.version ] }.to_h
+        empty_load_output.merge(modules: @existing_module_metadata)
+
+      rescue SyntaxError, LoadError, ArgumentError, NameError => e
+        logger.warn _("Unable to preload Puppetfile because of %{msg}" % { msg: e.message })
+      end
+
+      def add_module_metadata(name, info)
+        install_path, metadata_info, _ = parse_module_definition(name, info)
+
+        mod = R10K::Module.from_metadata(name, install_path, metadata_info, @environment)
+
+        @existing_module_metadata << mod
+      end
 
       ##
       ## set_forge, set_moduledir, and add_module are used directly by the DSL class
@@ -104,7 +122,7 @@ module R10K
       end
 
       # @param [String] name
-      # @param [Hash, String, Symbol, nil] module_info Calling with
+      # @param [Hash, String, Symbol, nil] info Calling with
       #   anything but a Hash is deprecated. The DSL will now convert
       #   String and Symbol versions to Hashes of the shape
       #     { version: <String or Symbol> }
@@ -117,28 +135,10 @@ module R10K
       #   DSL class, not the Puppetfile author) to do this conversion
       #   itself.
       #
-      def add_module(name, module_info)
-        if !module_info.is_a?(Hash)
-          module_info = { version: module_info }
-        end
+      def add_module(name, info)
+        install_path, metadata_info, spec_deletable = parse_module_definition(name, info)
 
-        module_info[:overrides] = @overrides
-
-        spec_deletable = false
-
-        if install_path = module_info.delete(:install_path)
-          install_path = resolve_path(@basedir, install_path)
-          validate_install_path(install_path, name)
-        else
-          install_path = @moduledir
-          spec_deletable = true
-        end
-
-        if @default_branch_override
-          module_info[:default_branch_override] = @default_branch_override
-        end
-
-        mod = R10K::Module.new(name, install_path, module_info, @environment)
+        mod = R10K::Module.from_metadata(name, install_path, metadata_info, @environment)
         mod.origin = :puppetfile
         mod.spec_deletable = spec_deletable
 
@@ -148,10 +148,59 @@ module R10K
           return @modules
         end
 
+        # If this module's metadata has a static version and that version
+        # matches the existing module declaration use it, otherwise create
+        # a regular module to sync.
+        unless mod.version && (mod.version == @existing_module_versions_by_name[mod.name])
+          mod = mod.to_implementation
+        end
+
         @modules << mod
       end
 
      private
+
+      def empty_load_output
+        {
+          modules: [],
+          managed_directories: [],
+          desired_contents: [],
+          purge_exclusions: []
+        }
+      end
+
+      def with_readable_puppetfile(puppetfile_path, &block)
+        if File.readable?(puppetfile_path)
+          block.call
+        else
+          logger.debug _("Puppetfile %{path} missing or unreadable") % {path: puppetfile_path.inspect}
+
+          empty_load_output
+        end
+      end
+
+      def parse_module_definition(name, info)
+        if !info.is_a?(Hash)
+          info = { version: info }
+        end
+
+        info[:overrides] = @overrides
+
+        if @default_branch_override
+          info[:default_branch_override] = @default_branch_override
+        end
+
+        spec_deletable = false
+        if install_path = info.delete(:install_path)
+          install_path = resolve_path(@basedir, install_path)
+          validate_install_path(install_path, name)
+        else
+          install_path = @moduledir
+          spec_deletable = true
+        end
+
+        return [ install_path, info, spec_deletable ]
+      end
 
       # @param [Array<R10K::Module>] modules
       def validate_no_duplicate_names(modules)
