@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.9.3-49-g8d1802f\n"
+"Project-Id-Version: r10k 3.9.3-59-gbc366c1\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2021-08-05 00:30+0000\n"
-"PO-Revision-Date: 2021-08-05 00:30+0000\n"
+"POT-Creation-Date: 2021-08-11 00:38+0000\n"
+"PO-Revision-Date: 2021-08-11 00:38+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -51,11 +51,11 @@ msgstr ""
 msgid "Environment %{env_dir} is new, updating all modules"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/module.rb:97
+#: ../lib/r10k/action/deploy/module.rb:98
 msgid "Only updating modules in environment(s) %{opt_env} skipping environment %{env_path}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/module.rb:99
+#: ../lib/r10k/action/deploy/module.rb:100
 msgid "Updating modules %{modules} in environment %{env_path}"
 msgstr ""
 
@@ -371,27 +371,39 @@ msgstr ""
 msgid "Module %{name} with args %{args} doesn't have an implementation. (Are you using the right arguments?)"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:77
+#: ../lib/r10k/module/base.rb:80
+msgid "Spec dir for #{@title} will not be deleted because it is not in the moduledir"
+msgstr ""
+
+#: ../lib/r10k/module/base.rb:92
+msgid "Deleting spec data at #{spec_path}"
+msgstr ""
+
+#: ../lib/r10k/module/base.rb:100
+msgid "No spec dir detected at #{spec_path}, skipping deletion"
+msgstr ""
+
+#: ../lib/r10k/module/base.rb:112
 msgid "Deploying module to %{path}"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:80
+#: ../lib/r10k/module/base.rb:115
 msgid "Only updating modules %{modules}, skipping module %{name}"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:136
+#: ../lib/r10k/module/base.rb:171
 msgid "Module name (%{title}) must match either 'modulename' or 'owner/modulename'"
 msgstr ""
 
-#: ../lib/r10k/module/forge.rb:89
+#: ../lib/r10k/module/forge.rb:90
 msgid "The module %{title} does not appear to have any published releases, cannot determine latest version."
 msgstr ""
 
-#: ../lib/r10k/module/forge.rb:92 ../lib/r10k/module/forge.rb:121
+#: ../lib/r10k/module/forge.rb:93 ../lib/r10k/module/forge.rb:122
 msgid "The module %{title} does not exist on %{url}."
 msgstr ""
 
-#: ../lib/r10k/module/forge.rb:196
+#: ../lib/r10k/module/forge.rb:197
 msgid "Forge module names must match 'owner/modulename', instead got #{title}"
 msgstr ""
 
@@ -411,11 +423,11 @@ msgstr ""
 msgid "Failed to evaluate %{path}"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:138
+#: ../lib/r10k/module_loader/puppetfile.rb:142
 msgid "Puppetfiles cannot contain duplicate module names."
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:140
+#: ../lib/r10k/module_loader/puppetfile.rb:144
 msgid "Remove the duplicates of the following modules: %{dupes}"
 msgstr ""
 
