@@ -82,7 +82,7 @@ class Puppetfile
     @loader = ::R10K::ModuleLoader::Puppetfile.new(
       basedir: @basedir,
       moduledir: @moduledir,
-      puppetfile: @puppetfile_path,
+      puppetfile: @puppetfile_name,
       forge: @forge,
       overrides: @overrides,
       environment: @environment

@@ -80,6 +80,17 @@ describe R10K::Puppetfile do
         expect(has_some_data).to be true
       end
 
+      it "handles a relative basedir" do
+        path = File.join('spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
+        subject = described_class.new(path, {})
+
+        loaded_content = subject.load
+        expect(loaded_content).to be_an_instance_of(Hash)
+
+        has_some_data = loaded_content.values.none?(&:empty?)
+        expect(has_some_data).to be true
+      end
+
       it "is idempotent" do
         path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'valid-forge-with-version')
         subject = described_class.new(path, {})
