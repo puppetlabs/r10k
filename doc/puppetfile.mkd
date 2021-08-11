@@ -313,6 +313,19 @@ module.
 For more information see the [FAQ entry](faq.mkd#how-do-i-prevent-r10k-from-removing-modules-in-the-modules-directory-of-my-git-repository)
 on managing internal and external modules in the same directory.
 
+### Per-Item spec deployment
+
+Default behavior is to delete the spec dir for deployments, if the module is being
+deployed to the default moduledir. This can be overridden by supplying a :deploy_spec
+value of true for an individual module.
+
+```
+# This will install the 'apache' module into 'external/apache'.
+mod 'apache',
+  :git => 'git@github.com:puppetlabs/puppetlabs-apache.git',
+  :deploy_spec => true
+```
+
 ### Per-Item Install Path
 
 Git and SVN content types support installing into an alternate path without changing
