@@ -28,6 +28,52 @@ describe R10K::Module::Base do
     end
   end
 
+  describe 'deleting the spec dir' do
+    let(:module_org) { "coolorg" }
+    let(:module_name) { "coolmod" }
+    let(:title) { "#{module_org}-#{module_name}" }
+    let(:dirname) { Pathname.new(Dir.mktmpdir) }
+    let(:spec_path) { dirname + module_name + 'spec' }
+
+    before(:each) do
+      logger = double("logger")
+      allow_any_instance_of(described_class).to receive(:logger).and_return(logger)
+      allow(logger).to receive(:debug2).with(any_args)
+      allow(logger).to receive(:info).with(any_args)
+    end
+
+    it 'removes the spec directory' do
+      FileUtils.mkdir_p(spec_path)
+      m = described_class.new(title, dirname, {})
+      m.maybe_delete_spec_dir
+      expect(Dir.exist?(spec_path)).to eq false
+    end
+
+    it 'detects a symlink and deletes the target' do
+      Dir.mkdir(dirname + module_name)
+      target_dir = Dir.mktmpdir
+      FileUtils.ln_s(target_dir, spec_path)
+      m = described_class.new(title, dirname, {})
+      m.maybe_delete_spec_dir
+      expect(Dir.exist?(target_dir)).to eq false
+    end
+
+    it 'does not remove the spec directory if deploy_spec is set' do
+      FileUtils.mkdir_p(spec_path)
+      m = described_class.new(title, dirname, {deploy_spec: true})
+      m.maybe_delete_spec_dir
+      expect(Dir.exist?(spec_path)).to eq true
+    end
+
+    it 'does not remove the spec directory if spec_deletable is false' do
+      FileUtils.mkdir_p(spec_path)
+      m = described_class.new(title, dirname, {})
+      m.spec_deletable = false
+      m.maybe_delete_spec_dir
+      expect(Dir.exist?(spec_path)).to eq true
+    end
+  end
+
   describe "path variables" do
     it "uses the module name as the name" do
       m = described_class.new('eight_hundred', '/moduledir', [])

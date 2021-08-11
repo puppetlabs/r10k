@@ -86,6 +86,7 @@ class R10K::Module::Git < R10K::Module::Base
   def sync(opts={})
     force = opts[:force] || @force
     @repo.sync(version, force) if should_sync?
+    maybe_delete_spec_dir
   end
 
   def status

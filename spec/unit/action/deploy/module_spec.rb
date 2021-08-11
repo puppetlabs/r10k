@@ -53,6 +53,10 @@ describe R10K::Action::Deploy::Module do
     it 'can accept a ssl private key option' do
       described_class.new({ 'github-app-key': '/nonexistent' }, [], {})
     end
+
+    it 'can accept a deploy-spec option' do
+      described_class.new({ :'deploy-spec' => true }, [], {})
+    end
   end
 
   describe "with no-force" do

@@ -78,6 +78,7 @@ describe R10K::Module::Forge do
       allow_any_instance_of(described_class).to receive(:logger).and_return(logger_dbl)
 
       allow(logger_dbl).to receive(:info).with(/Deploying module to.*/)
+      allow(logger_dbl).to receive(:debug2).with(/No spec dir detected/)
       expect(logger_dbl).to receive(:warn).with(/puppet forge module.*puppetlabs-corosync.*has been deprecated/i)
 
       subject.sync
@@ -90,6 +91,7 @@ describe R10K::Module::Forge do
       allow_any_instance_of(described_class).to receive(:logger).and_return(logger_dbl)
 
       allow(logger_dbl).to receive(:info).with(/Deploying module to.*/)
+      allow(logger_dbl).to receive(:debug2).with(/No spec dir detected/)
       expect(logger_dbl).to_not receive(:warn).with(/puppet forge module.*puppetlabs-corosync.*has been deprecated/i)
 
       subject.sync
@@ -164,6 +166,23 @@ describe R10K::Module::Forge do
 
   describe "#sync" do
     subject { described_class.new('branan/eight_hundred', fixture_modulepath, { version: '8.0.0' }) }
+
+    context "syncing the repo" do
+      let(:module_org) { "coolorg" }
+      let(:module_name) { "coolmod" }
+      let(:title) { "#{module_org}-#{module_name}" }
+      let(:dirname) { Pathname.new(Dir.mktmpdir) }
+      let(:spec_path) { dirname + module_name + 'spec' }
+      subject { described_class.new(title, dirname, {}) }
+
+      it 'defaults to deleting the spec dir' do
+        FileUtils.mkdir_p(spec_path)
+        expect(subject).to receive(:status).and_return(:absent)
+        expect(subject).to receive(:install)
+        subject.sync
+        expect(Dir.exist?(spec_path)).to eq false
+      end
+    end
 
     it 'does nothing when the module is in sync' do
       allow(subject).to receive(:status).and_return :insync

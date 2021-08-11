@@ -89,6 +89,23 @@ describe R10K::Module::Git do
     end
   end
 
+  describe 'syncing the repo' do
+    let(:module_org) { "coolorg" }
+    let(:module_name) { "coolmod" }
+    let(:title) { "#{module_org}-#{module_name}" }
+    let(:dirname) { Pathname.new(Dir.mktmpdir) }
+    let(:spec_path) { dirname + module_name + 'spec' }
+    subject { described_class.new(title, dirname, {}) }
+
+    it 'defaults to deleting the spec dir' do
+      FileUtils.mkdir_p(spec_path)
+      allow(mock_repo).to receive(:resolve).with('master').and_return('abc123')
+      allow(mock_repo).to receive(:sync)
+      subject.sync
+      expect(Dir.exist?(spec_path)).to eq false
+    end
+  end
+
   describe "determining the status" do
     subject do
       described_class.new(

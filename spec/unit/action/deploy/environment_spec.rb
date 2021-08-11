@@ -59,6 +59,10 @@ describe R10K::Action::Deploy::Environment do
       described_class.new({ 'github-app-key': '/nonexistent' }, [], {})
     end
 
+    it 'can accept a deploy-spec option' do
+      described_class.new({ :'deploy-spec' => true }, [], {})
+    end
+
     describe "initializing errors" do
       let (:settings) { { deploy: { purge_levels: [:environment],
                                     purge_whitelist: ['coolfile', 'coolfile2'],

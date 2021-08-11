@@ -238,6 +238,7 @@ module R10K
                       modules: :self,
                       cachedir: :self,
                       'no-force': :self,
+                      'deploy-spec': :self,
                       'generate-types': :self,
                       'puppet-path': :self,
                       'puppet-conf': :self,

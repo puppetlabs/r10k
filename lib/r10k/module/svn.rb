@@ -80,6 +80,7 @@ class R10K::Module::SVN < R10K::Module::Base
       when :outdated
         update
       end
+      maybe_delete_spec_dir
     end
   end
 
