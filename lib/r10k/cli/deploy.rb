@@ -24,7 +24,7 @@ module R10K::CLI
         option nil, :cachedir, 'Specify a cachedir, overriding the value in config', argument: :required
         flag nil, :'no-force', 'Prevent the overwriting of local module modifications'
         flag nil, :'generate-types', 'Run `puppet generate types` after updating an environment'
-        flag nil, :'deploy-spec', 'Deploy the spec dir alongside other module directories'
+        flag nil, :'exclude-spec', 'Exclude the module\'s spec dir from deployment'
         option nil, :'puppet-path', 'Path to puppet executable', argument: :required do |value, cmd|
           unless File.executable? value
             $stderr.puts "The specified puppet executable #{value} is not executable."

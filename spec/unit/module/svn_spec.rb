@@ -127,13 +127,13 @@ describe R10K::Module::SVN do
     let(:spec_path) { dirname + module_name + 'spec' }
     subject { described_class.new(title, dirname, {}) }
 
-    it 'gets deleted by default' do
+    it 'is kept by default' do
 
       FileUtils.mkdir_p(spec_path)
       expect(subject).to receive(:status).and_return(:absent)
       expect(subject).to receive(:install).and_return(nil)
       subject.sync
-      expect(Dir.exist?(spec_path)).to eq false
+      expect(Dir.exist?(spec_path)).to eq true
     end
   end
 
