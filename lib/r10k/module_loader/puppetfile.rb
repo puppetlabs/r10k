@@ -1,6 +1,10 @@
+require 'r10k/logging'
+
 module R10K
   module ModuleLoader
     class Puppetfile
+
+      include R10K::Logging
 
       DEFAULT_MODULEDIR = 'modules'
       DEFAULT_PUPPETFILE_NAME = 'Puppetfile'
@@ -41,6 +45,9 @@ module R10K
         @managed_directories = []
         @desired_contents = []
         @purge_exclusions = []
+
+        logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile}
+        logger.debug _("Using moduledir '%{moduledir}'") % {moduledir: @moduledir}
       end
 
       def load

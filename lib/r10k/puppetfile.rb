@@ -75,8 +75,6 @@ class Puppetfile
     @overrides       = options.delete(:overrides) || {}
     @default_branch_override = @overrides.dig(:environments, :default_branch_override)
 
-    logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile_path}
-
     @forge   = 'forgeapi.puppetlabs.com'
 
     @loader = ::R10K::ModuleLoader::Puppetfile.new(
