@@ -54,8 +54,8 @@ describe R10K::Action::Deploy::Module do
       described_class.new({ 'github-app-key': '/nonexistent' }, [], {})
     end
 
-    it 'can accept a deploy-spec option' do
-      described_class.new({ :'deploy-spec' => true }, [], {})
+    it 'can accept a exclude-spec option' do
+      described_class.new({ :'exclude-spec' => true }, [], {})
     end
   end
 

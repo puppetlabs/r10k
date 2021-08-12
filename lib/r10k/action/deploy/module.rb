@@ -38,7 +38,7 @@ module R10K
                 generate_types: @generate_types
               },
               modules: {
-                deploy_spec: settings.dig(:deploy, :deploy_spec),
+                exclude_spec: settings.dig(:deploy, :exclude_spec),
                 requested_modules: @argv.map.to_a,
                 # force here is used to make it easier to reason about
                 force: !@no_force
@@ -118,7 +118,7 @@ module R10K
         def allowed_initialize_opts
           super.merge(environment: true,
                       cachedir: :self,
-                      'deploy-spec': :self,
+                      'exclude-spec': :self,
                       'no-force': :self,
                       'generate-types': :self,
                       'puppet-path': :self,

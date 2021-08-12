@@ -57,8 +57,8 @@ class R10K::Module::Base
     @environment = environment
     @overrides = args.delete(:overrides) || {}
     @spec_deletable = true
-    @deploy_spec = args.delete(:deploy_spec)
-    @deploy_spec = @overrides[:modules].delete(:deploy_spec) if @overrides.dig(:modules, :deploy_spec)
+    @exclude_spec = args.delete(:exclude_spec)
+    @exclude_spec = @overrides[:modules].delete(:exclude_spec) if @overrides.dig(:modules, :exclude_spec)
     @origin = 'external' # Expect Puppetfile or R10k::Environment to set this to a specific value
 
     @requested_modules = @overrides.dig(:modules, :requested_modules) || []
@@ -71,9 +71,9 @@ class R10K::Module::Base
     path.to_s
   end
 
-  # Delete the spec dir unless @deploy_spec has been set to true or @spec_deletable is false
+  # Delete the spec dir unless @exclude_spec has been set to true or @spec_deletable is false
   def maybe_delete_spec_dir
-    unless @deploy_spec
+    if @exclude_spec
       if @spec_deletable
         delete_spec_dir
       else

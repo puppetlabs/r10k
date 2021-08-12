@@ -44,7 +44,7 @@ module R10K
                 preload_environments: true
               },
               modules: {
-                deploy_spec: settings.dig(:deploy, :deploy_spec),
+                exclude_spec: settings.dig(:deploy, :exclude_spec),
                 requested_modules: [],
                 deploy_modules: @modules,
                 force: !@no_force, # force here is used to make it easier to reason about
@@ -238,7 +238,7 @@ module R10K
                       modules: :self,
                       cachedir: :self,
                       'no-force': :self,
-                      'deploy-spec': :self,
+                      'exclude-spec': :self,
                       'generate-types': :self,
                       'puppet-path': :self,
                       'puppet-conf': :self,
