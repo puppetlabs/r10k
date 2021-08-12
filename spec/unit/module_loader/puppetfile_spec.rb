@@ -37,13 +37,13 @@ describe R10K::ModuleLoader::Puppetfile do
         it 'respects absolute paths' do
           absolute_options = options.merge({puppetfile: '/opt/puppetlabs/special/Puppetfile'})
           puppetfile = R10K::ModuleLoader::Puppetfile.new(**absolute_options)
-          expect(puppetfile.instance_variable_get(:@puppetfile)).to eq('/opt/puppetlabs/special/Puppetfile')
+          expect(puppetfile.instance_variable_get(:@puppetfile_path)).to eq('/opt/puppetlabs/special/Puppetfile')
         end
 
         it 'roots the Puppetfile in the basepath if a relative path is specified' do
           relative_options = options.merge({puppetfile: 'Puppetfile.global'})
           puppetfile = R10K::ModuleLoader::Puppetfile.new(**relative_options)
-          expect(puppetfile.instance_variable_get(:@puppetfile)).to eq('/test/basedir/env/Puppetfile.global')
+          expect(puppetfile.instance_variable_get(:@puppetfile_path)).to eq('/test/basedir/env/Puppetfile.global')
         end
       end
 
@@ -68,7 +68,7 @@ describe R10K::ModuleLoader::Puppetfile do
       end
 
       it 'has a Puppetfile rooted in the basedir' do
-        expect(subject.instance_variable_get(:@puppetfile)).to eq('/test/basedir/Puppetfile')
+        expect(subject.instance_variable_get(:@puppetfile_path)).to eq('/test/basedir/Puppetfile')
       end
 
       it 'uses the public forge' do

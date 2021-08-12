@@ -34,7 +34,7 @@ module R10K
 
         @basedir     = cleanpath(basedir)
         @moduledir   = resolve_path(@basedir, moduledir)
-        @puppetfile  = resolve_path(@basedir, puppetfile)
+        @puppetfile_path  = resolve_path(@basedir, puppetfile)
         @forge       = forge
         @overrides   = overrides
         @environment = environment
@@ -46,13 +46,13 @@ module R10K
         @desired_contents = []
         @purge_exclusions = []
 
-        logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile}
+        logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile_path}
         logger.debug _("Using moduledir '%{moduledir}'") % {moduledir: @moduledir}
       end
 
       def load
         dsl = R10K::ModuleLoader::Puppetfile::DSL.new(self)
-        dsl.instance_eval(puppetfile_content(@puppetfile), @puppetfile)
+        dsl.instance_eval(puppetfile_content(@puppetfile_path), @puppetfile_path)
 
         validate_no_duplicate_names(@modules)
         @modules
@@ -71,7 +71,7 @@ module R10K
         }
 
       rescue SyntaxError, LoadError, ArgumentError, NameError => e
-        raise R10K::Error.wrap(e, _("Failed to evaluate %{path}") % {path: @puppetfile})
+        raise R10K::Error.wrap(e, _("Failed to evaluate %{path}") % {path: @puppetfile_path})
       end
 
 
