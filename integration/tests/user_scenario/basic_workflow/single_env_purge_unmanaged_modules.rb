@@ -5,7 +5,9 @@ test_name 'CODEMGMT-78 - Puppetfile Purge --puppetfile & --moduledir flag usage'
 
 #Init
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
-moduledir = on(master, puppet('config', 'print', 'environmentpath')).stdout.strip + '/production/modules'
+environments_path = on(master, puppet('config', 'print', 'environmentpath')).stdout.strip
+moduledir = File.join(environments_path, 'production', 'modules')
+puppetfile_path = File.join(environments_path, 'production', 'Puppetfile')
 git_remote_environments_path = '/root/environments'
 last_commit = git_last_commit(master, git_remote_environments_path)
 r10k_fqp = get_r10k_fqp(master)
@@ -76,7 +78,7 @@ agents.each do |agent|
 end
 
 step 'Use r10k to Purge Unmanaged Modules'
-on(master, "#{r10k_fqp} puppetfile purge --puppetfile #{remote_puppetfile_path} --moduledir #{moduledir} --verbose debug --trace")
+on(master, "#{r10k_fqp} puppetfile purge --puppetfile #{puppetfile_path} --moduledir #{moduledir} --verbose debug --trace")
 
 #Agent will fail because r10k will purge the "motd" module
 agents.each do |agent|

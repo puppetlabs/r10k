@@ -30,10 +30,6 @@ class Puppetfile
   #   @return [String] The base directory that contains the Puppetfile
   attr_reader :basedir
 
-  # @!attrbute [r] puppetfile_path
-  #   @return [String] The path to the Puppetfile
-  attr_reader :puppetfile_path
-
   # @!attribute [r] environment
   #   @return [R10K::Environment] Optional R10K::Environment that this Puppetfile belongs to.
   attr_reader :environment
@@ -68,21 +64,20 @@ class Puppetfile
 
     @force           = deprecated_force_arg     || options.delete(:force)           || false
     @moduledir       = deprecated_moduledir_arg || options.delete(:moduledir)       || File.join(basedir, 'modules')
-    @puppetfile_name = deprecated_name_arg      || options.delete(:puppetfile_name) || 'Puppetfile'
-    @puppetfile_path = deprecated_path_arg      || options.delete(:puppetfile_path) || File.join(basedir, @puppetfile_name)
+    puppetfile_name = deprecated_name_arg      || options.delete(:puppetfile_name) || 'Puppetfile'
+    puppetfile_path = deprecated_path_arg      || options.delete(:puppetfile_path)
+    @puppetfile = puppetfile_path || puppetfile_name
     @environment     = options.delete(:environment)
 
     @overrides       = options.delete(:overrides) || {}
     @default_branch_override = @overrides.dig(:environments, :default_branch_override)
-
-    logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile_path}
 
     @forge   = 'forgeapi.puppetlabs.com'
 
     @loader = ::R10K::ModuleLoader::Puppetfile.new(
       basedir: @basedir,
       moduledir: @moduledir,
-      puppetfile: @puppetfile_name,
+      puppetfile: @puppetfile,
       forge: @forge,
       overrides: @overrides,
       environment: @environment
@@ -106,8 +101,8 @@ class Puppetfile
     if self.loaded?
       return @loaded_content
     else
-      if !File.readable?(@puppetfile_path)
-        logger.debug _("Puppetfile %{path} missing or unreadable") % {path: @puppetfile_path.inspect}
+      if !File.readable?(puppetfile_path)
+        logger.debug _("Puppetfile %{path} missing or unreadable") % {path: puppetfile_path.inspect}
       else
         self.load!(default_branch_override)
       end
@@ -154,6 +149,10 @@ class Puppetfile
 
   def moduledir
     @loader.moduledir
+  end
+
+  def puppetfile_path
+    @loader.puppetfile_path
   end
 
   def environment=(env)
