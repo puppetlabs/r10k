@@ -57,7 +57,7 @@ step 'Push Changes'
 git_add_commit_push(master, 'production', 'Update site.pp and add module.', git_remote_environments_path)
 
 step 'Deploy Environments via r10k'
-on(master, "#{r10k_fqp} deploy environment --modules --verbose")
+on(master, "#{r10k_fqp} deploy environment --modules --verbose debug --trace")
 
 step 'Manually Install the "motd" Module from the Forge'
 on(master, puppet("module install puppetlabs-motd --modulepath #{moduledir}"))
@@ -76,7 +76,7 @@ agents.each do |agent|
 end
 
 step 'Use r10k to Purge Unmanaged Modules'
-on(master, "#{r10k_fqp} puppetfile purge --puppetfile #{remote_puppetfile_path} --moduledir #{moduledir} --verbose")
+on(master, "#{r10k_fqp} puppetfile purge --puppetfile #{remote_puppetfile_path} --moduledir #{moduledir} --verbose debug --trace")
 
 #Agent will fail because r10k will purge the "motd" module
 agents.each do |agent|
