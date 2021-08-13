@@ -71,7 +71,7 @@ class R10K::Module::Base
     path.to_s
   end
 
-  # Delete the spec dir unless @exclude_spec has been set to true or @spec_deletable is false
+  # Delete the spec dir if @exclude_spec has been set to true and @spec_deletable is also true
   def maybe_delete_spec_dir
     if @exclude_spec
       if @spec_deletable
