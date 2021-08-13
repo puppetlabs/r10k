@@ -9,7 +9,7 @@ Unreleased
 - (CODEMGMT-1421) Add skeleton for deploy_spec option [#1189](https://github.com/puppetlabs/r10k/pull/1189)
 - (RK-369) Make module deploys run the postrun command if any environments were updated. [#982](https://github.com/puppetlabs/r10k/issues/982)
 - Add support for Github App auth token. This allows r10k to authenticate under strict SSO/2FA guidelines that cannot utilize machine users for code deployment. [#1180](https://github.com/puppetlabs/r10k/pull/1180)
-- Restore the ability to load a Puppetfile from a relative `basedir`. [#1202](https://github.com/puppetlabs/r10k/pull/1202)
+- Restore the ability to load a Puppetfile from a relative `basedir`. [#1202](https://github.com/puppetlabs/r10k/pull/1202), [#1203](https://github.com/puppetlabs/r10k/pull/1203)
 
 3.10.0
 ------

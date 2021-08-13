@@ -10,12 +10,31 @@ describe R10K::Puppetfile do
     )
   end
 
-  describe "a custom puppetfile Puppetfile.r10k" do
+  describe "a custom puppetfile_name" do
     it "is the basedir joined with '/Puppetfile.r10k' path" do
       expect(subject.puppetfile_path).to eq '/some/nonexistent/basedir/Puppetfile.r10k'
     end
   end
 
+end
+
+describe R10K::Puppetfile do
+
+  describe "a custom relative puppetfile_path" do
+    it "is the basedir joined with the puppetfile_path" do
+      relative_subject = described_class.new('/some/nonexistent/basedir',
+                                             {puppetfile_path: 'relative/Puppetfile'})
+      expect(relative_subject.puppetfile_path).to eq '/some/nonexistent/basedir/relative/Puppetfile'
+    end
+  end
+
+  describe "a custom absolute puppetfile_path" do
+    it "is the puppetfile_path as given" do
+      absolute_subject = described_class.new('/some/nonexistent/basedir',
+                                             {puppetfile_path: '/some/absolute/custom/Puppetfile'})
+      expect(absolute_subject.puppetfile_path).to eq '/some/absolute/custom/Puppetfile'
+    end
+  end
 end
 
 describe R10K::Puppetfile do

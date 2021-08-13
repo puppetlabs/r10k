@@ -11,7 +11,7 @@ module R10K
       DEFAULT_FORGE_API = 'forgeapi.puppetlabs.com'
 
       attr_accessor :default_branch_override, :environment
-      attr_reader :modules, :moduledir,
+      attr_reader :modules, :moduledir, :puppetfile_path,
         :managed_directories, :desired_contents, :purge_exclusions
 
       # @param basedir [String] The path that contains the moduledir &
