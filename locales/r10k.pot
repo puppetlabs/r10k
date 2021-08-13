@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.9.3-59-gbc366c1\n"
+"Project-Id-Version: r10k 3.9.3-75-ge9bdb69\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2021-08-11 00:38+0000\n"
-"PO-Revision-Date: 2021-08-11 00:38+0000\n"
+"POT-Creation-Date: 2021-08-13 23:48+0000\n"
+"PO-Revision-Date: 2021-08-13 23:48+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -419,15 +419,23 @@ msgstr ""
 msgid "Could not read metadata.json"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:67
+#: ../lib/r10k/module_loader/puppetfile.rb:49
+msgid "Using Puppetfile '%{puppetfile}'"
+msgstr ""
+
+#: ../lib/r10k/module_loader/puppetfile.rb:50
+msgid "Using moduledir '%{moduledir}'"
+msgstr ""
+
+#: ../lib/r10k/module_loader/puppetfile.rb:74
 msgid "Failed to evaluate %{path}"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:142
+#: ../lib/r10k/module_loader/puppetfile.rb:149
 msgid "Puppetfiles cannot contain duplicate module names."
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:144
+#: ../lib/r10k/module_loader/puppetfile.rb:151
 msgid "Remove the duplicates of the following modules: %{dupes}"
 msgstr ""
 
@@ -435,11 +443,7 @@ msgstr ""
 msgid "unrecognized declaration '%{method}'"
 msgstr ""
 
-#: ../lib/r10k/puppetfile.rb:78
-msgid "Using Puppetfile '%{puppetfile}'"
-msgstr ""
-
-#: ../lib/r10k/puppetfile.rb:110
+#: ../lib/r10k/puppetfile.rb:105
 msgid "Puppetfile %{path} missing or unreadable"
 msgstr ""
 
