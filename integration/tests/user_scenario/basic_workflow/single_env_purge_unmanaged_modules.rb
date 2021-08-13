@@ -6,8 +6,8 @@ test_name 'CODEMGMT-78 - Puppetfile Purge --puppetfile & --moduledir flag usage'
 #Init
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 moduledir = on(master, puppet('config', 'print', 'environmentpath')).stdout.strip + '/production/modules'
-git_environments_path = '/root/environments'
-last_commit = git_last_commit(master, git_environments_path)
+git_remote_environments_path = '/root/environments'
+last_commit = git_last_commit(master, git_remote_environments_path)
 r10k_fqp = get_r10k_fqp(master)
 
 #Verification
@@ -16,11 +16,11 @@ motd_contents = 'Hello!'
 motd_contents_regex = /\A#{motd_contents}\z/
 
 #File
-puppet_file = <<-PUPPETFILE
+puppetfile = <<-PUPPETFILE
 mod "puppetlabs/xinetd"
 PUPPETFILE
 
-puppet_file_path = File.join(git_environments_path, 'Puppetfile')
+remote_puppetfile_path = File.join(git_remote_environments_path, 'Puppetfile')
 
 #Manifest
 manifest = <<-MANIFEST
@@ -29,12 +29,12 @@ manifest = <<-MANIFEST
   }
 MANIFEST
 
-site_pp_path = File.join(git_environments_path, 'manifests', 'site.pp')
+remote_site_pp_path = File.join(git_remote_environments_path, 'manifests', 'site.pp')
 site_pp = create_site_pp(master_certname, manifest)
 
 #Teardown
 teardown do
-  clean_up_r10k(master, last_commit, git_environments_path)
+  clean_up_r10k(master, last_commit, git_remote_environments_path)
 
   step 'Remove "/etc/motd" File'
   on(agents, "rm -rf #{motd_path}")
@@ -45,19 +45,19 @@ step 'Stub Forge on Master'
 stub_forge_on(master)
 
 step 'Checkout "production" Branch'
-git_on(master, 'checkout production', git_environments_path)
+git_on(master, 'checkout production', git_remote_environments_path)
 
 step 'Create "Puppetfile" for the "production" Environment'
-create_remote_file(master, puppet_file_path, puppet_file)
+create_remote_file(master, remote_puppetfile_path, puppetfile)
 
 step 'Inject New "site.pp" to the "production" Environment'
-inject_site_pp(master, site_pp_path, site_pp)
+inject_site_pp(master, remote_site_pp_path, site_pp)
 
 step 'Push Changes'
-git_add_commit_push(master, 'production', 'Update site.pp and add module.', git_environments_path)
+git_add_commit_push(master, 'production', 'Update site.pp and add module.', git_remote_environments_path)
 
 step 'Deploy Environments via r10k'
-on(master, "#{r10k_fqp} deploy environment -v -p")
+on(master, "#{r10k_fqp} deploy environment --modules --verbose")
 
 step 'Manually Install the "motd" Module from the Forge'
 on(master, puppet("module install puppetlabs-motd --modulepath #{moduledir}"))
@@ -76,7 +76,7 @@ agents.each do |agent|
 end
 
 step 'Use r10k to Purge Unmanaged Modules'
-on(master, "#{r10k_fqp} puppetfile purge -v --puppetfile #{puppet_file_path} --moduledir #{moduledir}")
+on(master, "#{r10k_fqp} puppetfile purge --puppetfile #{remote_puppetfile_path} --moduledir #{moduledir} --verbose")
 
 #Agent will fail because r10k will purge the "motd" module
 agents.each do |agent|
