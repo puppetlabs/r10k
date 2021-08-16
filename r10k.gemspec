@@ -18,23 +18,19 @@ Gem::Specification.new do |s|
     dynamic environments.
   DESCRIPTION
 
-  s.required_ruby_version = '>= 2.3.0'
+  s.required_ruby_version = '>= 2.5.0'
 
   s.license  = 'Apache-2.0'
 
   s.add_dependency 'colored2',   '3.1.2'
-  s.add_dependency 'cri', '2.15.10'
+  s.add_dependency 'cri', '>= 2.15.10'
 
   s.add_dependency 'log4r',     '1.1.10'
   s.add_dependency 'multi_json', '~> 1.10'
 
-  s.add_dependency 'puppet_forge', '~> 2.3.0'
+  s.add_dependency 'puppet_forge', '>= 2.3.0', '< 4'
 
   s.add_dependency 'gettext-setup', '~>0.24'
-  # These two pins narrow what is allowed by gettext-setup,
-  # to preserve compatability with Ruby 2.4
-  s.add_dependency 'fast_gettext', '~> 1.1.0'
-  s.add_dependency 'gettext', ['>= 3.0.2', '< 3.3.0']
 
   s.add_dependency 'jwt', '~> 2.2.3'
   s.add_dependency 'minitar', '~> 0.9'
