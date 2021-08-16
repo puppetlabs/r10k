@@ -345,9 +345,9 @@ deploy:
 
 #### exclude_spec
 
-During deployment, r10k's default behavior is to deploy the spec directory. The
-r10k config can set this behavior for all modules using the `exclude_spec` setting;
-this config file setting can be overridden in each module definition in the Puppetfile
+During module deployment, r10k's default behavior is to deploy the spec directory.
+This behavior can be configured for all modules using the `exclude_spec` setting in the r10k config.
+This config setting can be overridden in each module definition in the Puppetfile
 or more globally via the CLI for deploys. The following example sets all modules to
 not deploy the spec dir.
 
