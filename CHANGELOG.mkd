@@ -4,6 +4,9 @@ CHANGELOG
 Unreleased
 ----------
 
+3.11.0
+------
+
 - Always sync git cache on `ref: 'HEAD'` [#1182](https://github.com/puppetlabs/r10k/pull/1182)
 - (CODEMGMT-1421, CODEMGMT-1422, CODEMGMT-1457) Add setting `exclude_spec` to remove the spec dir from module deployment[#1189](https://github.com/puppetlabs/r10k/pull/1189)[#1198](https://github.com/puppetlabs/r10k/pull/1198)[#1204](https://github.com/puppetlabs/r10k/pull/1204)
 - (RK-369) Make module deploys run the postrun command if any environments were updated. [#982](https://github.com/puppetlabs/r10k/issues/982)
