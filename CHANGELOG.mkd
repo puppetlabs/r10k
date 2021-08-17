@@ -4,9 +4,8 @@ CHANGELOG
 Unreleased
 ----------
 
-- (CODEMGMT-1422) Delete spec dirs for module deploys [#1198](https://github.com/puppetlabs/r10k/pull/1198)
 - Always sync git cache on `ref: 'HEAD'` [#1182](https://github.com/puppetlabs/r10k/pull/1182)
-- (CODEMGMT-1421) Add skeleton for deploy_spec option [#1189](https://github.com/puppetlabs/r10k/pull/1189)
+- (CODEMGMT-1421, CODEMGMT-1422, CODEMGMT-1457) Add setting `exclude_spec` to remove the spec dir from module deployment[#1189](https://github.com/puppetlabs/r10k/pull/1189)[#1198](https://github.com/puppetlabs/r10k/pull/1198)[#1204](https://github.com/puppetlabs/r10k/pull/1204)
 - (RK-369) Make module deploys run the postrun command if any environments were updated. [#982](https://github.com/puppetlabs/r10k/issues/982)
 - Add support for Github App auth token. This allows r10k to authenticate under strict SSO/2FA guidelines that cannot utilize machine users for code deployment. [#1180](https://github.com/puppetlabs/r10k/pull/1180)
 - Restore the ability to load a Puppetfile from a relative `basedir`. [#1202](https://github.com/puppetlabs/r10k/pull/1202), [#1203](https://github.com/puppetlabs/r10k/pull/1203)
