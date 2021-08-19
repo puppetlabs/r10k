@@ -73,6 +73,8 @@ class R10K::Git::StatefulRepository
   def status(ref)
     if !@repo.exist?
       :absent
+    elsif !@cache.exist?
+      :mismatched
     elsif !@repo.git_dir.exist?
       :mismatched
     elsif !@repo.git_dir.directory?
