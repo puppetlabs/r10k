@@ -52,12 +52,15 @@ class R10K::Module::Tarball < R10K::Module::Base
   # Synchronize this module with the indicated state.
   def sync(opts={})
     tarball.download unless tarball.cache_valid?
-    case status
-    when :absent
-      tarball.unpack(path.to_s)
-    when :mismatched
-      path.rmtree
-      tarball.unpack(path.to_s)
+    if should_sync?
+      case status
+      when :absent
+        tarball.unpack(path.to_s)
+      when :mismatched
+        path.rmtree
+        tarball.unpack(path.to_s)
+      end
+      maybe_delete_spec_dir
     end
   end
 
