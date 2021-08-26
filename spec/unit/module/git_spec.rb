@@ -10,15 +10,41 @@ describe R10K::Module::Git do
     allow(R10K::Git::StatefulRepository).to receive(:new).and_return(mock_repo)
   end
 
+
+  describe "statically determined version support" do
+    it 'returns a given commit' do
+      static_version = described_class.statically_defined_version('branan/eight_hundred', { git: 'my/remote', commit: '123adf' })
+      expect(static_version).to eq('123adf')
+    end
+
+    it 'returns a given tag' do
+      static_version = described_class.statically_defined_version('branan/eight_hundred', { git: 'my/remote', tag: 'v1.2.3' })
+      expect(static_version).to eq('v1.2.3')
+    end
+
+    it 'returns a ref if it looks like a full commit sha' do
+      static_version = described_class.statically_defined_version('branan/eight_hundred', { git: 'my/remote', ref: '1234567890abcdef1234567890abcdef12345678' })
+      expect(static_version).to eq('1234567890abcdef1234567890abcdef12345678')
+    end
+
+    it 'returns nil for any non-sha-like ref' do
+      static_version = described_class.statically_defined_version('branan/eight_hundred', { git: 'my/remote', ref: 'refs/heads/main' })
+      expect(static_version).to eq(nil)
+    end
+
+    it 'returns nil for branches' do
+      static_version = described_class.statically_defined_version('branan/eight_hundred', { git: 'my/remote', branch: 'main' })
+      expect(static_version).to eq(nil)
+    end
+  end
+
   describe "setting the owner and name" do
     describe "with a title of 'branan/eight_hundred'" do
       subject do
         described_class.new(
           'branan/eight_hundred',
           '/moduledir',
-          {
-            :git => 'git://git-server.site/branan/puppet-eight_hundred',
-          }
+          { :git => 'git://git-server.site/branan/puppet-eight_hundred' }
         )
       end
 
@@ -40,9 +66,7 @@ describe R10K::Module::Git do
         described_class.new(
           'eight_hundred',
           '/moduledir',
-          {
-            :git => 'git://git-server.site/branan/puppet-eight_hundred',
-          }
+          { :git => 'git://git-server.site/branan/puppet-eight_hundred' }
         )
       end
 
@@ -111,9 +135,7 @@ describe R10K::Module::Git do
       described_class.new(
         'boolean',
         '/moduledir',
-        {
-          :git => 'git://git.example.com/adrienthebo/puppet-boolean'
-        }
+        { :git => 'git://git.example.com/adrienthebo/puppet-boolean' }
       )
     end
 

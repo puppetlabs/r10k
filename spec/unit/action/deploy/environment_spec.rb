@@ -63,6 +63,10 @@ describe R10K::Action::Deploy::Environment do
       described_class.new({ :'exclude-spec' => true }, [], {})
     end
 
+    it 'can accept an assume-unchanged option' do
+      described_class.new({ :'assume-unchanged' => true }, [], {})
+    end
+
     describe "initializing errors" do
       let (:settings) { { deploy: { purge_levels: [:environment],
                                     purge_whitelist: ['coolfile', 'coolfile2'],
@@ -91,26 +95,69 @@ describe R10K::Action::Deploy::Environment do
 
     describe "with puppetfile or modules flag" do
       let(:deployment) { R10K::Deployment.new(mock_config) }
-      let(:puppetfile) { instance_double("R10K::Puppetfile", modules: []).as_null_object }
+      let(:loader) do
+        instance_double("R10K::ModuleLoader::Puppetfile",
+                        :load => {
+                          :modules => ['foo'],
+                          :purge_exclusions => [],
+                          :managed_directories => [],
+                          :desired_contents => []
+                        }
+                       ).as_null_object
+      end
 
       before do
         expect(R10K::Deployment).to receive(:new).and_return(deployment)
-        expect(R10K::Puppetfile).to receive(:new).and_return(puppetfile).at_least(:once)
+        expect(R10K::ModuleLoader::Puppetfile).to receive(:new).
+          and_return(loader).at_least(:once)
       end
 
-      it "syncs the puppetfile when given the puppetfile flag" do
-        expect(puppetfile).to receive(:sync)
+      it "syncs the puppetfile content when given the puppetfile flag" do
+        expect(loader).to receive(:load).exactly(4).times
+        expect(R10K::ContentSynchronizer).to receive(:concurrent_sync).exactly(4).times
         action = described_class.new({config: "/some/nonexistent/path", puppetfile: true}, [], {})
         action.call
       end
 
       it "syncs the puppetfile when given the modules flag" do
-        expect(puppetfile).to receive(:sync)
+        expect(loader).to receive(:load).exactly(4).times
+        expect(R10K::ContentSynchronizer).to receive(:concurrent_sync).exactly(4).times
         action = described_class.new({config: "/some/nonexistent/path", modules: true}, [], {})
         action.call
       end
-
     end
+
+    describe "with assume-unchanged flag" do
+      let(:loader) do
+        instance_double("R10K::ModuleLoader::Puppetfile",
+                        :load => {
+                          :modules => ['foo'],
+                          :purge_exclusions => [],
+                          :managed_directories => [],
+                          :desired_contents => []
+                        }
+                       ).as_null_object
+      end
+
+      before do
+        expect(R10K::Deployment).to receive(:new).and_wrap_original do |original, settings|
+          original.call(mock_config.merge(settings))
+        end
+        expect(R10K::ModuleLoader::Puppetfile).to receive(:new).
+          and_return(loader).at_least(:once)
+      end
+
+      it "assume unchanged flag causes the module definitons to be preloaded by the loader" do
+        expect(loader).to receive(:load_metadata).exactly(4).times
+        action = described_class.new({:config => "/some/nonexistent/path",
+                                      :modules => true,
+                                      :'assume-unchanged' => true},
+                                      [],
+                                      {})
+        action.call
+      end
+    end
+
 
     describe "with an environment that doesn't exist" do
       let(:deployment) do
@@ -224,19 +271,20 @@ describe R10K::Action::Deploy::Environment do
 
     describe "Purging white/allowlist" do
 
-      let(:settings) { { deploy: { purge_levels: [:environment], purge_allowlist: ['coolfile', 'coolfile2'] } } }
-      let(:overrides) { { environments: {}, modules: {}, purging: { purge_levels: [:environment], purge_allowlist: ['coolfile', 'coolfile2'] } } }
+      let(:settings) { { pool_size: 4, deploy: { purge_levels: [:environment], purge_allowlist: ['coolfile', 'coolfile2'] } } }
+      let(:overrides) { { environments: {}, modules: { pool_size: 4 }, purging: { purge_levels: [:environment], purge_allowlist: ['coolfile', 'coolfile2'] } } }
       let(:deployment) do
-        R10K::Deployment.new(mock_config.merge(overrides))
+        R10K::Deployment.new(mock_config.merge({overrides: overrides}))
       end
       before do
         expect(R10K::Deployment).to receive(:new).and_return(deployment)
+        allow_any_instance_of(R10K::Environment::Base).to receive(:purge!)
       end
 
       subject { described_class.new({ config: "/some/nonexistent/path", modules: true }, %w[PREFIX_first], settings) }
 
       it "reads in the purge_allowlist setting and purges accordingly" do
-        expect(subject.logger).to receive(:debug).with(/purging unmanaged content for environment/i)
+        expect(subject.logger).to receive(:debug).with(/Purging unmanaged content for environment/)
         expect(subject.settings[:overrides][:purging][:purge_allowlist]).to eq(['coolfile', 'coolfile2'])
         subject.call
       end
@@ -245,7 +293,7 @@ describe R10K::Action::Deploy::Environment do
         let (:settings) { { deploy: { purge_levels: [:environment], purge_whitelist: ['coolfile', 'coolfile2'] } } }
 
         it "reads in the purge_whitelist setting and still sets it to purge_allowlist and purges accordingly" do
-          expect(subject.logger).to receive(:debug).with(/purging unmanaged content for environment/i)
+          expect(subject.logger).to receive(:debug).with(/Purging unmanaged content for environment/)
           expect(subject.settings[:overrides][:purging][:purge_allowlist]).to eq(['coolfile', 'coolfile2'])
           subject.call
         end
@@ -260,7 +308,8 @@ describe R10K::Action::Deploy::Environment do
             requested_environments: ['PREFIX_first']
           },
           modules: {
-            deploy_modules: true
+            deploy_modules: true,
+            pool_size: 4
           },
           purging: {
             purge_levels: purge_levels
@@ -274,6 +323,7 @@ describe R10K::Action::Deploy::Environment do
 
       before do
         expect(R10K::Deployment).to receive(:new).and_return(deployment)
+        allow_any_instance_of(R10K::Environment::Base).to receive(:purge!)
       end
 
       subject { described_class.new({ config: "/some/nonexistent/path", modules: true }, %w[PREFIX_first], settings) }
@@ -292,12 +342,12 @@ describe R10K::Action::Deploy::Environment do
 
         it "only logs about purging deployment" do
           expect(subject).to receive(:visit_environment).and_wrap_original do |original, env, &block|
-            expect(env.logger).to_not receive(:debug).with(/purging unmanaged puppetfile content/i)
+            expect(env.logger).to_not receive(:debug).with(/Purging unmanaged puppetfile content/)
             original.call(env)
           end.at_least(:once)
 
-          expect(subject.logger).to receive(:debug).with(/purging unmanaged environments for deployment/i)
-          expect(subject.logger).to_not receive(:debug).with(/purging unmanaged content for environment/i)
+          expect(subject.logger).to receive(:debug).with(/Purging unmanaged environments for deployment/)
+          expect(subject.logger).to_not receive(:debug).with(/Purging unmanaged content for environment/)
 
           subject.call
         end
@@ -308,11 +358,11 @@ describe R10K::Action::Deploy::Environment do
 
         it "only logs about purging environment" do
           expect(subject).to receive(:visit_environment).and_wrap_original do |original, env, &block|
-            expect(env.logger).to_not receive(:debug).with(/purging unmanaged puppetfile content/i)
+            expect(env.logger).to_not receive(:debug).with(/Purging unmanaged puppetfile content/)
             original.call(env)
           end.at_least(:once)
-          expect(subject.logger).to receive(:debug).with(/purging unmanaged content for environment/i)
-          expect(subject.logger).to_not receive(:debug).with(/purging unmanaged environments for deployment/i)
+          expect(subject.logger).to receive(:debug).with(/Purging unmanaged content for environment/)
+          expect(subject.logger).to_not receive(:debug).with(/Purging unmanaged environments for deployment/)
 
           subject.call
         end
@@ -325,7 +375,7 @@ describe R10K::Action::Deploy::Environment do
             original.call(env)
           end.at_least(:once)
 
-          expect(subject.logger).to receive(:debug).with(/not purging unmanaged content for environment/i)
+          expect(subject.logger).to receive(:debug).with(/Not purging unmanaged content for environment/)
 
           subject.call
         end
@@ -335,15 +385,16 @@ describe R10K::Action::Deploy::Environment do
         let(:purge_levels) { [:puppetfile] }
 
         it "only logs about purging puppetfile" do
+          allow(R10K::ContentSynchronizer).to receive(:concurrent_sync)
           expect(subject).to receive(:visit_environment).and_wrap_original do |original, env, &block|
             if env.name =~ /first/
-              expect(env.logger).to receive(:debug).with(/purging unmanaged puppetfile content/i)
+              expect(env.logger).to receive(:debug).with(/Purging unmanaged Puppetfile content/)
             end
             original.call(env)
           end.at_least(:once)
 
-          expect(subject.logger).to_not receive(:debug).with(/purging unmanaged environments for deployment/i)
-          expect(subject.logger).to_not receive(:debug).with(/purging unmanaged content for environment/i)
+          expect(subject.logger).to_not receive(:debug).with(/Purging unmanaged environments for deployment/)
+          expect(subject.logger).to_not receive(:debug).with(/Purging unmanaged content for environment/)
 
           subject.call
         end
@@ -360,6 +411,11 @@ describe R10K::Action::Deploy::Environment do
                 basedir: '/some/nonexistent/path/control',
                 environments: %w[first second]
               }
+            },
+            overrides: {
+              modules: {
+                pool_size: 4
+              }
             }
           )
         )
@@ -367,9 +423,8 @@ describe R10K::Action::Deploy::Environment do
 
       before do
         allow(R10K::Deployment).to receive(:new).and_return(deployment)
-      end
+        allow_any_instance_of(R10K::Environment::Base).to receive(:purge!)
 
-      before(:each) do
         allow(subject).to receive(:write_environment_info!)
         expect(subject.logger).not_to receive(:error)
       end
@@ -531,7 +586,6 @@ describe R10K::Action::Deploy::Environment do
                       })
     end
     let(:mock_forge_module_1) { double(:name => "their_shiny_module", :properties => { :expected => "2.0.0" }) }
-    let(:mock_puppetfile) { instance_double("R10K::Puppetfile", :modules => [mock_git_module_1, mock_git_module_2, mock_forge_module_1]) }
 
     before(:all) do
       @tmp_path = "./tmp-r10k-test-dir/"
@@ -544,10 +598,8 @@ describe R10K::Action::Deploy::Environment do
     end
 
     it "writes the .r10k-deploy file correctly if all goes well" do
-      allow(R10K::Puppetfile).to receive(:new).and_return(mock_puppetfile)
-
       fake_env = Fake_Environment.new(@tmp_path, {:name => "my_cool_environment", :signature => "pablo picasso"})
-      allow(fake_env).to receive(:modules).and_return(mock_puppetfile.modules)
+      allow(fake_env).to receive(:modules).and_return([mock_git_module_1, mock_git_module_2, mock_forge_module_1])
       subject.send(:write_environment_info!, fake_env, "2019-01-01 23:23:22 +0000", true)
 
       file_contents = File.read("#{@tmp_path}/.r10k-deploy.json")
@@ -570,10 +622,8 @@ describe R10K::Action::Deploy::Environment do
     end
 
     it "writes the .r10k-deploy file correctly if there's a failure" do
-      allow(R10K::Puppetfile).to receive(:new).and_return(mock_puppetfile)
-
       fake_env = Fake_Environment.new(@tmp_path, {:name => "my_cool_environment", :signature => "pablo picasso"})
-      allow(fake_env).to receive(:modules).and_return(mock_puppetfile.modules)
+      allow(fake_env).to receive(:modules).and_return([mock_git_module_1, mock_git_module_2, mock_forge_module_1])
       allow(mock_forge_module_1).to receive(:properties).and_raise(StandardError)
       subject.send(:write_environment_info!, fake_env, "2019-01-01 23:23:22 +0000", true)
 

@@ -6,6 +6,13 @@ describe R10K::Module::SVN do
 
   include_context 'fail on execution'
 
+  describe "statically determined version support" do
+    it 'is unsupported by svn backed modules' do
+      static_version = described_class.statically_defined_version('branan/eight_hundred', { svn: 'my/remote', revision: '123adf' })
+      expect(static_version).to eq(nil)
+    end
+  end
+
   describe "determining it implements a Puppetfile mod" do
     it "implements mods with the :svn hash key" do
       implements = described_class.implement?('r10k-fixture-repo', :svn => 'https://github.com/adrienthebo/r10k-fixture-repo')

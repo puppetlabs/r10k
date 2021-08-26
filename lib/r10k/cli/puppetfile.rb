@@ -1,5 +1,4 @@
 require 'r10k/cli'
-require 'r10k/puppetfile'
 require 'r10k/action/puppetfile'
 
 require 'cri'

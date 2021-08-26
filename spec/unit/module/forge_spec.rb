@@ -9,6 +9,28 @@ describe R10K::Module::Forge do
   let(:fixture_modulepath) { File.expand_path('spec/fixtures/module/forge', PROJECT_ROOT) }
   let(:empty_modulepath) { File.expand_path('spec/fixtures/empty', PROJECT_ROOT) }
 
+  describe "statically determined version support" do
+    it 'returns explicitly released forge versions' do
+      static_version = described_class.statically_defined_version('branan/eight_hundred', { version: '8.0.0' })
+      expect(static_version).to eq('8.0.0')
+    end
+
+    it 'returns explicit pre-released forge versions' do
+      static_version = described_class.statically_defined_version('branan/eight_hundred', { version: '8.0.0-pre1' })
+      expect(static_version).to eq('8.0.0-pre1')
+    end
+
+    it 'retuns nil for latest versions' do
+      static_version = described_class.statically_defined_version('branan/eight_hundred', { version: :latest })
+      expect(static_version).to eq(nil)
+    end
+
+    it 'retuns nil for undefined versions' do
+      static_version = described_class.statically_defined_version('branan/eight_hundred', { version: nil })
+      expect(static_version).to eq(nil)
+    end
+  end
+
   describe "implementing the Puppetfile spec" do
     it "should implement 'branan/eight_hundred', '8.0.0'" do
       expect(described_class).to be_implement('branan/eight_hundred', { version: '8.0.0' })

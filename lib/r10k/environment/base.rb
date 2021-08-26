@@ -1,5 +1,8 @@
-require 'r10k/util/subprocess'
+require 'r10k/content_synchronizer'
 require 'r10k/logging'
+require 'r10k/module_loader/puppetfile'
+require 'r10k/util/cleaner'
+require 'r10k/util/subprocess'
 
 # This class defines a common interface for environment implementations.
 #
@@ -34,6 +37,10 @@ class R10K::Environment::Base
   #   @return [String] The puppetfile name (relative)
   attr_reader :puppetfile_name
 
+  attr_reader :managed_directories, :purge_exclusions, :desired_contents
+
+  attr_reader :loader
+
   # Initialize the given environment.
   #
   # @param name [String] The unique name describing this environment.
@@ -57,6 +64,20 @@ class R10K::Environment::Base
                                          force: @overrides.dig(:modules, :force),
                                          puppetfile_name: @puppetfile_name})
     @puppetfile.environment = self
+
+    loader_options = { basedir: @full_path, overrides: @overrides, environment: self }
+    loader_options[:puppetfile] = @puppetfile_name if @puppetfile_name
+
+    @loader = R10K::ModuleLoader::Puppetfile.new(**loader_options)
+
+    if @overrides.dig(:environments, :assume_unchanged)
+      @loader.load_metadata
+    end
+
+    @base_modules = nil
+    @managed_directories = [ @full_path ]
+    @desired_contents = []
+    @purge_exclusions = []
   end
 
   # Synchronize the given environment.
@@ -106,8 +127,11 @@ class R10K::Environment::Base
   # @return [Array<R10K::Module::Base>] All modules defined in the Puppetfile
   #   associated with this environment.
   def modules
-    @puppetfile.load
-    @puppetfile.modules
+    if @base_modules.nil?
+      load_puppetfile_modules
+    end
+
+    @base_modules
   end
 
   # @return [Array<R10K::Module::Base>] Whether or not the given module
@@ -124,28 +148,45 @@ class R10K::Environment::Base
   end
 
   def deploy
-    puppetfile.load(@overrides.dig(:environments, :default_branch_override))
+    if @base_modules.nil?
+      load_puppetfile_modules
+    end
 
-    puppetfile.sync
+    if ! @base_modules.empty?
+      pool_size = @overrides.dig(:modules, :pool_size)
+      R10K::ContentSynchronizer.concurrent_sync(@base_modules, pool_size, logger)
+    end
 
     if (@overrides.dig(:purging, :purge_levels) || []).include?(:puppetfile)
       logger.debug("Purging unmanaged Puppetfile content for environment '#{dirname}'...")
-      R10K::Util::Cleaner.new(puppetfile.managed_directories,
-                              puppetfile.desired_contents,
-                              puppetfile.purge_exclusions).purge!
+      @puppetfile_cleaner.purge!
     end
+  end
+
+  def load_puppetfile_modules
+    loaded_content = @loader.load
+    @base_modules = loaded_content[:modules]
+
+    @purge_exclusions = determine_purge_exclusions(loaded_content[:managed_directories],
+                                                   loaded_content[:desired_contents])
+
+    @puppetfile_cleaner = R10K::Util::Cleaner.new(loaded_content[:managed_directories],
+                                                  loaded_content[:desired_contents],
+                                                  loaded_content[:purge_exclusions])
   end
 
   def whitelist(user_whitelist=[])
     user_whitelist.collect { |pattern| File.join(@full_path, pattern) }
   end
 
-  def purge_exclusions
+  def determine_purge_exclusions(pf_managed_dirs     = @puppetfile.managed_directories,
+                                 pf_desired_contents = @puppetfile.desired_contents)
+
     list = [File.join(@full_path, '.r10k-deploy.json')].to_set
 
-    list += @puppetfile.managed_directories
+    list += pf_managed_dirs
 
-    list += @puppetfile.desired_contents.flat_map do |item|
+    list += pf_desired_contents.flat_map do |item|
       desired_tree = []
 
       if File.directory?(item)

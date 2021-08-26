@@ -1,8 +1,11 @@
 require 'r10k/module'
+require 'r10k/logging'
 require 'puppet_forge'
 
 # This class defines a common interface for module implementations.
 class R10K::Module::Base
+
+  include R10K::Logging
 
   # @!attribute [r] title
   #   @return [String] The forward slash separated owner and name of the module
@@ -47,7 +50,7 @@ class R10K::Module::Base
 
   # @param title [String]
   # @param dirname [String]
-  # @param args [Array]
+  # @param args [Hash]
   def initialize(title, dirname, args, environment=nil)
     @title   = PuppetForge::V3.normalize_name(title)
     @dirname = dirname

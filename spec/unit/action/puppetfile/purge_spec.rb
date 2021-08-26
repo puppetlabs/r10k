@@ -4,11 +4,13 @@ require 'r10k/action/puppetfile/purge'
 describe R10K::Action::Puppetfile::Purge do
   let(:default_opts) { {root: "/some/nonexistent/path"} }
   let(:puppetfile) do
-    instance_double('R10K::Puppetfile',
-                    :load!               => nil,
-                    :managed_directories => %w{foo},
-                    :desired_contents    => %w{bar},
-                    :purge_exclusions    => %w{baz})
+    instance_double('R10K::ModuleLoader::Puppetfile',
+                    :load! => {
+                      :modules             => %w{mod},
+                      :managed_directories => %w{foo},
+                      :desired_contents    => %w{bar},
+                      :purge_exclusions    => %w{baz}
+                    })
   end
 
   def purger(opts = {}, argv = [], settings = {})
@@ -17,8 +19,8 @@ describe R10K::Action::Puppetfile::Purge do
   end
 
   before(:each) do
-    allow(R10K::Puppetfile).to receive(:new).
-      with("/some/nonexistent/path", {moduledir: nil, puppetfile_path: nil}).
+    allow(R10K::ModuleLoader::Puppetfile).to receive(:new).
+      with({basedir: "/some/nonexistent/path"}).
       and_return(puppetfile)
   end
 
@@ -37,23 +39,19 @@ describe R10K::Action::Puppetfile::Purge do
   end
 
   describe "using custom paths" do
-    before(:each) do
-      allow(puppetfile).to receive(:purge!)
-    end
-
     it "can use a custom puppetfile path" do
-      expect(R10K::Puppetfile).to receive(:new).
-        with("/some/nonexistent/path",
-             {moduledir: nil, puppetfile_path: "/some/other/path/Puppetfile"}).
+      expect(R10K::ModuleLoader::Puppetfile).to receive(:new).
+        with({basedir: "/some/nonexistent/path",
+              puppetfile: "/some/other/path/Puppetfile"}).
         and_return(puppetfile)
 
       purger({puppetfile: "/some/other/path/Puppetfile"}).call
     end
 
     it "can use a custom moduledir path" do
-      expect(R10K::Puppetfile).to receive(:new).
-        with("/some/nonexistent/path",
-             {moduledir: "/some/other/path/site-modules", puppetfile_path: nil}).
+      expect(R10K::ModuleLoader::Puppetfile).to receive(:new).
+        with({basedir: "/some/nonexistent/path",
+              moduledir: "/some/other/path/site-modules"}).
         and_return(puppetfile)
 
       purger({moduledir: "/some/other/path/site-modules"}).call

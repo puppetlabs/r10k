@@ -1,0 +1,9 @@
+mod 'puppetlabs/apt', '2.1.1'
+mod 'puppetlabs/stdlib', :latest
+mod 'puppetlabs/concat'
+mod 'puppetlabs/rpm', '2.1.1-pre1'
+mod 'foo', git: 'this/remote', branch: 'main'
+mod 'bar', git: 'this/remote', tag: 'v1.2.3'
+mod 'baz', git: 'this/remote', commit: '123abc456'
+mod 'fizz', git: 'this/remote', ref: '1234567890abcdef1234567890abcdef12345678'
+mod 'buzz', git: 'this/remote', ref: 'refs/heads/main'

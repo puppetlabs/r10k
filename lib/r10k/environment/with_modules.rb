@@ -23,6 +23,7 @@ class R10K::Environment::WithModules < R10K::Environment::Base
   def initialize(name, basedir, dirname, options = {})
     super
 
+    @all_modules = nil
     @managed_content = {}
     @modules = []
     @moduledir = case options[:moduledir]
@@ -43,10 +44,12 @@ class R10K::Environment::WithModules < R10K::Environment::Base
   #     - The r10k environment object
   #     - A Puppetfile in the environment's content
   def modules
-    return @modules if puppetfile.nil?
+    if @all_modules.nil?
+      puppetfile_modules = super()
+      @all_modules = @modules + puppetfile_modules
+    end
 
-    puppetfile.load unless puppetfile.loaded?
-    @modules + puppetfile.modules
+    @all_modules
   end
 
   def module_conflicts?(mod_b)
@@ -125,13 +128,6 @@ class R10K::Environment::WithModules < R10K::Environment::Base
   end
 
   include R10K::Util::Purgeable
-
-  # Returns an array of the full paths that can be purged.
-  # @note This implements a required method for the Purgeable mixin
-  # @return [Array<String>]
-  def managed_directories
-    [@full_path]
-  end
 
   # Returns an array of the full paths of filenames that should exist. Files
   # inside managed_directories that are not listed in desired_contents will

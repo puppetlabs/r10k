@@ -10,6 +10,10 @@ class R10K::Module::SVN < R10K::Module::Base
     args.has_key?(:svn) || args[:type].to_s == 'svn'
   end
 
+  def self.statically_defined_version(name, args)
+    nil
+  end
+
   # @!attribute [r] expected_revision
   #   @return [String] The SVN revision that the repo should have checked out
   attr_reader :expected_revision

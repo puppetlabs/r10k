@@ -3,10 +3,13 @@ require 'r10k/environment'
 
 describe R10K::Environment::Base do
 
-  subject(:environment) { described_class.new('envname', '/some/imaginary/path', 'env_name', {}) }
+  let(:basepath) { '/some/imaginary/path' }
+  let(:envname) { 'env_name' }
+  let(:path) { File.join(basepath, envname) }
+  subject(:environment) { described_class.new('envname', basepath, envname, {}) }
 
   it "can return the fully qualified path" do
-    expect(environment.path).to eq(Pathname.new('/some/imaginary/path/env_name'))
+    expect(environment.path).to eq(Pathname.new(path))
   end
 
   it "raises an exception when #sync is called" do
@@ -49,45 +52,55 @@ describe R10K::Environment::Base do
   describe "#purge_exclusions" do
     let(:mock_env) { instance_double("R10K::Environment::Base") }
     let(:mock_puppetfile) { instance_double("R10K::Puppetfile", :environment= => true, :environment => mock_env) }
+    let(:loader) do
+      instance_double("R10K::ModuleLoader::Puppetfile",
+                      :environment= => nil,
+                      :load => { :modules => @modules,
+                                  :managed_directories => @managed_dirs,
+                                  :desired_contents => @desired_contents,
+                                  :purge_exclusions => @purge_ex })
+    end
 
     before(:each) do
-      allow(mock_puppetfile).to receive(:managed_directories).and_return([])
-      allow(mock_puppetfile).to receive(:desired_contents).and_return([])
-      allow(R10K::Puppetfile).to receive(:new).and_return(mock_puppetfile)
+      @modules = []
+      @managed_dirs = []
+      @desired_contents = []
+      @purge_exclusions = []
     end
 
     it "excludes .r10k-deploy.json" do
+      allow(R10K::ModuleLoader::Puppetfile).to receive(:new).and_return(loader)
+      subject.deploy
+
       expect(subject.purge_exclusions).to include(/r10k-deploy\.json/)
     end
 
     it "excludes puppetfile managed directories" do
-      managed_dirs = [
+      @managed_dirs = [
         '/some/imaginary/path/env_name/modules',
         '/some/imaginary/path/env_name/data',
       ]
 
-      expect(mock_puppetfile).to receive(:managed_directories).and_return(managed_dirs)
+      allow(R10K::ModuleLoader::Puppetfile).to receive(:new).and_return(loader)
+      subject.deploy
 
       exclusions = subject.purge_exclusions
 
-      managed_dirs.each do |dir|
+      @managed_dirs.each do |dir|
         expect(exclusions).to include(dir)
       end
     end
 
     describe "puppetfile desired contents" do
-      let(:desired_contents) do
-        basedir = subject.path.to_s
-
-        [ 'modules/apache', 'data/local/site' ].collect do |c|
-          File.join(basedir, c)
-        end
-      end
 
       before(:each) do
-        allow(File).to receive(:directory?).with(/^\/some\/imaginary\/path/).and_return(true)
+        @desired_contents = [ 'modules/apache', 'data/local/site' ].collect do |c|
+          File.join(path, c)
+        end
 
-        expect(mock_puppetfile).to receive(:desired_contents).and_return(desired_contents)
+        allow(File).to receive(:directory?).and_return true
+        allow(R10K::ModuleLoader::Puppetfile).to receive(:new).and_return(loader)
+        subject.deploy
       end
 
       it "excludes desired directory contents with glob" do

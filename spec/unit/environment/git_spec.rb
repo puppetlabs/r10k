@@ -78,9 +78,9 @@ describe R10K::Environment::Git do
 
   describe "enumerating modules" do
     it "loads the Puppetfile and returns modules in that puppetfile" do
+      loaded = { desired_contents: [], managed_directories: [], purge_exclusions: [] }
       mod = double('A module', :name => 'dbl')
-      expect(subject.puppetfile).to receive(:load)
-      expect(subject.puppetfile).to receive(:modules).and_return [mod]
+      expect(subject.loader).to receive(:load).and_return(loaded.merge(modules: [mod]))
       expect(subject.modules).to eq([mod])
     end
   end

@@ -6,8 +6,9 @@ module R10K
         #
         # @api private
 
-        def initialize(librarian)
-          @librarian = librarian
+        def initialize(librarian, metadata_only: false)
+          @librarian     = librarian
+          @metadata_only = metadata_only
         end
 
         def mod(name, args = nil)
@@ -17,7 +18,11 @@ module R10K
             opts = { version: args }
           end
 
-          @librarian.add_module(name, opts)
+          if @metadata_only
+            @librarian.add_module_metadata(name, opts)
+          else
+            @librarian.add_module(name, opts)
+          end
         end
 
         def forge(location)
