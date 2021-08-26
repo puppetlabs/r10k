@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.9.3-75-ge9bdb69\n"
+"Project-Id-Version: r10k 3.9.3-90-g48f281b0\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2021-08-13 23:48+0000\n"
-"PO-Revision-Date: 2021-08-13 23:48+0000\n"
+"POT-Creation-Date: 2021-08-26 18:33+0000\n"
+"PO-Revision-Date: 2021-08-26 18:33+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -31,35 +31,35 @@ msgstr ""
 msgid "Reason: %{write_lock}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:113
+#: ../lib/r10k/action/deploy/environment.rb:115
 msgid "Environment(s) \\'%{environments}\\' cannot be found in any source and will not be deployed."
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:146
+#: ../lib/r10k/action/deploy/environment.rb:148
 msgid "Environment %{env_dir} does not match environment name filter, skipping"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:154
+#: ../lib/r10k/action/deploy/environment.rb:156
 msgid "Deploying environment %{env_path}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:157
+#: ../lib/r10k/action/deploy/environment.rb:159
 msgid "Environment %{env_dir} is now at %{env_signature}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:161
+#: ../lib/r10k/action/deploy/environment.rb:163
 msgid "Environment %{env_dir} is new, updating all modules"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/module.rb:98
+#: ../lib/r10k/action/deploy/module.rb:99
 msgid "Only updating modules in environment(s) %{opt_env} skipping environment %{env_path}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/module.rb:100
+#: ../lib/r10k/action/deploy/module.rb:101
 msgid "Updating modules %{modules} in environment %{env_path}"
 msgstr ""
 
-#: ../lib/r10k/action/puppetfile/check.rb:16
+#: ../lib/r10k/action/puppetfile/check.rb:18
 msgid "Syntax OK"
 msgstr ""
 
@@ -95,7 +95,7 @@ msgstr ""
 msgid "Unable to load sources; the supplied configuration does not define the 'sources' key"
 msgstr ""
 
-#: ../lib/r10k/environment/base.rb:68 ../lib/r10k/environment/base.rb:84 ../lib/r10k/environment/base.rb:93 ../lib/r10k/source/base.rb:83
+#: ../lib/r10k/environment/base.rb:89 ../lib/r10k/environment/base.rb:105 ../lib/r10k/environment/base.rb:114 ../lib/r10k/source/base.rb:83
 msgid "%{class} has not implemented method %{method}"
 msgstr ""
 
@@ -103,15 +103,15 @@ msgstr ""
 msgid "Improper configuration value given for strip_component setting in %{src} source. Value must be a string, a /regex/, false, or omitted. Got \"%{val}\" (%{type})"
 msgstr ""
 
-#: ../lib/r10k/environment/with_modules.rb:57
+#: ../lib/r10k/environment/with_modules.rb:60
 msgid "Environment and %{src} both define the \"%{name}\" module"
 msgstr ""
 
-#: ../lib/r10k/environment/with_modules.rb:58
+#: ../lib/r10k/environment/with_modules.rb:61
 msgid "#{msg_error}. The %{src} definition will be ignored"
 msgstr ""
 
-#: ../lib/r10k/environment/with_modules.rb:68
+#: ../lib/r10k/environment/with_modules.rb:71
 msgid "Unexpected value for `module_conflicts` setting in %{env} environment: %{val}"
 msgstr ""
 
@@ -367,51 +367,55 @@ msgstr ""
 msgid "Invalid log level '%{val}'. Valid levels are %{log_levels}"
 msgstr ""
 
-#: ../lib/r10k/module.rb:29
+#: ../lib/r10k/module.rb:45
 msgid "Module %{name} with args %{args} doesn't have an implementation. (Are you using the right arguments?)"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:80
+#: ../lib/r10k/module/base.rb:83
 msgid "Spec dir for #{@title} will not be deleted because it is not in the moduledir"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:92
+#: ../lib/r10k/module/base.rb:95
 msgid "Deleting spec data at #{spec_path}"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:100
+#: ../lib/r10k/module/base.rb:103
 msgid "No spec dir detected at #{spec_path}, skipping deletion"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:112
+#: ../lib/r10k/module/base.rb:115
 msgid "Deploying module to %{path}"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:115
+#: ../lib/r10k/module/base.rb:118
 msgid "Only updating modules %{modules}, skipping module %{name}"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:171
+#: ../lib/r10k/module/base.rb:174
 msgid "Module name (%{title}) must match either 'modulename' or 'owner/modulename'"
 msgstr ""
 
-#: ../lib/r10k/module/forge.rb:90
+#: ../lib/r10k/module/definition.rb:27
+msgid "Not updating module %{name}, assuming content unchanged"
+msgstr ""
+
+#: ../lib/r10k/module/forge.rb:92
 msgid "The module %{title} does not appear to have any published releases, cannot determine latest version."
 msgstr ""
 
-#: ../lib/r10k/module/forge.rb:93 ../lib/r10k/module/forge.rb:122
+#: ../lib/r10k/module/forge.rb:95 ../lib/r10k/module/forge.rb:124
 msgid "The module %{title} does not exist on %{url}."
 msgstr ""
 
-#: ../lib/r10k/module/forge.rb:197
+#: ../lib/r10k/module/forge.rb:199
 msgid "Forge module names must match 'owner/modulename', instead got #{title}"
 msgstr ""
 
-#: ../lib/r10k/module/git.rb:66
+#: ../lib/r10k/module/git.rb:81
 msgid "Cannot track control repo branch for content '%{name}' when not part of a git-backed environment, will use default if available."
 msgstr ""
 
-#: ../lib/r10k/module/local.rb:35
+#: ../lib/r10k/module/local.rb:32
 msgid "Module %{title} is a local module, always indicating synced."
 msgstr ""
 
@@ -419,32 +423,36 @@ msgstr ""
 msgid "Could not read metadata.json"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:49
+#: ../lib/r10k/module_loader/puppetfile.rb:52
 msgid "Using Puppetfile '%{puppetfile}'"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:50
+#: ../lib/r10k/module_loader/puppetfile.rb:53
 msgid "Using moduledir '%{moduledir}'"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:74
+#: ../lib/r10k/module_loader/puppetfile.rb:82
 msgid "Failed to evaluate %{path}"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:149
+#: ../lib/r10k/module_loader/puppetfile.rb:99
+msgid "Unable to preload Puppetfile because of %{msg}"
+msgstr ""
+
+#: ../lib/r10k/module_loader/puppetfile.rb:176 ../lib/r10k/puppetfile.rb:105
+msgid "Puppetfile %{path} missing or unreadable"
+msgstr ""
+
+#: ../lib/r10k/module_loader/puppetfile.rb:212
 msgid "Puppetfiles cannot contain duplicate module names."
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:151
+#: ../lib/r10k/module_loader/puppetfile.rb:214
 msgid "Remove the duplicates of the following modules: %{dupes}"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile/dsl.rb:32
+#: ../lib/r10k/module_loader/puppetfile/dsl.rb:37
 msgid "unrecognized declaration '%{method}'"
-msgstr ""
-
-#: ../lib/r10k/puppetfile.rb:105
-msgid "Puppetfile %{path} missing or unreadable"
 msgstr ""
 
 #: ../lib/r10k/settings/collection.rb:77
