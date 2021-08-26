@@ -13,6 +13,10 @@ class R10K::Module::Tarball < R10K::Module::Base
     false
   end
 
+  def self.statically_defined_version(name, args)
+    args[:version]
+  end
+
   # @!attribute [r] tarball
   #   @api private
   #   @return [R10K::Tarball]
