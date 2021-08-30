@@ -70,7 +70,7 @@ class R10K::Environment::Base
 
     @loader = R10K::ModuleLoader::Puppetfile.new(**loader_options)
 
-    if @overrides.dig(:environments, :assume_unchanged)
+    if @overrides.dig(:environments, :incremental)
       @loader.load_metadata
     end
 

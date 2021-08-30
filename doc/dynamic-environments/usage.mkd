@@ -84,7 +84,7 @@ explicit, static version. These are released Forge versions, or Git modules usin
 the `:tag`, or `:commit` keys. Git `:ref`s containing only the full 40 character
 commit SHA will also be treated as static versions. Then invoke a deploy with:
 
-    r10k deploy environment production --modules --assume-unchanged
+    r10k deploy environment production --modules --incremental
 
 - - -
 

@@ -63,8 +63,8 @@ describe R10K::Action::Deploy::Environment do
       described_class.new({ :'exclude-spec' => true }, [], {})
     end
 
-    it 'can accept an assume-unchanged option' do
-      described_class.new({ :'assume-unchanged' => true }, [], {})
+    it 'can accept an incremental option' do
+      described_class.new({ :incremental => true }, [], {})
     end
 
     describe "initializing errors" do
@@ -127,7 +127,7 @@ describe R10K::Action::Deploy::Environment do
       end
     end
 
-    describe "with assume-unchanged flag" do
+    describe "with incremental flag" do
       let(:loader) do
         instance_double("R10K::ModuleLoader::Puppetfile",
                         :load => {
@@ -147,11 +147,11 @@ describe R10K::Action::Deploy::Environment do
           and_return(loader).at_least(:once)
       end
 
-      it "assume unchanged flag causes the module definitons to be preloaded by the loader" do
+      it "incremental unchanged flag causes the module definitons to be preloaded by the loader" do
         expect(loader).to receive(:load_metadata).exactly(4).times
         action = described_class.new({:config => "/some/nonexistent/path",
                                       :modules => true,
-                                      :'assume-unchanged' => true},
+                                      :incremental => true},
                                       [],
                                       {})
         action.call
