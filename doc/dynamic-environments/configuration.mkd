@@ -167,9 +167,8 @@ This defaults to 'https://forgeapi.puppetlabs.com'
 
 #### authorization_token
 
-The 'authorization_token' setting allows you to provide a token for authenticating to a
-custom Forge server. When set, 'baseurl' must also be set.
-You will need to prepend your token with 'Bearer ' if using Artifactory as your Forge server.
+The 'authorization_token' setting allows you to provide a token for authenticating to a Forge server.
+You will need to prepend your token with 'Bearer ' to authenticate to the Forge or when using your own Artifactory server.
 
 ```yaml
 forge:
