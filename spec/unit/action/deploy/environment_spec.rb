@@ -147,7 +147,7 @@ describe R10K::Action::Deploy::Environment do
           and_return(loader).at_least(:once)
       end
 
-      it "incremental unchanged flag causes the module definitons to be preloaded by the loader" do
+      it "incremental flag causes the module definitons to be preloaded by the loader" do
         expect(loader).to receive(:load_metadata).exactly(4).times
         action = described_class.new({:config => "/some/nonexistent/path",
                                       :modules => true,
