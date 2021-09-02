@@ -37,7 +37,7 @@ class R10K::Environment::Base
   #   @return [String] The puppetfile name (relative)
   attr_reader :puppetfile_name
 
-  attr_reader :managed_directories, :purge_exclusions, :desired_contents
+  attr_reader :managed_directories, :desired_contents
 
   attr_reader :loader
 
@@ -70,14 +70,14 @@ class R10K::Environment::Base
 
     @loader = R10K::ModuleLoader::Puppetfile.new(**loader_options)
 
-    if @overrides.dig(:environments, :assume_unchanged)
+    if @overrides.dig(:environments, :incremental)
       @loader.load_metadata
     end
 
     @base_modules = nil
+    @purge_exclusions = nil
     @managed_directories = [ @full_path ]
     @desired_contents = []
-    @purge_exclusions = []
   end
 
   # Synchronize the given environment.
@@ -202,6 +202,14 @@ class R10K::Environment::Base
     end
 
     list.to_a
+  end
+
+  def purge_exclusions
+    if @purge_exclusions.nil?
+      load_puppetfile_modules
+    end
+
+    @purge_exclusions
   end
 
   def generate_types!

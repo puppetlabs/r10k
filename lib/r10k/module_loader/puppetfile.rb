@@ -48,9 +48,6 @@ module R10K
         @managed_directories = []
         @desired_contents = []
         @purge_exclusions = []
-
-        logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile_path}
-        logger.debug _("Using moduledir '%{moduledir}'") % {moduledir: @moduledir}
       end
 
       def load
@@ -60,6 +57,9 @@ module R10K
       end
 
       def load!
+        logger.info _("Using Puppetfile '%{puppetfile}'") % {puppetfile: @puppetfile_path}
+        logger.debug _("Using moduledir '%{moduledir}'") % {moduledir: @moduledir}
+
         dsl = R10K::ModuleLoader::Puppetfile::DSL.new(self)
         dsl.instance_eval(puppetfile_content(@puppetfile_path), @puppetfile_path)
 
