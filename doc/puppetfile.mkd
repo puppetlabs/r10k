@@ -51,10 +51,9 @@ handles modules.
 ### forge
 
 The `forge` setting specifies which server that Forge based modules are fetched
-from. This is currently a noop and is provided for compatibility with
-librarian-puppet.
-
-R10k supports setting the Forge to use _globally_ in `r10k.yaml`. see [Configuration](/doc/dynamic-environments/configuration.mkd#baseurl) for details.
+from. This declaration is only respected if [`forge.allow_puppetfile_override`](/dynamic-environments/configuration.mkd#allow_puppetfile_override)
+is set to true in the main `r10k.yaml`. Otherwise, use [`forge.baseurl`](/doc/dynamic-environments/configuration.mkd#baseurl)
+to globally configure where modules should be downloaded from.
 
 ### moduledir
 

@@ -56,6 +56,9 @@ module R10K
                 purge_allowlist: read_purge_allowlist(settings.dig(:deploy, :purge_whitelist) || [],
                                                       settings.dig(:deploy, :purge_allowlist) || [])
               },
+              forge: {
+                allow_puppetfile_override: settings.dig(:forge, :allow_puppetfile_override) || false
+              },
               output: {}
             }
           })

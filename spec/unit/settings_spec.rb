@@ -90,6 +90,27 @@ describe R10K::Settings do
         end
       end
     end
+
+    describe "allow_puppetfile_override" do
+      it 'is false by default' do
+        expect(subject.evaluate({})[:allow_puppetfile_override]).to eq(false)
+      end
+
+      it 'can be set to true' do
+        expect(subject.evaluate({"allow_puppetfile_override" => true})[:allow_puppetfile_override]).to eq(true)
+      end
+
+      it "raises an error for non-boolean values" do
+        expect {
+          subject.evaluate({"allow_puppetfile_override" => 'invalid_string'})
+        }.to raise_error do |err|
+          expect(err.message).to match(/Validation failed for 'forge' settings group/)
+          expect(err.errors.size).to eq 1
+          expect(err.errors[:allow_puppetfile_override]).to be_a_kind_of(ArgumentError)
+          expect(err.errors[:allow_puppetfile_override].message).to match(/`allow_puppetfile_override` can only be a boolean value, not 'invalid_string'/)
+        end
+      end
+    end
   end
 
   describe "deploy settings" do
@@ -270,10 +291,12 @@ describe R10K::Settings do
       it "passes settings through to the forge settings" do
         output = subject.evaluate("forge" => {"baseurl" => "https://forge.tessier-ashpool.freeside",
                                               "proxy" => "https://proxy.tessier-ashpool.freesize:3128",
-                                              "authorization_token" => "faketoken"})
+                                              "authorization_token" => "faketoken",
+                                              "allow_puppetfile_override" => true})
         expect(output[:forge]).to eq(:baseurl => "https://forge.tessier-ashpool.freeside",
                                      :proxy => "https://proxy.tessier-ashpool.freesize:3128",
-                                     :authorization_token => "faketoken")
+                                     :authorization_token => "faketoken",
+                                     :allow_puppetfile_override => true)
       end
     end
   end

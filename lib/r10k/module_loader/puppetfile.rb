@@ -40,6 +40,7 @@ module R10K
         @overrides   = overrides
         @environment = environment
         @default_branch_override = @overrides.dig(:environments, :default_branch_override)
+        @allow_puppetfile_forge = @overrides.dig(:forge, :allow_puppetfile_override)
 
         @existing_module_metadata = []
         @existing_module_versions_by_name = {}
@@ -114,6 +115,13 @@ module R10K
       # @param [String] forge
       def set_forge(forge)
         @forge = forge
+        if @allow_puppetfile_forge
+          logger.debug _("Using Forge from Puppetfile: %{forge}") % { forge: forge }
+          # This method will append a trailing slash to the string, in place, so we
+          # dup it to avoid different behavior in the value of our instance var
+          # when `allow_puppetfile_forge` is true vs false
+          PuppetForge.host = forge.dup
+        end
       end
 
       # @param [String] moduledir

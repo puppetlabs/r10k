@@ -176,6 +176,11 @@ forge:
   authorization_token: 'Bearer mysupersecretauthtoken'
 ```
 
+#### allow_puppetfile_override
+
+The `allow_puppetfile_override` setting causes r10k to respect [`forge` declarations](https://github.com/puppetlabs/r10k/blob/main/doc/puppetfile.mkd#forge)
+in Puppetfiles, overriding the `baseurl` setting and allowing per-environment configuration of the Forge URL.
+
 Deployment options
 ------------------
 

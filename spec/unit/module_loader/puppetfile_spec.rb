@@ -276,6 +276,30 @@ describe R10K::ModuleLoader::Puppetfile do
       end
     end
 
+    describe 'forge declaration' do
+      before(:each) do
+        PuppetForge.host = ""
+      end
+
+      it 'is respected if `allow_puppetfile_override` is true' do
+        @path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'forge-override')
+        puppetfile = R10K::ModuleLoader::Puppetfile.new(basedir: @path, overrides: { forge: { allow_puppetfile_override: true } })
+        puppetfile.load!
+        expect(puppetfile.instance_variable_get(:@forge)).to eq("my.custom.forge.com")
+        expect(PuppetForge.host).to eq("my.custom.forge.com/")
+      end
+
+      it 'is ignored if `allow_puppetfile_override` is false' do
+        @path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'forge-override')
+        puppetfile = R10K::ModuleLoader::Puppetfile.new(basedir: @path, overrides: { forge: { allow_puppetfile_override: false } })
+        expect(PuppetForge).not_to receive(:host=).with("my.custom.forge.com")
+        puppetfile.load!
+        # instance variable is set, but PuppetForge.host is not updated
+        expect(puppetfile.instance_variable_get(:@forge)).to eq("my.custom.forge.com")
+        expect(PuppetForge.host).to eq("/")
+      end
+    end
+
     it 'rejects Puppetfiles with duplicate module names' do
       @path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'duplicate-module-error')
       pf_path = File.join(@path, 'Puppetfile')
