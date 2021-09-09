@@ -126,8 +126,19 @@ module R10K
         URIDefinition.new(:baseurl, {
           :desc => "The URL to the Puppet Forge to use for downloading modules."
         }),
+
         Definition.new(:authorization_token, {
           :desc => "The token for Puppet Forge authorization. Leave blank for unauthorized or license-based connections."
+        }),
+
+        Definition.new(:allow_puppetfile_override, {
+          :desc => "Whether to use `forge` declarations in the Puppetfile as an override of `baseurl`.",
+          :default => false,
+          :validate => lambda do |value|
+            unless !!value == value
+              raise ArgumentError, "`allow_puppetfile_override` can only be a boolean value, not '#{value}'"
+            end
+          end
         })
       ])
     end

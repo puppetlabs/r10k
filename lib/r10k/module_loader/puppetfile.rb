@@ -9,7 +9,6 @@ module R10K
 
       DEFAULT_MODULEDIR = 'modules'
       DEFAULT_PUPPETFILE_NAME = 'Puppetfile'
-      DEFAULT_FORGE_API = 'forgeapi.puppetlabs.com'
 
       attr_accessor :default_branch_override, :environment
       attr_reader :modules, :moduledir, :puppetfile_path,
@@ -29,17 +28,16 @@ module R10K
       def initialize(basedir:,
                      moduledir: DEFAULT_MODULEDIR,
                      puppetfile: DEFAULT_PUPPETFILE_NAME,
-                     forge: DEFAULT_FORGE_API,
                      overrides: {},
                      environment: nil)
 
         @basedir     = cleanpath(basedir)
         @moduledir   = resolve_path(@basedir, moduledir)
         @puppetfile_path  = resolve_path(@basedir, puppetfile)
-        @forge       = forge
         @overrides   = overrides
         @environment = environment
         @default_branch_override = @overrides.dig(:environments, :default_branch_override)
+        @allow_puppetfile_forge = @overrides.dig(:forge, :allow_puppetfile_override)
 
         @existing_module_metadata = []
         @existing_module_versions_by_name = {}
@@ -113,7 +111,12 @@ module R10K
 
       # @param [String] forge
       def set_forge(forge)
-        @forge = forge
+        if @allow_puppetfile_forge
+          logger.debug _("Using Forge from Puppetfile: %{forge}") % { forge: forge }
+          PuppetForge.host = forge
+        else
+          logger.debug _("Ignoring Forge declaration in Puppetfile, using value from settings: %{forge}.") % { forge: PuppetForge.host }
+        end
       end
 
       # @param [String] moduledir

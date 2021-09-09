@@ -44,6 +44,9 @@ module R10K
                 # force here is used to make it easier to reason about
                 force: !@no_force
               },
+              forge: {
+                allow_puppetfile_override: settings.dig(:forge, :allow_puppetfile_override) || false
+              },
               purging: {},
               output: {}
             }

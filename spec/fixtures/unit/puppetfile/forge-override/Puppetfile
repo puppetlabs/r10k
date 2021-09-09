@@ -1,0 +1,8 @@
+forge "my.custom.forge.com"
+
+mod "puppetlabs/stdlib", '4.12.0'
+mod "puppetlabs/concat", '2.1.0'
+
+mod 'apache',
+  :git    => 'https://github.com/puppetlabs/puppetlabs-apache',
+  :branch => 'docs_experiment'

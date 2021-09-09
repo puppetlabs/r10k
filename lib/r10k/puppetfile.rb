@@ -78,7 +78,6 @@ class Puppetfile
       basedir: @basedir,
       moduledir: @moduledir,
       puppetfile: @puppetfile,
-      forge: @forge,
       overrides: @overrides,
       environment: @environment
     )
