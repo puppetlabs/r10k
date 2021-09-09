@@ -8,7 +8,6 @@ describe R10K::ModuleLoader::Puppetfile do
       let(:options) do
         {
           basedir: '/test/basedir/env',
-          forge: 'localforge.internal.corp',
           overrides: { modules: { deploy_modules: true } },
           environment: R10K::Environment::Git.new('env',
                                                   '/test/basedir/',
@@ -48,10 +47,6 @@ describe R10K::ModuleLoader::Puppetfile do
         end
       end
 
-      it 'the forge' do
-        expect(subject.instance_variable_get(:@forge)).to eq('localforge.internal.corp')
-      end
-
       it 'the overrides' do
         expect(subject.instance_variable_get(:@overrides)).to eq({ modules: { deploy_modules: true }})
       end
@@ -70,10 +65,6 @@ describe R10K::ModuleLoader::Puppetfile do
 
       it 'has a Puppetfile rooted in the basedir' do
         expect(subject.instance_variable_get(:@puppetfile_path)).to eq('/test/basedir/Puppetfile')
-      end
-
-      it 'uses the public forge' do
-        expect(subject.instance_variable_get(:@forge)).to eq('forgeapi.puppetlabs.com')
       end
 
       it 'creates an empty overrides' do
@@ -285,7 +276,6 @@ describe R10K::ModuleLoader::Puppetfile do
         @path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'forge-override')
         puppetfile = R10K::ModuleLoader::Puppetfile.new(basedir: @path, overrides: { forge: { allow_puppetfile_override: true } })
         puppetfile.load!
-        expect(puppetfile.instance_variable_get(:@forge)).to eq("my.custom.forge.com")
         expect(PuppetForge.host).to eq("my.custom.forge.com/")
       end
 
@@ -294,8 +284,6 @@ describe R10K::ModuleLoader::Puppetfile do
         puppetfile = R10K::ModuleLoader::Puppetfile.new(basedir: @path, overrides: { forge: { allow_puppetfile_override: false } })
         expect(PuppetForge).not_to receive(:host=).with("my.custom.forge.com")
         puppetfile.load!
-        # instance variable is set, but PuppetForge.host is not updated
-        expect(puppetfile.instance_variable_get(:@forge)).to eq("my.custom.forge.com")
         expect(PuppetForge.host).to eq("/")
       end
     end

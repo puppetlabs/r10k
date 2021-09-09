@@ -9,7 +9,6 @@ module R10K
 
       DEFAULT_MODULEDIR = 'modules'
       DEFAULT_PUPPETFILE_NAME = 'Puppetfile'
-      DEFAULT_FORGE_API = 'forgeapi.puppetlabs.com'
 
       attr_accessor :default_branch_override, :environment
       attr_reader :modules, :moduledir, :puppetfile_path,
@@ -29,14 +28,12 @@ module R10K
       def initialize(basedir:,
                      moduledir: DEFAULT_MODULEDIR,
                      puppetfile: DEFAULT_PUPPETFILE_NAME,
-                     forge: DEFAULT_FORGE_API,
                      overrides: {},
                      environment: nil)
 
         @basedir     = cleanpath(basedir)
         @moduledir   = resolve_path(@basedir, moduledir)
         @puppetfile_path  = resolve_path(@basedir, puppetfile)
-        @forge       = forge
         @overrides   = overrides
         @environment = environment
         @default_branch_override = @overrides.dig(:environments, :default_branch_override)
@@ -114,13 +111,11 @@ module R10K
 
       # @param [String] forge
       def set_forge(forge)
-        @forge = forge
         if @allow_puppetfile_forge
           logger.debug _("Using Forge from Puppetfile: %{forge}") % { forge: forge }
-          # This method will append a trailing slash to the string, in place, so we
-          # dup it to avoid different behavior in the value of our instance var
-          # when `allow_puppetfile_forge` is true vs false
-          PuppetForge.host = forge.dup
+          PuppetForge.host = forge
+        else
+          logger.debug _("Ignoring Forge declaration in Puppetfile, using value from settings: %{forge}.") % { forge: PuppetForge.host }
         end
       end
 
