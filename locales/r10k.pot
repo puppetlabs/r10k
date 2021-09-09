@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.9.3-90-g48f281b0\n"
+"Project-Id-Version: r10k 3.9.3-103-g830aedde\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2021-08-26 18:33+0000\n"
-"PO-Revision-Date: 2021-08-26 18:33+0000\n"
+"POT-Creation-Date: 2021-09-09 22:18+0000\n"
+"PO-Revision-Date: 2021-09-09 22:18+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -31,31 +31,31 @@ msgstr ""
 msgid "Reason: %{write_lock}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:115
+#: ../lib/r10k/action/deploy/environment.rb:118
 msgid "Environment(s) \\'%{environments}\\' cannot be found in any source and will not be deployed."
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:148
+#: ../lib/r10k/action/deploy/environment.rb:151
 msgid "Environment %{env_dir} does not match environment name filter, skipping"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:156
+#: ../lib/r10k/action/deploy/environment.rb:159
 msgid "Deploying environment %{env_path}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:159
+#: ../lib/r10k/action/deploy/environment.rb:162
 msgid "Environment %{env_dir} is now at %{env_signature}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:163
+#: ../lib/r10k/action/deploy/environment.rb:166
 msgid "Environment %{env_dir} is new, updating all modules"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/module.rb:99
+#: ../lib/r10k/action/deploy/module.rb:102
 msgid "Only updating modules in environment(s) %{opt_env} skipping environment %{env_path}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/module.rb:101
+#: ../lib/r10k/action/deploy/module.rb:104
 msgid "Updating modules %{modules} in environment %{env_path}"
 msgstr ""
 
@@ -423,31 +423,39 @@ msgstr ""
 msgid "Could not read metadata.json"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:52
+#: ../lib/r10k/module_loader/puppetfile.rb:58
 msgid "Using Puppetfile '%{puppetfile}'"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:53
+#: ../lib/r10k/module_loader/puppetfile.rb:59
 msgid "Using moduledir '%{moduledir}'"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:82
+#: ../lib/r10k/module_loader/puppetfile.rb:80
 msgid "Failed to evaluate %{path}"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:99
+#: ../lib/r10k/module_loader/puppetfile.rb:97
 msgid "Unable to preload Puppetfile because of %{msg}"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:176 ../lib/r10k/puppetfile.rb:105
+#: ../lib/r10k/module_loader/puppetfile.rb:115
+msgid "Using Forge from Puppetfile: %{forge}"
+msgstr ""
+
+#: ../lib/r10k/module_loader/puppetfile.rb:118
+msgid "Ignoring Forge declaration in Puppetfile, using value from settings: %{forge}."
+msgstr ""
+
+#: ../lib/r10k/module_loader/puppetfile.rb:179 ../lib/r10k/puppetfile.rb:104
 msgid "Puppetfile %{path} missing or unreadable"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:212
+#: ../lib/r10k/module_loader/puppetfile.rb:215
 msgid "Puppetfiles cannot contain duplicate module names."
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:214
+#: ../lib/r10k/module_loader/puppetfile.rb:217
 msgid "Remove the duplicates of the following modules: %{dupes}"
 msgstr ""
 
