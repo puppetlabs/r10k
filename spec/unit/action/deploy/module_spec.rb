@@ -102,33 +102,22 @@ describe R10K::Action::Deploy::Module do
         )
       end
 
-      before do
-        @modules = []
-        allow(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
-          mod = R10K::Module::Local.new(environment.name, '/fakedir', {}, environment)
-          if mod.name == 'first'
-            expect(environment).to receive(:generate_types!)
-          else
-            expect(environment).not_to receive(:generate_types!)
-          end
-          @modules << mod
-          allow(environment.loader).to receive(:load).and_return({
-            modules: [mod],
-            desired_contents: [],
-            managed_directories: [],
-            purge_exclusions: []
-          }).once
-          original.call(environment, &block)
-        end
-      end
-
       it 'generate_types is true' do
         expect(subject.settings[:overrides][:environments][:generate_types]).to eq(true)
       end
 
-      it 'only calls puppet generate types on environments with specified module' do
+      it 'only calls puppet generate types on environments where the specified module was updated' do
+        allow(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
+          if environment.name == 'first'
+            expect(environment).to receive(:deploy).and_return(['first'])
+            expect(environment).to receive(:generate_types!)
+          else
+            expect(environment).to receive(:deploy).and_return([])
+            expect(environment).not_to receive(:generate_types!)
+          end
+          original.call(environment, &block)
+        end
         subject.call
-        expect(@modules.length).to be(2)
       end
     end
 
@@ -422,16 +411,13 @@ describe R10K::Action::Deploy::Module do
           allow(mock_subprocess).to receive(:logger=)
           expect(mock_subprocess).to receive(:execute)
 
-          mock_mod = double('mock_mod', name: 'mod1')
-
           expect(R10K::Util::Subprocess).to receive(:new).
             with(["/generate/types/wrapper", "first"]).
             and_return(mock_subprocess)
 
           expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
             if environment.name == 'first'
-              expect(environment).to receive(:deploy).and_return(true)
-              expect(environment).to receive(:modules).and_return([mock_mod])
+              expect(environment).to receive(:deploy).and_return(['first'])
             end
             original.call(environment, &block)
           end.exactly(3).times
@@ -462,12 +448,9 @@ describe R10K::Action::Deploy::Module do
             with(["/generate/types/wrapper", "first third"]).
             and_return(mock_subprocess)
 
-          mock_mod = double('mock_mod', name: 'mod1')
-
           expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
-            expect(environment).to receive(:deploy).and_return(true)
             if ['first', 'third'].include?(environment.name)
-              expect(environment).to receive(:modules).and_return([mock_mod])
+              expect(environment).to receive(:deploy).and_return(['mod1'])
             end
             original.call(environment, &block)
           end.exactly(3).times
@@ -480,9 +463,7 @@ describe R10K::Action::Deploy::Module do
 
           mock_mod2 = double('mock_mod', name: 'mod2')
           expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
-            expect(environment).to receive(:deploy).and_return(true)
-            # Envs have a different module than the one we asked to deploy
-            expect(environment).to receive(:modules).and_return([mock_mod2])
+            expect(environment).to receive(:deploy).and_return([])
             original.call(environment, &block)
           end.exactly(3).times
 

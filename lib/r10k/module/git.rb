@@ -98,10 +98,16 @@ class R10K::Module::Git < R10K::Module::Base
   end
 
   # @param [Hash] opts Deprecated
+  # @return [Boolean] true if the module was updated, false otherwise
   def sync(opts={})
     force = opts[:force] || @force
-    @repo.sync(version, force) if should_sync?
+    if should_sync?
+      updated = @repo.sync(version, force)
+    else
+      updated = false
+    end
     maybe_delete_spec_dir
+    updated
   end
 
   def status

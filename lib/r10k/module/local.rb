@@ -28,7 +28,9 @@ class R10K::Module::Local < R10K::Module::Base
   end
 
   # @param [Hash] opts Deprecated
+  # @return [Boolean] false, because local modules are always considered in-sync
   def sync(opts={})
     logger.debug1 _("Module %{title} is a local module, always indicating synced.") % {title: title}
+    false
   end
 end

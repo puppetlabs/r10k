@@ -78,16 +78,18 @@ module R10K
         ensure
           if (postcmd = @settings[:postrun])
             if @modified_envs.any?
+              envs_to_run = @modified_envs.join(' ')
+              logger.debug _("Running postrun command for environments: %{envs_to_run}.") % { envs_to_run: envs_to_run }
+
               if postcmd.grep('$modifiedenvs').any?
-                envs_to_run = @modified_envs.join(' ')
-                logger.debug "Running postrun command for environments #{envs_to_run}."
                 postcmd = postcmd.map { |e| e.gsub('$modifiedenvs', envs_to_run) }
               end
+
               subproc = R10K::Util::Subprocess.new(postcmd)
               subproc.logger = logger
               subproc.execute
             else
-              logger.debug "No environments were modified, not executing postrun command."
+              logger.debug _("No environments were modified, not executing postrun command.")
             end
           end
         end
@@ -103,11 +105,10 @@ module R10K
           else
             logger.debug1(_("Updating modules %{modules} in environment %{env_path}") % {modules: @settings.dig(:overrides, :modules, :requested_modules).inspect, env_path: environment.path})
 
-            environment.deploy
+            updated_modules = environment.deploy
 
-            requested_mods = @settings.dig(:overrides, :modules, :requested_modules) || []
             # We actually synced a module in this env
-            if !((environment.modules.map(&:name) & requested_mods).empty?)
+            if !updated_modules.nil? && !updated_modules.empty?
               # Record modified environment for postrun command
               @modified_envs << environment.dirname
 

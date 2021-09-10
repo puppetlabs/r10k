@@ -106,6 +106,7 @@ class R10K::Module::Base
 
   # Synchronize this module with the indicated state.
   # @param [Hash] opts Deprecated
+  # @return [Boolean] true if the module was updated, false otherwise
   def sync(opts={})
     raise NotImplementedError
   end

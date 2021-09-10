@@ -74,18 +74,24 @@ class R10K::Module::SVN < R10K::Module::Base
   end
 
   # @param [Hash] opts Deprecated
+  # @return [Boolean] true if the module was updated, false otherwise
   def sync(opts={})
+    updated = false
     if should_sync?
       case status
       when :absent
         install
+        updated = true
       when :mismatched
         reinstall
+        updated = true
       when :outdated
         update
+        updated = true
       end
       maybe_delete_spec_dir
     end
+    updated
   end
 
   def exist?

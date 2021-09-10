@@ -212,25 +212,31 @@ describe R10K::Module::Forge do
       expect(subject).to receive(:install).never
       expect(subject).to receive(:upgrade).never
       expect(subject).to receive(:reinstall).never
-      subject.sync
+      expect(subject.sync).to be false
     end
 
     it 'reinstalls the module when it is mismatched' do
       allow(subject).to receive(:status).and_return :mismatched
       expect(subject).to receive(:reinstall)
-      subject.sync
+      expect(subject.sync).to be true
     end
 
     it 'upgrades the module when it is outdated' do
       allow(subject).to receive(:status).and_return :outdated
       expect(subject).to receive(:upgrade)
-      subject.sync
+      expect(subject.sync).to be true
     end
 
     it 'installs the module when it is absent' do
       allow(subject).to receive(:status).and_return :absent
       expect(subject).to receive(:install)
-      subject.sync
+      expect(subject.sync).to be true
+    end
+
+    it 'returns false if `should_sync?` is false' do
+      # modules do not sync if they are not requested
+      mod = described_class.new('my_org/my_mod', '/path/to/mod', { overrides: { modules: { requested_modules: ['other_mod'] } } })
+      expect(mod.sync).to be false
     end
   end
 

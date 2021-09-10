@@ -135,7 +135,6 @@ describe R10K::Module::SVN do
     subject { described_class.new(title, dirname, {}) }
 
     it 'is kept by default' do
-
       FileUtils.mkdir_p(spec_path)
       expect(subject).to receive(:status).and_return(:absent)
       expect(subject).to receive(:install).and_return(nil)
@@ -157,7 +156,7 @@ describe R10K::Module::SVN do
 
       it "installs the SVN module" do
         expect(subject).to receive(:install)
-        subject.sync
+        expect(subject.sync).to be true
       end
     end
 
@@ -167,14 +166,14 @@ describe R10K::Module::SVN do
       it "reinstalls the module" do
         expect(subject).to receive(:reinstall)
 
-        subject.sync
+        expect(subject.sync).to be true
       end
 
       it "removes the existing directory" do
         expect(subject.path).to receive(:rmtree)
         allow(subject).to receive(:install)
 
-        subject.sync
+        expect(subject.sync).to be true
       end
     end
 
@@ -184,7 +183,7 @@ describe R10K::Module::SVN do
       it "upgrades the repository" do
         expect(subject).to receive(:update)
 
-        subject.sync
+        expect(subject.sync).to be true
       end
     end
 
@@ -196,8 +195,14 @@ describe R10K::Module::SVN do
         expect(subject).to receive(:reinstall).never
         expect(subject).to receive(:update).never
 
-        subject.sync
+        expect(subject.sync).to be false
       end
+    end
+
+    it 'and `should_sync?` is false' do
+      # modules do not sync if they are not requested
+      mod = described_class.new('my_mod', '/path/to/mod', { overrides: { modules: { requested_modules: ['other_mod'] } } })
+      expect(mod.sync).to be false
     end
   end
 end

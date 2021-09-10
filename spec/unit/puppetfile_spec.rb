@@ -273,7 +273,7 @@ describe R10K::Puppetfile do
       expect(subject).to receive(:modules).and_return([mod1, mod2])
 
       expect(Thread).to receive(:new).exactly(pool_size).and_call_original
-      expect(Queue).to receive(:new).and_call_original
+      expect(Queue).to receive(:new).and_call_original.twice
 
       subject.accept(visitor)
     end
