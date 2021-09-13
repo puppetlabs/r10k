@@ -21,20 +21,20 @@ class R10K::Environment::Tarball < R10K::Environment::WithModules
   # @param options [Hash] An additional set of options for this environment.
   #
   # @param options [String] :source Where to get the tarball from
-  # @param options [String] :version The sha256digest of the tarball
+  # @param options [String] :version The sha256 digest of the tarball
   def initialize(name, basedir, dirname, options = {})
     super
     setopts(options, {
       # Standard option interface
       :type      => ::R10K::Util::Setopts::Ignore,
       :source    => :self,
-      :version   => :sha256digest,
+      :version   => :checksum,
 
       # Type-specific options
-      :sha256digest => :self,
+      :checksum => :self,
     })
 
-    @tarball = R10K::Tarball.new(name, @source, sha256digest: @sha256digest)
+    @tarball = R10K::Tarball.new(name, @source, checksum: @checksum)
   end
 
   def path
@@ -62,7 +62,7 @@ class R10K::Environment::Tarball < R10K::Environment::WithModules
   end
 
   def signature
-    @sha256digest || @tarball.cache_sha256digest
+    @checksum || @tarball.cache_checksum
   end
 
   include R10K::Util::Purgeable

@@ -29,15 +29,15 @@ class R10K::Module::Tarball < R10K::Module::Base
     setopts(opts, {
       # Standard option interface
       :source    => :self,
-      :version   => :sha256digest,
+      :version   => :checksum,
       :type      => ::R10K::Util::Setopts::Ignore,
       :overrides => :self,
 
       # Type-specific options
-      :sha256digest => :self,
+      :checksum => :self,
     })
 
-    @tarball = R10K::Tarball.new(name, @source, sha256digest: @sha256digest)
+    @tarball = R10K::Tarball.new(name, @source, checksum: @checksum)
   end
 
   # Return the status of the currently installed module.
@@ -70,7 +70,7 @@ class R10K::Module::Tarball < R10K::Module::Base
 
   # Return the desired version of this module
   def version
-    @sha256digest || 'unversioned'
+    @checksum || 'unversioned'
   end
 
   # Return the properties of the module
@@ -79,7 +79,7 @@ class R10K::Module::Tarball < R10K::Module::Base
   # @abstract
   def properties
     {
-      :expected => @sha256digest,
+      :expected => @checksum,
       :actual   => status,
       :type     => :tarball,
     }

@@ -4,13 +4,13 @@ require 'fileutils'
 shared_context "Tarball" do
   # Suggested subject:
   #
-  #   subject { described_class.new('fixture-tarball', fixture_tarball, sha256digest: fixture_sha256digest) }
+  #   subject { described_class.new('fixture-tarball', fixture_tarball, checksum: fixture_checksum) }
   #
   let(:fixture_tarball) do
     File.expand_path('spec/fixtures/tarball/tarball.tar.gz', PROJECT_ROOT)
   end
 
-  let(:fixture_sha256digest) { '36afcfc2378b8235902d6e647fce7479da6898354d620388646c595a1155ed67' }
+  let(:fixture_checksum) { '36afcfc2378b8235902d6e647fce7479da6898354d620388646c595a1155ed67' }
 
   # Use tmpdir for cached tarballs
   let(:tmpdir) { Dir.mktmpdir }

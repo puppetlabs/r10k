@@ -5,7 +5,7 @@ require 'fileutils'
 describe R10K::Module::Tarball do
   include_context 'Tarball'
 
-  let(:base_params) { { type: 'tarball', source: fixture_tarball, version: fixture_sha256digest } }
+  let(:base_params) { { type: 'tarball', source: fixture_tarball, version: fixture_checksum } }
 
   subject do
     described_class.new(
@@ -37,7 +37,7 @@ describe R10K::Module::Tarball do
     end
 
     it "sets the version" do
-      expect(subject.properties).to include(expected: fixture_sha256digest)
+      expect(subject.properties).to include(expected: fixture_checksum)
     end
   end
 

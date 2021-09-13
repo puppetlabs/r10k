@@ -30,17 +30,17 @@ module R10K
     #   @return [String] The tarball's source
     attr_accessor :source
 
-    # @!attribute [r] sha256digest
+    # @!attribute [r] checksum
     #   @return [String] The tarball's expected sha256 digest
-    attr_accessor :sha256digest
+    attr_accessor :checksum
 
     # @param name [String] The name of the tarball content
     # @param source [String] The source for the tarball content
-    # @param sha256digest [String] The sha256 digest of the tarball content
-    def initialize(name, source, sha256digest: nil)
+    # @param checksum [String] The sha256 digest of the tarball content
+    def initialize(name, source, checksum: nil)
       @name = name
       @source = source
-      @sha256digest = sha256digest
+      @checksum = checksum
     end
 
     # @return [String] Directory. Where the cache will be created.
@@ -105,8 +105,8 @@ module R10K
                       end
 
         # Verify the download
-        unless (sha256digest == temp_digest) || sha256digest.nil?
-          raise 'Downloaded file does not match digest'
+        unless (checksum == temp_digest) || checksum.nil?
+          raise 'Downloaded file does not match checksum'
         end
 
         # Move the download to cache_path
@@ -127,8 +127,8 @@ module R10K
     #
     # @return [Boolean]
     def cache_valid?
-      unless sha256digest.nil?
-        File.exist?(cache_path) && sha256digest == file_digest(cache_path)
+      unless checksum.nil?
+        File.exist?(cache_path) && checksum == file_digest(cache_path)
       else
         File.exist?(cache_path)
       end
@@ -144,7 +144,7 @@ module R10K
       names
     end
 
-    def cache_sha256digest
+    def cache_checksum
       raise "Cache not present" unless File.exist?(cache_path)
       file_digest(cache_path)
     end

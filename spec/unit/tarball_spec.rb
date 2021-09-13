@@ -4,7 +4,7 @@ require 'r10k/tarball'
 describe R10K::Tarball do
   include_context 'Tarball'
 
-  subject { described_class.new('fixture-tarball', fixture_tarball, sha256digest: fixture_sha256digest) }
+  subject { described_class.new('fixture-tarball', fixture_tarball, checksum: fixture_checksum) }
 
   describe 'initialization' do
     it 'initializes' do
