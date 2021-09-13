@@ -9,11 +9,13 @@ require 'zlib'
 require 'r10k/settings'
 require 'r10k/settings/mixin'
 require 'r10k/util/platform'
+require 'r10k/util/cacheable'
 
 module R10K
   class Tarball
 
     include R10K::Settings::Mixin
+    include R10K::Util::Cacheable
 
     def_setting_attr :proxy
     def_setting_attr :cache_root, if R10K::Util::Platform.windows?
@@ -192,10 +194,6 @@ module R10K
       end
 
       digest.hexdigest
-    end
-
-    def sanitized_dirname(string)
-      string.gsub(/[^@\w\.-]/, '-')
     end
 
     def http_get(uri, method: Net::HTTP::Get, redirect_limit: 10, &block)
