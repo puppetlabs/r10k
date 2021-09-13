@@ -196,9 +196,12 @@ module R10K
       digest.hexdigest
     end
 
-    def http_get(uri, method: Net::HTTP::Get, redirect_limit: 10, &block)
+    # Start a Net::HTTP::Get connection, then yield the Net::HTTPSuccess object
+    # to the caller's block. Follow redirects if Net::HTTPRedirection responses
+    # are encountered, and honor settings[:proxy].
+    def http_get(uri, redirect_limit: 10, &block)
       raise "HTTP redirect too deep" if redirect_limit.zero?
-      request = method.new(uri)
+      request = Net::HTTP::Get(uri)
       connection = Net::HTTP.new(uri.host, uri.port)
 
       proxy = if settings[:proxy]
