@@ -99,8 +99,7 @@ module R10K
 
     # Download the tarball from @source to @cache_path
     def download
-      Dir.mktmpdir do
-        tempfile = Tempfile.new(tarball_basename)
+      Tempfile.open(tarball_basename) do |tempfile|
         tempfile.binmode
         src_uri = URI.parse(source)
 
@@ -125,11 +124,10 @@ module R10K
         begin
           FileUtils.mv(tempfile.path, cache_path)
         rescue Errno::EACCES
+          # It may be the case that permissions don't permit moving the file
+          # into place, but do permit overwriting an existing in-place file.
           FileUtils.cp(tempfile.path, cache_path)
         end
-
-        tempfile.close
-        tempfile.unlink
       end
     end
 
