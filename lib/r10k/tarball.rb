@@ -131,16 +131,15 @@ module R10K
       end
     end
 
-    # Is the cached tarball valid? Checks the cached tarball's digest against
-    # the expected digest.
+    # Checks the cached tarball's digest against the expected checksum. Returns
+    # false if no cached file is present. If the tarball has no expected
+    # checksum, any cached file is assumed to be valid.
     #
     # @return [Boolean]
     def cache_valid?
-      unless checksum.nil?
-        File.exist?(cache_path) && checksum == file_digest(cache_path)
-      else
-        File.exist?(cache_path)
-      end
+      return false unless File.exist?(cache_path)
+      return true if checksum.nil?
+      checksum == file_digest(cache_path)
     end
 
     # List all of the files contained in the tarball and their paths. This is
