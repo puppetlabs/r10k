@@ -54,7 +54,7 @@ class R10K::Environment::Tarball < R10K::Environment::WithModules
   def status
     if not path.exist?
       :absent
-    elsif not (tarball.cache_valid? && tarball.insync?(path.to_s, purge: false))
+    elsif not (tarball.cache_valid? && tarball.insync?(path.to_s, ignore_untracked_files: true))
       :mismatched
     else
       :insync

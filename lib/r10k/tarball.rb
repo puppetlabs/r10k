@@ -71,19 +71,30 @@ module R10K
       end
     end
 
-    # @param target_dir [String] The directory to check if is insync with the
+    # @param target_dir [String] The directory to check if is in sync with the
     #        tarball content
+    # @param ignore_untracked_files [Boolean] If true, consider the target
+    #        dir to be in sync as long as all tracked content matches.
     #
     # @return [Boolean]
-    def insync?(target_dir, purge: true)
-      target_dir_entries = Find.find(target_dir).map(&:to_s) - [target_dir]
+    def insync?(target_dir, ignore_untracked_files: false)
+      target_tree_entries = Find.find(target_dir).map(&:to_s) - [target_dir]
       each_tarball_entry do |entry|
-        found = target_dir_entries.delete(File.join(target_dir, entry.full_name.chomp('/')))
+        found = target_tree_entries.delete(File.join(target_dir, entry.full_name.chomp('/')))
         return false if found.nil?
         next if entry.directory?
         return false unless file_digest(found) == reader_digest(entry)
       end
-      purge ? target_dir_entries.empty? : true
+
+      if ignore_untracked_files
+        # We wouldn't have gotten this far if there were discrepancies in
+        # tracked content
+        true
+      else
+        # If there are still files in target_tree_entries, then there is
+        # untracked content present in the target tree. If not, we're in sync.
+        target_tree_entries.empty?
+      end
     end
 
     # Download the tarball from @source to @cache_path
