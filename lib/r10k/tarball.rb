@@ -24,17 +24,21 @@ module R10K
                                     File.expand_path(ENV['HOME'] ? '~/.r10k/tarball': '/root/.r10k/tarball')
                                   end
 
-    # @!attribute [r] name
+    # @!attribute [rw] name
     #   @return [String] The tarball's name
     attr_accessor :name
 
-    # @!attribute [r] source
+    # @!attribute [rw] source
     #   @return [String] The tarball's source
     attr_accessor :source
 
-    # @!attribute [r] checksum
+    # @!attribute [rw] checksum
     #   @return [String] The tarball's expected sha256 digest
     attr_accessor :checksum
+
+    # @!attribute [r] checksum_algorithm
+    #   @return [String] Which Digest algorithm to use when calculating checksums
+    attr_reader :checksum_algorithm
 
     # @param name [String] The name of the tarball content
     # @param source [String] The source for the tarball content
@@ -43,6 +47,10 @@ module R10K
       @name = name
       @source = source
       @checksum = checksum
+
+      # At this time, the only checksum type supported is sha256. In the future,
+      # we may decide to support other algorithms if a use case arises. TBD.
+      @checksum_algorithm = :SHA256
     end
 
     # @return [String] Directory. Where the cache will be created.
@@ -188,7 +196,7 @@ module R10K
     # @param reader [String] An object that responds to #read
     # @return [String] The read data's sha256 hex digest
     def reader_digest(reader)
-      digest = Digest::SHA256.new
+      digest = Digest(checksum_algorithm).new
       while chunk = reader.read(CHUNK_SIZE)
         digest.update(chunk)
       end
@@ -232,7 +240,7 @@ module R10K
     # @param output The file or path to copy to
     # @return [String] The copied file's sha256 hex digest
     def copy_to_file(input, output)
-      digest = Digest::SHA256.new
+      digest = Digest(checksum_algorithm).new
       File.open(input, 'rb') do |input_stream|
         File.open(output, 'wb') do |output_stream|
           until input_stream.eof?
@@ -250,7 +258,7 @@ module R10K
     # @param output The file or path to save to
     # @return [String] The downloaded file's sha256 hex digest
     def download_to_file(uri, output)
-      digest = Digest::SHA256.new
+      digest = Digest(checksum_algorithm).new
       http_get(uri) do |resp|
         File.open(output, 'wb') do |output_stream|
           resp.read_body do |chunk|
