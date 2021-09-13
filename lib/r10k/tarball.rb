@@ -116,9 +116,9 @@ module R10K
         temp_digest = case src_uri.scheme
                       when 'file', nil
                         copy_to_file(src_uri.path, tempfile)
-                      when %r{[a-z]} # Windows drive letter
+                      when %r{^[a-z]$} # Windows drive letter
                         copy_to_file(src_uri.to_s, tempfile)
-                      when %r{https?}
+                      when %r{^https?$}
                         download_to_file(src_uri, tempfile)
                       else
                         raise "Unexpected source scheme #{src_uri.scheme}"
