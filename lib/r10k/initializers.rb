@@ -37,9 +37,11 @@ module R10K
         with_setting(:cachedir) { |value| R10K::Forge::ModuleRelease.settings[:cache_root] = value }
         with_setting(:cachedir) { |value| R10K::Tarball.settings[:cache_root] = value }
         with_setting(:pool_size) { |value| R10K::Puppetfile.settings[:pool_size] = value }
+        with_setting(:proxy) { |value| R10K::Tarball.settings[:proxy] = value }
 
         with_setting(:git) { |value| GitInitializer.new(value).call }
         with_setting(:forge) { |value| ForgeInitializer.new(value).call }
+        with_setting(:tarball) { |value| TarballInitializer.new(value).call }
       end
     end
 

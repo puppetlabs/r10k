@@ -17,12 +17,8 @@ module R10K
     include R10K::Settings::Mixin
     include R10K::Util::Cacheable
 
-    def_setting_attr :proxy
-    def_setting_attr :cache_root, if R10K::Util::Platform.windows?
-                                    File.join(ENV['LOCALAPPDATA'], 'r10k', 'tarball')
-                                  else
-                                    File.join(ENV['HOME'] || '/root', '.r10k', 'tarball')
-                                  end
+    def_setting_attr :proxy      # Defaults to global proxy setting
+    def_setting_attr :cache_root # Defaults to global cachedir setting
 
     # @!attribute [rw] name
     #   @return [String] The tarball's name

@@ -8,6 +8,7 @@ module R10K
     require 'r10k/settings/collection'
     require 'r10k/settings/definition'
     require 'r10k/settings/list'
+    require 'r10k/util/cacheable'
 
     class << self
       # Path to puppet executable
@@ -219,6 +220,8 @@ module R10K
 
         Definition.new(:cachedir, {
           :desc => "Where r10k should store cached Git repositories.",
+          # TODO: set this default during a major version change
+          #:default => R10K::Util::Cacheable.default_cachedir,
         }),
 
         Definition.new(:postrun, {

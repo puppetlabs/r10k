@@ -1,5 +1,6 @@
 require 'r10k/logging'
 require 'r10k/settings/mixin'
+require 'r10k/util/cacheable'
 require 'fileutils'
 require 'tmpdir'
 require 'puppet_forge'
@@ -13,7 +14,7 @@ module R10K
 
       def_setting_attr :proxy
       def_setting_attr :baseurl
-      def_setting_attr :cache_root, File.expand_path(ENV['HOME'] ? '~/.r10k/cache': '/root/.r10k/cache')
+      def_setting_attr :cache_root, R10K::Util::Cacheable.default_cachedir
 
       include R10K::Logging
 
