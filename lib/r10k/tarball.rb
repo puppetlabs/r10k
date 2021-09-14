@@ -21,7 +21,7 @@ module R10K
     def_setting_attr :cache_root, if R10K::Util::Platform.windows?
                                     File.join(ENV['LOCALAPPDATA'], 'r10k', 'tarball')
                                   else
-                                    File.expand_path(ENV['HOME'] ? '~/.r10k/tarball': '/root/.r10k/tarball')
+                                    File.join(ENV['HOME'] || '/root', '.r10k', 'tarball')
                                   end
 
     # @!attribute [rw] name
