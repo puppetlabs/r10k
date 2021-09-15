@@ -35,6 +35,7 @@ class R10K::Git::StatefulRepository
     @cache.resolve(ref)
   end
 
+  # Returns true if the sync actually updated the repo, false otherwise
   def sync(ref, force=true)
     @cache.sync if sync_cache?(ref)
 
@@ -46,6 +47,7 @@ class R10K::Git::StatefulRepository
 
     workdir_status = status(ref)
 
+    updated = true
     case workdir_status
     when :absent
       logger.debug(_("Cloning %{repo_path} and checking out %{ref}") % {repo_path: @repo.path, ref: ref })
@@ -64,10 +66,13 @@ class R10K::Git::StatefulRepository
         @repo.checkout(sha, {:force => force})
       else
         logger.warn(_("Skipping %{repo_path} due to local modifications") % {repo_path: @repo.path})
+        updated = false
       end
     else
       logger.debug(_("%{repo_path} is already at Git ref %{ref}") % {repo_path: @repo.path, ref: ref })
+      updated = false
     end
+    updated
   end
 
   def status(ref)

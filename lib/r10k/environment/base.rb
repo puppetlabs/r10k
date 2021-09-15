@@ -147,6 +147,8 @@ class R10K::Environment::Base
     end
   end
 
+
+  # Returns a Queue of the names of modules actually updated
   def deploy
     if @base_modules.nil?
       load_puppetfile_modules
@@ -154,13 +156,15 @@ class R10K::Environment::Base
 
     if ! @base_modules.empty?
       pool_size = @overrides.dig(:modules, :pool_size)
-      R10K::ContentSynchronizer.concurrent_sync(@base_modules, pool_size, logger)
+      updated_modules = R10K::ContentSynchronizer.concurrent_sync(@base_modules, pool_size, logger)
     end
 
     if (@overrides.dig(:purging, :purge_levels) || []).include?(:puppetfile)
       logger.debug("Purging unmanaged Puppetfile content for environment '#{dirname}'...")
       @puppetfile_cleaner.purge!
     end
+
+    updated_modules
   end
 
   def load_puppetfile_modules

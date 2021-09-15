@@ -121,12 +121,31 @@ describe R10K::Module::Git do
     let(:spec_path) { dirname + module_name + 'spec' }
     subject { described_class.new(title, dirname, {}) }
 
+    before(:each) do
+      allow(mock_repo).to receive(:resolve).with('master').and_return('abc123')
+    end
+
     it 'defaults to keeping the spec dir' do
       FileUtils.mkdir_p(spec_path)
-      allow(mock_repo).to receive(:resolve).with('master').and_return('abc123')
       allow(mock_repo).to receive(:sync)
       subject.sync
       expect(Dir.exist?(spec_path)).to eq true
+    end
+
+    it 'returns true if repo was updated' do
+      expect(mock_repo).to receive(:sync).and_return(true)
+      expect(subject.sync).to be true
+    end
+
+    it 'returns false if repo was not updated (in-sync)' do
+      expect(mock_repo).to receive(:sync).and_return(false)
+      expect(subject.sync).to be false
+    end
+
+    it 'returns false if `should_sync?` is false' do
+      # modules do not sync if they are not requested
+      mod = described_class.new(title, dirname, { overrides: { modules: { requested_modules: ['other_mod'] } } })
+      expect(mod.sync).to be false
     end
   end
 

@@ -135,6 +135,7 @@ module R10K
               envs.reject! { |e| !requested_envs.include?(e) } if requested_envs.any?
               postcmd = postcmd.map { |e| e.gsub('$modifiedenvs', envs.join(' ')) }
             end
+            logger.debug _("Executing postrun command.")
             subproc = R10K::Util::Subprocess.new(postcmd)
             subproc.logger = logger
             subproc.execute
