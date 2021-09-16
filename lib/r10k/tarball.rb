@@ -51,7 +51,7 @@ module R10K
 
     # @return [String] Directory. Where the cache_basename file will be created.
     def cache_dirname
-      File.join(settings[:cache_root], 'tarball-' + sanitized_dirname(name))
+      settings[:cache_root]
     end
 
     # The final cache_path should match one of the templates:
