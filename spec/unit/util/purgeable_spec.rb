@@ -104,7 +104,7 @@ RSpec.describe R10K::Util::Purgeable do
                              /\/unmanaged_1/, /\/unmanaged_2/,
                              /\/managed_subdir_1/,
                              /\/subdir_expected_1/, /\/subdir_unmanaged_1/,
-                             /\/managed_subdir_2/, /\/ignored_1/,
+                             /\/subdir_allowlisted_2/, /\/ignored_1/,
                              /\/\.hidden/)
       end
     end
@@ -122,7 +122,7 @@ RSpec.describe R10K::Util::Purgeable do
 
         it 'collects current_contents that should not exist recursively' do
           expect(subject.stale_contents(recurse, exclusions, whitelist)).
-            to contain_exactly(/\/unmanaged_1/, /\/unmanaged_2/, /\/subdir_unmanaged_1/, /\/ignored_1/)
+            to contain_exactly(/\/unmanaged_1/, /\/unmanaged_2/, /\/subdir_unmanaged_1/, /\/ignored_1/, /\/subdir_allowlisted_2/)
         end
       end
 
@@ -134,7 +134,7 @@ RSpec.describe R10K::Util::Purgeable do
           expect(subject.logger).to receive(:debug).with(/unmanaged_1.*whitelist match/i)
 
           expect(subject.stale_contents(recurse, exclusions, whitelist)).
-            to contain_exactly(/\/unmanaged_2/, /\/subdir_unmanaged_1/, /\/ignored_1/)
+            to contain_exactly(/\/unmanaged_2/, /\/subdir_unmanaged_1/, /\/ignored_1/, /\/subdir_allowlisted_2/)
         end
 
         it 'does not collect contents that match recursive globbed whitelist items as intermediate values' do
@@ -154,7 +154,7 @@ RSpec.describe R10K::Util::Purgeable do
           expect(subject.logger).to receive(:debug2).with(/unmanaged_2.*internal exclusion match/i)
 
           expect(subject.stale_contents(recurse, exclusions, whitelist)).
-            to contain_exactly(/\/unmanaged_1/, /\/subdir_unmanaged_1/, /\/ignored_1/)
+            to contain_exactly(/\/unmanaged_1/, /\/subdir_unmanaged_1/, /\/ignored_1/, /\/subdir_allowlisted_2/)
         end
 
         it 'does not collect contents that match recursive globbed exclusion items as intermediate values' do
@@ -209,7 +209,7 @@ RSpec.describe R10K::Util::Purgeable do
     context "recursive whitelist glob" do
       let(:whitelist) do
         managed_directories.flat_map do |dir|
-          [File.join(dir, "**", "*unmanaged*"), File.join(dir, "**", "managed_subdir_2")]
+          [File.join(dir, "**", "*unmanaged*"), File.join(dir, "**", "subdir_allowlisted_2")]
         end
       end
       let(:purge_opts) { { recurse: true, whitelist: whitelist } }
