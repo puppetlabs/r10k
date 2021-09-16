@@ -18,7 +18,7 @@ module R10K
     include R10K::Util::Cacheable
 
     def_setting_attr :proxy      # Defaults to global proxy setting
-    def_setting_attr :cache_root # Defaults to global cachedir setting
+    def_setting_attr :cache_root, R10K::Util::Cacheable.default_cachedir
 
     # @!attribute [rw] name
     #   @return [String] The tarball's name
@@ -49,19 +49,28 @@ module R10K
       @checksum_algorithm = :SHA256
     end
 
-    # @return [String] Directory. Where the cache will be created.
-    def cache_root
-      File.join(settings[:cache_root], sanitized_dirname(source))
+    # @return [String] Directory. Where the cache_basename file will be created.
+    def cache_dirname
+      File.join(settings[:cache_root], 'tarball-' + sanitized_dirname(name))
     end
 
-    # @return [String] File. The path the tarball will be cached to.
+    # The final cache_path should match one of the templates:
+    #
+    #   - {cachedir}/tarball-{name}/{checksum}.tar.gz
+    #   - {cachedir}/tarball-{name}/{source}.tar.gz
+    #
+    # @return [String] File. The full file path the tarball will be cached to.
     def cache_path
-      File.join(cache_root, tarball_basename)
+      File.join(cache_dirname, cache_basename)
     end
 
     # @return [String] The basename of the tarball cache file.
-    def tarball_basename
-      name + '.tar.gz'
+    def cache_basename
+      if checksum.nil?
+        sanitized_dirname(source) + '.tar.gz'
+      else
+        checksum + '.tar.gz'
+      end
     end
 
     # Extract the cached tarball to the target directory.
@@ -105,7 +114,7 @@ module R10K
 
     # Download the tarball from @source to @cache_path
     def download
-      Tempfile.open(tarball_basename) do |tempfile|
+      Tempfile.open(cache_basename) do |tempfile|
         tempfile.binmode
         src_uri = URI.parse(source)
 
@@ -126,7 +135,7 @@ module R10K
         end
 
         # Move the download to cache_path
-        FileUtils::mkdir_p(cache_root)
+        FileUtils::mkdir_p(cache_dirname)
         begin
           FileUtils.mv(tempfile.path, cache_path)
         rescue Errno::EACCES
