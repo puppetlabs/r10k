@@ -18,7 +18,7 @@ describe R10K::Tarball do
       expect(File.exist?(subject.cache_path)).to be(false)
       expect(subject.cache_valid?).to be(false)
 
-      subject.download
+      subject.get
 
       expect(subject.cache_valid?).to be(true)
       expect(File.exist?(subject.cache_path)).to be(true)

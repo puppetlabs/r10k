@@ -55,7 +55,7 @@ class R10K::Module::Tarball < R10K::Module::Base
 
   # Synchronize this module with the indicated state.
   def sync(opts={})
-    tarball.download unless tarball.cache_valid?
+    tarball.get unless tarball.cache_valid?
     if should_sync?
       case status
       when :absent

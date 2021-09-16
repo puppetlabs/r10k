@@ -42,7 +42,7 @@ class R10K::Environment::Tarball < R10K::Environment::WithModules
   end
 
   def sync
-    tarball.download unless tarball.cache_valid?
+    tarball.get unless tarball.cache_valid?
     case status
     when :absent, :mismatched
       tarball.unpack(path.to_s)

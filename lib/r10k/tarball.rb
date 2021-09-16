@@ -1,8 +1,6 @@
-require 'digest'
 require 'fileutils'
 require 'find'
 require 'minitar'
-require 'net/http'
 require 'tempfile'
 require 'uri'
 require 'zlib'
@@ -10,12 +8,14 @@ require 'r10k/settings'
 require 'r10k/settings/mixin'
 require 'r10k/util/platform'
 require 'r10k/util/cacheable'
+require 'r10k/util/downloader'
 
 module R10K
   class Tarball
 
     include R10K::Settings::Mixin
     include R10K::Util::Cacheable
+    include R10K::Util::Downloader
 
     def_setting_attr :proxy      # Defaults to global proxy setting
     def_setting_attr :cache_root, R10K::Util::Cacheable.default_cachedir
@@ -113,18 +113,18 @@ module R10K
     end
 
     # Download the tarball from @source to @cache_path
-    def download
+    def get
       Tempfile.open(cache_basename) do |tempfile|
         tempfile.binmode
         src_uri = URI.parse(source)
 
         temp_digest = case src_uri.scheme
                       when 'file', nil
-                        copy_to_file(src_uri.path, tempfile)
+                        copy(src_uri.path, tempfile, checksum_algorithm)
                       when %r{^[a-z]$} # Windows drive letter
-                        copy_to_file(src_uri.to_s, tempfile)
+                        copy(src_uri.to_s, tempfile, checksum_algorithm)
                       when %r{^https?$}
-                        download_to_file(src_uri, tempfile)
+                        download(src_uri, tempfile, checksum_algorithm)
                       else
                         raise "Unexpected source scheme #{src_uri.scheme}"
                       end
@@ -174,8 +174,6 @@ module R10K
 
     private
 
-    CHUNK_SIZE = 64 * 1024 # 64 kb
-
     def each_tarball_entry(&block)
       File.open(cache_path, 'rb') do |file|
         Zlib::GzipReader.wrap(file) do |reader|
@@ -184,96 +182,6 @@ module R10K
           end
         end
       end
-    end
-
-    # Return the sha256 digest of the file at the given path
-    #
-    # @param path [String] The path to the file
-    # @return [String] The file's sha256 hex digest
-    def file_digest(path)
-      File.open(path) do |file|
-        reader_digest(file)
-      end
-    end
-
-    # Return the sha256 digest of the readable data
-    #
-    # @param reader [String] An object that responds to #read
-    # @return [String] The read data's sha256 hex digest
-    def reader_digest(reader)
-      digest = Digest(checksum_algorithm).new
-      while chunk = reader.read(CHUNK_SIZE)
-        digest.update(chunk)
-      end
-
-      digest.hexdigest
-    end
-
-    # Start a Net::HTTP::Get connection, then yield the Net::HTTPSuccess object
-    # to the caller's block. Follow redirects if Net::HTTPRedirection responses
-    # are encountered, and honor settings[:proxy].
-    def http_get(uri, redirect_limit: 10, &block)
-      raise "HTTP redirect too deep" if redirect_limit.zero?
-      request = Net::HTTP::Get(uri)
-      connection = Net::HTTP.new(uri.host, uri.port)
-
-      proxy = if settings[:proxy]
-                px = URI.parse(settings[:proxy])
-                [px.host, px.port, px.user, px.password]
-              else
-                [nil, nil, nil, nil]
-              end
-
-      connection = Net::HTTP.new(uri.host, uri.port, *proxy)
-      connection.use_ssl = true if uri.scheme == 'https'
-
-      response = connection.start do |http|
-        http.request(request) do |resp|
-          case resp
-          when Net::HTTPRedirection
-            http_get(uri.merge(URI.parse(resp['location'])), redirect_limit: redirect_limit - 1, &block)
-          when Net::HTTPSuccess
-            yield resp
-          else
-            raise "Unexpected response code #{resp.code}: #{resp.read_body}"
-          end
-        end
-      end
-    end
-
-    # @param input The file or path to copy from
-    # @param output The file or path to copy to
-    # @return [String] The copied file's sha256 hex digest
-    def copy_to_file(input, output)
-      digest = Digest(checksum_algorithm).new
-      File.open(input, 'rb') do |input_stream|
-        File.open(output, 'wb') do |output_stream|
-          until input_stream.eof?
-            chunk = input_stream.read(CHUNK_SIZE)
-            output_stream.write(chunk)
-            digest.update(chunk)
-          end
-        end
-      end
-
-      digest.hexdigest
-    end
-
-    # @param uri [URI] The URI to download from
-    # @param output The file or path to save to
-    # @return [String] The downloaded file's sha256 hex digest
-    def download_to_file(uri, output)
-      digest = Digest(checksum_algorithm).new
-      http_get(uri) do |resp|
-        File.open(output, 'wb') do |output_stream|
-          resp.read_body do |chunk|
-            output_stream.write(chunk)
-            digest.update(chunk)
-          end
-        end
-      end
-
-      digest.hexdigest
     end
   end
 end
