@@ -1,3 +1,4 @@
+require 'r10k/logging'
 require 'r10k/util/platform'
 
 module R10K
