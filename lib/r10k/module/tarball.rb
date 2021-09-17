@@ -14,7 +14,7 @@ class R10K::Module::Tarball < R10K::Module::Base
   end
 
   def self.statically_defined_version(name, args)
-    args[:version]
+    args[:version] || args[:checksum]
   end
 
   # @!attribute [r] tarball
