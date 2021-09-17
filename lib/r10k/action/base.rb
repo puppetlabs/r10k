@@ -5,8 +5,8 @@ module R10K
   module Action
     class Base
 
-      include R10K::Logging
       include R10K::Util::Setopts
+      include R10K::Logging
 
       attr_accessor :settings
 

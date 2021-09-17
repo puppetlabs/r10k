@@ -1,7 +1,11 @@
+require 'r10k/logging'
+
 module R10K
   module Action
     module Deploy
       module DeployHelpers
+
+        include R10K::Logging
 
         # Ensure that a config file has been found (and presumably loaded) and exit
         # with a helpful error if it hasn't.

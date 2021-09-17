@@ -1,4 +1,5 @@
 require 'r10k/errors/formatting'
+require 'r10k/logging'
 
 module R10K
   module Action
@@ -12,6 +13,8 @@ module R10K
     #
     # @api private
     module Visitor
+
+      include R10K::Logging
 
       # Dispatch to the type specific visitor method
       #
