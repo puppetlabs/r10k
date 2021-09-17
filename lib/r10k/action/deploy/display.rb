@@ -1,6 +1,6 @@
-require 'r10k/deployment'
 require 'r10k/action/base'
 require 'r10k/action/deploy/deploy_helpers'
+require 'r10k/deployment'
 
 module R10K
   module Action

@@ -1,10 +1,9 @@
-require 'r10k/util/setopts'
-require 'r10k/util/cleaner'
-require 'r10k/deployment'
-require 'r10k/logging'
-require 'r10k/action/visitor'
 require 'r10k/action/base'
 require 'r10k/action/deploy/deploy_helpers'
+require 'r10k/action/visitor'
+require 'r10k/deployment'
+require 'r10k/util/setopts'
+
 require 'json'
 
 module R10K
@@ -13,6 +12,7 @@ module R10K
       class Environment < R10K::Action::Base
 
         include R10K::Action::Deploy::DeployHelpers
+        include R10K::Action::Visitor
 
         # Deprecated
         attr_reader :force
@@ -80,8 +80,6 @@ module R10K
 
           @visit_ok
         end
-
-        include R10K::Action::Visitor
 
         private
 

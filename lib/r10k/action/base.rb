@@ -1,12 +1,12 @@
-require 'r10k/util/setopts'
 require 'r10k/logging'
+require 'r10k/util/setopts'
 
 module R10K
   module Action
     class Base
 
-      include R10K::Util::Setopts
       include R10K::Logging
+      include R10K::Util::Setopts
 
       attr_accessor :settings
 
