@@ -1,3 +1,5 @@
+require 'r10k/logging'
+
 require 'fileutils'
 
 module R10K
@@ -8,6 +10,8 @@ module R10K
     # @abstract Classes using this mixin need to implement {#managed_directory} and
     #   {#desired_contents}
     module Purgeable
+
+      include R10K::Logging
 
       HIDDEN_FILE = /\.[^.]+/
 

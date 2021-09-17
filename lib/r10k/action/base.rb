@@ -1,5 +1,5 @@
-require 'r10k/util/setopts'
 require 'r10k/logging'
+require 'r10k/util/setopts'
 
 module R10K
   module Action

@@ -4,6 +4,10 @@ CHANGELOG
 Unreleased
 ----------
 
+3.12.1
+------
+
+- Fix requiring individual R10K::Actions without having already required 'r10k'. [#1223](https://github.com/puppetlabs/r10k/issues/1223)
 - Fix evaluation of Puppetfiles that include local modules. [#1224](https://github.com/puppetlabs/r10k/pull/1224)
 
 3.12.0

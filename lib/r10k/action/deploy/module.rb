@@ -1,7 +1,7 @@
-require 'r10k/deployment'
-require 'r10k/action/visitor'
 require 'r10k/action/base'
 require 'r10k/action/deploy/deploy_helpers'
+require 'r10k/action/visitor'
+require 'r10k/deployment'
 
 module R10K
   module Action
@@ -9,6 +9,7 @@ module R10K
       class Module < R10K::Action::Base
 
         include R10K::Action::Deploy::DeployHelpers
+        include R10K::Action::Visitor
 
         # Deprecated
         attr_reader :force
@@ -68,8 +69,6 @@ module R10K
 
           @visit_ok
         end
-
-        include R10K::Action::Visitor
 
         private
 

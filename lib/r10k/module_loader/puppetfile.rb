@@ -1,5 +1,9 @@
+require 'r10k/errors'
 require 'r10k/logging'
 require 'r10k/module'
+require 'r10k/module_loader/puppetfile/dsl'
+
+require 'pathname'
 
 module R10K
   module ModuleLoader
