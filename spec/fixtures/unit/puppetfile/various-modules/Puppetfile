@@ -7,3 +7,4 @@ mod 'bar', git: 'this/remote', tag: 'v1.2.3'
 mod 'baz', git: 'this/remote', commit: '123abc456'
 mod 'fizz', git: 'this/remote', ref: '1234567890abcdef1234567890abcdef12345678'
 mod 'buzz', git: 'this/remote', ref: 'refs/heads/main'
+mod 'canary', local: true

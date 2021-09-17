@@ -11,8 +11,12 @@ class R10K::Module::Local < R10K::Module::Base
     args.is_a?(Hash) && (args[:local] || args[:type].to_s == 'local')
   end
 
-  def version
+  def self.statically_defined_version(name, args)
     "0.0.0"
+  end
+
+  def version
+    self.class.statically_defined_version(self.name, nil)
   end
 
   def properties
