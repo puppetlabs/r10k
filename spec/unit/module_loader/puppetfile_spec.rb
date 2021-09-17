@@ -366,6 +366,7 @@ describe R10K::ModuleLoader::Puppetfile do
         expect(metadata['baz']).to eq('123abc456')
         expect(metadata['fizz']).to eq('1234567890abcdef1234567890abcdef12345678')
         expect(metadata['buzz']).to eq(nil)
+        expect(metadata['canary']).to eq('0.0.0')
       end
 
       it 'does not load module implementations for static versioned' do
@@ -381,6 +382,7 @@ describe R10K::ModuleLoader::Puppetfile do
         expect(modules['baz']).to be_a_kind_of(R10K::Module::Definition)
         expect(modules['fizz']).to be_a_kind_of(R10K::Module::Definition)
         expect(modules['buzz']).to be_a_kind_of(R10K::Module::Git)
+        expect(modules['canary']).to be_a_kind_of(R10K::Module::Definition)
       end
 
       it 'loads module implementations whose static versions are different' do
