@@ -49,21 +49,25 @@ module R10K
 
       # Start a Net::HTTP::Get connection, then yield the Net::HTTPSuccess object
       # to the caller's block. Follow redirects if Net::HTTPRedirection responses
-      # are encountered, and honor settings[:proxy].
-      def http_get(uri, redirect_limit: 10, &block)
+      # are encountered, and use a proxy if directed.
+      #
+      # @param uri [URI] The URI to download the file from
+      # @param redirect_limit [Integer] How many redirects to permit before failing
+      # @param proxy [URI, String] The URI to use as a proxy
+      def http_get(uri, redirect_limit: 10, proxy: nil, &block)
         raise "HTTP redirect too deep" if redirect_limit.zero?
 
-        connection = Net::HTTP.new(uri.host, uri.port, *proxy_to_array(settings[:proxy]))
-        connection.use_ssl = true if uri.scheme == 'https'
+        session = Net::HTTP.new(uri.host, uri.port, *proxy_to_array(proxy))
+        session.use_ssl = true if uri.scheme == 'https'
+        session.start
 
-        session = connection.start
         begin
           session.request_get(uri) do |response|
             case response
             when Net::HTTPRedirection
               redirect = response['location']
               session.finish
-              return http_get(URI.parse(redirect), redirect_limit: redirect_limit - 1, &block)
+              return http_get(URI.parse(redirect), redirect_limit: redirect_limit - 1, proxy: proxy, &block)
             when Net::HTTPSuccess
               yield response
             else
@@ -79,7 +83,7 @@ module R10K
       # Net::HTTP#new. A nil argument returns nil array elements.
       def proxy_to_array(proxy_uri)
         if proxy_uri
-          px = URI.parse(settings[:proxy])
+          px = proxy_uri.is_a?(URI) ? proxy_uri : URI.parse(proxy_uri)
           [px.host, px.port, px.user, px.password]
         else
           [nil, nil, nil, nil]
