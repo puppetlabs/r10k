@@ -100,7 +100,7 @@ module R10K
 
         children.flat_map do |child|
           if File.directory?(child) && recurse
-            potentially_purgeable(child, exclusion_globs, allowed_globs, desireds_not_to_recurse_into, recurse)
+            potentially_purgeable(child, exclusion_globs, allowed_globs, desireds_not_to_recurse_into, recurse) << child.to_s
           else
             child.to_s
           end
