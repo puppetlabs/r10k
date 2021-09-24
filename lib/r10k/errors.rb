@@ -58,4 +58,9 @@ module R10K
       str.gsub(/^/, prefix)
     end
   end
+
+  # An error class for configuration errors
+  #
+  class ConfigError < Error
+  end
 end

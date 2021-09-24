@@ -7,7 +7,7 @@ class R10K::Source::Yaml < R10K::Source::Hash
     begin
       contents = ::YAML.load_file(config)
     rescue => e
-      raise ConfigError, _("Couldn't open environments file %{file}: %{err}") % {file: config, err: e.message}
+      raise R10K::ConfigError, _("Couldn't open environments file %{file}: %{err}") % {file: config, err: e.message}
     end
 
     # Set the environments key for the parent class to consume
