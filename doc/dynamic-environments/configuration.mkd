@@ -760,16 +760,16 @@ modules:
     version: 62d07f2
 ```
 
-### Bare Environment Type
+### Plain Environment Type
 
 A "control repository" typically contains a hiera.yaml, an environment.conf, a manifests/site.pp file, and a few other things. However, none of these are strictly necessary for an environment to be functional if modules can be deployed to it.
 
-The bare environment type allows sources that support environment modules to operate without a control repo being required. Modules can be deployed directly.
+The plain environment type allows sources that support environment modules to operate without a control repo being required. Modules can be deployed directly.
 
 ```yaml
 ---
 production:
-  type: bare
+  type: plain
   modules:
     puppetlabs-stdlib:
       type: forge
@@ -783,7 +783,7 @@ production:
       version: 62d07f2
 
 development:
-  type: bare
+  type: plain
   modules:
     puppetlabs-stdlib:
       type: forge

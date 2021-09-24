@@ -8,7 +8,7 @@ describe R10K::Environment::WithModules do
       '/some/nonexistent/environmentdir',
       'prefix_release42',
       {
-        :type             => 'bare',
+        :type             => 'plain',
         :modules          => {
           'puppetlabs-stdlib' => { local: true },
           'puppetlabs-concat' => { local: true },
