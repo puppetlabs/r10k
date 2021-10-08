@@ -8,6 +8,7 @@ Unreleased
 - (RK-381) Do not recurse into symlinked dirs when finding files to purge. [#1233](https://github.com/puppetlabs/r10k/pull/1233)
 - Purge should remove unmanaged directories, in addition to unmanaged files. [#1222](https://github.com/puppetlabs/r10k/pull/1222)
 - Rename experimental environment type "bare" to "plain". [#1228](https://github.com/puppetlabs/r10k/pull/1228)
+- Add support for specifying additional logging ouputs. [#1230](https://github.com/puppetlabs/r10k/issues/1230)
 
 3.12.1
 ------

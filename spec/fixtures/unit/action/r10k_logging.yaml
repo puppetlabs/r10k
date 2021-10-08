@@ -1,0 +1,12 @@
+---
+  logging:
+    level: FATAL
+
+    outputs:
+      - type: file
+        parameters:
+          filename: r10k.log
+
+      - type: syslog
+
+    disable_default_stderr: true

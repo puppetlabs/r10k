@@ -217,6 +217,39 @@ module R10K
         })])
     end
 
+    def self.logging_settings
+      R10K::Settings::Collection.new(:logging, [
+        Definition.new(:level, {
+          desc: 'What logging level should R10k run on if not specified at runtime.',
+          validate: lambda do |value|
+            if R10K::Logging.parse_level(value).nil?
+              raise ArgumentError, "`level` must be a valid log level.
+                                    Valid levels are #{R10K::Logging::LOG_LEVELS.map(&:downcase).inspect}"
+            end
+          end
+        }),
+
+        Definition.new(:outputs, {
+          desc: 'Additional log outputs to use.',
+          validate: lambda do |value|
+            unless value.is_a?(Array)
+              raise ArgumentError, "The `outputs` setting should be an array of outputs, not a #{value.class}"
+            end
+          end
+        }),
+
+        Definition.new(:disable_default_stderr, {
+          desc: 'Disable the default stderr logging output',
+          default: false,
+          validate: lambda do |value|
+            unless !!value == value
+              raise ArgumentError, "`disable_default_stderr` can only be a boolean value, not '#{value}'"
+            end
+          end
+        })
+      ])
+    end
+
     def self.global_settings
       R10K::Settings::Collection.new(:global, [
         Definition.new(:sources, {
@@ -271,6 +304,8 @@ module R10K
         R10K::Settings.git_settings,
 
         R10K::Settings.deploy_settings,
+
+        R10K::Settings.logging_settings
       ])
     end
   end

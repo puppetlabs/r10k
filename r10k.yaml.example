@@ -110,3 +110,31 @@ forge:
   # The 'baseurl' setting indicates where Forge modules should be installed
   # from. This defaults to 'https://forgeapi.puppetlabs.com'
   #baseurl: 'https://forgemirror.example.com'
+
+# Configuration options on how R10k should log its actions
+logging:
+  # The 'level' setting sets the default log level to run R10k actions at.
+  # This value will be overridden by any value set through the command line.
+  #level: warn
+
+  # Specify additional log outputs here, any log4r outputter can be used.
+  # If no log level is specified then the output will use the global level.
+  #outputs:
+  # - type: file
+  #   level: debug
+  #   parameters:
+  #     filename: /var/log/r10k.log
+  #     trunc: true
+  # - type: syslog
+  # - type: email
+  #   only_at: [fatal]
+  #   parameters:
+  #     from: r10k@example.com
+  #     to: sysadmins@example.com
+  #     server: smtp.example.com
+  #     subject: Fatal R10k error occurred
+
+  # The 'disable_default_stderr' setting specifies if the default output on
+  # stderr should be active or not, in case R10k is to be run entirely
+  # through scripts or cronjobs where console output is unwelcome.
+  #disable_default_stderr: false
