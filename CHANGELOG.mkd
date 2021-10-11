@@ -5,6 +5,7 @@ Unreleased
 ----------
 
 - Purge should remove unmanaged directories, in addition to unmanaged files. [#1222](https://github.com/puppetlabs/r10k/pull/1222)
+- Add ability to resolve dependencies into a lockfile [#1232](https://github.com/puppetlabs/r10k/pull/1232)
 
 3.12.1
 ------

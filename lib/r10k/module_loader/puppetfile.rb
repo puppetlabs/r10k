@@ -37,7 +37,7 @@ module R10K
 
         @basedir     = cleanpath(basedir)
         @moduledir   = resolve_path(@basedir, moduledir)
-        @puppetfile_path  = resolve_path(@basedir, puppetfile)
+        @puppetfile_path  = resolve_lockfile(resolve_path(@basedir, puppetfile))
         @overrides   = overrides
         @environment = environment
         @default_branch_override = @overrides.dig(:environments, :default_branch_override)
@@ -229,6 +229,11 @@ module R10K
         else
           cleanpath(File.join(base, path))
         end
+      end
+
+      def resolve_lockfile(path)
+        lockfile = "#{path}.lock"
+        File.exist?(lockfile) ? lockfile : path
       end
 
       def validate_install_path(path, modname)
