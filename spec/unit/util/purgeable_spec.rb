@@ -15,8 +15,10 @@ RSpec.describe R10K::Util::Purgeable do
       'spec/fixtures/unit/util/purgeable/managed_one/expected_1',
       'spec/fixtures/unit/util/purgeable/managed_one/new_1',
       'spec/fixtures/unit/util/purgeable/managed_one/managed_subdir_1',
+      'spec/fixtures/unit/util/purgeable/managed_one/managed_symlink_dir',
       'spec/fixtures/unit/util/purgeable/managed_one/managed_subdir_1/subdir_expected_1',
       'spec/fixtures/unit/util/purgeable/managed_one/managed_subdir_1/subdir_new_1',
+      'spec/fixtures/unit/util/purgeable/managed_one/managed_subdir_1/managed_symlink_file',
       'spec/fixtures/unit/util/purgeable/managed_two/expected_2',
       'spec/fixtures/unit/util/purgeable/managed_two/new_2',
       'spec/fixtures/unit/util/purgeable/managed_two/.hidden',
@@ -30,7 +32,8 @@ RSpec.describe R10K::Util::Purgeable do
 
     describe '#current_contents' do
       it 'collects direct contents of all managed directories' do
-        expect(subject.current_contents(recurse)).to contain_exactly(/\/expected_1/, /\/expected_2/, /\/unmanaged_1/, /\/unmanaged_2/, /\/managed_subdir_1/)
+        expect(subject.current_contents(recurse)).to contain_exactly(/\/expected_1/, /\/expected_2/, /\/unmanaged_1/, /\/unmanaged_2/,
+                                                                     /\/managed_subdir_1/, /\/managed_symlink_dir/, /\/unmanaged_symlink_file/)
       end
     end
 
@@ -46,7 +49,7 @@ RSpec.describe R10K::Util::Purgeable do
         let(:whitelist) { [] }
 
         it 'collects current_contents that should not exist' do
-          expect(subject.stale_contents(recurse, exclusions, whitelist)).to contain_exactly(/\/unmanaged_1/, /\/unmanaged_2/)
+          expect(subject.stale_contents(recurse, exclusions, whitelist)).to contain_exactly(/\/unmanaged_1/, /\/unmanaged_2/, /\/unmanaged_symlink_file/)
         end
       end
 
@@ -56,7 +59,7 @@ RSpec.describe R10K::Util::Purgeable do
 
         it 'collects current_contents that should not exist except whitelisted items' do
           expect(subject.logger).to receive(:debug).with(/unmanaged_1.*whitelist match/i)
-          expect(subject.stale_contents(recurse, exclusions, whitelist)).to contain_exactly(/\/unmanaged_2/)
+          expect(subject.stale_contents(recurse, exclusions, whitelist)).to contain_exactly(/\/unmanaged_2/, /\/unmanaged_symlink_file/)
         end
       end
 
@@ -66,7 +69,7 @@ RSpec.describe R10K::Util::Purgeable do
 
         it 'collects current_contents that should not exist except excluded items' do
           expect(subject.logger).to receive(:debug2).with(/unmanaged_2.*internal exclusion match/i)
-          expect(subject.stale_contents(recurse, exclusions, whitelist)).to contain_exactly(/\/unmanaged_1/)
+          expect(subject.stale_contents(recurse, exclusions, whitelist)).to contain_exactly(/\/unmanaged_1/, /\/unmanaged_symlink_file/)
         end
       end
     end
@@ -102,8 +105,12 @@ RSpec.describe R10K::Util::Purgeable do
         expect(subject.current_contents(recurse)).
           to contain_exactly(/\/expected_1/, /\/expected_2/,
                              /\/unmanaged_1/, /\/unmanaged_2/,
+                             /\/managed_symlink_dir/,
+                             /\/unmanaged_symlink_file/,
                              /\/managed_subdir_1/,
                              /\/subdir_expected_1/, /\/subdir_unmanaged_1/,
+                             /\/managed_symlink_file/,
+                             /\/unmanaged_symlink_dir/,
                              /\/subdir_allowlisted_2/, /\/ignored_1/,
                              /\/\.hidden/)
       end
@@ -122,7 +129,8 @@ RSpec.describe R10K::Util::Purgeable do
 
         it 'collects current_contents that should not exist recursively' do
           expect(subject.stale_contents(recurse, exclusions, whitelist)).
-            to contain_exactly(/\/unmanaged_1/, /\/unmanaged_2/, /\/subdir_unmanaged_1/, /\/ignored_1/, /\/subdir_allowlisted_2/)
+            to contain_exactly(/\/unmanaged_1/, /\/unmanaged_2/, /\/unmanaged_symlink_file/, /\/subdir_unmanaged_1/,
+                               /\/ignored_1/, /\/subdir_allowlisted_2/, /\/unmanaged_symlink_dir/)
         end
       end
 
@@ -134,7 +142,8 @@ RSpec.describe R10K::Util::Purgeable do
           expect(subject.logger).to receive(:debug).with(/unmanaged_1.*whitelist match/i)
 
           expect(subject.stale_contents(recurse, exclusions, whitelist)).
-            to contain_exactly(/\/unmanaged_2/, /\/subdir_unmanaged_1/, /\/ignored_1/, /\/subdir_allowlisted_2/)
+            to contain_exactly(/\/unmanaged_2/, /\/subdir_unmanaged_1/, /\/unmanaged_symlink_file/, /\/ignored_1/,
+                               /\/subdir_allowlisted_2/, /\/unmanaged_symlink_dir/)
         end
 
         it 'does not collect contents that match recursive globbed whitelist items as intermediate values' do
@@ -142,7 +151,7 @@ RSpec.describe R10K::Util::Purgeable do
           expect(subject.logger).not_to receive(:debug).with(/ignored_1/)
 
           expect(subject.stale_contents(recurse, exclusions, recursive_whitelist)).
-            to contain_exactly(/\/unmanaged_2/, /\/managed_one\/unmanaged_1/)
+            to contain_exactly(/\/unmanaged_2/, /\/managed_one\/unmanaged_1/, /\/managed_one\/unmanaged_symlink_file/)
         end
       end
 
@@ -154,7 +163,8 @@ RSpec.describe R10K::Util::Purgeable do
           expect(subject.logger).to receive(:debug2).with(/unmanaged_2.*internal exclusion match/i)
 
           expect(subject.stale_contents(recurse, exclusions, whitelist)).
-            to contain_exactly(/\/unmanaged_1/, /\/subdir_unmanaged_1/, /\/ignored_1/, /\/subdir_allowlisted_2/)
+            to contain_exactly(/\/unmanaged_1/, /\/unmanaged_symlink_file/, /\/subdir_unmanaged_1/, /\/ignored_1/,
+                               /\/subdir_allowlisted_2/, /\/unmanaged_symlink_dir/)
         end
 
         it 'does not collect contents that match recursive globbed exclusion items as intermediate values' do
@@ -162,7 +172,7 @@ RSpec.describe R10K::Util::Purgeable do
           expect(subject.logger).not_to receive(:debug).with(/ignored_1/)
 
           expect(subject.stale_contents(recurse, recursive_exclusions, whitelist)).
-            to contain_exactly(/\/unmanaged_2/, /\/managed_one\/unmanaged_1/)
+            to contain_exactly(/\/unmanaged_2/, /\/unmanaged_symlink_file/, /\/managed_one\/unmanaged_1/)
         end
       end
     end
@@ -199,6 +209,7 @@ RSpec.describe R10K::Util::Purgeable do
         it 'does not purge items matching glob at root level' do
           allow(FileUtils).to receive(:rm_r)
           expect(FileUtils).to_not receive(:rm_r).with(/\/unmanaged_[12]/, anything)
+          expect(FileUtils).to_not receive(:rm_r).with(/\/unmanaged_symlink_file/, anything)
           expect(subject.logger).to receive(:debug).with(/whitelist match/i).at_least(:once)
 
           subject.purge!(purge_opts)
