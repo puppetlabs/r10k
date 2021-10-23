@@ -4,9 +4,9 @@ require 'r10k/action/puppetfile/install'
 describe R10K::Action::Puppetfile::Install do
   let(:default_opts) { { root: "/some/nonexistent/path" } }
   let(:loader) {
-    R10K::ModuleLoader::Puppetfile.new({
+    R10K::ModuleLoader::Puppetfile.new(
       basedir: '/some/nonexistent/path',
-      overrides: {force: false}})
+      overrides: {force: false})
   }
 
   def installer(opts = {}, argv = [], settings = {})
