@@ -30,6 +30,8 @@ module R10K
           logger.warn(_("the purgedirs key in r10k.yaml is deprecated. it is currently ignored."))
         end
 
+        with_setting(:logging) { |value| LoggingInitializer.new(value).call }
+
         with_setting(:deploy) { |value| DeployInitializer.new(value).call }
 
         with_setting(:cachedir) { |value| R10K::Git::Cache.settings[:cache_root] = value }
@@ -38,6 +40,14 @@ module R10K
 
         with_setting(:git) { |value| GitInitializer.new(value).call }
         with_setting(:forge) { |value| ForgeInitializer.new(value).call }
+      end
+    end
+
+    class LoggingInitializer < BaseInitializer
+      def call
+        with_setting(:level) { |value| R10K::Logging.level = value }
+        with_setting(:disable_default_stderr) { |value| R10K::Logging.disable_default_stderr = value }
+        with_setting(:outputs) { |value| R10K::Logging.add_outputters(value) }
       end
     end
 

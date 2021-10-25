@@ -8,6 +8,16 @@ require 'r10k/logging/terminaloutputter'
 module R10K::Logging
 
   LOG_LEVELS = %w{DEBUG2 DEBUG1 DEBUG INFO NOTICE WARN ERROR FATAL}
+  SYSLOG_LEVELS_MAP = {
+    'DEBUG2' => 'DEBUG',
+    'DEBUG1' => 'DEBUG',
+    'DEBUG' => 'DEBUG',
+    'INFO' => 'INFO',
+    'NOTICE' => 'INFO',
+    'WARN' => 'WARN',
+    'ERROR' => 'ERROR',
+    'FATAL' => 'FATAL',
+  }.freeze
 
   def logger_name
     self.class.to_s
@@ -21,6 +31,9 @@ module R10K::Logging
       else
         @logger = Log4r::Logger.new(name)
         @logger.add(R10K::Logging.outputter)
+        R10K::Logging.outputters.each do |output|
+          @logger.add(output)
+        end
       end
     end
     @logger
@@ -59,13 +72,65 @@ module R10K::Logging
       if level.nil?
         raise ArgumentError, _("Invalid log level '%{val}'. Valid levels are %{log_levels}") % {val: val, log_levels: LOG_LEVELS.map(&:downcase).inspect}
       end
-      outputter.level = level
+      outputter.level = level unless @disable_default_stderr
       @level = level
 
       if level < Log4r::INFO
         outputter.formatter = debug_formatter
       else
         outputter.formatter = default_formatter
+      end
+    end
+
+    def disable_default_stderr=(val)
+      @disable_default_stderr = val
+      outputter.level = val ? Log4r::OFF : @level
+    end
+
+    def add_outputters(outputs)
+      outputs.each do |output|
+        type = output.fetch(:type)
+        # Support specifying both short as well as full names
+        type = type.to_s[0..-10] if type.to_s.downcase.end_with? 'outputter'
+
+        name = output.fetch(:name, 'r10k')
+        if output[:level]
+          level = parse_level(output[:level])
+          if level.nil?
+            raise ArgumentError, _("Invalid log level '%{val}'. Valid levels are %{log_levels}") % { val: output[:level], log_levels: LOG_LEVELS.map(&:downcase).inspect }
+          end
+        else
+          level = self.level
+        end
+        only_at = output[:only_at]
+        only_at&.map! do |val|
+          lv = parse_level(val)
+          if lv.nil?
+            raise ArgumentError, _("Invalid log level '%{val}'. Valid levels are %{log_levels}") % { val: val, log_levels: LOG_LEVELS.map(&:downcase).inspect }
+          end
+
+          lv
+        end
+        parameters = output.fetch(:parameters, {}).merge({ level: level })
+
+        begin
+          # Try to load the outputter file if possible
+          require "log4r/outputter/#{type.to_s.downcase}outputter"
+        rescue LoadError
+          false
+        end
+        outputtertype = Log4r.constants
+                             .select { |klass| klass.to_s.end_with? 'Outputter' }
+                             .find { |klass| klass.to_s.downcase == "#{type.to_s.downcase}outputter" }
+        raise ArgumentError, "Unable to find a #{output[:type]} outputter." unless outputtertype
+
+        outputter = Log4r.const_get(outputtertype).new(name, parameters)
+        outputter.only_at(*only_at) if only_at
+        # Handle log4r's syslog mapping correctly
+        outputter.map_levels_by_name_to_syslog(SYSLOG_LEVELS_MAP) if outputter.respond_to? :map_levels_by_name_to_syslog
+
+        @outputters << outputter
+        Log4r::Logger.global.add outputter
       end
     end
 
@@ -87,6 +152,16 @@ module R10K::Logging
     #   @return [Log4r::Outputter]
     attr_reader :outputter
 
+    # @!attribute [r] outputters
+    #   @api private
+    #   @return [Array[Log4r::Outputter]]
+    attr_reader :outputters
+
+    # @!attribute [r] disable_default_stderr
+    #   @api private
+    #   @return [Boolean]
+    attr_reader :disable_default_stderr
+
     def default_formatter
       Log4r::PatternFormatter.new(:pattern => '%l\t -> %m')
     end
@@ -106,4 +181,6 @@ module R10K::Logging
   @level     = Log4r::WARN
   @formatter = default_formatter
   @outputter = default_outputter
+  @outputters = []
+  @disable_default_stderr = false
 end

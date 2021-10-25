@@ -51,6 +51,12 @@ module R10K
           overrides[:deploy][:generate_types] = @opts[:'generate-types'] if @opts.key?(:'generate-types')
           overrides[:deploy][:exclude_spec] = @opts[:'exclude-spec'] if @opts.key?(:'exclude-spec')
         end
+        # If the log level has been given as an argument, ensure that output happens on stderr
+        if @opts.key?(:loglevel)
+          overrides[:logging] = {}
+          overrides[:logging][:level] = @opts[:loglevel]
+          overrides[:logging][:disable_default_stderr] = false
+        end
 
         with_overrides = config_settings.merge(overrides) do |key, oldval, newval|
           newval = oldval.merge(newval) if oldval.is_a? Hash

@@ -159,10 +159,61 @@ describe R10K::Action::Runner do
   end
 
   describe "configuring logging" do
+    before(:each) do
+      R10K::Logging.outputters.clear
+    end
+
     it "sets the log level if :loglevel is provided" do
       runner = described_class.new({:opts => :yep, :loglevel => 'FATAL'}, %w[args yes], action_class)
-      expect(R10K::Logging).to receive(:level=).with('FATAL')
+      # The settings/overrides system causes the level to be set twice
+      expect(R10K::Logging).to receive(:level=).with('FATAL').twice
       runner.call
+    end
+
+    # The logging fixture tests require a platform with syslog
+    if !R10K::Util::Platform.windows?
+      it "sets the log level if the logging.level setting is provided" do
+        runner = described_class.new({ opts: :yep, config: 'spec/fixtures/unit/action/r10k_logging.yaml'}, %w[args yes], action_class)
+        expect(R10K::Logging).to receive(:level=).with('FATAL')
+        runner.call
+      end
+
+      it "sets the outputters if logging.outputs is provided" do
+        runner = described_class.new({ opts: :yep, config: 'spec/fixtures/unit/action/r10k_logging.yaml' }, %w[args yes], action_class)
+        expect(R10K::Logging).to receive(:add_outputters).with([
+          { type: 'file', parameters: { filename: 'r10k.log' } },
+          { type: 'syslog' }
+        ])
+        runner.call
+      end
+
+      it "disables the default outputter if the logging.disable_default_stderr setting is provided" do
+        runner = described_class.new({ opts: :yep, config: 'spec/fixtures/unit/action/r10k_logging.yaml'}, %w[args yes], action_class)
+        expect(R10K::Logging).to receive(:disable_default_stderr=).with(true)
+        runner.call
+      end
+
+      it "adds additional log outputs if the logging.outputs setting is provided" do
+        runner = described_class.new({ opts: :yep, config: 'spec/fixtures/unit/action/r10k_logging.yaml'}, %w[args yes], action_class)
+        runner.call
+        expect(R10K::Logging.outputters).to_not be_empty
+      end
+
+      it "disables the default output if the logging.disable_default_stderr setting is provided" do
+        runner = described_class.new({ opts: :yep, config: 'spec/fixtures/unit/action/r10k_logging.yaml'}, %w[args yes], action_class)
+        runner.call
+        expect(runner.logger.outputters).to satisfy { |outputs| outputs.any? { |output| output.is_a?(R10K::Logging::TerminalOutputter) && output.level == Log4r::OFF } }
+      end
+    end
+
+    it "doesn't add additional log outputs if the logging.outputs setting is not provided" do
+      runner.call
+      expect(R10K::Logging.outputters).to be_empty
+    end
+
+    it "includes the default stderr outputter" do
+      runner.call
+      expect(runner.logger.outputters).to satisfy { |outputs| outputs.any? { |output| output.is_a? R10K::Logging::TerminalOutputter } }
     end
 
     it "does not modify the loglevel if :loglevel is not provided" do
