@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.9.3-110-gfe65c736\n"
+"Project-Id-Version: r10k 3.9.3-134-g9f93336f\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2021-09-15 21:23+0000\n"
-"PO-Revision-Date: 2021-09-15 21:23+0000\n"
+"POT-Creation-Date: 2021-10-25 18:18+0000\n"
+"PO-Revision-Date: 2021-10-25 18:18+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -19,55 +19,55 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: ../lib/r10k/action/deploy/deploy_helpers.rb:12 ../lib/r10k/settings/loader.rb:63
+#: ../lib/r10k/action/deploy/deploy_helpers.rb:16 ../lib/r10k/settings/loader.rb:63
 msgid "No configuration file given, no config file found in current directory, and no global config present"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/deploy_helpers.rb:26
+#: ../lib/r10k/action/deploy/deploy_helpers.rb:30
 msgid "Making changes to deployed environments has been administratively disabled."
 msgstr ""
 
-#: ../lib/r10k/action/deploy/deploy_helpers.rb:27
+#: ../lib/r10k/action/deploy/deploy_helpers.rb:31
 msgid "Reason: %{write_lock}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:118
+#: ../lib/r10k/action/deploy/environment.rb:116
 msgid "Environment(s) \\'%{environments}\\' cannot be found in any source and will not be deployed."
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:138
+#: ../lib/r10k/action/deploy/environment.rb:136
 msgid "Executing postrun command."
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:152
+#: ../lib/r10k/action/deploy/environment.rb:150
 msgid "Environment %{env_dir} does not match environment name filter, skipping"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:160
+#: ../lib/r10k/action/deploy/environment.rb:158
 msgid "Deploying environment %{env_path}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:163
+#: ../lib/r10k/action/deploy/environment.rb:161
 msgid "Environment %{env_dir} is now at %{env_signature}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/environment.rb:167
+#: ../lib/r10k/action/deploy/environment.rb:165
 msgid "Environment %{env_dir} is new, updating all modules"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/module.rb:82
+#: ../lib/r10k/action/deploy/module.rb:81
 msgid "Running postrun command for environments: %{envs_to_run}."
 msgstr ""
 
-#: ../lib/r10k/action/deploy/module.rb:92
+#: ../lib/r10k/action/deploy/module.rb:91
 msgid "No environments were modified, not executing postrun command."
 msgstr ""
 
-#: ../lib/r10k/action/deploy/module.rb:104
+#: ../lib/r10k/action/deploy/module.rb:103
 msgid "Only updating modules in environment(s) %{opt_env} skipping environment %{env_path}"
 msgstr ""
 
-#: ../lib/r10k/action/deploy/module.rb:106
+#: ../lib/r10k/action/deploy/module.rb:105
 msgid "Updating modules %{modules} in environment %{env_path}"
 msgstr ""
 
@@ -105,6 +105,10 @@ msgstr ""
 
 #: ../lib/r10k/deployment.rb:118
 msgid "Unable to load sources; the supplied configuration does not define the 'sources' key"
+msgstr ""
+
+#: ../lib/r10k/environment/bare.rb:6
+msgid "\"bare\" environment type is deprecated; please use \"plain\" instead (environment: %{name})"
 msgstr ""
 
 #: ../lib/r10k/environment/base.rb:89 ../lib/r10k/environment/base.rb:105 ../lib/r10k/environment/base.rb:114 ../lib/r10k/source/base.rb:83
@@ -427,7 +431,7 @@ msgstr ""
 msgid "Cannot track control repo branch for content '%{name}' when not part of a git-backed environment, will use default if available."
 msgstr ""
 
-#: ../lib/r10k/module/local.rb:33
+#: ../lib/r10k/module/local.rb:37
 msgid "Module %{title} is a local module, always indicating synced."
 msgstr ""
 
@@ -435,39 +439,39 @@ msgstr ""
 msgid "Could not read metadata.json"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:58
+#: ../lib/r10k/module_loader/puppetfile.rb:62
 msgid "Using Puppetfile '%{puppetfile}'"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:59
+#: ../lib/r10k/module_loader/puppetfile.rb:63
 msgid "Using moduledir '%{moduledir}'"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:80
+#: ../lib/r10k/module_loader/puppetfile.rb:84
 msgid "Failed to evaluate %{path}"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:97
+#: ../lib/r10k/module_loader/puppetfile.rb:101
 msgid "Unable to preload Puppetfile because of %{msg}"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:115
+#: ../lib/r10k/module_loader/puppetfile.rb:119
 msgid "Using Forge from Puppetfile: %{forge}"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:118
+#: ../lib/r10k/module_loader/puppetfile.rb:122
 msgid "Ignoring Forge declaration in Puppetfile, using value from settings: %{forge}."
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:179 ../lib/r10k/puppetfile.rb:104
+#: ../lib/r10k/module_loader/puppetfile.rb:183 ../lib/r10k/puppetfile.rb:104
 msgid "Puppetfile %{path} missing or unreadable"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:215
+#: ../lib/r10k/module_loader/puppetfile.rb:219
 msgid "Puppetfiles cannot contain duplicate module names."
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:217
+#: ../lib/r10k/module_loader/puppetfile.rb:221
 msgid "Remove the duplicates of the following modules: %{dupes}"
 msgstr ""
 
@@ -618,45 +622,45 @@ msgstr ""
 msgid "pe_license feature is not available, PE only Puppet modules will not be downloadable."
 msgstr ""
 
-#: ../lib/r10k/util/purgeable.rb:87
+#: ../lib/r10k/util/purgeable.rb:91
 msgid "Not purging %{path} due to internal exclusion match: %{exclusion_match}"
 msgstr ""
 
-#: ../lib/r10k/util/purgeable.rb:89
+#: ../lib/r10k/util/purgeable.rb:93
 msgid "Not purging %{path} due to whitelist match: %{allowlist_match}"
 msgstr ""
 
-#: ../lib/r10k/util/purgeable.rb:133
+#: ../lib/r10k/util/purgeable.rb:137
 msgid "No unmanaged contents in %{managed_dirs}, nothing to purge"
 msgstr ""
 
-#: ../lib/r10k/util/purgeable.rb:138
+#: ../lib/r10k/util/purgeable.rb:142
 msgid "Removing unmanaged path %{path}"
 msgstr ""
 
-#: ../lib/r10k/util/purgeable.rb:143
+#: ../lib/r10k/util/purgeable.rb:147
 msgid "Unable to remove unmanaged path: %{path}"
 msgstr ""
 
-#: ../lib/r10k/util/setopts.rb:58
+#: ../lib/r10k/util/setopts.rb:60
 msgid "%{class_name} parameters '%{a}' and '%{b}' conflict. Specify one or the other, but not both"
 msgstr ""
 
-#: ../lib/r10k/util/setopts.rb:65
+#: ../lib/r10k/util/setopts.rb:67
 msgid "%{class_name} cannot handle option '%{key}'"
 msgstr ""
 
-#: ../lib/r10k/util/subprocess.rb:69
+#: ../lib/r10k/util/subprocess.rb:70
 msgid "Starting process: %{args}"
 msgstr ""
 
-#: ../lib/r10k/util/subprocess.rb:74
+#: ../lib/r10k/util/subprocess.rb:75
 msgid ""
 "Finished process:\n"
 "%{result}"
 msgstr ""
 
-#: ../lib/r10k/util/subprocess.rb:77
+#: ../lib/r10k/util/subprocess.rb:78
 msgid "Command exited with non-zero exit code"
 msgstr ""
 
