@@ -4,6 +4,8 @@ CHANGELOG
 Unreleased
 ----------
 
+- (CODEMGMT-1294) Resync repos with unresolvable refs [#1239](https://github.com/puppetlabs/r10k/pull/1239)
+
 3.13.0
 ------
 

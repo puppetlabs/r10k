@@ -86,6 +86,8 @@ class R10K::Git::StatefulRepository
       :mismatched
     elsif !(@repo.origin == @remote)
       :mismatched
+    elsif @repo.head.nil?
+      :mismatched
     elsif @repo.dirty?
       :dirty
     elsif !(@repo.head == @cache.resolve(ref))

@@ -20,7 +20,8 @@ class R10K::Git::Rugged::BaseRepository
     else
       object.oid
     end
-  rescue ::Rugged::ReferenceError
+  rescue ::Rugged::ReferenceError, ::Rugged::OdbError => e
+    logger.debug2(_("Unable to resolve %{pattern}: %{e} ") % {pattern: pattern, e: e })
     nil
   end
 
