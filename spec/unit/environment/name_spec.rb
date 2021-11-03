@@ -6,21 +6,29 @@ describe R10K::Environment::Name do
     it "does not modify the given name when no strip_component is given" do
       bn = described_class.new('myenv', source: 'source', prefix: false)
       expect(bn.dirname).to eq 'myenv'
+      expect(bn.name).to eq 'myenv'
+      expect(bn.ref).to eq 'myenv'
     end
 
     it "removes the first occurance of a regex match when a regex is given" do
       bn = described_class.new('myenv', source: 'source', prefix: false, strip_component: '/env/')
       expect(bn.dirname).to eq 'my'
+      expect(bn.name).to eq 'my'
+      expect(bn.ref).to eq 'myenv'
     end
 
     it "does not modify the given name when there is no regex match" do
       bn = described_class.new('myenv', source: 'source', prefix: false, strip_component: '/bar/')
       expect(bn.dirname).to eq 'myenv'
+      expect(bn.name).to eq 'myenv'
+      expect(bn.ref).to eq 'myenv'
     end
 
     it "removes the given name's prefix when it matches strip_component" do
       bn = described_class.new('env/prod', source: 'source', prefix: false, strip_component: 'env/')
       expect(bn.dirname).to eq 'prod'
+      expect(bn.name).to eq 'prod'
+      expect(bn.ref).to eq 'env/prod'
     end
 
     it "raises an error when given an integer" do
@@ -34,21 +42,29 @@ describe R10K::Environment::Name do
     it "uses the branch name as the dirname when prefixing is off" do
       bn = described_class.new('mybranch', :source => 'source', :prefix => false)
       expect(bn.dirname).to eq 'mybranch'
+      expect(bn.name).to eq 'mybranch'
+      expect(bn.ref).to eq 'mybranch'
     end
 
     it "prepends the source name when prefixing is on" do
       bn = described_class.new('mybranch', :source => 'source', :prefix => true)
       expect(bn.dirname).to eq 'source_mybranch'
+      expect(bn.name).to eq 'mybranch'
+      expect(bn.ref).to eq 'mybranch'
     end
 
     it "prepends the prefix name when prefixing is overridden" do
       bn = described_class.new('mybranch', {:prefix => "bar", :sourcename => 'foo'})
       expect(bn.dirname).to eq 'bar_mybranch'
+      expect(bn.name).to eq 'mybranch'
+      expect(bn.ref).to eq 'mybranch'
     end
 
     it "uses the branch name as the dirname when prefixing is nil" do
       bn = described_class.new('mybranch', {:prefix => nil, :sourcename => 'foo'})
       expect(bn.dirname).to eq 'mybranch'
+      expect(bn.name).to eq 'mybranch'
+      expect(bn.ref).to eq 'mybranch'
     end
   end
 
@@ -149,6 +165,8 @@ describe R10K::Environment::Name do
         it "replaces invalid characters in #{branch} with underscores" do
           bn = described_class.new(branch.dup, {:correct => true})
           expect(bn.dirname).to eq branch.gsub(/\W/, '_')
+          expect(bn.name).to eq branch
+          expect(bn.ref).to eq branch
         end
       end
 

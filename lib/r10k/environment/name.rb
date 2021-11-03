@@ -5,9 +5,12 @@ module R10K
     # @api private
     class Name
 
+      # @!attribute [r] ref
+      #   @return [String] The unmodified reference of the upstream repository
       # @!attribute [r] name
-      #   @return [String] The unmodified name of the environment
-      attr_reader :name
+      #   @return [String] The name of the environment (with component striped)
+      attr_reader :name, :ref
+      attr_reader :name, :ref
 
       INVALID_CHARACTERS = %r[\W]
 
@@ -16,6 +19,7 @@ module R10K
         @prefix  = opts[:prefix]
         @invalid = opts[:invalid]
 
+        @ref = name
         @name = derive_name(name, opts[:strip_component])
         @opts = opts
 

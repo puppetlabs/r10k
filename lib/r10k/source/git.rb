@@ -106,7 +106,7 @@ class R10K::Source::Git < R10K::Source::Base
                                            @basedir,
                                            bn.dirname,
                                            {remote: remote,
-                                            ref: bn.name,
+                                            ref: bn.ref,
                                             puppetfile_name: puppetfile_name,
                                             overrides: @options[:overrides]})
       elsif bn.correct?
@@ -115,7 +115,7 @@ class R10K::Source::Git < R10K::Source::Base
                                            @basedir,
                                            bn.dirname,
                                            {remote: remote,
-                                            ref: bn.name,
+                                            ref: bn.ref,
                                             puppetfile_name: puppetfile_name,
                                             overrides: @options[:overrides]})
       elsif bn.validate?
