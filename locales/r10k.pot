@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.9.3-143-gc80c3c2a\n"
+"Project-Id-Version: r10k 3.9.3-147-gca519fbd\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2021-11-03 16:08+0000\n"
-"PO-Revision-Date: 2021-11-03 16:08+0000\n"
+"POT-Creation-Date: 2021-11-05 18:57+0000\n"
+"PO-Revision-Date: 2021-11-05 18:57+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -443,39 +443,43 @@ msgstr ""
 msgid "Could not read metadata.json"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:62
+#: ../lib/r10k/module_loader/puppetfile.rb:64
 msgid "Using Puppetfile '%{puppetfile}'"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:63
+#: ../lib/r10k/module_loader/puppetfile.rb:65
 msgid "Using moduledir '%{moduledir}'"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:84
+#: ../lib/r10k/module_loader/puppetfile.rb:86
 msgid "Failed to evaluate %{path}"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:101
+#: ../lib/r10k/module_loader/puppetfile.rb:103
 msgid "Unable to preload Puppetfile because of %{msg}"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:119
+#: ../lib/r10k/module_loader/puppetfile.rb:121
 msgid "Using Forge from Puppetfile: %{forge}"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:122
+#: ../lib/r10k/module_loader/puppetfile.rb:124
 msgid "Ignoring Forge declaration in Puppetfile, using value from settings: %{forge}."
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:183 ../lib/r10k/puppetfile.rb:104
+#: ../lib/r10k/module_loader/puppetfile.rb:173
+msgid "\"basedir\" is deprecated. Please use \"environment_name\" instead. \"basedir\" will be removed in a future version."
+msgstr ""
+
+#: ../lib/r10k/module_loader/puppetfile.rb:192 ../lib/r10k/puppetfile.rb:104
 msgid "Puppetfile %{path} missing or unreadable"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:219
+#: ../lib/r10k/module_loader/puppetfile.rb:228
 msgid "Puppetfiles cannot contain duplicate module names."
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:221
+#: ../lib/r10k/module_loader/puppetfile.rb:230
 msgid "Remove the duplicates of the following modules: %{dupes}"
 msgstr ""
 
