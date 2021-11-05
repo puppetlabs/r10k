@@ -165,6 +165,13 @@ module R10K
         @modules << mod
       end
 
+      # @deprecated
+      # @return [String] The base directory that contains the Puppetfile
+      def basedir
+        logger.warn _('"basedir" has been deprecated and will be removed in a future release')
+        @basedir
+      end
+
      private
 
       def empty_load_output
