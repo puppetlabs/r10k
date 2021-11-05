@@ -167,6 +167,7 @@ describe R10K::ModuleLoader::Puppetfile do
     it 'should disable and not add modules that conflict with the environment' do
       env = instance_double('R10K::Environment::Base')
       mod = instance_double('R10K::Module::Base', name: 'conflict', origin: :puppetfile, 'origin=': nil)
+      allow(env).to receive(:name).and_return('conflict')
       loader = R10K::ModuleLoader::Puppetfile.new(basedir: basedir, environment: env)
       allow(env).to receive(:'module_conflicts?').with(mod).and_return(true)
       allow(mod).to receive(:spec_deletable=)
@@ -187,7 +188,9 @@ describe R10K::ModuleLoader::Puppetfile do
     context 'when belonging to an environment' do
       let(:env_contents) { ['env1', 'env2' ] }
       let(:env) { double(:environment, desired_contents: env_contents) }
-
+      before {
+        allow(env).to receive(:name).and_return('env1')
+      }
       subject { R10K::ModuleLoader::Puppetfile.new(basedir: '/test/basedir', environment: env) }
 
       it "includes environment's desired_contents" do
