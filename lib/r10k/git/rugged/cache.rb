@@ -8,4 +8,12 @@ class R10K::Git::Rugged::Cache < R10K::Git::Cache
   def self.bare_repository
     R10K::Git::Rugged::BareRepository
   end
+
+  # Update the remote URL if the cache differs from the current configuration
+  def sync!
+    if cached?
+      @repo.update_remote(@remote)
+    end
+    super
+  end
 end
