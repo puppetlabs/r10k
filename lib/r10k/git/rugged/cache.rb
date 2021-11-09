@@ -11,7 +11,7 @@ class R10K::Git::Rugged::Cache < R10K::Git::Cache
 
   # Update the remote URL if the cache differs from the current configuration
   def sync!
-    if cached?
+    if cached? && @repo.remotes['origin'] != @remote
       @repo.update_remote(@remote)
     end
     super
