@@ -3,6 +3,7 @@ require 'r10k/git'
 require 'r10k/settings'
 require 'r10k/instance_cache'
 require 'forwardable'
+require 'r10k/util/cacheable'
 
 # Cache Git repository mirrors for object database reuse.
 #
@@ -15,18 +16,9 @@ require 'forwardable'
 class R10K::Git::Cache
 
   include R10K::Settings::Mixin
+  include R10K::Util::Cacheable
 
-  #@api private
-  def self.determine_cache_root
-    if R10K::Util::Platform.windows?
-      File.join(ENV['LOCALAPPDATA'], 'r10k', 'git')
-    else
-      File.expand_path(ENV['HOME'] ? '~/.r10k/git': '/root/.r10k/git')
-    end
-  end
-  private_class_method :determine_cache_root
-
-  def_setting_attr :cache_root, determine_cache_root
+  def_setting_attr :cache_root, R10K::Util::Cacheable.default_cachedir('git')
 
   @instance_cache = R10K::InstanceCache.new(self)
 
@@ -109,8 +101,7 @@ class R10K::Git::Cache
 
   alias cached? exist?
 
-  # Reformat the remote name into something that can be used as a directory
   def sanitized_dirname
-    @sanitized_dirname ||= @remote.gsub(/(\w+:\/\/)(.*)(@)/, '\1').gsub(/[^@\w\.-]/, '-')
+    @sanitized_dirname ||= super(@remote)
   end
 end
