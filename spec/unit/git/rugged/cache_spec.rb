@@ -26,4 +26,23 @@ describe R10K::Git::Rugged::Cache, :unless => R10K::Util::Platform.jruby? do
       expect(described_class.settings[:cache_root]).to eq '/some/path'
     end
   end
+
+  describe "remote url updates" do
+    before do
+      allow(subject.repo).to receive(:exist?).and_return true
+      allow(subject.repo).to receive(:fetch)
+      allow(subject.repo).to receive(:remotes).and_return({ 'origin' => 'git://some/git/remote' })
+    end
+
+    it "does not update the URLs if they match" do
+      expect(subject.repo).to_not receive(:update_remote)
+      subject.sync!
+    end
+
+    it "updates the remote URL if they do not match" do
+      allow(subject.repo).to receive(:remotes).and_return({ 'origin' => 'foo'})
+      expect(subject.repo).to receive(:update_remote)
+      subject.sync!
+    end
+  end
 end
