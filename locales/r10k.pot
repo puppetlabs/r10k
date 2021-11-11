@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.9.3-147-gca519fbd\n"
+"Project-Id-Version: r10k 3.9.3-159-gfd3e394a\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2021-11-05 18:57+0000\n"
-"PO-Revision-Date: 2021-11-05 18:57+0000\n"
+"POT-Creation-Date: 2021-11-11 20:03+0000\n"
+"PO-Revision-Date: 2021-11-11 20:03+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -155,19 +155,19 @@ msgstr ""
 msgid "Proc %{block} for feature %{name} returned %{output}"
 msgstr ""
 
-#: ../lib/r10k/forge/module_release.rb:196
+#: ../lib/r10k/forge/module_release.rb:197
 msgid "Unpacking %{tarball_cache_path} to %{target_dir} (with tmpdir %{tmp_path})"
 msgstr ""
 
-#: ../lib/r10k/forge/module_release.rb:198
+#: ../lib/r10k/forge/module_release.rb:199
 msgid "Valid files unpacked: %{valid_files}"
 msgstr ""
 
-#: ../lib/r10k/forge/module_release.rb:200
+#: ../lib/r10k/forge/module_release.rb:201
 msgid "These files existed in the module's tar file, but are invalid filetypes and were not unpacked: %{invalid_files}"
 msgstr ""
 
-#: ../lib/r10k/forge/module_release.rb:203
+#: ../lib/r10k/forge/module_release.rb:204
 msgid "Symlinks are unsupported and were not unpacked from the module tarball. %{release_slug} contained these ignored symlinks: %{symlinks}"
 msgstr ""
 
@@ -203,11 +203,11 @@ msgstr ""
 msgid "Cannot write %{file}; parent directory does not exist"
 msgstr ""
 
-#: ../lib/r10k/git/cache.rb:65
+#: ../lib/r10k/git/cache.rb:57
 msgid "%{class}#path is deprecated; use #git_dir"
 msgstr ""
 
-#: ../lib/r10k/git/cache.rb:94
+#: ../lib/r10k/git/cache.rb:86
 msgid "Creating new git cache for %{remote}"
 msgstr ""
 
@@ -225,6 +225,10 @@ msgstr ""
 
 #: ../lib/r10k/git/rugged/base_repository.rb:24
 msgid "Unable to resolve %{pattern}: %{e} "
+msgstr ""
+
+#: ../lib/r10k/git/rugged/base_repository.rb:69
+msgid "Remote URL is different from cache, updating %{orig} to %{update}"
 msgstr ""
 
 #: ../lib/r10k/git/rugged/credentials.rb:28
