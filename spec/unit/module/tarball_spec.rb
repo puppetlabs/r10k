@@ -16,7 +16,7 @@ describe R10K::Module::Tarball do
   end
 
   describe "setting the owner and name" do
-    describe "with a title of 'mock-tarball'" do
+    describe "with a title of 'fixture-tarball'" do
       it "sets the owner to 'fixture'" do
         expect(subject.owner).to eq 'fixture'
       end
@@ -50,7 +50,6 @@ describe R10K::Module::Tarball do
 
   describe "determining the status" do
     it "delegates to R10K::Tarball" do
-      mock_tarball = instance_double('R10K::Tarball', cache_valid?: true, insync?: true)
       expect(subject).to receive(:tarball).twice.and_return instance_double('R10K::Tarball', cache_valid?: true, insync?: true)
       expect(subject).to receive(:path).twice.and_return instance_double('Pathname', exist?: true)
 

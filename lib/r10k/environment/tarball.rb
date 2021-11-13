@@ -46,8 +46,8 @@ class R10K::Environment::Tarball < R10K::Environment::WithModules
     case status
     when :absent, :mismatched
       tarball.unpack(path.to_s)
-      # TODO: Remove untracked files. It's possible r10k's purge facility will
-      #       kinda sorta deal with this, but we shouldn't rely on it.
+      # Untracked files left behind from previous extractions are expected to
+      # be deleted by r10k's purge facility.
     end
   end
 

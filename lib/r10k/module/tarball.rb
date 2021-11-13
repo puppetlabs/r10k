@@ -54,6 +54,8 @@ class R10K::Module::Tarball < R10K::Module::Base
   end
 
   # Synchronize this module with the indicated state.
+  # @param [Hash] opts Deprecated
+  # @return [Boolean] true if the module was updated, false otherwise
   def sync(opts={})
     tarball.get unless tarball.cache_valid?
     if should_sync?
@@ -65,6 +67,9 @@ class R10K::Module::Tarball < R10K::Module::Base
         tarball.unpack(path.to_s)
       end
       maybe_delete_spec_dir
+      true
+    else
+      false
     end
   end
 
@@ -85,10 +90,11 @@ class R10K::Module::Tarball < R10K::Module::Base
     }
   end
 
-  # Return the module's cachedir. Subclasses that implement a cache
-  # will override this to return a real directory location.
+  # Tarball caches are files, not directories. An important purpose of this
+  # method is to indicate where the cache "path" is, for locking/parallelism,
+  # so for the Tarball module type, the relevant path location is returned.
   #
-  # @return [String, :none]
+  # @return [String] The path this module will cache its tarball source to
   def cachedir
     tarball.cache_path
   end
