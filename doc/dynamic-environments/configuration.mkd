@@ -796,3 +796,27 @@ development:
       source: https://github.com/reidmv/reidmv-xampl.git
       version: 62d07f2
 ```
+
+### Tarball Environment Type
+
+The tarball environment type allows an environment to be deployed from a tarball archive, rather than a Git repository. When using a tarball environment type, a source location for the tarball is required. Optionally, the tarball's sha256 checksum may be specified as the version. It is highly recommended to include a version specifier. If a version specifier is not included, r10k will never invalidate a cached copy of the tarball's source.
+
+Tarball environment sources will be unpacked directly into the environment root.
+
+```yaml
+---
+production:
+  type: tarball
+  source: https://repo.example.com/projects/puppet/env-2.36.1.tar.gz
+  version: 99a906c99c2f144de43f2ae500509a7474ed11c583fb623efa8e5b377a3157f0 # sha256digest
+
+development:
+  type: tarball
+  source: https://repo.example.com/projects/puppet/env-6128ada.tar.gz
+  version: 6128ada158622cd90f8e1360fb7c2c3830a812d1ec26ddf0db7eb16d61b7293f # sha256digest
+  modules:
+    reidmv-xampl:
+      type: git
+      source: https://github.com/reidmv/reidmv-xampl.git
+      version: 62d07f2
+```
