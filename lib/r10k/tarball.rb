@@ -156,11 +156,11 @@ module R10K
     # List all of the files contained in the tarball and their paths. This is
     # useful for implementing R10K::Purgable
     #
-    # @return [Array] A list of file paths contained in the archive
+    # @return [Array] A normalized list of file paths contained in the archive
     def paths
       names = Array.new
-      each_tarball_entry { |entry| names << entry.full_name.chomp('/') }
-      names
+      each_tarball_entry { |entry| names << Pathname.new(entry).cleanpath.to_s }
+      names - ['.']
     end
 
     def cache_checksum

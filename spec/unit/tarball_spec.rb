@@ -23,6 +23,30 @@ describe R10K::Tarball do
       expect(subject.cache_valid?).to be(true)
       expect(File.exist?(subject.cache_path)).to be(true)
     end
+
+    let(:raw_content) {[
+      './',
+      './Puppetfile',
+      './metadata.json',
+      './spec/',
+      './environment.conf',
+      './spec/1',
+    ]}
+
+    let(:clean_content) {[
+      'Puppetfile',
+      'metadata.json',
+      'spec',
+      'environment.conf',
+      'spec/1',
+    ]}
+
+    it 'returns clean paths when listing cached tarball content' do
+      iterator = allow(subject).to receive(:each_tarball_entry)
+      raw_content.each { |entry| iterator.and_yield(entry) }
+
+      expect(subject.paths).to eq(clean_content)
+    end
   end
 
   describe 'http sources'
