@@ -34,5 +34,6 @@ module R10K
     require 'r10k/environment/bare'
     require 'r10k/environment/git'
     require 'r10k/environment/svn'
+    require 'r10k/environment/tarball'
   end
 end

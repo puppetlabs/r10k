@@ -239,6 +239,19 @@ credentials may be visible in the process table when r10k is running. If you
 choose to supply SVN credentials make sure that the system running r10k is
 appropriately secured.
 
+### Tarball
+
+Modules can be installed from tarball archives. A tarball module must specify a source URL to retreive the tarball content from. A tarball module may optionally specify a sha256 checksum as the module version.
+
+    mod 'puppetlabs-apache',
+      type: 'tarball',
+      source: 'https://repo.example.com/puppet/modules/puppetlabs-apache-7.0.0.tar.gz',
+      version: 'aedd6dc1a5136c6a1a1ec2f285df2a70b0fe4c9effb254b5a1f58116e4c1659e' # sha256 digest
+
+If no version is specified, a tarball will be downloaded from the given source and cached. The cache will not be invalidated until the source URL is changed, or a sha256 checksum version is provided.
+
+Tarball module content will be unpacked directly into an appropriately named module directory. For example, the puppetlabs-apache-7.0.0.tar.gz archive in the example above will be unpacked into `<environment-dir>/modules/apache/`.
+
 ### Local
 
 In the event you want to store locally written modules in your r10k-managed
