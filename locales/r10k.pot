@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.9.3-159-gfd3e394a\n"
+"Project-Id-Version: r10k 3.9.3-170-g8cb36435\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2021-11-11 20:03+0000\n"
-"PO-Revision-Date: 2021-11-11 20:03+0000\n"
+"POT-Creation-Date: 2021-11-16 21:43+0000\n"
+"PO-Revision-Date: 2021-11-16 21:43+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -375,7 +375,7 @@ msgstr ""
 msgid "%{repo_path} is already at Git ref %{ref}"
 msgstr ""
 
-#: ../lib/r10k/initializers.rb:30
+#: ../lib/r10k/initializers.rb:31
 msgid "the purgedirs key in r10k.yaml is deprecated. it is currently ignored."
 msgstr ""
 
@@ -612,6 +612,10 @@ msgstr ""
 
 #: ../lib/r10k/svn/working_dir.rb:43
 msgid "Both username and password must be specified"
+msgstr ""
+
+#: ../lib/r10k/tarball.rb:167
+msgid "Cache not present at %{path}"
 msgstr ""
 
 #: ../lib/r10k/util/basedir.rb:34
