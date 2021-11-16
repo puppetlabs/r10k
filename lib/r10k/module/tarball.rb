@@ -75,7 +75,7 @@ class R10K::Module::Tarball < R10K::Module::Base
 
   # Return the desired version of this module
   def version
-    @checksum || 'unversioned'
+    @checksum || '(present)'
   end
 
   # Return the properties of the module
@@ -84,8 +84,8 @@ class R10K::Module::Tarball < R10K::Module::Base
   # @abstract
   def properties
     {
-      :expected => @checksum,
-      :actual   => status,
+      :expected => version,
+      :actual   => ((state = status) == :insync) ? version : state,
       :type     => :tarball,
     }
   end
