@@ -5,22 +5,23 @@ module R10K
     # @api private
     class Name
 
-      # @!attribute [r] ref
-      #   @return [String] The unmodified reference of the upstream repository
       # @!attribute [r] name
-      #   @return [String] The name of the environment (with component striped)
-      attr_reader :name, :ref
-      attr_reader :name, :ref
+      #   @return [String] The functional name of the environment derived from inputs and options.
+      attr_reader :name
+
+      # @!attribute [r] original_name
+      #   @return [String] The unmodified name originally given to create the object.
+      attr_reader :original_name
 
       INVALID_CHARACTERS = %r[\W]
 
-      def initialize(name, opts)
+      def initialize(original_name, opts)
         @source  = opts[:source]
         @prefix  = opts[:prefix]
         @invalid = opts[:invalid]
 
-        @ref = name
-        @name = derive_name(name, opts[:strip_component])
+        @name = derive_name(original_name, opts[:strip_component])
+        @original_name = original_name
         @opts = opts
 
         case @invalid
@@ -75,8 +76,8 @@ module R10K
 
       private
 
-      def derive_name(name, strip_component)
-        return name unless strip_component
+      def derive_name(original_name, strip_component)
+        return original_name unless strip_component
 
         unless strip_component.is_a?(String)
           raise _('Improper configuration value given for strip_component setting in %{src} source. ' \
@@ -86,11 +87,11 @@ module R10K
 
         if %r{^/.*/$}.match(strip_component)
           regex = Regexp.new(strip_component[1..-2])
-          name.gsub(regex, '')
-        elsif name.start_with?(strip_component)
-          name[strip_component.size..-1]
+          original_name.gsub(regex, '')
+        elsif original_name.start_with?(strip_component)
+          original_name[strip_component.size..-1]
         else
-          name
+          original_name
         end
       end
 
