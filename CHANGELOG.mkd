@@ -12,7 +12,6 @@ Unreleased
 - Add support for tarball module type, allowing module content to be packaged and sourced from generic fileservers [#1244](https://github.com/puppetlabs/r10k/pull/1244)
 - Add experimental support for tarball environment type, allowing whole environments to be packaged and sourced from generic fileservers [#1244](https://github.com/puppetlabs/r10k/pull/1244)
 
-
 3.13.0
 ------
 
