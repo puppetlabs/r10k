@@ -16,7 +16,8 @@ module R10K
 
       attr_accessor :default_branch_override, :environment
       attr_reader :modules, :moduledir, :puppetfile_path,
-        :managed_directories, :desired_contents, :purge_exclusions
+        :managed_directories, :desired_contents, :purge_exclusions,
+        :environment_name
 
       # @param basedir [String] The path that contains the moduledir &
       #     Puppetfile by default. May be an environment, project, or
@@ -40,6 +41,7 @@ module R10K
         @puppetfile_path  = resolve_path(@basedir, puppetfile)
         @overrides   = overrides
         @environment = environment
+        @environment_name = @environment&.name
         @default_branch_override = @overrides.dig(:environments, :default_branch_override)
         @allow_puppetfile_forge = @overrides.dig(:forge, :allow_puppetfile_override)
 
@@ -163,6 +165,13 @@ module R10K
         end
 
         @modules << mod
+      end
+
+      # @deprecated
+      # @return [String] The base directory that contains the Puppetfile
+      def basedir
+        logger.warn _('"basedir" is deprecated. Please use "environment_name" instead. "basedir" will be removed in a future version.')
+        @basedir
       end
 
      private

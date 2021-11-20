@@ -4,7 +4,14 @@ CHANGELOG
 Unreleased
 ----------
 
+
 - Record unprocessed environment name, so that `strip_component` does not cause truncated environment names to be used as git branches, resulting in errors or incorrect deploys. [#1240](https://github.com/puppetlabs/r10k/pull/1240)
+- (CODEMGMT-1294) Resync repos with unresolvable refs [#1239](https://github.com/puppetlabs/r10k/pull/1239)
+- (RK-378) Restore access to the environment name from the Puppetfile [#1241](https://github.com/puppetlabs/r10k/pull/1241)
+- (CODEMGMT-1300) Ensure the remote url in rugged cache directories is current [#1245](https://github.com/puppetlabs/r10k/pull/1245)
+- Add support for tarball module type, allowing module content to be packaged and sourced from generic fileservers [#1244](https://github.com/puppetlabs/r10k/pull/1244)
+- Add experimental support for tarball environment type, allowing whole environments to be packaged and sourced from generic fileservers [#1244](https://github.com/puppetlabs/r10k/pull/1244)
+
 
 3.13.0
 ------

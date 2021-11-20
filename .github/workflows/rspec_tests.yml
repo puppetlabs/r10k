@@ -59,7 +59,7 @@ jobs:
           bundle --version
 
           # Run tests
-          bundle exec rspec --color --format documentation spec/unit
+          bundle exec rspec --color --format documentation spec
 
       - name: Run tests on Linux
         if: runner.os == 'Linux'
@@ -78,4 +78,4 @@ jobs:
           fi
 
           # Run tests
-          bundle exec rspec --color --format documentation spec/unit
+          bundle exec rspec --color --format documentation spec

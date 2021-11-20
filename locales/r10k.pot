@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.9.3-134-g9f93336f\n"
+"Project-Id-Version: r10k 3.9.3-170-g8cb36435\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2021-10-25 18:18+0000\n"
-"PO-Revision-Date: 2021-10-25 18:18+0000\n"
+"POT-Creation-Date: 2021-11-16 21:43+0000\n"
+"PO-Revision-Date: 2021-11-16 21:43+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -75,15 +75,15 @@ msgstr ""
 msgid "Syntax OK"
 msgstr ""
 
-#: ../lib/r10k/action/runner.rb:57 ../lib/r10k/deployment/config.rb:42
+#: ../lib/r10k/action/runner.rb:63 ../lib/r10k/deployment/config.rb:42
 msgid "Overriding config file setting '%{key}': '%{old_val}' -> '%{new_val}'"
 msgstr ""
 
-#: ../lib/r10k/action/runner.rb:99
+#: ../lib/r10k/action/runner.rb:105
 msgid "Reading configuration from %{config_path}"
 msgstr ""
 
-#: ../lib/r10k/action/runner.rb:102
+#: ../lib/r10k/action/runner.rb:108
 msgid "No config file explicitly given and no default config file could be found, default settings will be used."
 msgstr ""
 
@@ -155,19 +155,19 @@ msgstr ""
 msgid "Proc %{block} for feature %{name} returned %{output}"
 msgstr ""
 
-#: ../lib/r10k/forge/module_release.rb:196
+#: ../lib/r10k/forge/module_release.rb:197
 msgid "Unpacking %{tarball_cache_path} to %{target_dir} (with tmpdir %{tmp_path})"
 msgstr ""
 
-#: ../lib/r10k/forge/module_release.rb:198
+#: ../lib/r10k/forge/module_release.rb:199
 msgid "Valid files unpacked: %{valid_files}"
 msgstr ""
 
-#: ../lib/r10k/forge/module_release.rb:200
+#: ../lib/r10k/forge/module_release.rb:201
 msgid "These files existed in the module's tar file, but are invalid filetypes and were not unpacked: %{invalid_files}"
 msgstr ""
 
-#: ../lib/r10k/forge/module_release.rb:203
+#: ../lib/r10k/forge/module_release.rb:204
 msgid "Symlinks are unsupported and were not unpacked from the module tarball. %{release_slug} contained these ignored symlinks: %{symlinks}"
 msgstr ""
 
@@ -203,11 +203,11 @@ msgstr ""
 msgid "Cannot write %{file}; parent directory does not exist"
 msgstr ""
 
-#: ../lib/r10k/git/cache.rb:65
+#: ../lib/r10k/git/cache.rb:57
 msgid "%{class}#path is deprecated; use #git_dir"
 msgstr ""
 
-#: ../lib/r10k/git/cache.rb:94
+#: ../lib/r10k/git/cache.rb:86
 msgid "Creating new git cache for %{remote}"
 msgstr ""
 
@@ -221,6 +221,14 @@ msgstr ""
 
 #: ../lib/r10k/git/rugged/bare_repository.rb:56
 msgid "Rugged versions prior to 0.24.0 do not support pruning stale branches during fetch, please upgrade your \\'rugged\\' gem. (Current version is: %{version})"
+msgstr ""
+
+#: ../lib/r10k/git/rugged/base_repository.rb:24
+msgid "Unable to resolve %{pattern}: %{e} "
+msgstr ""
+
+#: ../lib/r10k/git/rugged/base_repository.rb:69
+msgid "Remote URL is different from cache, updating %{orig} to %{update}"
 msgstr ""
 
 #: ../lib/r10k/git/rugged/credentials.rb:28
@@ -367,7 +375,7 @@ msgstr ""
 msgid "%{repo_path} is already at Git ref %{ref}"
 msgstr ""
 
-#: ../lib/r10k/initializers.rb:30
+#: ../lib/r10k/initializers.rb:31
 msgid "the purgedirs key in r10k.yaml is deprecated. it is currently ignored."
 msgstr ""
 
@@ -379,7 +387,7 @@ msgstr ""
 msgid "No class registered for %{key}"
 msgstr ""
 
-#: ../lib/r10k/logging.rb:60
+#: ../lib/r10k/logging.rb:73 ../lib/r10k/logging.rb:100 ../lib/r10k/logging.rb:109
 msgid "Invalid log level '%{val}'. Valid levels are %{log_levels}"
 msgstr ""
 
@@ -439,39 +447,43 @@ msgstr ""
 msgid "Could not read metadata.json"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:62
+#: ../lib/r10k/module_loader/puppetfile.rb:64
 msgid "Using Puppetfile '%{puppetfile}'"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:63
+#: ../lib/r10k/module_loader/puppetfile.rb:65
 msgid "Using moduledir '%{moduledir}'"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:84
+#: ../lib/r10k/module_loader/puppetfile.rb:86
 msgid "Failed to evaluate %{path}"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:101
+#: ../lib/r10k/module_loader/puppetfile.rb:103
 msgid "Unable to preload Puppetfile because of %{msg}"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:119
+#: ../lib/r10k/module_loader/puppetfile.rb:121
 msgid "Using Forge from Puppetfile: %{forge}"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:122
+#: ../lib/r10k/module_loader/puppetfile.rb:124
 msgid "Ignoring Forge declaration in Puppetfile, using value from settings: %{forge}."
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:183 ../lib/r10k/puppetfile.rb:104
+#: ../lib/r10k/module_loader/puppetfile.rb:173
+msgid "\"basedir\" is deprecated. Please use \"environment_name\" instead. \"basedir\" will be removed in a future version."
+msgstr ""
+
+#: ../lib/r10k/module_loader/puppetfile.rb:192 ../lib/r10k/puppetfile.rb:104
 msgid "Puppetfile %{path} missing or unreadable"
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:219
+#: ../lib/r10k/module_loader/puppetfile.rb:228
 msgid "Puppetfiles cannot contain duplicate module names."
 msgstr ""
 
-#: ../lib/r10k/module_loader/puppetfile.rb:221
+#: ../lib/r10k/module_loader/puppetfile.rb:230
 msgid "Remove the duplicates of the following modules: %{dupes}"
 msgstr ""
 
@@ -600,6 +612,10 @@ msgstr ""
 
 #: ../lib/r10k/svn/working_dir.rb:43
 msgid "Both username and password must be specified"
+msgstr ""
+
+#: ../lib/r10k/tarball.rb:167
+msgid "Cache not present at %{path}"
 msgstr ""
 
 #: ../lib/r10k/util/basedir.rb:34

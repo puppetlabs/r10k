@@ -21,7 +21,8 @@ describe R10K::Git::Cache do
     end
   end
 
-  subject { subclass.new('git://some/git/remote') }
+  let(:remote) { 'git://some/git/remote' }
+  subject { subclass.new(remote) }
 
   describe "updating the cache" do
     it "only updates the cache once" do
@@ -60,20 +61,6 @@ describe R10K::Git::Cache do
     it "aliases #cached? to #exist?" do
       expect(subject.repo).to receive(:exist?)
       subject.cached?
-    end
-  end
-
-  describe "dirname sanitization" do
-    it 'sanitizes cache directory name' do
-      expect(subject.sanitized_dirname).to eq('git---some-git-remote')
-    end
-
-    context 'with username and password' do
-      subject { subclass.new('https://"user:pa$$w0rd:@some/git/remote') }
-
-      it 'sanitizes cache directory name' do
-        expect(subject.sanitized_dirname).to eq('https---some-git-remote')
-      end
     end
   end
 end
