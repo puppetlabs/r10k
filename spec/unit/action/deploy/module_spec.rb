@@ -241,7 +241,7 @@ describe R10K::Action::Deploy::Module do
 
       allow(R10K::Git::StatefulRepository).to receive(:new).and_return(repo)
       allow(R10K::Git).to receive_message_chain(:cache, :generate).and_return(cache)
-      allow_any_instance_of(R10K::Source::Git).to receive(:branch_names).and_return([R10K::Environment::Name.new('first', {})])
+      allow_any_instance_of(R10K::Source::Git).to receive(:environment_names).and_return([R10K::Environment::Name.new('first', {})])
 
       expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|
         # For this test we want to have realistic Modules and access to
@@ -300,7 +300,7 @@ describe R10K::Action::Deploy::Module do
 
       allow(R10K::Git::StatefulRepository).to receive(:new).and_return(repo)
       allow(R10K::Git).to receive_message_chain(:cache, :generate).and_return(cache)
-      allow_any_instance_of(R10K::Source::Git).to receive(:branch_names).and_return([R10K::Environment::Name.new('first', {}),
+      allow_any_instance_of(R10K::Source::Git).to receive(:environment_names).and_return([R10K::Environment::Name.new('first', {}),
                                                                                      R10K::Environment::Name.new('second', {})])
 
       expect(subject).to receive(:visit_environment).and_wrap_original do |original, environment, &block|

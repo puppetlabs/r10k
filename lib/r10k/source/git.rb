@@ -100,26 +100,26 @@ class R10K::Source::Git < R10K::Source::Base
 
   def generate_environments
     envs = []
-    branch_names.each do |bn|
-      if bn.valid?
-        envs << R10K::Environment::Git.new(bn.name,
+    environment_names.each do |en|
+      if en.valid?
+        envs << R10K::Environment::Git.new(en.name,
                                            @basedir,
-                                           bn.dirname,
+                                           en.dirname,
                                            {remote: remote,
-                                            ref: bn.name,
+                                            ref: en.original_name,
                                             puppetfile_name: puppetfile_name,
                                             overrides: @options[:overrides]})
-      elsif bn.correct?
-       logger.warn _("Environment %{env_name} contained non-word characters, correcting name to %{corrected_env_name}") % {env_name: bn.name.inspect, corrected_env_name: bn.dirname}
-        envs << R10K::Environment::Git.new(bn.name,
+      elsif en.correct?
+       logger.warn _("Environment %{env_name} contained non-word characters, correcting name to %{corrected_env_name}") % {env_name: en.name.inspect, corrected_env_name: en.dirname}
+        envs << R10K::Environment::Git.new(en.name,
                                            @basedir,
-                                           bn.dirname,
+                                           en.dirname,
                                            {remote: remote,
-                                            ref: bn.name,
+                                            ref: en.original_name,
                                             puppetfile_name: puppetfile_name,
                                             overrides: @options[:overrides]})
-      elsif bn.validate?
-       logger.error _("Environment %{env_name} contained non-word characters, ignoring it.") % {env_name: bn.name.inspect}
+      elsif en.validate?
+       logger.error _("Environment %{env_name} contained non-word characters, ignoring it.") % {env_name: en.name.inspect}
       end
     end
 
@@ -157,22 +157,22 @@ class R10K::Source::Git < R10K::Source::Base
 
   private
 
-  def branch_names
+  def environment_names
     opts = {prefix: @prefix,
             invalid: @invalid_branches,
             source: @name,
             strip_component: @strip_component}
-    branches = @cache.branches
+    branch_names = @cache.branches
     if @ignore_branch_prefixes && !@ignore_branch_prefixes.empty?
-      branches = filter_branches_by_regexp(branches, @ignore_branch_prefixes)
+      branch_names = filter_branches_by_regexp(branch_names, @ignore_branch_prefixes)
     end
 
     if @filter_command && !@filter_command.empty?
-      branches = filter_branches_by_command(branches, @filter_command)
+      branch_names = filter_branches_by_command(branch_names, @filter_command)
     end
 
-    branches.map do |branch|
-      R10K::Environment::Name.new(branch, opts)
+    branch_names.map do |branch_name|
+      R10K::Environment::Name.new(branch_name, opts)
     end
   end
 end
