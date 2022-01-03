@@ -94,7 +94,7 @@ describe R10K::ModuleLoader::Puppetfile do
 
       expect {
         subject.add_module('puppet/test_module', '< 1.2.0')
-      }.to raise_error(RuntimeError, /module puppet\/test_module.*doesn't have an implementation/i)
+      }.to raise_error(ArgumentError, /module version .* is not a valid forge module version/i)
 
       expect(subject.modules.collect(&:name)).not_to include('test_module')
     end
