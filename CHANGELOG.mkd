@@ -3,6 +3,7 @@ CHANGELOG
 
 Unreleased
 ----------
+- (RK-383) Remove deprecated `basedir` method from Puppetfile DSL. Users should use `environment_name` instead. [#1254](https://github.com/puppetlabs/r10k/pull/1254)
 
 3.14.0
 ------
