@@ -4,6 +4,8 @@ CHANGELOG
 Unreleased
 ----------
 
+- Refactor internal module creation to always expect a hash, even for Forge modules, which can be specified in the Puppetfile with just a version string. [#1170](https://github.com/puppetlabs/r10k/pull/1170)
+
 3.14.0
 ------
 
