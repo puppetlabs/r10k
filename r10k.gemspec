@@ -37,7 +37,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'gettext', ['>= 3.0.2', '< 3.3.0']
 
   s.add_dependency 'jwt', '~> 2.2.3'
-  s.add_dependency 'minitar', '~> 0.9.0'
+  s.add_dependency 'minitar', '~> 0.9'
 
   s.add_development_dependency 'rspec', '~> 3.1'
 
