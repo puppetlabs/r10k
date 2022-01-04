@@ -8,7 +8,7 @@ class R10K::Module::Local < R10K::Module::Base
   R10K::Module.register(self)
 
   def self.implement?(name, args)
-    args.is_a?(Hash) && (args[:local] || args[:type].to_s == 'local')
+    args[:local] || args[:type].to_s == 'local'
   end
 
   def self.statically_defined_version(*)

@@ -15,7 +15,7 @@ module R10K
           if args.is_a?(Hash)
             opts = args
           else
-            opts = { version: args }
+            opts = { type: 'forge', version: args }
           end
 
           if @metadata_only

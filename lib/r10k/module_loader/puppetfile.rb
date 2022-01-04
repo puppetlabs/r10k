@@ -189,8 +189,10 @@ module R10K
       end
 
       def parse_module_definition(name, info)
+        # The only valid (deprecated) way a module can be defined with a
+        # non-hash info is if it is a Forge module.
         if !info.is_a?(Hash)
-          info = { version: info }
+          info = { type: 'forge', version: info }
         end
 
         info[:overrides] = @overrides

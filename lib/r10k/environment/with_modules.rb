@@ -96,7 +96,7 @@ class R10K::Environment::WithModules < R10K::Environment::Base
   def load_modules(module_hash)
     module_hash.each do |name, args|
       if !args.is_a?(Hash)
-        args = { version: args }
+        args = { type: 'forge', version: args }
       end
 
       add_module(name, args)

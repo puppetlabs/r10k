@@ -13,16 +13,7 @@ class R10K::Module::Forge < R10K::Module::Base
   R10K::Module.register(self)
 
   def self.implement?(name, args)
-    args[:type].to_s == 'forge' ||
-      (!!
-       ((args.keys & %i{git svn type}).empty? &&
-        args.has_key?(:version) &&
-        name.match(%r[\w+[/-]\w+]) &&
-        valid_version?(args[:version])))
-  end
-
-  def self.valid_version?(expected_version)
-    expected_version == :latest || expected_version.nil? || PuppetForge::Util.version_valid?(expected_version)
+    args[:type].to_s == 'forge'
   end
 
   def self.statically_defined_version(name, args)
@@ -54,9 +45,18 @@ class R10K::Module::Forge < R10K::Module::Base
       :type    => ::R10K::Util::Setopts::Ignore,
     }, :raise_on_unhandled => false)
 
+    # Validate version and raise on issue. Title is validated by base class.
+    unless valid_version?(@expected_version)
+      raise ArgumentError, _("Module version %{ver} is not a valid Forge module version") % {ver: @expected_version}
+    end
+
     @expected_version ||= current_version || :latest
 
     @v3_module = PuppetForge::V3::Module.new(:slug => @title)
+  end
+
+  def valid_version?(version)
+    version == :latest || version.nil? || PuppetForge::Util.version_valid?(version)
   end
 
   # @param [Hash] opts Deprecated
