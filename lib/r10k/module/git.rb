@@ -9,8 +9,6 @@ class R10K::Module::Git < R10K::Module::Base
 
   def self.implement?(name, args)
     args.has_key?(:git) || args[:type].to_s == 'git'
-  rescue
-    false
   end
 
   # Will be called if self.implement? above returns true. Will return

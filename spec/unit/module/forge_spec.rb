@@ -33,21 +33,17 @@ describe R10K::Module::Forge do
 
   describe "implementing the Puppetfile spec" do
     it "should implement 'branan/eight_hundred', '8.0.0'" do
-      expect(described_class).to be_implement('branan/eight_hundred', { version: '8.0.0' })
+      expect(described_class).to be_implement('branan/eight_hundred', { type: 'forge', version: '8.0.0' })
     end
 
     it "should implement 'branan-eight_hundred', '8.0.0'" do
-      expect(described_class).to be_implement('branan-eight_hundred', { version: '8.0.0' })
-    end
-
-    it "should fail with an invalid title" do
-      expect(described_class).to_not be_implement('branan!eight_hundred', { version: '8.0.0' })
+      expect(described_class).to be_implement('branan-eight_hundred', { type: 'forge', version: '8.0.0' })
     end
   end
 
   describe "implementing the standard options interface" do
     it "should implement {type: forge}" do
-      expect(described_class).to be_implement('branan-eight_hundred', {type: 'forge', version: '8.0.0', source: 'not implemented'})
+      expect(described_class).to be_implement('branan-eight_hundred', { type: 'forge', version: '8.0.0', source: 'not implemented' })
     end
   end
 
@@ -68,6 +64,12 @@ describe R10K::Module::Forge do
 
     it "sets the title" do
       expect(subject.title).to eq 'branan-eight_hundred'
+    end
+  end
+
+  describe "invalid attributes" do
+    it "errors on invalid versions" do
+      expect { described_class.new('branan/eight_hundred', '/moduledir', { version: '_8.0.0_' }) }.to raise_error ArgumentError, /version/
     end
   end
 
