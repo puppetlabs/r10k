@@ -31,7 +31,6 @@ module R10K
     require 'r10k/environment/base'
     require 'r10k/environment/with_modules'
     require 'r10k/environment/plain'
-    require 'r10k/environment/bare'
     require 'r10k/environment/git'
     require 'r10k/environment/svn'
     require 'r10k/environment/tarball'
