@@ -11,7 +11,6 @@ jobs:
     strategy:
       matrix:
         cfg:
-          - {os: ubuntu-18.04, ruby: 2.4}
           - {os: ubuntu-18.04, ruby: 2.5}
           - {os: ubuntu-18.04, ruby: 2.6}
           - {os: ubuntu-18.04, ruby: 2.7}
