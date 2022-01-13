@@ -93,7 +93,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
     results = nil
 
     R10K::Git.with_proxy(proxy) do
-      results = with_repo { |repo| repo.fetch(remote_name, refspecs, options) }
+      results = with_repo { |repo| repo.fetch(remote_name, refspecs, **options) }
     end
 
     report_transfer(results, remote)
