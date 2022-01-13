@@ -8,6 +8,7 @@ Unreleased
 - (RK-386) Remove deprecated `bare` environment type. [#1235](https://github.com/puppetlabs/r10k/issues/1235)
 - Refactor internal module creation to always expect a hash, even for Forge modules, which can be specified in the Puppetfile with just a version string. [#1170](https://github.com/puppetlabs/r10k/pull/1170)
 - Drop EoL Ruby 2.3/2.4 support [#1280](https://github.com/puppetlabs/r10k/pull/1208)
+- (CODEMGMT-1295) Change default branch for git modules to `main`. [#1258](https://github.com/puppetlabs/r10k/pull/1258)
 
 3.14.0
 ------
