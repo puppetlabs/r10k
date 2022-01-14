@@ -70,7 +70,7 @@ class R10K::Module::Git < R10K::Module::Base
     force = @overrides.dig(:modules, :force)
     @force = force == false ? false : true
 
-    @desired_ref ||= 'master'
+    @desired_ref ||= 'main'
 
     if @desired_ref == :control_branch
       if @environment && @environment.respond_to?(:ref)

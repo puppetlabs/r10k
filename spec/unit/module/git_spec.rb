@@ -90,7 +90,7 @@ describe R10K::Module::Git do
     end
 
     before(:each) do
-      allow(mock_repo).to receive(:resolve).with('master').and_return('abc123')
+      allow(mock_repo).to receive(:resolve).with('main').and_return('abc123')
       allow(mock_repo).to receive(:head).and_return('abc123')
     end
 
@@ -99,7 +99,7 @@ describe R10K::Module::Git do
     end
 
     it "sets the expected version" do
-      expect(subject.properties).to include(:expected => 'master')
+      expect(subject.properties).to include(:expected => 'main')
     end
 
     it "sets the actual version to the revision when the revision is available" do
@@ -122,7 +122,7 @@ describe R10K::Module::Git do
     subject { described_class.new(title, dirname, {}) }
 
     before(:each) do
-      allow(mock_repo).to receive(:resolve).with('master').and_return('abc123')
+      allow(mock_repo).to receive(:resolve).with('main').and_return('abc123')
     end
 
     it 'defaults to keeping the spec dir' do
@@ -159,8 +159,8 @@ describe R10K::Module::Git do
     end
 
     it "delegates to the repo" do
-      expect(subject).to receive(:version).and_return 'master'
-      expect(mock_repo).to receive(:status).with('master').and_return :some_status
+      expect(subject).to receive(:version).and_return 'main'
+      expect(mock_repo).to receive(:status).with('main').and_return :some_status
 
       expect(subject.status).to eq(:some_status)
     end
@@ -179,10 +179,10 @@ describe R10K::Module::Git do
 
     describe "desired ref" do
       context "when no desired ref is given" do
-        it "defaults to master" do
-          expect(mock_repo).to receive(:resolve).with('master').and_return('abc123')
+        it "defaults to main" do
+          expect(mock_repo).to receive(:resolve).with('main').and_return('abc123')
 
-          expect(test_module({}).properties).to include(expected: 'master')
+          expect(test_module({}).properties).to include(expected: 'main')
         end
       end
 
