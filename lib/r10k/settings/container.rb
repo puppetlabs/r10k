@@ -1,3 +1,4 @@
+require 'set'
 # Defines a collection for application settings
 #
 # This implements a hierarchical interface to application settings. Containers
