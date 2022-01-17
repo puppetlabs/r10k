@@ -7,3 +7,4 @@ coverage
 integration/log
 integration/junit
 integration/configs
+r10k.log
