@@ -4,6 +4,7 @@ CHANGELOG
 Unreleased
 ----------
 
+- (maint) Add Ruby 3.0 to rspec CI matrix [#1260](https://github.com/puppetlabs/r10k/pull/1260)
 - (RK-383) Remove deprecated `basedir` method from Puppetfile DSL. Users should use `environment_name` instead. [#1254](https://github.com/puppetlabs/r10k/pull/1254)
 - (RK-386) Remove deprecated `bare` environment type. [#1235](https://github.com/puppetlabs/r10k/issues/1235)
 - Refactor internal module creation to always expect a hash, even for Forge modules, which can be specified in the Puppetfile with just a version string. [#1170](https://github.com/puppetlabs/r10k/pull/1170)
