@@ -10,6 +10,19 @@ require 'cri'
 
 module R10K::CLI
   module Deploy
+
+    class TransformExcludeSpec
+      def call(input)
+        # To be backward compatible with the 3.x flag version of this setting,
+        # r10k allows this flag to have an optional argument. When no argument
+        # is supplied, cri defaults to setting the class to true, so we check
+        # for TrueClass here as well as "true".
+        return true if input == true || input == 'true'
+        return false if input == 'false'
+        raise ArgumentError
+      end
+    end
+
     def self.command
       @cmd ||= Cri::Command.define do
         name    'deploy'
@@ -24,7 +37,8 @@ module R10K::CLI
         option nil, :cachedir, 'Specify a cachedir, overriding the value in config', argument: :required
         flag nil, :'no-force', 'Prevent the overwriting of local module modifications'
         flag nil, :'generate-types', 'Run `puppet generate types` after updating an environment'
-        flag nil, :'exclude-spec', 'Exclude the module\'s spec dir from deployment'
+        option nil, :'exclude-spec', 'Exclude the module\'s spec dir for deployment', argument: :optional,
+                                                                                      transform: TransformExcludeSpec.new
         option nil, :'puppet-path', 'Path to puppet executable', argument: :required do |value, cmd|
           unless File.executable? value
             $stderr.puts "The specified puppet executable #{value} is not executable."

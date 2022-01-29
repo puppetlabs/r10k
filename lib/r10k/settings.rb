@@ -207,8 +207,8 @@ module R10K
           end
         }),
         Definition.new(:exclude_spec, {
-          :desc => "Whether or not to deploy the spec dir of a module. Defaults to false.",
-          :default => false,
+          :desc => "Whether or not to deploy the spec dir of a module. Defaults to true.",
+          :default => true,
           :validate => lambda do |value|
             unless !!value == value
               raise ArgumentError, "`exclude_spec` can only be a boolean value, not '#{value}'"

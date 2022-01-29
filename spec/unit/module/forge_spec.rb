@@ -199,12 +199,12 @@ describe R10K::Module::Forge do
       let(:spec_path) { dirname + module_name + 'spec' }
       subject { described_class.new(title, dirname, {}) }
 
-      it 'defaults to keeping the spec dir' do
+      it 'defaults to deleting the spec dir' do
         FileUtils.mkdir_p(spec_path)
         expect(subject).to receive(:status).and_return(:absent)
         expect(subject).to receive(:install)
         subject.sync
-        expect(Dir.exist?(spec_path)).to eq true
+        expect(Dir.exist?(spec_path)).to eq false
       end
     end
 

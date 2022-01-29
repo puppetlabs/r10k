@@ -60,8 +60,8 @@ class R10K::Module::Base
     @environment = environment
     @overrides = args.delete(:overrides) || {}
     @spec_deletable = true
-    @exclude_spec = false
-    @exclude_spec = @overrides.dig(:modules, :exclude_spec) if @overrides.dig(:modules, :exclude_spec)
+    @exclude_spec = true
+    @exclude_spec = @overrides.dig(:modules, :exclude_spec) unless @overrides.dig(:modules, :exclude_spec).nil?
     if args.has_key?(:exclude_spec)
       logger.debug2 _("Overriding :exclude_spec setting with per module setting for #{@title}")
       @exclude_spec = args.delete(:exclude_spec)
@@ -78,7 +78,7 @@ class R10K::Module::Base
     path.to_s
   end
 
-  # Delete the spec dir if @exclude_spec has been set to true and @spec_deletable is also true
+  # Delete the spec dir if @exclude_spec is true and @spec_deletable is also true
   def maybe_delete_spec_dir
     if @exclude_spec
       if @spec_deletable

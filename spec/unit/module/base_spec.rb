@@ -42,27 +42,34 @@ describe R10K::Module::Base do
       allow(logger).to receive(:info).with(any_args)
     end
 
-    it 'does not remove the spec directory by default' do
+    it 'removes the spec directory by default' do
       FileUtils.mkdir_p(spec_path)
       m = described_class.new(title, dirname, {})
       m.maybe_delete_spec_dir
-      expect(Dir.exist?(spec_path)).to eq true
+      expect(Dir.exist?(spec_path)).to eq false
     end
 
     it 'detects a symlink and deletes the target' do
       Dir.mkdir(dirname + module_name)
       target_dir = Dir.mktmpdir
       FileUtils.ln_s(target_dir, spec_path)
-      m = described_class.new(title, dirname, {exclude_spec: true})
+      m = described_class.new(title, dirname, {})
       m.maybe_delete_spec_dir
       expect(Dir.exist?(target_dir)).to eq false
     end
 
-    it 'removes the spec directory if exclude_spec is set' do
+    it 'does not remove the spec directory if overrides->modules->exclude_spec is set to false' do
       FileUtils.mkdir_p(spec_path)
-      m = described_class.new(title, dirname, {exclude_spec: true})
+      m = described_class.new(title, dirname, {overrides: {modules: {exclude_spec: false}}})
       m.maybe_delete_spec_dir
-      expect(Dir.exist?(spec_path)).to eq false
+      expect(Dir.exist?(spec_path)).to eq true
+    end
+
+    it 'does not remove the spec directory if exclude_spec is set to false and overrides->modules->exclude_spec is true' do
+      FileUtils.mkdir_p(spec_path)
+      m = described_class.new(title, dirname, {exclude_spec: false, overrides: {modules: {exclude_spec: true}}})
+      m.maybe_delete_spec_dir
+      expect(Dir.exist?(spec_path)).to eq true
     end
 
     it 'does not remove the spec directory if spec_deletable is false' do

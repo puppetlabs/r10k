@@ -117,11 +117,11 @@ describe R10K::Settings do
     subject { described_class.deploy_settings }
 
     describe 'exclude_spec' do
-      it 'is false by default' do
-        expect(subject.evaluate({})[:exclude_spec]).to eq(false)
+      it 'is true by default' do
+        expect(subject.evaluate({})[:exclude_spec]).to eq(true)
       end
-      it 'can be set to true' do
-        expect(subject.evaluate({"exclude_spec" => true})[:exclude_spec]).to eq(true)
+      it 'can be set to false' do
+        expect(subject.evaluate({"exclude_spec" => false})[:exclude_spec]).to eq(false)
       end
       it "raises an error for non-boolean values" do
         expect {
