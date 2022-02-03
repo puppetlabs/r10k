@@ -56,6 +56,28 @@ git:
       private_key: '/root/.ssh/private_repo_id'
 ```
 
+### HTTPS Configuration
+
+Public HTTPS based Git repositories can be accessed with no additional settings.
+For repos that do require authentication, the 'oauth_token' option may be provided.
+
+```yaml
+git:
+  oauth_token: '/etc/puppetlabs/r10k/token'
+```
+
+If you have per repository access tokens you can add them with the repositories list.
+
+```yaml
+git:
+  # default access token
+  oauth_token: '/etc/puppetlabs/r10k/token'
+  repositories:
+    - remote: "https://github.com/my_org/private_repo.git"
+      # access token for this repo only
+      oauth_token: '/etc/puppetlabs/r10k/private_repo_token'
+```
+
 #### Supported transports with Rugged
 
 Rugged compiles libgit2 and and the Ruby bindings when the gem is installed. You
