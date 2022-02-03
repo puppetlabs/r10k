@@ -61,7 +61,7 @@ class R10K::Module::Base
     @overrides = args.delete(:overrides) || {}
     @spec_deletable = true
     @exclude_spec = args.delete(:exclude_spec)
-    @exclude_spec = @overrides[:modules].delete(:exclude_spec) if @overrides.dig(:modules, :exclude_spec)
+    @exclude_spec = @overrides.dig(:modules, :exclude_spec) if @overrides.dig(:modules, :exclude_spec)
     @origin = 'external' # Expect Puppetfile or R10k::Environment to set this to a specific value
 
     @requested_modules = @overrides.dig(:modules, :requested_modules) || []
