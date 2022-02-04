@@ -67,7 +67,7 @@ class R10K::Module::Git < R10K::Module::Base
       :default_branch_override => :default_override_ref,
     }, :raise_on_unhandled => false)
 
-    force = @overrides.dig(:modules, :force)
+    force = @overrides[:force]
     @force = force == false ? false : true
 
     @desired_ref ||= 'master'
