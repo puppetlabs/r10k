@@ -130,7 +130,7 @@ class R10K::Git::Rugged::Credentials
 
     user = nil
 
-    if !username_from_url.nil?
+    if !username_from_url.nil? && !username_from_url.empty?
       user = username_from_url
       logger.debug2 _("URL %{url} includes the username %{username}, using that user for authentication.") % {url: url.inspect, username: username_from_url}
     elsif git_user

@@ -4,6 +4,8 @@ CHANGELOG
 Unreleased
 ----------
 
+- (RK-394) Fix `force` always resolving to true for `puppetfile install` [#1269](https://github.com/puppetlabs/r10k/issues/1265)
+- (RK-393) Bug fix: not all spec directories are deleted when :exclude_spec is true [#1267](https://github.com/puppetlabs/r10k/pull/1267)
 - (maint) Add Ruby 3.0 to rspec CI matrix [#1261](https://github.com/puppetlabs/r10k/pull/1261)
 - (RK-383) Remove deprecated `basedir` method from Puppetfile DSL. Users should use `environment_name` instead. [#1254](https://github.com/puppetlabs/r10k/pull/1254)
 - (RK-386) Remove deprecated `bare` environment type. [#1235](https://github.com/puppetlabs/r10k/issues/1235)

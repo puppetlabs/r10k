@@ -80,7 +80,8 @@ describe R10K::ModuleLoader::Puppetfile do
   describe 'adding modules' do
     let(:basedir) { '/test/basedir' }
 
-    subject { R10K::ModuleLoader::Puppetfile.new(basedir: basedir) }
+    subject { R10K::ModuleLoader::Puppetfile.new(basedir: basedir,
+                                                 overrides: {modules: {exclude_spec: true}}) }
 
     it 'should transform Forge modules with a string arg to have a version key' do
       expect(R10K::Module).to receive(:from_metadata).with('puppet/test_module', subject.moduledir, hash_including(version: '1.2.3'), anything).and_call_original
@@ -97,6 +98,12 @@ describe R10K::ModuleLoader::Puppetfile do
       }.to raise_error(ArgumentError, /module version .* is not a valid forge module version/i)
 
       expect(subject.modules.collect(&:name)).not_to include('test_module')
+    end
+
+    it 'should not modify the overrides when adding modules' do
+      module_opts = { git: 'git@example.com:puppet/test_module.git' }
+      subject.add_module('puppet/test_module', module_opts)
+      expect(subject.instance_variable_get("@overrides")[:modules]).to eq({exclude_spec: true})
     end
 
     it 'should set :spec_deletable to true for modules in the basedir' do
