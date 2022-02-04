@@ -1,4 +1,4 @@
-ARG alpine_version=3.9
+ARG alpine_version=3.14
 FROM alpine:${alpine_version}
 
 ARG vcs_ref

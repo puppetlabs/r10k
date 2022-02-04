@@ -128,6 +128,18 @@ git:
   private_key: "/etc/puppetlabs/r10k/ssh/id_rsa"
 ```
 
+#### oauth_token
+
+The oauth_token setting is only used by the Rugged git provider.
+
+The oauth_token option specifies the path to the default access token for Git HTTPS remotes.
+Public git repositories can be accessed via HTTPS without authentication, but the oauth_token setting may be set if any non-public HTTPS remotes are used.
+
+```yaml
+git:
+  oauth_token: "/etc/puppetlabs/r10k/token"
+```
+
 #### repositories
 
 The repositories option allows configuration to be set on a per-remote basis. Each entry is a map of
@@ -143,6 +155,18 @@ git:
   repositories:
     - remote: "ssh://tessier-ashpool.freeside/protected-repo.git"
       private_key: "/etc/puppetlabs/r10k/ssh/id_rsa-protected-repo-deploy-key"
+```
+
+##### oauth_token
+
+A repository specific access token to use for HTTPS connections for the given repository URL. This
+overrides the global oauth_token setting.
+
+```yaml
+git:
+  repositories:
+    - remote: "https://tessier-ashpool.freeside/protected-repo.git"
+      oauth_token: "/etc/puppetlabs/r10k/protected-repo-deploy-token"
 ```
 
 ##### proxy
