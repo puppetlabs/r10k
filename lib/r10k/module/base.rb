@@ -60,8 +60,12 @@ class R10K::Module::Base
     @environment = environment
     @overrides = args.delete(:overrides) || {}
     @spec_deletable = true
-    @exclude_spec = args.delete(:exclude_spec)
+    @exclude_spec = false
     @exclude_spec = @overrides.dig(:modules, :exclude_spec) if @overrides.dig(:modules, :exclude_spec)
+    if args.has_key?(:exclude_spec)
+      logger.debug2 _("Overriding :exclude_spec setting with per module setting for #{@title}")
+      @exclude_spec = args.delete(:exclude_spec)
+    end
     @origin = 'external' # Expect Puppetfile or R10k::Environment to set this to a specific value
 
     @requested_modules = @overrides.dig(:modules, :requested_modules) || []
