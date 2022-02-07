@@ -6,11 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.9.3-188-g81e51c28\n"
+"Project-Id-Version: r10k 3.9.3-208-gb88bb368\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2022-01-03 19:08+0000\n"
-"PO-Revision-Date: 2022-01-03 19:08+0000\n"
+"POT-Creation-Date: 2022-02-07 21:13+0000\n"
+"PO-Revision-Date: 2022-02-07 21:13+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -395,27 +395,31 @@ msgstr ""
 msgid "Module %{name} with args %{args} doesn't have an implementation. (Are you using the right arguments?)"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:83
+#: ../lib/r10k/module/base.rb:66
+msgid "Overriding :exclude_spec setting with per module setting for #{@title}"
+msgstr ""
+
+#: ../lib/r10k/module/base.rb:87
 msgid "Spec dir for #{@title} will not be deleted because it is not in the moduledir"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:95
+#: ../lib/r10k/module/base.rb:99
 msgid "Deleting spec data at #{spec_path}"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:103
+#: ../lib/r10k/module/base.rb:107
 msgid "No spec dir detected at #{spec_path}, skipping deletion"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:116
+#: ../lib/r10k/module/base.rb:120
 msgid "Deploying module to %{path}"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:119
+#: ../lib/r10k/module/base.rb:123
 msgid "Only updating modules %{modules}, skipping module %{name}"
 msgstr ""
 
-#: ../lib/r10k/module/base.rb:175
+#: ../lib/r10k/module/base.rb:179
 msgid "Module name (%{title}) must match either 'modulename' or 'owner/modulename'"
 msgstr ""
 
