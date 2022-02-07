@@ -4,14 +4,19 @@ CHANGELOG
 Unreleased
 ----------
 
-- (RK-394) Fix `force` always resolving to true for `puppetfile install` [#1269](https://github.com/puppetlabs/r10k/issues/1265)
-- (RK-393) Bug fix: not all spec directories are deleted when :exclude_spec is true [#1267](https://github.com/puppetlabs/r10k/pull/1267)
 - (maint) Add Ruby 3.0 to rspec CI matrix [#1261](https://github.com/puppetlabs/r10k/pull/1261)
 - (RK-383) Remove deprecated `basedir` method from Puppetfile DSL. Users should use `environment_name` instead. [#1254](https://github.com/puppetlabs/r10k/pull/1254)
 - (RK-386) Remove deprecated `bare` environment type. [#1235](https://github.com/puppetlabs/r10k/issues/1235)
-- Refactor internal module creation to always expect a hash, even for Forge modules, which can be specified in the Puppetfile with just a version string. [#1170](https://github.com/puppetlabs/r10k/pull/1170)
 - Drop EoL Ruby 2.3/2.4 support [#1280](https://github.com/puppetlabs/r10k/pull/1208)
 - (CODEMGMT-1295) Change default branch for git modules to `main`. [#1258](https://github.com/puppetlabs/r10k/pull/1258)
+
+3.14.1
+------
+
+- (RK-395) Make `exclude_spec` from a Puppetfile the priority override [#1271](https://github.com/puppetlabs/r10k/issues/1271)
+- (RK-394) Fix `force` always resolving to true for `puppetfile install` [#1269](https://github.com/puppetlabs/r10k/issues/1265)
+- (RK-393) Bug fix: not all spec directories are deleted when :exclude_spec is true [#1267](https://github.com/puppetlabs/r10k/pull/1267)
+- Refactor internal module creation to always expect a hash, even for Forge modules, which can be specified in the Puppetfile with just a version string. [#1170](https://github.com/puppetlabs/r10k/pull/1170)
 
 3.14.0
 ------

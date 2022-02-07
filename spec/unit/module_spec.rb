@@ -90,12 +90,21 @@ describe R10K::Module do
         }.not_to raise_error
       end
       describe 'the exclude_spec setting' do
+        it 'sets the exclude_spec instance variable to false by default' do
+          obj = R10K::Module.new(name, '/modulepath', options)
+          expect(obj.instance_variable_get("@exclude_spec")).to eq(false)
+        end
         it 'sets the exclude_spec instance variable' do
           obj = R10K::Module.new(name, '/modulepath', options.merge({exclude_spec: true}))
           expect(obj.instance_variable_get("@exclude_spec")).to eq(true)
         end
-        it 'can be overridden by the overrides map' do
-          options = options.merge({exclude_spec: false, overrides: {modules: {exclude_spec: true}}})
+        it 'cannot be overridden by the settings from the cli, r10k.yaml, or settings default' do
+          options = options.merge({exclude_spec: true, overrides: {modules: {exclude_spec: false}}})
+          obj = R10K::Module.new(name, '/modulepath', options)
+          expect(obj.instance_variable_get("@exclude_spec")).to eq(true)
+        end
+        it 'reads the setting from the cli, r10k.yaml, or settings default when not provided directly' do
+          options = options.merge({overrides: {modules: {exclude_spec: true}}})
           obj = R10K::Module.new(name, '/modulepath', options)
           expect(obj.instance_variable_get("@exclude_spec")).to eq(true)
         end
