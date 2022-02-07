@@ -106,6 +106,12 @@ describe R10K::ModuleLoader::Puppetfile do
       expect(subject.instance_variable_get("@overrides")[:modules]).to eq({exclude_spec: true})
     end
 
+    it 'should read the `exclude_spec` setting in the module definition and override the overrides' do
+      module_opts = { git: 'git@example.com:puppet/test_module.git', exclude_spec: false }
+      subject.add_module('puppet/test_module', module_opts)
+      expect(subject.modules[0].instance_variable_get("@exclude_spec")).to be false
+    end
+
     it 'should set :spec_deletable to true for modules in the basedir' do
       module_opts = { git: 'git@example.com:puppet/test_module.git' }
       subject.add_module('puppet/test_module', module_opts)
