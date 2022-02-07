@@ -4,6 +4,9 @@ CHANGELOG
 Unreleased
 ----------
 
+3.14.1
+------
+
 - (RK-395) Make `exclude_spec` from a Puppetfile the priority override [#1271](https://github.com/puppetlabs/r10k/issues/1271)
 - (RK-394) Fix `force` always resolving to true for `puppetfile install` [#1269](https://github.com/puppetlabs/r10k/issues/1265)
 - (RK-393) Bug fix: not all spec directories are deleted when :exclude_spec is true [#1267](https://github.com/puppetlabs/r10k/pull/1267)
