@@ -327,15 +327,15 @@ on managing internal and external modules in the same directory.
 
 ### Per-Item spec dir deployment
 
-During deployment, r10k's default behavior is to deploy the spec directory. The
+During deployment, r10k's default behavior is to delete the spec directory. The
 Puppetfile can modify this per module, overriding settings from the default
-r10k config. The following example sets the module to not deploy the spec
+r10k config. The following example sets the module to deploy the spec
 directory.
 
 ```
 mod 'apache',
   :git => 'git@github.com:puppetlabs/puppetlabs-apache.git',
-  :exclude_spec => true
+  :exclude_spec => false
 ```
 
 ### Per-Item Install Path

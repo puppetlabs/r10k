@@ -42,9 +42,9 @@ describe R10K::Module::Tarball do
   end
 
   describe 'syncing the module' do
-    it 'defaults to keeping the spec dir' do
+    it 'defaults to deleting the spec dir' do
       subject.sync
-      expect(Dir.exist?(File.join(moduledir, 'tarball', 'spec'))).to be(true)
+      expect(Dir.exist?(File.join(moduledir, 'tarball', 'spec'))).to be(false)
     end
   end
 

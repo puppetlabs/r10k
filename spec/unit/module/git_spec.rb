@@ -125,11 +125,11 @@ describe R10K::Module::Git do
       allow(mock_repo).to receive(:resolve).with('main').and_return('abc123')
     end
 
-    it 'defaults to keeping the spec dir' do
+    it 'defaults to deleting the spec dir' do
       FileUtils.mkdir_p(spec_path)
       allow(mock_repo).to receive(:sync)
       subject.sync
-      expect(Dir.exist?(spec_path)).to eq true
+      expect(Dir.exist?(spec_path)).to eq false
     end
 
     it 'returns true if repo was updated' do
