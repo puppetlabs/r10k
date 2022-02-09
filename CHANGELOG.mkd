@@ -4,12 +4,12 @@ CHANGELOG
 Unreleased
 ----------
 
+- (RK-390) Remove default ref for deploying git modules [#1275](http://github.com/puppetlabs/r10k/pull/1275)
 - (RK-391) Change `exclude_spec` default to true for module spec dir deletion [#1264](https://github.com/puppetlabs/r10k/pull/1261)
 - (maint) Add Ruby 3.0 to rspec CI matrix [#1261](https://github.com/puppetlabs/r10k/pull/1261)
 - (RK-383) Remove deprecated `basedir` method from Puppetfile DSL. Users should use `environment_name` instead. [#1254](https://github.com/puppetlabs/r10k/pull/1254)
 - (RK-386) Remove deprecated `bare` environment type. [#1235](https://github.com/puppetlabs/r10k/issues/1235)
 - Drop EoL Ruby 2.3/2.4 support [#1280](https://github.com/puppetlabs/r10k/pull/1208)
-- (CODEMGMT-1295) Change default branch for git modules to `main`. [#1258](https://github.com/puppetlabs/r10k/pull/1258)
 
 3.14.1
 ------

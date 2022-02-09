@@ -221,7 +221,7 @@ describe R10K::Action::Deploy::Module do
 
   describe 'with modules' do
 
-    subject { described_class.new({ config: '/some/nonexistent/path' }, ['mod1', 'mod2'], {}) }
+    subject { described_class.new({ config: '/some/nonexistent/path' }, ['mod1', 'mod2'], {git: {default_ref: 'main'}}) }
 
     let(:cache) { instance_double("R10K::Git::Cache", 'sanitized_dirname' => 'foo', 'cached?' => true, 'sync' => true) }
     let(:repo) { instance_double("R10K::Git::StatefulRepository", cache: cache, resolve: 'main', tracked_paths: []) }
@@ -280,7 +280,7 @@ describe R10K::Action::Deploy::Module do
   end
 
   describe 'with environments' do
-    subject { described_class.new({ config: '/some/nonexistent/path', environment: 'first' }, ['mod1'], {}) }
+    subject { described_class.new({ config: '/some/nonexistent/path', environment: 'first' }, ['mod1'], {git: {default_ref: 'main'}}) }
 
     let(:cache) { instance_double("R10K::Git::Cache", 'sanitized_dirname' => 'foo', 'cached?' => true, 'sync' => true) }
     let(:repo) { instance_double("R10K::Git::StatefulRepository", cache: cache, resolve: 'main', tracked_paths: []) }

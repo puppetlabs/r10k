@@ -45,6 +45,7 @@ module R10K
                 incremental: @incremental
               },
               modules: {
+                default_ref: settings.dig(:git, :default_ref),
                 exclude_spec: settings.dig(:deploy, :exclude_spec),
                 requested_modules: [],
                 deploy_modules: @modules,

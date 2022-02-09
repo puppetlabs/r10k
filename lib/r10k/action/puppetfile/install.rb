@@ -12,6 +12,7 @@ module R10K
         def call
           begin
             options = { basedir: @root, overrides: { force: @force || false } }
+            options[:overrides][:modules] = { default_ref: @settings.dig(:git, :default_ref) }
             options[:moduledir]  = @moduledir  if @moduledir
             options[:puppetfile] = @puppetfile if @puppetfile
 
