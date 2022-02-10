@@ -221,7 +221,7 @@ describe R10K::Action::Deploy::Module do
 
   describe 'with modules' do
 
-    subject { described_class.new({ config: '/some/nonexistent/path' }, ['mod1', 'mod2'], {git: {default_ref: 'main'}}) }
+    subject { described_class.new({ config: '/some/nonexistent/path' }, ['mod1', 'mod2'], {}) }
 
     let(:cache) { instance_double("R10K::Git::Cache", 'sanitized_dirname' => 'foo', 'cached?' => true, 'sync' => true) }
     let(:repo) { instance_double("R10K::Git::StatefulRepository", cache: cache, resolve: 'main', tracked_paths: []) }
@@ -253,9 +253,9 @@ describe R10K::Action::Deploy::Module do
         loader = environment.loader
         allow(loader).to receive(:puppetfile_content).and_return('')
         expect(loader).to receive(:load) do
-          loader.add_module('mod1', { git: 'git://remote' })
-          loader.add_module('mod2', { git: 'git://remote' })
-          loader.add_module('mod3', { git: 'git://remote' })
+          loader.add_module('mod1', { git: 'git://remote', default_branch: 'main'})
+          loader.add_module('mod2', { git: 'git://remote', default_branch: 'main'})
+          loader.add_module('mod3', { git: 'git://remote', default_branch: 'main'})
 
           loaded_content = loader.load!
           loaded_content[:modules].each do |mod|
@@ -280,7 +280,7 @@ describe R10K::Action::Deploy::Module do
   end
 
   describe 'with environments' do
-    subject { described_class.new({ config: '/some/nonexistent/path', environment: 'first' }, ['mod1'], {git: {default_ref: 'main'}}) }
+    subject { described_class.new({ config: '/some/nonexistent/path', environment: 'first' }, ['mod1'], {}) }
 
     let(:cache) { instance_double("R10K::Git::Cache", 'sanitized_dirname' => 'foo', 'cached?' => true, 'sync' => true) }
     let(:repo) { instance_double("R10K::Git::StatefulRepository", cache: cache, resolve: 'main', tracked_paths: []) }
@@ -315,8 +315,8 @@ describe R10K::Action::Deploy::Module do
           # it so it will create the correct loaded_content.
           allow(loader).to receive(:puppetfile_content).and_return('')
           expect(loader).to receive(:load) do
-            loader.add_module('mod1', { git: 'git://remote' })
-            loader.add_module('mod2', { git: 'git://remote' })
+            loader.add_module('mod1', { git: 'git://remote', default_branch: 'main'})
+            loader.add_module('mod2', { git: 'git://remote', default_branch: 'main'})
 
             loaded_content = loader.load!
             loaded_content[:modules].each do |mod|

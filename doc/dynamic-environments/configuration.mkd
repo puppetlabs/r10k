@@ -100,7 +100,8 @@ regarding Git providers.
 
 r10k is unable to deploy a git module if no `ref` is specified. A `default_ref` can be
 set in the r10k config that will become the ref a module uses if not otherwise specified. This
-is the lowest priority setting for a module's `ref`. Read [here](../puppetfile.mkd#git) for more info.
+is the lowest priority setting for a module's `ref`. Read the [Puppetfile documentation](../puppetfile.mkd#git)
+for higher priority settings to determine a module's ref.
 
 ```yaml
 git:

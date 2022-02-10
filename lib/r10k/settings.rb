@@ -20,7 +20,7 @@ module R10K
       R10K::Settings::Collection.new(:git, [
 
         Definition.new(:default_ref, {
-          :desc => "User defined default from which to deploy modules when not otherwise specified; nil unless configured via the r10k.yaml config.",
+          :desc => "User-defined default ref from which to deploy modules when not otherwise specified; nil unless configured via the r10k.yaml config.",
           :default => nil}),
 
         EnumDefinition.new(:provider, {

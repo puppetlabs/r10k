@@ -147,7 +147,8 @@ class R10K::Module::Git < R10K::Module::Base
         vars[:default] = default
       else
         msg << "and no default provided. r10k no longer hardcodes 'master' as the default ref. "
-        msg << "Consider setting git:default_ref in your r10k config."
+        msg << "Consider setting this per module in the Puppetfile or setting git:default_ref "
+        msg << "in your r10k config."
       end
 
       raise ArgumentError, _(msg.join(' ')) % vars
