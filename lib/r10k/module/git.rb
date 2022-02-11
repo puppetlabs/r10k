@@ -118,7 +118,7 @@ class R10K::Module::Git < R10K::Module::Base
   def validate_ref_defined
     if @desired_ref.nil? && @default_ref.nil? && @default_override_ref.nil?
       msg = "No ref defined for module #{@name}. Add a ref to the module definition "
-      msg << "or add a default in the r10k config for git:default_ref."
+      msg << "or set git:default_ref in the r10k.yaml config to configure a global default ref."
       raise ArgumentError, msg
     end
   end
@@ -155,7 +155,7 @@ class R10K::Module::Git < R10K::Module::Base
         vars[:default] = default
       else
         msg << "and no default provided. r10k no longer hardcodes 'master' as the default ref."
-        msg << "Consider setting this per module in the Puppetfile or setting git:default_ref"
+        msg << "Consider setting a ref per module in the Puppetfile or setting git:default_ref"
         msg << "in your r10k config."
       end
 
