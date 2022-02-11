@@ -3,7 +3,14 @@ require 'r10k/action/puppetfile/check'
 
 describe R10K::Action::Puppetfile::Check do
   let(:default_opts) { {root: "/some/nonexistent/path"} }
-  let(:loader) { instance_double('R10K::ModuleLoader::Puppetfile', :load! => {}) }
+  let(:modules) do
+    [R10K::Module::Git.new("author/modname",
+                           "/some/nonexistent/path/modname",
+                           {git: 'https://my/git/remote', branch: 'main'})]
+  end
+
+
+  let(:loader) { instance_double('R10K::ModuleLoader::Puppetfile', :load! => {}, :modules => modules) }
 
   def checker(opts = {}, argv = [], settings = {})
     opts = default_opts.merge(opts)
@@ -15,10 +22,38 @@ describe R10K::Action::Puppetfile::Check do
       to receive(:new).
       with({
         basedir: "/some/nonexistent/path",
+        overrides: {modules: {default_ref: nil}}
       }).and_return(loader)
   end
 
   it_behaves_like "a puppetfile action"
+
+  describe 'when no ref is defined' do
+    let(:modules) do
+      [R10K::Module::Git.new("author/modname",
+                             "/some/nonexistent/path/modname",
+                             {git: 'https://my/git/remote'})]
+    end
+
+    it 'returns an error message' do
+      expect($stderr).to receive(:puts).with(/no ref defined/i)
+      checker.call
+    end
+  end
+
+  describe 'when a default_ref is defined' do
+    let(:modules) do
+      [R10K::Module::Git.new("author/modname",
+                             "/some/nonexistent/path/modname",
+                             {git: 'https://my/git/remote',
+                              overrides: {modules: {default_ref: 'main'}}})]
+    end
+
+    it 'is valid syntax' do
+      expect($stderr).to receive(:puts).with(/Syntax OK/i)
+      checker.call
+    end
+  end
 
   it "prints 'Syntax OK' when the Puppetfile syntax could be validated" do
     expect($stderr).to receive(:puts).with("Syntax OK")
@@ -45,6 +80,7 @@ describe R10K::Action::Puppetfile::Check do
       to receive(:new).
       with({
         basedir: "/some/nonexistent/path",
+        overrides: {modules: {default_ref: nil}},
         puppetfile: "/custom/puppetfile/path"
       }).and_return(loader)
 

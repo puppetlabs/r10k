@@ -115,6 +115,14 @@ class R10K::Module::Git < R10K::Module::Base
     @repo.cache.sanitized_dirname
   end
 
+  def validate_ref_defined
+    if @desired_ref.nil? && @default_ref.nil? && @default_override_ref.nil?
+      msg = "No ref defined for module #{@name}. Add a ref to the module definition "
+      msg << "or add a default in the r10k config for git:default_ref."
+      raise ArgumentError, msg
+    end
+  end
+
   private
 
   def validate_ref(desired, default, default_override)
@@ -146,8 +154,8 @@ class R10K::Module::Git < R10K::Module::Base
         msg << "or resolve default ref '%{default}'"
         vars[:default] = default
       else
-        msg << "and no default provided. r10k no longer hardcodes 'master' as the default ref. "
-        msg << "Consider setting this per module in the Puppetfile or setting git:default_ref "
+        msg << "and no default provided. r10k no longer hardcodes 'master' as the default ref."
+        msg << "Consider setting this per module in the Puppetfile or setting git:default_ref"
         msg << "in your r10k config."
       end
 
