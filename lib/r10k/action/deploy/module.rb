@@ -39,6 +39,7 @@ module R10K
                 generate_types: @generate_types
               },
               modules: {
+                default_ref: settings.dig(:git, :default_ref),
                 exclude_spec: settings.dig(:deploy, :exclude_spec),
                 pool_size: @settings[:pool_size] || 4,
                 requested_modules: @argv.map.to_a,

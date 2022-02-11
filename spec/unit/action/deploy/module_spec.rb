@@ -253,9 +253,9 @@ describe R10K::Action::Deploy::Module do
         loader = environment.loader
         allow(loader).to receive(:puppetfile_content).and_return('')
         expect(loader).to receive(:load) do
-          loader.add_module('mod1', { git: 'git://remote' })
-          loader.add_module('mod2', { git: 'git://remote' })
-          loader.add_module('mod3', { git: 'git://remote' })
+          loader.add_module('mod1', { git: 'git://remote', default_branch: 'main'})
+          loader.add_module('mod2', { git: 'git://remote', default_branch: 'main'})
+          loader.add_module('mod3', { git: 'git://remote', default_branch: 'main'})
 
           loaded_content = loader.load!
           loaded_content[:modules].each do |mod|
@@ -315,8 +315,8 @@ describe R10K::Action::Deploy::Module do
           # it so it will create the correct loaded_content.
           allow(loader).to receive(:puppetfile_content).and_return('')
           expect(loader).to receive(:load) do
-            loader.add_module('mod1', { git: 'git://remote' })
-            loader.add_module('mod2', { git: 'git://remote' })
+            loader.add_module('mod1', { git: 'git://remote', default_branch: 'main'})
+            loader.add_module('mod2', { git: 'git://remote', default_branch: 'main'})
 
             loaded_content = loader.load!
             loaded_content[:modules].each do |mod|

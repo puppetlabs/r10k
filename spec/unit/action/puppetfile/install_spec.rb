@@ -18,7 +18,7 @@ describe R10K::Action::Puppetfile::Install do
     allow(loader).to receive(:load!).and_return({})
     allow(R10K::ModuleLoader::Puppetfile).to receive(:new).
       with({basedir: "/some/nonexistent/path",
-            overrides: {force: false}}).
+            overrides: {force: false, modules: {default_ref: nil}}}).
       and_return(loader)
   end
 
@@ -54,6 +54,16 @@ describe R10K::Action::Puppetfile::Install do
 
       expect(installer.call).to eq false
     end
+
+    it "reads in the default for git refs" do
+      modules.each { |m| expect(m).to receive(:sync) }
+      expect(R10K::ModuleLoader::Puppetfile).to receive(:new).
+        with({basedir: "/some/nonexistent/path",
+              overrides: {force: false, modules: {default_ref: 'main'}}}).
+        and_return(loader)
+
+      installer({}, [], {git: {default_ref: 'main'}}).call
+    end
   end
 
   describe "purging" do
@@ -80,7 +90,7 @@ describe R10K::Action::Puppetfile::Install do
     it "can use a custom moduledir path" do
       expect(R10K::ModuleLoader::Puppetfile).to receive(:new).
         with({basedir: "/some/nonexistent/path",
-              overrides: { force: false },
+              overrides: {force: false, modules: {default_ref: nil}},
               puppetfile: "/some/other/path/Puppetfile"}).
         and_return(loader)
 
@@ -88,7 +98,7 @@ describe R10K::Action::Puppetfile::Install do
 
       expect(R10K::ModuleLoader::Puppetfile).to receive(:new).
         with({basedir: "/some/nonexistent/path",
-              overrides: { force: false },
+              overrides: {force: false, modules: {default_ref: nil}},
               moduledir: "/some/other/path/site-modules"}).
         and_return(loader)
 
@@ -103,7 +113,7 @@ describe R10K::Action::Puppetfile::Install do
       subject = described_class.new({root: "/some/nonexistent/path", force: true}, [], {})
       expect(R10K::ModuleLoader::Puppetfile).to receive(:new).
         with({basedir: "/some/nonexistent/path",
-              overrides: { force: true }}).
+              overrides: {force: true, modules: {default_ref: nil}}}).
         and_return(loader)
       subject.call
     end

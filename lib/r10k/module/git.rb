@@ -63,14 +63,13 @@ class R10K::Module::Git < R10K::Module::Base
       :commit                  => :desired_ref,
       :ref                     => :desired_ref,
       :git                     => :remote,
-      :default_branch          => :default_ref,
+      :default_branch          => :default_branch,
       :default_branch_override => :default_override_ref,
     }, :raise_on_unhandled => false)
 
+    @default_ref = @default_branch.nil? ? @overrides.dig(:modules, :default_ref) : @default_branch
     force = @overrides[:force]
     @force = force == false ? false : true
-
-    @desired_ref ||= 'main'
 
     if @desired_ref == :control_branch
       if @environment && @environment.respond_to?(:ref)
@@ -116,6 +115,14 @@ class R10K::Module::Git < R10K::Module::Base
     @repo.cache.sanitized_dirname
   end
 
+  def validate_ref_defined
+    if @desired_ref.nil? && @default_ref.nil? && @default_override_ref.nil?
+      msg = "No ref defined for module #{@name}. Add a ref to the module definition "
+      msg << "or set git:default_ref in the r10k.yaml config to configure a global default ref."
+      raise ArgumentError, msg
+    end
+  end
+
   private
 
   def validate_ref(desired, default, default_override)
@@ -147,7 +154,9 @@ class R10K::Module::Git < R10K::Module::Base
         msg << "or resolve default ref '%{default}'"
         vars[:default] = default
       else
-        msg << "and no default provided"
+        msg << "and no default provided. r10k no longer hardcodes 'master' as the default ref."
+        msg << "Consider setting a ref per module in the Puppetfile or setting git:default_ref"
+        msg << "in your r10k config."
       end
 
       raise ArgumentError, _(msg.join(' ')) % vars

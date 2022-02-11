@@ -86,7 +86,8 @@ describe R10K::Module::Git do
 
   describe "properties" do
     subject do
-      described_class.new('boolean', '/moduledir', {:git => 'git://git.example.com/adrienthebo/puppet-boolean'})
+      described_class.new('boolean', '/moduledir', {:git => 'git://git.example.com/adrienthebo/puppet-boolean',
+                                                    overrides: {modules: {default_ref: "main"}}})
     end
 
     before(:each) do
@@ -119,7 +120,7 @@ describe R10K::Module::Git do
     let(:title) { "#{module_org}-#{module_name}" }
     let(:dirname) { Pathname.new(Dir.mktmpdir) }
     let(:spec_path) { dirname + module_name + 'spec' }
-    subject { described_class.new(title, dirname, {}) }
+    subject { described_class.new(title, dirname, {overrides: {modules: {default_ref: "main"}}}) }
 
     before(:each) do
       allow(mock_repo).to receive(:resolve).with('main').and_return('abc123')
@@ -177,15 +178,29 @@ describe R10K::Module::Git do
       allow(mock_repo).to receive(:head).and_return('abc123')
     end
 
-    describe "desired ref" do
-      context "when no desired ref is given" do
-        it "defaults to main" do
-          expect(mock_repo).to receive(:resolve).with('main').and_return('abc123')
+    it "raises an argument error when no refs are supplied" do
+      expect{test_module({}).properties}.to raise_error(ArgumentError, /unable.*desired ref.*no default/i)
+    end
 
-          expect(test_module({}).properties).to include(expected: 'main')
+    describe 'the overrides->modules->default_ref' do
+      context 'specifying a default_ref only' do
+        let(:opts) { {overrides: {modules: {default_ref: 'cranberry'}}} }
+        it "sets the expected ref to default_ref" do
+          expect(mock_repo).to receive(:resolve).with('cranberry').and_return('def456')
+          expect(test_module(opts).properties).to include(expected: 'cranberry')
         end
       end
 
+      context 'specifying a default_ref and a default_branch' do
+        let(:opts) { {default_branch: 'orange',  overrides: {modules: {default_ref: 'cranberry'}}}}
+        it "sets the expected ref to the default_branch" do
+          expect(mock_repo).to receive(:resolve).with('orange').and_return('def456')
+          expect(test_module(opts).properties).to include(expected: 'orange')
+        end
+      end
+    end
+
+    describe "desired ref" do
       context "specifying a static desired branch" do
         let(:opts) { { branch: 'banana' } }
 

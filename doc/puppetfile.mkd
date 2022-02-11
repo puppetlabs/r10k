@@ -135,6 +135,12 @@ operations when updating the repo, which can speed up install times. When
 Module versions can also be specified using `:branch` to track a specific
 branch reference.
 
+In r10k 3.x the default branch was hardcoded to `master`; in 4.x that was
+removed. A `default_ref` can be specified in the r10k config to
+to mimic that old behavior, but it is recommended to set the ref on a
+per-module basis in the Puppetfile. Read [here](dynamic-environments/configuration.mkd#default_ref) for more info
+on the `default_ref` setting.
+
 #### Examples
 
 ```ruby
