@@ -1,7 +1,7 @@
 require 'git_utils'
 require 'r10k_utils'
 require 'master_manipulator'
-test_name 'RK-257 - C98043 - verify default whitelist only accepts strings or array of strings'
+test_name 'RK-257 - C98043 - verify default allowlist only accepts strings or array of strings'
 
 #Init
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
@@ -19,8 +19,8 @@ r10k_config_path = get_r10k_config_file_path(master)
 r10k_config_bak_path = "#{r10k_config_path}.bak"
 
 #invalid content to test
-hash_whitelist = '{:cats => \'cats.txt\'}'
-invalid_array_content_whitelist = '[\'cats.txt\', [:broken]]'
+hash_allowlist = '{:cats => \'cats.txt\'}'
+invalid_array_content_allowlist = '[\'cats.txt\', [:broken]]'
 
 teardown do
   step 'Restore Original "r10k" Config'
@@ -36,7 +36,7 @@ stub_forge_on(master)
 step 'Backup Current "r10k" Config'
 on(master, "mv #{r10k_config_path} #{r10k_config_bak_path}")
 
-[hash_whitelist, invalid_array_content_whitelist].each do |whitelist_content|
+[hash_allowlist, invalid_array_content_allowlist].each do |allowlist_content|
   r10k_conf = <<-CONF
 cachedir: '/var/cache/r10k'
 git:
@@ -46,16 +46,16 @@ sources:
     basedir: "#{env_path}"
     remote: "#{git_control_remote}"
 deploy:
-  purge_whitelist: #{whitelist_content}
+  purge_allowlist: #{allowlist_content}
   CONF
 
   step 'Update the "r10k" Config'
   create_remote_file(master, r10k_config_path, r10k_conf)
 
-  step 'Deploy r10k, and verify that invalid whitelist content causes error'
+  step 'Deploy r10k, and verify that invalid allowlist content causes error'
   on(master, "#{r10k_fqp} deploy environment -p", :accept_all_exit_codes => true) do |result|
     error = /did not find expected node content while parsing a flow node/
-    error_message = 'whitelist content did not generate expected error'
+    error_message = 'allowlist content did not generate expected error'
     expect_failure('RK-263') do
       assert_no_match(result.stdout, error, error_message)
     end

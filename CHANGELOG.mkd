@@ -4,6 +4,7 @@ CHANGELOG
 Unreleased
 ----------
 
+- (RK-368) remove `purge_whitelist` setting [#1277](https://github.com/puppetlabs/r10k/pull/1277)
 - (RK-390) Remove default ref for deploying git modules [#1275](http://github.com/puppetlabs/r10k/pull/1275)
 - (RK-391) Change `exclude_spec` default to true for module spec dir deletion [#1264](https://github.com/puppetlabs/r10k/pull/1261)
 - (maint) Add Ruby 3.0 to rspec CI matrix [#1261](https://github.com/puppetlabs/r10k/pull/1261)

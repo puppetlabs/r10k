@@ -54,8 +54,7 @@ module R10K
               },
               purging: {
                 purge_levels: settings.dig(:deploy, :purge_levels) || [],
-                purge_allowlist: read_purge_allowlist(settings.dig(:deploy, :purge_whitelist) || [],
-                                                      settings.dig(:deploy, :purge_allowlist) || [])
+                purge_allowlist: settings.dig(:deploy, :purge_allowlist) || []
               },
               forge: {
                 allow_puppetfile_override: settings.dig(:forge, :allow_puppetfile_override) || false
@@ -83,23 +82,6 @@ module R10K
         end
 
         private
-
-        def read_purge_allowlist (whitelist, allowlist)
-          whitelist_has_content = !whitelist.empty?
-          allowlist_has_content = !allowlist.empty?
-          case
-          when whitelist_has_content == false && allowlist_has_content == false
-            []
-          when whitelist_has_content && allowlist_has_content
-            raise R10K::Error.new "Values found for both purge_whitelist and purge_allowlist. Setting " <<
-                                  "purge_whitelist is deprecated, please only use purge_allowlist."
-          when allowlist_has_content
-            allowlist
-          else
-            logger.warn "Setting purge_whitelist is deprecated; please use purge_allowlist instead."
-            whitelist
-          end
-        end
 
         def visit_deployment(deployment)
           # Ensure that everything can be preloaded. If we cannot preload all

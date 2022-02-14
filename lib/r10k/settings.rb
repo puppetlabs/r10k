@@ -179,11 +179,6 @@ module R10K
           :default => [],
         }),
 
-        Definition.new(:purge_whitelist, {
-          :desc => "Deprecated; please use purge_allowlist instead. This setting will be removed in a future version.",
-          :default => [],
-        }),
-
         Definition.new(:generate_types, {
           :desc => "Controls whether to generate puppet types after deploying an environment. Defaults to false.",
           :default => false,
