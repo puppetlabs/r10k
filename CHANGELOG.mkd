@@ -4,6 +4,8 @@ CHANGELOG
 Unreleased
 ----------
 
+- (RK-397) Ensure `--incremental` does not skip undeployed modules [#1278](https://github.com/puppetlabs/r10k/pull/1278)
+
 3.14.1
 ------
 
