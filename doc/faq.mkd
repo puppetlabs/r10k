@@ -17,7 +17,7 @@ modify. For example creating the script:
 
 ```
 $ cat /usr/local/bin/generate-puppet-types.sh
-!#/bin/bash
+#!/bin/bash
 
 for environment in $1; do
   /opt/puppetlabs/bin/puppet generate types --environment $environment
