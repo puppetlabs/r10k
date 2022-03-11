@@ -16,6 +16,12 @@ module R10K
     include R10K::Settings::Mixin
     include R10K::Util::Cacheable
     include R10K::Util::Downloader
+    include R10K::Logging
+
+    # Filenames which are considered headers that might be added to a tarball,
+    # but which are not to be counted against the check for a wrapper dir. When
+    # wrapper dirs are removed, these files will not be unpacked.
+    WRAPPER_HEADER_FILES = ['pax_global_header']
 
     def_setting_attr :proxy      # Defaults to global proxy setting
     def_setting_attr :cache_root, R10K::Util::Cacheable.default_cachedir
@@ -123,7 +129,7 @@ module R10K
       each_tarball_entry do |entry|
         if remove_wrapper_dir
           name = clean_full_name(entry).delete_prefix(wrapper_dir + '/')
-          next if name == wrapper_dir
+          next if [wrapper_dir, *WRAPPER_HEADER_FILES].include?(name)
         else
           name = entry.full_name
         end
@@ -201,9 +207,9 @@ module R10K
     #         extracted from the archive
     def paths
       if remove_wrapper_dir
-        cleanpaths.map { |n| n.delete_prefix(wrapper_dir + '/') } - ['.', wrapper_dir]
+        cleanpaths.map { |n| n.delete_prefix(wrapper_dir + '/') } - [wrapper_dir, *WRAPPER_HEADER_FILES]
       else
-        cleanpaths - ['.']
+        cleanpaths
       end
     end
 
@@ -213,10 +219,11 @@ module R10K
     # @raise [StandardError] if the tarball does not contain a wrapper directory
     def wrapper_dir
       return @wrapper_dir unless @wrapper_dir.nil?
-      paths = cleanpaths
+      paths = cleanpaths - WRAPPER_HEADER_FILES
       shortest = paths.sort_by { |p| p.length }.first
 
       unless (paths - [shortest]).all? { |p| p.start_with?(shortest + '/') }
+        logger.debug "Tarball paths: #{cleanpaths}"
         raise 'Tarball content does not have a wrapper directory! ' \
               'It should contain all content in a single wrapper directory. ' \
               'E.g. "puppetlabs-stdlib-7.1.0/*", or "my-env-g826ab83/*"'
@@ -236,7 +243,7 @@ module R10K
     # lists them. Not subject to the remove_wrapper_dir setting, or any other
     # adjustments R10K::Tarball might make when it unpacks them.
     def cleanpaths
-      each_tarball_entry.map { |entry| clean_full_name(entry) }
+      each_tarball_entry.map { |entry| clean_full_name(entry) } - ['.']
     end
 
     # Return an entry's clean path name, with things like "./" prefixes or
