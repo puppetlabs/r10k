@@ -10,7 +10,7 @@ shared_context "Tarball" do
     File.expand_path('spec/fixtures/tarball/tarball.tar.gz', PROJECT_ROOT)
   end
 
-  let(:fixture_checksum) { '292e692ad18faabd4f9b21037d51f0185e04b69f82c522a54af91fb5b88c2d3b' }
+  let(:fixture_checksum) { '8f4717c21f06ee2ebcf0f5a43d980919f64f8a109dd49eabfda35b82c5b58268' }
 
   # Use tmpdir for cached tarballs
   let(:tmpdir) { Dir.mktmpdir }

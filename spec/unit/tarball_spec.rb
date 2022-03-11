@@ -42,9 +42,11 @@ describe R10K::Tarball do
     ]}
 
     it 'returns clean paths when listing cached tarball content' do
-      iterator = allow(subject).to receive(:each_tarball_entry)
-      raw_content.each { |entry| iterator.and_yield(entry) }
+      entry_mocks = raw_content.map do |path|
+        instance_double('Archive::Tar::Minitar::Reader::EntryStream', full_name: path)
+      end
 
+      allow(subject).to receive(:each_tarball_entry).and_return(entry_mocks)
       expect(subject.paths).to eq(clean_content)
     end
   end
