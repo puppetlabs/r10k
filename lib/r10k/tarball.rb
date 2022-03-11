@@ -128,7 +128,7 @@ module R10K
 
       each_tarball_entry do |entry|
         if remove_wrapper_dir
-          name = clean_full_name(entry).delete_prefix(wrapper_dir + '/')
+          name = clean_full_name(entry).sub(%r{\A#{Regexp.escape(wrapper_dir)}/}, '')
           next if [wrapper_dir, *WRAPPER_HEADER_FILES].include?(name)
         else
           name = entry.full_name
@@ -207,7 +207,7 @@ module R10K
     #         extracted from the archive
     def paths
       if remove_wrapper_dir
-        cleanpaths.map { |n| n.delete_prefix(wrapper_dir + '/') } - [wrapper_dir, *WRAPPER_HEADER_FILES]
+        cleanpaths.map { |n| n.sub(%r{\A#{Regexp.escape(wrapper_dir)}/}, '') } - [wrapper_dir, *WRAPPER_HEADER_FILES]
       else
         cleanpaths
       end
