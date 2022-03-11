@@ -37,7 +37,7 @@ class R10K::Module::Tarball < R10K::Module::Base
       :checksum => :self,
     })
 
-    @tarball = R10K::Tarball.new(name, @source, checksum: @checksum)
+    @tarball = R10K::Tarball.new(name, @source, checksum: @checksum, remove_wrapper_dir: true)
   end
 
   # Return the status of the currently installed module.

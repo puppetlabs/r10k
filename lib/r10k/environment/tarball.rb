@@ -34,7 +34,7 @@ class R10K::Environment::Tarball < R10K::Environment::WithModules
       :checksum => :self,
     })
 
-    @tarball = R10K::Tarball.new(name, @source, checksum: @checksum)
+    @tarball = R10K::Tarball.new(name, @source, checksum: @checksum, remove_wrapper_dir: true)
   end
 
   def path
