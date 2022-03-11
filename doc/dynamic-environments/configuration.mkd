@@ -826,7 +826,7 @@ development:
 
 The tarball environment type allows an environment to be deployed from a tarball archive, rather than a Git repository. When using a tarball environment type, a source location for the tarball is required. Optionally, the tarball's sha256 checksum may be specified as the version. It is highly recommended to include a version specifier. If a version specifier is not included, r10k will never invalidate a cached copy of the tarball's source.
 
-Tarball environment sources will be unpacked directly into the environment root.
+Tarball environment sources are expected to contain a single wrapper folder with all other content inside it; e.g. `env-2.36.1/*`. The wrapper folder name will be discarded, and its contents will be unpacked directly into the environment root.
 
 ```yaml
 ---

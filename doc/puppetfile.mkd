@@ -250,7 +250,7 @@ Modules can be installed from tarball archives. A tarball module must specify a 
 
 If no version is specified, a tarball will be downloaded from the given source and cached. The cache will not be invalidated until the source URL is changed, or a sha256 checksum version is provided.
 
-Tarball module content will be unpacked directly into an appropriately named module directory. For example, the puppetlabs-apache-7.0.0.tar.gz archive in the example above will be unpacked into `<environment-dir>/modules/apache/`.
+Module tarballs are expected to contain a single wrapper folder, with all other content inside that directory. E.g. `puppetlabs-apache-7.0.0/*`. The wrapper folder name will be discarded, and its contents unpacked into an appropriately named module directory. For example, the puppetlabs-apache-7.0.0.tar.gz archive, containing `puppetlabs-apache-7.0.0/*`, will be unpacked into `<environment-dir>/modules/apache/*`.
 
 ### Local
 
