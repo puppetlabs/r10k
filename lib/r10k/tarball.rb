@@ -32,13 +32,24 @@ module R10K
     #   @return [String] The tarball's expected sha256 digest
     attr_accessor :checksum
 
+    # @!attribute [rw] remove_wrapper_dir
+    #   @return [Boolean] Whether or not the tarball removes the wrapper
+    #           directory from the tarball source when extracting or verifying
+    #           unpacked content
+    attr_accessor :remove_wrapper_dir
+
     # @param name [String] The name of the tarball content
     # @param source [String] The source for the tarball content
     # @param checksum [String] The sha256 digest of the tarball content
-    def initialize(name, source, checksum: nil)
+    # @param remove_wrapper_dir [Boolean] Whether or not the tarball should
+    #        remove the wrapper directory from the tarball source when
+    #        extracting or verifying unpacked content
+    def initialize(name, source, checksum: nil, remove_wrapper_dir: false)
       @name = name
       @source = source
       @checksum = checksum
+      @remove_wrapper_dir = remove_wrapper_dir
+      @wrapper_dir = nil
 
       # At this time, the only checksum type supported is sha256. In the future,
       # we may decide to support other algorithms if a use case arises. TBD.
@@ -70,28 +81,54 @@ module R10K
     end
 
     # Extract the cached tarball to the target directory.
-    #
+    # 
     # @param target_dir [String] Where to unpack the tarball
+    # @param remove_wrapper_dir [Boolean] Whether or not to remove the wrapper
+    #        directory from the content when extracting to the target_dir
     def unpack(target_dir)
       file = File.open(cache_path, 'rb')
       reader = Zlib::GzipReader.new(file)
+
       begin
-        Minitar.unpack(reader, target_dir)
+        if remove_wrapper_dir
+          FileUtils.mkdir_p(target_dir) unless File.exist?(target_dir)
+          Dir.mktmpdir('unpack-', target_dir) do |tmpdir|
+            Minitar.unpack(reader, tmpdir)
+            Dir.chdir(File.join(tmpdir, wrapper_dir)) do
+              FileUtils.mv(paths.reject { |p| p.include?('/') }, target_dir, force: true)
+            end
+          end
+        else
+          Minitar.unpack(reader, target_dir)
+        end
       ensure
         reader.close
       end
+
+      nil
     end
 
     # @param target_dir [String] The directory to check if is in sync with the
     #        tarball content
     # @param ignore_untracked_files [Boolean] If true, consider the target
     #        dir to be in sync as long as all tracked content matches.
+    # @param remove_wrapper_dir [Boolean] Whether or not to remove the wrapper
+    #        directory from the content when comparing to the target_dir
     #
     # @return [Boolean]
     def insync?(target_dir, ignore_untracked_files: false)
       target_tree_entries = Find.find(target_dir).map(&:to_s) - [target_dir]
+      name = nil
+
       each_tarball_entry do |entry|
-        found = target_tree_entries.delete(File.join(target_dir, entry.full_name.chomp('/')))
+        if remove_wrapper_dir
+          name = clean_full_name(entry).delete_prefix(wrapper_dir + '/')
+          next if name == wrapper_dir
+        else
+          name = entry.full_name
+        end
+
+        found = target_tree_entries.delete(File.join(target_dir, name.chomp('/')))
         return false if found.nil?
         next if entry.directory?
         return false unless file_digest(found) == reader_digest(entry)
@@ -110,6 +147,9 @@ module R10K
 
     # Download the tarball from @source to @cache_path
     def get
+      # Clear any calculated information about the tarball
+      @wrapper_dir = nil
+
       Tempfile.open(cache_basename) do |tempfile|
         tempfile.binmode
         src_uri = URI.parse(source)
@@ -153,14 +193,36 @@ module R10K
       checksum == file_digest(cache_path)
     end
 
-    # List all of the files contained in the tarball and their paths. This is
-    # useful for implementing R10K::Purgable
+    # List all of the files contained in the tarball and their paths, as
+    # R10K::Tarball will unpack them. This is useful for implementing
+    # R10K::Purgable
     #
-    # @return [Array] A normalized list of file paths contained in the archive
+    # @return [Array] A normalized list of file paths as they will be
+    #         extracted from the archive
     def paths
-      names = Array.new
-      each_tarball_entry { |entry| names << Pathname.new(entry).cleanpath.to_s }
-      names - ['.']
+      if remove_wrapper_dir
+        cleanpaths.map { |n| n.delete_prefix(wrapper_dir + '/') } - ['.', wrapper_dir]
+      else
+        cleanpaths - ['.']
+      end
+    end
+
+    # Return the name of the wrapper directory containing all other paths in the taball
+    #
+    # @return [String] The name of the wrapper directory
+    # @raise [StandardError] if the tarball does not contain a wrapper directory
+    def wrapper_dir
+      return @wrapper_dir unless @wrapper_dir.nil?
+      paths = cleanpaths
+      shortest = paths.sort_by { |p| p.length }.first
+
+      unless (paths - [shortest]).all? { |p| p.start_with?(shortest + '/') }
+        raise 'Tarball content does not have a wrapper directory! ' \
+              'It should contain all content in a single wrapper directory. ' \
+              'E.g. "puppetlabs-stdlib-7.1.0/*", or "my-env-g826ab83/*"'
+      end
+
+      @wrapper_dir = shortest
     end
 
     def cache_checksum
@@ -170,10 +232,26 @@ module R10K
 
     private
 
+    # List all the (cleaned) paths contained in the tarball, as the tarball
+    # lists them. Not subject to the remove_wrapper_dir setting, or any other
+    # adjustments R10K::Tarball might make when it unpacks them.
+    def cleanpaths
+      each_tarball_entry.map { |entry| clean_full_name(entry) }
+    end
+
+    # Return an entry's clean path name, with things like "./" prefixes or
+    # repeated "." and ".." sequences removed.
+    #
+    # @param entry [Archive::Tar::Minitar::Reader::EntryStream]
+    def clean_full_name(entry)
+      Pathname.new(entry.full_name).cleanpath.to_s
+    end
+
     def each_tarball_entry(&block)
       File.open(cache_path, 'rb') do |file|
         Zlib::GzipReader.wrap(file) do |reader|
           Archive::Tar::Minitar::Input.each_entry(reader) do |entry|
+            return to_enum :each_tarball_entry unless block_given?
             yield entry
           end
         end
