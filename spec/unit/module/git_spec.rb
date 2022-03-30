@@ -44,7 +44,7 @@ describe R10K::Module::Git do
         described_class.new(
           'branan/eight_hundred',
           '/moduledir',
-          { :git => 'git://git-server.site/branan/puppet-eight_hundred' }
+          { :git => 'https://git-server.site/branan/puppet-eight_hundred' }
         )
       end
 
@@ -66,7 +66,7 @@ describe R10K::Module::Git do
         described_class.new(
           'eight_hundred',
           '/moduledir',
-          { :git => 'git://git-server.site/branan/puppet-eight_hundred' }
+          { :git => 'https://git-server.site/branan/puppet-eight_hundred' }
         )
       end
 
@@ -86,7 +86,7 @@ describe R10K::Module::Git do
 
   describe "properties" do
     subject do
-      described_class.new('boolean', '/moduledir', {:git => 'git://git.example.com/adrienthebo/puppet-boolean'})
+      described_class.new('boolean', '/moduledir', {:git => 'https://git.example.com/adrienthebo/puppet-boolean'})
     end
 
     before(:each) do
@@ -154,7 +154,7 @@ describe R10K::Module::Git do
       described_class.new(
         'boolean',
         '/moduledir',
-        { :git => 'git://git.example.com/adrienthebo/puppet-boolean' }
+        { :git => 'https://git.example.com/adrienthebo/puppet-boolean' }
       )
     end
 
@@ -171,7 +171,7 @@ describe R10K::Module::Git do
       described_class.new('boolean', '/moduledir', base_opts.merge(extra_opts), env)
     end
 
-    let(:base_opts) { { git: 'git://git.example.com/adrienthebo/puppet-boolean' } }
+    let(:base_opts) { { git: 'https://git.example.com/adrienthebo/puppet-boolean' } }
 
     before(:each) do
       allow(mock_repo).to receive(:head).and_return('abc123')

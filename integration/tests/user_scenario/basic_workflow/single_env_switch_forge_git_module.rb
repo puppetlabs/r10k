@@ -27,7 +27,7 @@ PUPPETFILE
 
 puppet_file_git = <<-PUPPETFILE
 mod "puppetlabs/motd",
-  :git => 'git://github.com/puppetlabs/puppetlabs-motd',
+  :git => 'https://github.com/puppetlabs/puppetlabs-motd',
   :tag => '1.2.0'
 PUPPETFILE
 

@@ -38,7 +38,7 @@ mod "puppetlabs/ntp"
 
 # Your modules:
 mod "custom_facts",
-  :git => "git://github.com/user/custom_facts"
+  :git => "https://github.com/user/custom_facts"
 ```
 
 For any existing modules that you branched, add a reference to the new branch
@@ -46,7 +46,7 @@ name. Don't forget the comma at the end of the *:git* value.
 
 ```
 mod "other_module",
-  :git => "git://github.com/user/other_module",
+  :git => "https://github.com/user/other_module",
   :ref => "feature"
 ```
 
@@ -159,7 +159,7 @@ the *:git* value.
 
 ```
 mod "other_module",
-  :git => "git://github.com/user/other_module",
+  :git => "https://github.com/user/other_module",
   :ref => "feature"
 ```
 

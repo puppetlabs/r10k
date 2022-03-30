@@ -12,7 +12,7 @@ r10k_fqp = get_r10k_fqp(master)
 #File
 puppet_file = <<-PUPPETFILE
 mod 'broken',
-  :git => 'git://github.com/puppetlabs/puppetlabs-motd',
+  :git => 'https://github.com/puppetlabs/puppetlabs-motd',
   :ref => 'does_not_exist'
 PUPPETFILE
 

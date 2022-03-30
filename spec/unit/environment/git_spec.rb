@@ -9,7 +9,7 @@ describe R10K::Environment::Git do
       '/some/nonexistent/environmentdir',
       'gitref',
       {
-        :remote => 'git://git-server.site/my-repo.git',
+        :remote => 'https://git-server.site/my-repo.git',
         :ref    => 'd026ea677116424d2968edb9cee8cbc24d09322b',
       }
     )
@@ -45,7 +45,7 @@ describe R10K::Environment::Git do
     end
 
     it "can return the environment remote" do
-      expect(subject.remote).to eq 'git://git-server.site/my-repo.git'
+      expect(subject.remote).to eq 'https://git-server.site/my-repo.git'
     end
 
     it "can return the environment ref" do

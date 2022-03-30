@@ -28,7 +28,7 @@ notify_message_regex = /I am in the production environment/
 puppet_file = <<-PUPPETFILE
 mod "puppetlabs/motd"
 mod 'puppetlabs/inifile',
-  :git => 'git://github.com/puppetlabs/puppetlabs-inifile',
+  :git => 'https://github.com/puppetlabs/puppetlabs-inifile',
   :tag => 'v5.0.1'
 PUPPETFILE
 

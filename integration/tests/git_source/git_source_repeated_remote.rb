@@ -29,11 +29,11 @@ CONF
 # Install the same module in two different places
 puppetfile = <<-EOS
 mod 'prod_apache',
-  :git => 'git://github.com/puppetlabs/puppetlabs-apache.git',
+  :git => 'https://github.com/puppetlabs/puppetlabs-apache.git',
   :tag => 'v6.0.0'
 
 mod 'test_apache',
-  :git => 'git://github.com/puppetlabs/puppetlabs-apache.git',
+  :git => 'https://github.com/puppetlabs/puppetlabs-apache.git',
   :tag => 'v6.0.0'
 EOS
 
