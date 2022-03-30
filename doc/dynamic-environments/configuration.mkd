@@ -398,7 +398,10 @@ specific documentation for more information.
 The 'remote' setting specifies where the source repository should be fetched
 from. It may be any valid URL that the source may check out or clone. The remote
 must be able to be fetched without any interactive input, eg usernames or
-passwords cannot be prompted for in order to fetch the remote.
+passwords cannot be prompted for in order to fetch the remote. We support the
+`git`, `ssh`, and `https` transport protocols. An SSH private key or access
+token must be provided for authentication. Only `https` may be used without
+authentication. See [GitHub's blog on protocol security](https://github.blog/2021-09-01-improving-git-protocol-security-github/) for more info.
 
 ```yaml
 ---
