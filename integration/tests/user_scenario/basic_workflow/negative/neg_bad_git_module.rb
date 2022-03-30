@@ -15,7 +15,7 @@ r10k_fqp = get_r10k_fqp(master)
 
 #File
 puppet_file = <<-PUPPETFILE
-mod 'broken', :git => 'git://github.com/puppetlabs/puppetlabs-broken'
+mod 'broken', :git => 'https://github.com/puppetlabs/puppetlabs-broken'
 PUPPETFILE
 
 puppet_file_path = File.join(git_environments_path, 'Puppetfile')

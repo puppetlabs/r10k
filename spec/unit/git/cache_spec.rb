@@ -21,7 +21,7 @@ describe R10K::Git::Cache do
     end
   end
 
-  let(:remote) { 'git://some/git/remote' }
+  let(:remote) { 'https://some/git/remote' }
   subject { subclass.new(remote) }
 
   describe "updating the cache" do

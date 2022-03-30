@@ -5,7 +5,7 @@ describe R10K::Git::Rugged::Cache, :unless => R10K::Util::Platform.jruby? do
     require 'r10k/git/rugged/cache'
   end
 
-  subject(:cache) { described_class.new('git://some/git/remote') }
+  subject(:cache) { described_class.new('https://some/git/remote') }
 
   it "wraps a Rugged::BareRepository instance" do
     expect(cache.repo).to be_a_kind_of R10K::Git::Rugged::BareRepository
@@ -31,7 +31,7 @@ describe R10K::Git::Rugged::Cache, :unless => R10K::Util::Platform.jruby? do
     before do
       allow(subject.repo).to receive(:exist?).and_return true
       allow(subject.repo).to receive(:fetch)
-      allow(subject.repo).to receive(:remotes).and_return({ 'origin' => 'git://some/git/remote' })
+      allow(subject.repo).to receive(:remotes).and_return({ 'origin' => 'https://some/git/remote' })
     end
 
     it "does not update the URLs if they match" do

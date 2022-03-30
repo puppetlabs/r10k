@@ -12,7 +12,7 @@ describe R10K::ModuleLoader::Puppetfile do
           environment: R10K::Environment::Git.new('env',
                                                   '/test/basedir/',
                                                   'env',
-                                                  { remote: 'git://foo/remote',
+                                                  { remote: 'https://foo/remote',
                                                     ref: 'env' })
         }
       end

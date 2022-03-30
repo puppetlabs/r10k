@@ -6,10 +6,10 @@ RSpec.describe R10K::Util::Cacheable do
   subject { Object.new.extend(R10K::Util::Cacheable) }
 
   describe "dirname sanitization" do
-    let(:input) { 'git://some/git/remote' }
+    let(:input) { 'https://some/git/remote' }
 
     it 'sanitizes URL to directory name' do
-      expect(subject.sanitized_dirname(input)).to eq('git---some-git-remote')
+      expect(subject.sanitized_dirname(input)).to eq('https---some-git-remote')
     end
 
     context 'with username and password' do
