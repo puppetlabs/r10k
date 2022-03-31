@@ -7,6 +7,10 @@ hadolint_available := $(shell hadolint --help > /dev/null 2>&1; echo $$?)
 hadolint_command := hadolint
 hadolint_container := ghcr.io/hadolint/hadolint:latest
 alpine_version := 3.14
+# --load (--output=type=docker) can only be used with a single arch / platform
+# https://github.com/docker/buildx/issues/59
+output_type := docker
+platform := linux/amd64
 export BUNDLE_PATH = $(PWD)/.bundle/gems
 export BUNDLE_BIN = $(PWD)/.bundle/bin
 export GEMFILE = $(PWD)/Gemfile
@@ -32,6 +36,10 @@ else
 	dockerfile_context := $(PWD)/..
 endif
 
+ifeq ($(IS_LATEST),true)
+	latest_tag := --tag $(NAMESPACE)/r10k:$(LATEST_VERSION)
+endif
+
 prep:
 	@git fetch --unshallow 2> /dev/null ||:
 	@git fetch origin 'refs/tags/*:refs/tags/*'
@@ -52,28 +60,15 @@ build: prep
 	docker pull alpine:$(alpine_version)
 	docker buildx build \
 		${DOCKER_BUILD_FLAGS} \
-		--load \
+		--output=type=$(output_type) \
+		--platform $(platform) \
 		--build-arg alpine_version=$(alpine_version) \
 		--build-arg vcs_ref=$(vcs_ref) \
 		--build-arg build_date=$(build_date) \
 		--build-arg version=$(VERSION) \
 		--build-arg pupperware_analytics_stream=$(PUPPERWARE_ANALYTICS_STREAM) \
 		--file r10k/$(dockerfile) \
-		--tag $(NAMESPACE)/r10k:$(VERSION) $(dockerfile_context)
-	docker buildx build \
-		--platform linux/arm64 \
-		--build-arg alpine_version=$(alpine_version) \
-		--build-arg vcs_ref=$(vcs_ref) \
-		--build-arg build_date=$(build_date) \
-		--build-arg version=$(VERSION) \
-		--build-arg pupperware_analytics_stream=$(PUPPERWARE_ANALYTICS_STREAM) \
-		--file r10k/$(dockerfile) \
-		--tag $(NAMESPACE)/r10k:$(VERSION)-arm64 \
-		--load $(dockerfile_context)
-ifeq ($(IS_LATEST),true)
-	@docker tag $(NAMESPACE)/r10k:$(VERSION) puppet/r10k:$(LATEST_VERSION)
-	@docker tag $(NAMESPACE)/r10k:$(VERSION) puppet/r10k:$(LATEST_VERSION)-arm64
-endif
+		--tag $(NAMESPACE)/r10k:$(VERSION) $(latest_tag) $(dockerfile_context)
 
 test: prep
 	@bundle install --path $$BUNDLE_PATH --gemfile $$GEMFILE --with test
@@ -82,13 +77,12 @@ test: prep
 		bundle exec --gemfile $$GEMFILE \
 		rspec spec
 
-push-image: prep
-	@docker push $(NAMESPACE)/r10k:$(VERSION)
-	@docker push $(NAMESPACE)/r10k:$(VERSION)-arm64
-ifeq ($(IS_LATEST),true)
-	@docker push $(NAMESPACE)/r10k:$(LATEST_VERSION)
-	@docker push $(NAMESPACE)/r10k:$(LATEST_VERSION)-arm64
-endif
+# call build to produce multiple architectures
+# uses cached output from amd64 build target if it exists
+# registry output is equivalent to --push
+push-image: platform=linux/amd64,linux/arm64
+push-image: output_type=registry
+push-image: prep build
 
 push-readme:
 	@docker pull sheogorath/readme-to-dockerhub
