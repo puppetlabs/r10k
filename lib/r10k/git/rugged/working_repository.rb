@@ -117,11 +117,15 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
     with_repo { |repo| repo.config['remote.origin.url'] }
   end
 
-  def dirty?
+  def dirty?(exclude_spec=false)
     with_repo do |repo|
-      diff = repo.diff_workdir('HEAD')
+      if exclude_spec
+        diff = repo.diff_workdir('HEAD').filter { |d| ! d.delta.old_file[:path].start_with?('spec/') }
+      else
+        diff = repo.diff_workdir('HEAD').to_a
+      end
 
-      diff.each_patch do |p|
+      diff.each do |p|
         logger.debug(_("Found local modifications in %{file_path}" % {file_path: File.join(@path, p.delta.old_file[:path])}))
         logger.debug1(p.to_s)
       end
