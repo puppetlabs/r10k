@@ -87,10 +87,8 @@ module R10K
     end
 
     # Extract the cached tarball to the target directory.
-    # 
+    #
     # @param target_dir [String] Where to unpack the tarball
-    # @param remove_wrapper_dir [Boolean] Whether or not to remove the wrapper
-    #        directory from the content when extracting to the target_dir
     def unpack(target_dir)
       file = File.open(cache_path, 'rb')
       reader = Zlib::GzipReader.new(file)
