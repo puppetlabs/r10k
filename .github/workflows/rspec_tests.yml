@@ -33,6 +33,7 @@ jobs:
       - name: Install bundler and gems
         run: |
           gem install bundler
+          gem update --system
           bundle config set without packaging documentation
           bundle install --jobs 4 --retry 3
 
