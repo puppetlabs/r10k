@@ -10,6 +10,11 @@ group :development do
   gem 'ruby-prof', :platforms => :ruby
 end
 
+group :documentation do
+  # only required to update the pot files, not a runtime dep
+  gem 'gettext-setup', '~> 0.24'
+end
+
 if File.exists? "#{__FILE__}.local"
   eval(File.read("#{__FILE__}.local"), binding)
 end
