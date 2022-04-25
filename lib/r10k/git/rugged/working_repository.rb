@@ -120,7 +120,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   def dirty?(exclude_spec=false)
     with_repo do |repo|
       if exclude_spec
-        diff = repo.diff_workdir('HEAD').filter { |d| ! d.delta.old_file[:path].start_with?('spec/') }
+        diff = repo.diff_workdir('HEAD').select { |d| ! d.delta.old_file[:path].start_with?('spec/') }
       else
         diff = repo.diff_workdir('HEAD').to_a
       end
