@@ -3,8 +3,8 @@ CHANGELOG
 
 Unreleased
 ----------
+- Add TOC to configuration docs [#1298](https://github.com/puppetlabs/r10k/issues/1298)
 - Fixes error when using install_path from environment module [#1288](https://github.com/puppetlabs/r10k/issues/1288)
-
 - (RK-399) Do not warn about local modifications in the spec directory when `exclude_spec` is set [#1291](https://github.com/puppetlabs/r10k/pull/1291)
 
 3.14.2
