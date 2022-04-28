@@ -3,6 +3,11 @@ CHANGELOG
 
 Unreleased
 ----------
+
+3.15.0
+------
+
+- Support and test Ruby 3
 - Allow puppet_forge 3.x & newer versions of fast_gettext/gettext [#1302](https://github.com/puppetlabs/r10k/pull/1302)
 - Allow newer cri versions [#1302](https://github.com/puppetlabs/r10k/pull/1302)
 - Fix error when using install_path from environment module [#1288](https://github.com/puppetlabs/r10k/issues/1288)
