@@ -53,16 +53,23 @@ class R10K::Source::SVN < R10K::Source::Base
   # @option options [Boolean] :prefix Whether to prefix the source name to the
   #   environment directory names. Defaults to false.
   # @option options [String] :remote The URL to the base directory of the SVN repository
+  # @option options [Array<String>] :ignore_branch_prefixes Prefixes of branches that should not be deployed
   # @option options [String] :username The SVN username
   # @option options [String] :password The SVN password
   # @option options [String] :puppetfile_name The puppetfile name
   def initialize(name, basedir, options = {})
     super
 
-    setopts(options, {:remote => :self, :username => :self, :password => :self, :puppetfile_name => :self })
+    setopts(options, {
+      :remote => :self,
+      :ignore_branch_prefixes => :self,
+      :username => :self,
+      :password => :self,
+      :puppetfile_name => :self
+    }, raise_on_unhandled: false)
+
     @environments = []
     @svn_remote = R10K::SVN::Remote.new(@remote, :username => @username, :password => @password)
-    @ignore_branch_prefixes = options[:ignore_branch_prefixes]
   end
 
   def reload!

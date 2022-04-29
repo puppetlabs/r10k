@@ -52,7 +52,7 @@ class R10K::Environment::SVN < R10K::Environment::Base
       :remote   => :self,
       :username => :self,
       :password => :self,
-    })
+    }, raise_on_unhandled: false)
 
     @working_dir = R10K::SVN::WorkingDir.new(Pathname.new(@full_path), :username => @username, :password => @password)
   end
