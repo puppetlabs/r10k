@@ -81,7 +81,7 @@ describe R10K::ModuleLoader::Puppetfile do
     let(:basedir) { '/test/basedir' }
 
     subject { R10K::ModuleLoader::Puppetfile.new(basedir: basedir,
-                                                 overrides: {modules: {exclude_spec: true}}) }
+                                                 overrides: {modules: {exclude_spec: false}}) }
 
     it 'should transform Forge modules with a string arg to have a version key' do
       expect(R10K::Module).to receive(:from_metadata).with('puppet/test_module', subject.moduledir, hash_including(version: '1.2.3'), anything).and_call_original
@@ -103,13 +103,13 @@ describe R10K::ModuleLoader::Puppetfile do
     it 'should not modify the overrides when adding modules' do
       module_opts = { git: 'git@example.com:puppet/test_module.git' }
       subject.add_module('puppet/test_module', module_opts)
-      expect(subject.instance_variable_get("@overrides")[:modules]).to eq({exclude_spec: true})
+      expect(subject.instance_variable_get("@overrides")[:modules]).to eq({exclude_spec: false})
     end
 
     it 'should read the `exclude_spec` setting in the module definition and override the overrides' do
-      module_opts = { git: 'git@example.com:puppet/test_module.git', exclude_spec: false }
+      module_opts = { git: 'git@example.com:puppet/test_module.git', exclude_spec: true }
       subject.add_module('puppet/test_module', module_opts)
-      expect(subject.modules[0].instance_variable_get("@exclude_spec")).to be false
+      expect(subject.modules[0].instance_variable_get("@exclude_spec")).to be true
     end
 
     it 'should set :spec_deletable to true for modules in the basedir' do

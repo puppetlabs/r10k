@@ -117,7 +117,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
     with_repo { |repo| repo.config['remote.origin.url'] }
   end
 
-  def dirty?(exclude_spec=false)
+  def dirty?(exclude_spec=true)
     with_repo do |repo|
       if exclude_spec
         diff = repo.diff_workdir('HEAD').select { |d| ! d.delta.old_file[:path].start_with?('spec/') }
