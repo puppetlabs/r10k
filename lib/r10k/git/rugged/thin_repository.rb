@@ -75,6 +75,13 @@ class R10K::Git::Rugged::ThinRepository < R10K::Git::Rugged::WorkingRepository
     end
   end
 
+  def stage_files(files=['.'])
+    with_repo do |repo|
+      index = repo.index
+      files.each { |p| index.add( :path => p ) }
+    end
+  end
+
   private
 
   # Override the parent class repo setup so that we can make sure the alternates file is up to date

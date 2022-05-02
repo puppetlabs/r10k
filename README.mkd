@@ -18,7 +18,7 @@ Requirements
 ------------
 
 R10k supports the Ruby versions `>= 2.4.0`. It's tested on Ruby 2.4.0 up to
-Ruby 2.7.0 + Jruby.
+Ruby 3.1.0 + Jruby.
 
 R10k requires additional components, depending on how you plan on managing
 environments and modules.
@@ -61,7 +61,7 @@ for installation.
 If you have more specific needs or plan on modifying r10k you can run it out of
 a git repository using Bundler for dependencies:
 
-    git clone git://github.com/puppetlabs/r10k
+    git clone https://github.com/puppetlabs/r10k
     cd r10k
     bundle install
     bundle exec r10k help

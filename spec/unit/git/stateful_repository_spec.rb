@@ -4,7 +4,7 @@ require 'r10k/git/stateful_repository'
 
 describe R10K::Git::StatefulRepository do
 
-  let(:remote) { 'git://some.site/some-repo.git' }
+  let(:remote) { 'https://some.site/some-repo.git' }
   let(:ref) { '0.9.x' }
 
   subject { described_class.new(remote, '/some/nonexistent/basedir', 'some-dirname') }

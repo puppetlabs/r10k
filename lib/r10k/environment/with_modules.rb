@@ -103,6 +103,29 @@ class R10K::Environment::WithModules < R10K::Environment::Base
     end
   end
 
+  def resolve_path(base, dirname, path)
+    if Pathname.new(path).absolute?
+      cleanpath(path)
+    else
+      cleanpath(File.join(base, dirname, path))
+    end
+  end
+
+  # .cleanpath is as good as we can do without touching the filesystem.
+  # The .realpath methods will choke if some of the intermediate paths
+  # are missing, even though in some cases we will create them later as
+  # needed.
+  def cleanpath(path)
+    Pathname.new(path).cleanpath.to_s
+  end
+
+  def validate_install_path(path, modname)
+    unless /^#{Regexp.escape(@basedir)}.*/ =~ path
+      raise R10K::Error.new("Environment cannot manage content '#{modname}' outside of containing environment: #{path} is not within #{@basedir}")
+    end
+    true
+  end
+
   # @param [String] name
   # @param [Hash] args
   def add_module(name, args)
@@ -111,7 +134,7 @@ class R10K::Environment::WithModules < R10K::Environment::Base
     args[:overrides] = @overrides
 
     if install_path = args.delete(:install_path)
-      install_path = resolve_install_path(install_path)
+      install_path = resolve_path(@basedir, @dirname, install_path)
       validate_install_path(install_path, name)
     else
       install_path = @moduledir

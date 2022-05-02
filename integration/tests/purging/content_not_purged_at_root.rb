@@ -30,12 +30,12 @@ CONF
 puppetfile = <<-EOS
 mod 'non_module_object_1',
   :install_path => './',
-  :git => 'git://github.com/puppetlabs/control-repo.git',
+  :git => 'https://github.com/puppetlabs/control-repo.git',
   :branch => 'production'
 
 mod 'non_module_object_2',
  :install_path => '',
- :git => 'git://github.com/puppetlabs/control-repo.git',
+ :git => 'https://github.com/puppetlabs/control-repo.git',
   :branch => 'production'
 EOS
 

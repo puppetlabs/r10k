@@ -83,6 +83,22 @@ describe R10K::Git::StatefulRepository do
       end
     end
 
+    describe "when the workdir has spec dir modifications" do
+      before(:each) do
+        thinrepo.clone(remote, {:ref => ref})
+        FileUtils.mkdir_p(File.join(thinrepo.path, 'spec'))
+        File.open(File.join(thinrepo.path, 'spec', 'file_spec.rb'), 'a') { |f| f.write('local modifications!') }
+        thinrepo.stage_files(['spec/file_spec.rb'])
+      end
+      it "is dirty with exclude_spec false" do
+        expect(subject.status(ref, false)).to eq :dirty
+      end
+
+      it "is insync with exclude_spec true" do
+        expect(subject.status(ref, true)).to eq :insync
+      end
+    end
+
     describe "if the right ref is checked out" do
       it "is insync" do
         thinrepo.clone(remote, {:ref => ref})

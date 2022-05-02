@@ -43,6 +43,10 @@ class R10K::Git::ShellGit::ThinRepository < R10K::Git::ShellGit::WorkingReposito
     git(['ls-tree', '-t', '-r', '--name-only', ref], :path => @path.to_s).stdout.split("\n")
   end
 
+  def stage_files(files=['.'])
+    git(['add', files].flatten, :path => @path.to_s)
+  end
+
   private
 
   def setup_cache_remote

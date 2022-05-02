@@ -36,7 +36,7 @@ class R10K::Git::StatefulRepository
   end
 
   # Returns true if the sync actually updated the repo, false otherwise
-  def sync(ref, force=true)
+  def sync(ref, force=true, exclude_spec=true)
     @cache.sync if sync_cache?(ref)
 
     sha = @cache.resolve(ref)
@@ -45,7 +45,7 @@ class R10K::Git::StatefulRepository
       raise R10K::Git::UnresolvableRefError.new(_("Unable to sync repo to unresolvable ref '%{ref}'") % {ref: ref}, :git_dir => @repo.git_dir)
     end
 
-    workdir_status = status(ref)
+    workdir_status = status(ref, exclude_spec)
 
     updated = true
     case workdir_status
@@ -75,7 +75,7 @@ class R10K::Git::StatefulRepository
     updated
   end
 
-  def status(ref)
+  def status(ref, exclude_spec=true)
     if !@repo.exist?
       :absent
     elsif !@cache.exist?
@@ -88,7 +88,7 @@ class R10K::Git::StatefulRepository
       :mismatched
     elsif @repo.head.nil?
       :mismatched
-    elsif @repo.dirty?
+    elsif @repo.dirty?(exclude_spec)
       :dirty
     elsif !(@repo.head == @cache.resolve(ref))
       :outdated

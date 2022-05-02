@@ -31,7 +31,7 @@ puppet_file = <<-PUPPETFILE
 moduledir '#{@module_path}'
 mod "puppetlabs/motd"
 mod 'puppetlabs/stdlib',
-  :git => 'git://github.com/puppetlabs/puppetlabs-stdlib.git',
+  :git => 'https://github.com/puppetlabs/puppetlabs-stdlib.git',
   :tag => 'v7.0.1'
 PUPPETFILE
 
