@@ -410,13 +410,16 @@ specific documentation for more information.
 The 'remote' setting specifies where the source repository should be fetched
 from. It may be any valid URL that the source may check out or clone. The remote
 must be able to be fetched without any interactive input, eg usernames or
-passwords cannot be prompted for in order to fetch the remote.
+passwords cannot be prompted for in order to fetch the remote. We support the
+`git`, `ssh`, and `https` transport protocols. An SSH private key or access
+token must be provided for authentication. Only `https` may be used without
+authentication. See [GitHub's blog on protocol security](https://github.blog/2021-09-01-improving-git-protocol-security-github/) for more info.
 
 ```yaml
 ---
 sources:
   mysource:
-    remote: 'git://git-server.site/my-org/main-modules'
+    remote: 'https://git-server.site/my-org/main-modules'
 ```
 
 ### basedir
@@ -534,7 +537,7 @@ hiera data files are kept. In this case you will specify a single source:
 ---
 sources:
   operations:
-    remote: 'git://git-server.site/my-org/org-modules'
+    remote: 'https://git-server.site/my-org/org-modules'
     basedir: '/etc/puppet/environments'
 ```
 
@@ -547,10 +550,10 @@ repository and your modules in another repository, you can specify two sources:
 ---
 sources:
   operations:
-    remote: 'git://git-server.site/my-org/org-modules'
+    remote: 'https://git-server.site/my-org/org-modules'
     basedir: '/etc/puppet/environments'
   hiera:
-    remote: 'git://git-server.site/my-org/org-hiera-data'
+    remote: 'https://git-server.site/my-org/org-hiera-data'
     basedir: '/etc/puppet/hiera-data'
 ```
 
@@ -565,15 +568,15 @@ not the modules of other groups.
 ---
 sources:
   main:
-    remote: 'git://git-server.site/my-org/main-modules'
+    remote: 'https://git-server.site/my-org/main-modules'
     basedir: '/etc/puppet/environments'
     prefix: false # Prefix defaults to false so this is only here for clarity
   qa:
-    remote: 'git://git-server.site/my-org/qa-puppet-modules'
+    remote: 'https://git-server.site/my-org/qa-puppet-modules'
     basedir: '/etc/puppet/environments'
     prefix: true
   dev:
-    remote: 'git://git-server.site/my-org/dev-puppet-modules'
+    remote: 'https://git-server.site/my-org/dev-puppet-modules'
     basedir: '/etc/puppet/environments'
     prefix: true
 ```
@@ -599,11 +602,11 @@ must override the `prefix` so environment folders line up in both directories:
 ---
 sources:
   app1_data:
-    remote: 'git://git-server.site/my-org/app1-hieradata'
+    remote: 'https://git-server.site/my-org/app1-hieradata'
     basedir: '/etc/puppet/hieradata'
     prefix: "app1"
   app1_modules:
-    remote: 'git://git-server.site/my-org/app1-puppet-modules'
+    remote: 'https://git-server.site/my-org/app1-puppet-modules'
     basedir: '/etc/puppet/environments'
     prefix: "app1"
 ```

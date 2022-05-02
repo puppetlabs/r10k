@@ -12,7 +12,7 @@ describe R10K::ModuleLoader::Puppetfile do
           environment: R10K::Environment::Git.new('env',
                                                   '/test/basedir/',
                                                   'env',
-                                                  { remote: 'git://foo/remote',
+                                                  { remote: 'https://foo/remote',
                                                     ref: 'env' })
         }
       end
@@ -385,7 +385,7 @@ describe R10K::ModuleLoader::Puppetfile do
         expect(metadata['canary']).to eq('0.0.0')
       end
 
-      it 'does not load module implementations for static versioned' do
+      it 'does not load module implementations for static versions unless the module install path does not exist on disk' do
         @path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'various-modules')
         subject.load_metadata
         modules = subject.load[:modules].map { |mod| [ mod.name, mod ] }.to_h
@@ -394,7 +394,7 @@ describe R10K::ModuleLoader::Puppetfile do
         expect(modules['concat']).to be_a_kind_of(R10K::Module::Forge)
         expect(modules['rpm']).to be_a_kind_of(R10K::Module::Definition)
         expect(modules['foo']).to be_a_kind_of(R10K::Module::Git)
-        expect(modules['bar']).to be_a_kind_of(R10K::Module::Definition)
+        expect(modules['bar']).to be_a_kind_of(R10K::Module::Git)
         expect(modules['baz']).to be_a_kind_of(R10K::Module::Definition)
         expect(modules['fizz']).to be_a_kind_of(R10K::Module::Definition)
         expect(modules['buzz']).to be_a_kind_of(R10K::Module::Git)

@@ -99,7 +99,7 @@ class R10K::Module::Git < R10K::Module::Base
   def sync(opts={})
     force = opts[:force] || @force
     if should_sync?
-      updated = @repo.sync(version, force)
+      updated = @repo.sync(version, force, @exclude_spec)
     else
       updated = false
     end

@@ -157,11 +157,14 @@ module R10K
           return @modules
         end
 
-        # If this module's metadata has a static version and that version
-        # matches the existing module declaration use it, otherwise create
-        # a regular module to sync.
-        unless mod.version && (mod.version == @existing_module_versions_by_name[mod.name])
-          mod = mod.to_implementation
+        # If this module's metadata has a static version, and that version
+        # matches the existing module declaration, and it ostensibly
+        # has already has been deployed to disk, use it. Otherwise create a
+        # regular module to sync.
+        unless mod.version &&
+               mod.version == @existing_module_versions_by_name[mod.name] &&
+               File.directory?(mod.path)
+            mod = mod.to_implementation
         end
 
         @modules << mod
