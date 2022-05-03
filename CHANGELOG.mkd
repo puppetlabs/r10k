@@ -4,7 +4,6 @@ CHANGELOG
 Unreleased
 ----------
 - Add TOC to configuration docs [#1298](https://github.com/puppetlabs/r10k/issues/1298)
-- Fixes error when using install_path from environment module [#1288](https://github.com/puppetlabs/r10k/issues/1288)
 
 3.15.0
 ------
