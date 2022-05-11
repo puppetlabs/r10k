@@ -3,6 +3,7 @@ CHANGELOG
 
 Unreleased
 ----------
+- Add TOC to configuration docs [#1298](https://github.com/puppetlabs/r10k/issues/1298)
 
 3.15.0
 ------
