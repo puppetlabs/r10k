@@ -290,7 +290,7 @@ postrun: ['/usr/bin/curl', '-F', 'deploy=done', 'http://my-app.site/endpoint']
 The postrun setting can only be set once.
 
 Occurrences of the string `$modifiedenvs` in the postrun command will be
-replaced with the current environment(s) being deployed.
+replaced with the current environment(s) being deployed, space separated.
 
 ### sources
 
