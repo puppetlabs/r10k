@@ -3,6 +3,7 @@ CHANGELOG
 
 Unreleased
 ----------
+- Add TOC to configuration docs [#1298](https://github.com/puppetlabs/r10k/issues/1298)
 
 - (RK-368) remove `purge_whitelist` setting [#1277](https://github.com/puppetlabs/r10k/pull/1277)
 - (RK-390) Remove default ref for deploying git modules [#1275](http://github.com/puppetlabs/r10k/pull/1275)
