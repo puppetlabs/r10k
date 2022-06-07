@@ -1,6 +1,70 @@
 Dynamic Environment Configuration
 =================================
 
+<!-- vim-markdown-toc GFM -->
+
+* [Config file location](#config-file-location)
+  * [Manual configuration](#manual-configuration)
+  * [Automatic configuration](#automatic-configuration)
+* [General options](#general-options)
+  * [cachedir](#cachedir)
+  * [proxy](#proxy)
+  * [pool_size](#pool_size)
+  * [git](#git)
+    * [provider](#provider)
+    * [proxy](#proxy-1)
+    * [username](#username)
+    * [private_key](#private_key)
+    * [oauth_token](#oauth_token)
+    * [repositories](#repositories)
+      * [private_key](#private_key-1)
+      * [oauth_token](#oauth_token-1)
+      * [proxy](#proxy-2)
+  * [forge](#forge)
+    * [proxy](#proxy-3)
+    * [baseurl](#baseurl)
+    * [authorization_token](#authorization_token)
+    * [allow_puppetfile_override](#allow_puppetfile_override)
+* [Deployment options](#deployment-options)
+  * [postrun](#postrun)
+  * [sources](#sources)
+  * [deploy](#deploy)
+    * [purge\_levels](#purge_levels)
+      * [deployment](#deployment)
+      * [environment](#environment)
+      * [puppetfile](#puppetfile)
+    * [purge\_allowlist](#purge_allowlist)
+    * [write\_lock](#write_lock)
+    * [generate\_types](#generate_types)
+    * [puppet\_path](#puppet_path)
+    * [puppet\_conf](#puppet_conf)
+    * [exclude_spec](#exclude_spec)
+* [Source options](#source-options)
+  * [remote](#remote)
+  * [basedir](#basedir)
+  * [prefix](#prefix)
+    * [prefix behaviour](#prefix-behaviour)
+  * [strip\_component](#strip_component)
+    * [strip\_component behaviour](#strip_component-behaviour)
+  * [ignore_branch_prefixes](#ignore_branch_prefixes)
+    * [ignore_branch_prefixes behaviour](#ignore_branch_prefixes-behaviour)
+  * [filter_command](#filter_command)
+* [Examples](#examples)
+  * [Minimal example](#minimal-example)
+  * [Separate hiera data](#separate-hiera-data)
+  * [Multiple tenancy](#multiple-tenancy)
+    * [Multiple tenancy with external hieradata](#multiple-tenancy-with-external-hieradata)
+* [Experimental Features](#experimental-features)
+  * [YAML Environment Source](#yaml-environment-source)
+  * [YAMLdir Environment Source](#yamldir-environment-source)
+  * [Exec environment Source](#exec-environment-source)
+  * [Environment Modules](#environment-modules)
+    * [Puppetfile module conflicts](#puppetfile-module-conflicts)
+  * [Plain Environment Type](#plain-environment-type)
+  * [Tarball Environment Type](#tarball-environment-type)
+
+<!-- vim-markdown-toc -->
+
 R10k uses a configuration file to determine how dynamic environments should be
 deployed.
 
@@ -238,7 +302,7 @@ postrun: ['/usr/bin/curl', '-F', 'deploy=done', 'http://my-app.site/endpoint']
 The postrun setting can only be set once.
 
 Occurrences of the string `$modifiedenvs` in the postrun command will be
-replaced with the current environment(s) being deployed.
+replaced with the current environment(s) being deployed, space separated.
 
 ### sources
 
