@@ -69,10 +69,11 @@ Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
         @cmd ||= Cri::Command.define do
           name  'resolve'
           usage 'resolve'
-          summary 'Resolve all the dependencies of a Puppetfile into Puppetfile.lock'
+          summary 'Resolve all the dependencies of a minimal source Puppetfile into Puppetfile ready for code deployment'
 
-          option nil, :puppetfile, 'Path to Puppetfile', argument: :required
-          flag   nil, :force, 'Overwrite existing lockfile'
+          option nil, :output, 'Path to write the output Puppetfile', argument: :required
+          flag   nil, :force, 'Overwrite existing Puppetfile'
+          option nil, :source, 'Path to source Puppetfile', argument: :required
           runner R10K::Action::Puppetfile::CriRunner.wrap(R10K::Action::Puppetfile::Resolve)
         end
       end

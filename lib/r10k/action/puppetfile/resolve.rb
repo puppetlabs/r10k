@@ -13,20 +13,22 @@ module R10K
 
         def call
           begin
-            @puppetfile ||= 'Puppetfile'
-            @lockfile     = "#{@puppetfile}.lock"
+            @output ||= 'Puppetfile'
+            @source ||= "#{@output}.src"
 
             unless @force
-              logger.error "Pass --force to overwrite existing lockfile" if File.exist? @lockfile
-              return false
+              if File.exist? @output
+                logger.error "Pass --force to overwrite existing file: #{@output}"
+                return false
+              end
             end
 
-            content    = File.read(@puppetfile)
+            content    = File.read(@source)
             puppetfile = PuppetfileResolver::Puppetfile::Parser::R10KEval.parse(content)
 
             # Make sure the Puppetfile is valid
             unless puppetfile.valid?
-              logger.error 'Puppetfile is not valid'
+              logger.error 'Puppetfile source is not valid'
               puppetfile.validation_errors.each { |err| logger.error err }
               return false
             end
@@ -37,7 +39,7 @@ module R10K
             # Output resolution validation errors
             result.validation_errors.each { |err| logger.warn err}
 
-            File.open(@lockfile, "w+") do |file|
+            File.open(@output, "w+") do |file|
               # copy over the existing Puppetfile, then add resolved dependencies below
               file.write puppetfile.content
               file.write "\n####### resolved dependencies #######\n"
@@ -54,13 +56,13 @@ module R10K
             end
           end
 
-          logger.warn "Please inspect #{@lockfile} and the modules it declares to ensure you know what you are deploying in your infrastructure."
+          logger.warn "Please inspect #{@output} and the modules it declares to ensure you know what you are deploying in your infrastructure."
         end
 
         private
 
         def allowed_initialize_opts
-          super.merge(root: :self, puppetfile: :self, force: :self )
+          super.merge(root: :self, output: :self, source: :self, force: :self )
         end
       end
     end
