@@ -43,7 +43,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'yard', '~> 0.9.11'
 
-  s.files        = %x[git ls-files].split($/)
+  s.files        = %x[git ls-files].split($/).reject { |f| f.match(%r{^spec}) }
   s.require_path = 'lib'
   s.bindir       = 'bin'
   s.executables  = 'r10k'
