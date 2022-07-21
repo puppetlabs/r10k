@@ -89,21 +89,36 @@ module R10K
     # Extract the cached tarball to the target directory.
     #
     # @param target_dir [String] Where to unpack the tarball
-    def unpack(target_dir)
+    def unpack(dest)
+      # Important to make sure this is an absolute path, since we may be
+      # chdir'ing later
+      dest = File.expand_path(dest)
+
       file = File.open(cache_path, 'rb')
       reader = Zlib::GzipReader.new(file)
 
       begin
         if remove_wrapper_dir
-          FileUtils.mkdir_p(target_dir) unless File.exist?(target_dir)
-          Dir.mktmpdir('unpack-', target_dir) do |tmpdir|
+
+          # Minitar doesn't provide a great facility for stripping a wrapper
+          # dir out. Rather than re-implement most of Minitar#unpack to do
+          # that, the strategy is:
+          #  1. Create the dest dir.
+          #  2. Create a tempdir inside the dest directory.
+          #  3. Unpack the tarball into the tempdir using Minitar#unpack.
+          #  3. The tempdir now contains the extracted wrapper dir. Move all
+          #     files and directories from the wrapper dir to the dest dir.
+          #  4. Delete the tempdir.
+          FileUtils.mkdir_p(dest) unless File.exist?(dest)
+          Dir.mktmpdir('unpack-', dest) do |tmpdir|
             Minitar.unpack(reader, tmpdir)
             Dir.chdir(File.join(tmpdir, wrapper_dir)) do
-              FileUtils.mv(paths.reject { |p| p.include?('/') }, target_dir, force: true)
+              FileUtils.mv(paths.reject { |p| p.include?('/') }, dest, force: true)
             end
           end
+
         else
-          Minitar.unpack(reader, target_dir)
+          Minitar.unpack(reader, dest)
         end
       ensure
         reader.close
