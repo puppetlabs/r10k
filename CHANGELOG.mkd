@@ -4,6 +4,7 @@ CHANGELOG
 Unreleased
 ----------
 - Add TOC to configuration docs [#1298](https://github.com/puppetlabs/r10k/issues/1298)
+- Add support for Github App auth token with self-hosted Github Enterprise servers. [#1318](https://github.com/puppetlabs/r10k/pull/1318)
 
 3.15.0
 ------
