@@ -87,8 +87,14 @@ class R10K::Git::Rugged::Credentials
       user = 'x-oauth-token'
       password = @oauth_token
     elsif app_id && app_key && app_ttl
+      uri = URI.parse(url)
+      if uri.host == 'github.com'
+        github_api_url = 'https://api.github.com/app/installations'
+      else
+        github_api_url = '%{scheme}://%{host}/api/v3/app/installations' % {scheme: uri.scheme, host: uri.host}
+      end
       user = 'x-access-token'
-      password = github_app_token(app_id, app_key, app_ttl)
+      password = github_app_token(app_id, app_key, app_ttl, github_api_url)
     else
       user = get_git_username(url, username_from_url)
       password = URI.parse(url).password || ''
@@ -144,7 +150,7 @@ class R10K::Git::Rugged::Credentials
     user
   end
 
-  def github_app_token(app_id, private_key, ttl)
+  def github_app_token(app_id, private_key, ttl, api_url)
     raise R10K::Git::GitError, _('Github App id contains invalid characters.') unless app_id =~ /^\d+$/
     raise R10K::Git::GitError, _('Github App token ttl contains invalid characters.') unless ttl =~ /^\d+$/
     raise R10K::Git::GitError, _('Github App key is missing or unreadable') unless File.readable?(private_key)
@@ -165,7 +171,7 @@ class R10K::Git::Rugged::Credentials
     payload = { iat: jwt_issue_time, exp: jwt_exp_time, iss: app_id }
     jwt = JWT.encode(payload, ssl_key, "RS256")
 
-    get = URI.parse("https://api.github.com/app/installations")
+    get = URI.parse(api_url)
     get_request = Net::HTTP::Get.new(get)
     get_request["Authorization"] = "Bearer #{jwt}"
     get_request["Accept"] = "application/vnd.github.v3+json"
