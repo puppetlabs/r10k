@@ -81,18 +81,18 @@ describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby? 
 
   describe "generating github app tokens" do
     it 'errors if app id has invalid characters' do
-      expect { subject.github_app_token("123A567890", "fake", "300")
+      expect { subject.github_app_token("123A567890", "fake", "300", "https://api.github.com/app/installations")
       }.to raise_error(R10K::Git::GitError, /App id contains invalid characters/)
     end
     it 'errors if app ttl has invalid characters' do
-      expect { subject.github_app_token("123456", "fake", "abc")
+      expect { subject.github_app_token("123456", "fake", "abc", "https://api.github.com/app/installations")
       }.to raise_error(R10K::Git::GitError, /Github App token ttl contains/)
     end
     it 'errors if private file does not exist' do
       R10K::Git.settings[:github_app_key] = "/missing/token/file"
       expect(File).to receive(:readable?).with(R10K::Git.settings[:github_app_key]).and_return false
       expect {
-        subject.github_app_token("123456", R10K::Git.settings[:github_app_key], "300")
+        subject.github_app_token("123456", R10K::Git.settings[:github_app_key], "300", "https://api.github.com/app/installations")
       }.to raise_error(R10K::Git::GitError, /App key is missing or unreadable/)
     end
     it 'errors if file is not a valid SSL key' do
@@ -102,7 +102,7 @@ describe R10K::Git::Rugged::Credentials, :unless => R10K::Util::Platform.jruby? 
       R10K::Git.settings[:github_app_key] = token_file.path
       expect(File).to receive(:readable?).with(token_file.path).and_return true
       expect {
-        subject.github_app_token("123456", R10K::Git.settings[:github_app_key], "300")
+        subject.github_app_token("123456", R10K::Git.settings[:github_app_key], "300", "https://api.github.com/app/installations")
       }.to raise_error(R10K::Git::GitError, /App key is not a valid SSL key/)
       token_file.unlink
     end
