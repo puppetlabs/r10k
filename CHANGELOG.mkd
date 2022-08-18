@@ -3,6 +3,9 @@ CHANGELOG
 
 Unreleased
 ----------
+
+3.15.1
+------
 - Add TOC to configuration docs [#1298](https://github.com/puppetlabs/r10k/issues/1298)
 - Remove the spec folder from gemspec [#1316](https://github.com/puppetlabs/r10k/issues/1316)
 
