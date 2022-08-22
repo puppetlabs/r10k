@@ -5,6 +5,13 @@ Puppet environment and module deployment
 
 [![Build Status](https://travis-ci.org/puppetlabs/r10k.png?branch=master)](https://travis-ci.org/puppetlabs/r10k)
 
+> R10k is supported and maintained by Puppet, but we consider it to be feature complete
+> and  currently have no plans for future feature development. We will keep it working
+> with current code deployment standards and the Ruby ecosystem that ships with the
+> puppet-agent package, but any new feature development will come from peer-reviewed
+> community contributions, with the onus on the contributor and community for validation.
+
+
 Description
 -----------
 
@@ -13,6 +20,10 @@ Description
 R10k provides a general purpose toolset for deploying Puppet environments and
 modules. It implements the [Puppetfile](doc/puppetfile.mkd) format and provides a native
 implementation of Puppet [environments][workflow].
+
+You might also consider [g10k](https://github.com/xorpaul/g10k) as a non-ruby
+based alternative.
+
 
 Requirements
 ------------
