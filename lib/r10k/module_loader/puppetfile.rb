@@ -30,17 +30,21 @@ module R10K
       # @param overrides [Hash] Configuration for loaded modules' behavior
       # @param environment [R10K::Environment] When provided, the environment
       #     in which loading takes place
+      # @param module_exclude_regex [Regex] A regex to exclude modules from
+      #     installation. Helpful in CI environments.
       def initialize(basedir:,
                      moduledir: DEFAULT_MODULEDIR,
                      puppetfile: DEFAULT_PUPPETFILE_NAME,
                      overrides: {},
-                     environment: nil)
+                     environment: nil,
+                     module_exclude_regex: nil)
 
         @basedir     = cleanpath(basedir)
         @moduledir   = resolve_path(@basedir, moduledir)
         @puppetfile_path  = resolve_path(@basedir, puppetfile)
         @overrides   = overrides
         @environment = environment
+        @module_exclude_regex = module_exclude_regex
         @environment_name = @environment&.name
         @default_branch_override = @overrides.dig(:environments, :default_branch_override)
         @allow_puppetfile_forge = @overrides.dig(:forge, :allow_puppetfile_override)
@@ -68,6 +72,7 @@ module R10K
         dsl.instance_eval(puppetfile_content(@puppetfile_path), @puppetfile_path)
 
         validate_no_duplicate_names(@modules)
+        @modules = filter_modules(@modules, @module_exclude_regex) if @module_exclude_regex
 
         managed_content = @modules.group_by(&:dirname)
 
@@ -221,6 +226,10 @@ module R10K
         end
 
         return [ install_path, info, spec_deletable ]
+      end
+
+      def filter_modules(modules, exclude_regex)
+        modules.reject { |mod| mod.name =~ /#{exclude_regex}/ }
       end
 
       # @param [Array<R10K::Module>] modules
