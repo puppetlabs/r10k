@@ -3,6 +3,9 @@ CHANGELOG
 
 Unreleased
 ----------
+
+3.15.2
+------
 - Implement exclude regex for puppetfile install [#1248](https://github.com/puppetlabs/r10k/issues/1248)
 
 3.15.1
