@@ -4,6 +4,8 @@ CHANGELOG
 Unreleased
 ----------
 
+- Fix dirty working copy debug logging [#1321](https://github.com/puppetlabs/r10k/pull/1321)
+
 3.15.2
 ------
 - Implement exclude regex for puppetfile install [#1248](https://github.com/puppetlabs/r10k/issues/1248)
