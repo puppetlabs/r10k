@@ -94,7 +94,7 @@ class R10K::Git::ShellGit::WorkingRepository < R10K::Git::ShellGit::BaseReposito
     result = git(['diff-index', '--exit-code', '--name-only', 'HEAD'], :path => @path.to_s, :raise_on_fail => false)
 
     if result.exit_code != 0
-      dirty_files = result.stdout.split('\n')
+      dirty_files = result.stdout.split("\n")
       dirty_files.delete_if { |f| f.start_with?('spec/') } if exclude_spec
 
       dirty_files.each do |file|

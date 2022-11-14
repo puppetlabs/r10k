@@ -15,6 +15,7 @@ module R10K
             options[:overrides][:modules] = { default_ref: @settings.dig(:git, :default_ref) }
             options[:moduledir]  = @moduledir  if @moduledir
             options[:puppetfile] = @puppetfile if @puppetfile
+            options[:module_exclude_regex] = @module_exclude_regex if @module_exclude_regex
 
             loader = R10K::ModuleLoader::Puppetfile.new(**options)
             loaded_content = loader.load!
@@ -41,7 +42,7 @@ module R10K
         private
 
         def allowed_initialize_opts
-          super.merge(root: :self, puppetfile: :self, moduledir: :self, force: :self )
+          super.merge(root: :self, puppetfile: :self, moduledir: :self, :'module-exclude-regex' => :self, force: :self )
         end
       end
     end

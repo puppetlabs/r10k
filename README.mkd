@@ -5,6 +5,12 @@ Puppet environment and module deployment
 
 [![Build Status](https://travis-ci.org/puppetlabs/r10k.png?branch=master)](https://travis-ci.org/puppetlabs/r10k)
 
+> R10k is supported and maintained by Puppet, but we consider it to be feature
+> complete and currently have no plans for any new development. We will keep it
+> working within the context of Puppet Enterprise, but we cannot make any other
+> maintenance promises at this time.
+
+
 Description
 -----------
 
@@ -13,6 +19,10 @@ Description
 R10k provides a general purpose toolset for deploying Puppet environments and
 modules. It implements the [Puppetfile](doc/puppetfile.mkd) format and provides a native
 implementation of Puppet [environments][workflow].
+
+You might also consider [g10k](https://github.com/xorpaul/g10k) as a non-ruby
+based alternative.
+
 
 Requirements
 ------------
@@ -110,24 +120,13 @@ To release a new version of the r10k gem, ensure the [changelog](CHANGELOG.mkd) 
 
 By default, a patch (Z) release will be triggered. To release a new major (X) or minor (Y) version, include `#major` or `#minor` (respectively) in your commit message to trigger the appropriate release.
 
-NOTE: This currently only works for the default branch. If you would like to release from a different branch, please contact the [CODEOWNERS](CODEOWNERS).
-
 Getting help
 ------------
 
-  * IRC: r10k has a dedicated channel, `#r10k`, on Freenode where r10k questions
-  can be directed. Questions about r10k can frequently be asked in `#puppet` as well.
+  * [Puppet Community Slack](https://puppetcommunity.slack.com/)
   * Mailing lists: [puppet-users](https://groups.google.com/forum/#!forum/puppet-users)
   * Q&A: [Puppet Ask](https://ask.puppetlabs.com/questions/)
 
-Contributors
-------------
-
-Please see the CHANGELOG for a listing of the (very awesome) contributors.
-
 ## Maintenance
 
-See [CODEOWNERS](CODEOWNERS) for active repo maintainers.
-
-Open [issues](https://github.com/puppetlabs/r10k/issues) directly in the r10k repo.
-
+See [CODEOWNERS](CODEOWNERS) for current project owners.
