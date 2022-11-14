@@ -31,6 +31,7 @@ Puppetfile (http://bombasticmonkey.com/librarian-puppet/).
           summary 'Install all modules from a Puppetfile'
           option nil, :moduledir, 'Path to install modules to', argument: :required
           option nil, :puppetfile, 'Path to puppetfile', argument: :required
+          option nil, :'module-exclude-regex', 'A regex to exclude modules from installation. Helpful in CI environments.', argument: :required
           flag     nil, :force, 'Force locally changed files to be overwritten'
           runner R10K::Action::Puppetfile::CriRunner.wrap(R10K::Action::Puppetfile::Install)
         end

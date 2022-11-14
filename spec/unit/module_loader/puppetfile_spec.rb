@@ -416,6 +416,24 @@ describe R10K::ModuleLoader::Puppetfile do
 
         expect(modules['apt']).to be_a_kind_of(R10K::Module::Forge)
       end
+
+    end
+
+    describe 'using module-exclude-regex' do
+      it 'can exclude a module from being installed' do
+        @path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'various-modules')
+        puppetfile = R10K::ModuleLoader::Puppetfile.new(basedir: @path, module_exclude_regex: '^concat$')
+        puppetfile.load!
+        expect(puppetfile.modules.collect(&:name)).not_to include('concat')
+      end
+
+      it 'can exclude multiple modules from being installed' do
+        @path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'various-modules')
+        puppetfile = R10K::ModuleLoader::Puppetfile.new(basedir: @path, module_exclude_regex: '^ba[rz]$')
+        puppetfile.load!
+        expect(puppetfile.modules.collect(&:name)).not_to include('bar')
+        expect(puppetfile.modules.collect(&:name)).not_to include('baz')
+      end
     end
   end
 end
