@@ -30,7 +30,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'puppet_forge', '>= 2.3.0'
 
-  s.add_dependency 'gettext-setup', '~>0.24'
+  s.add_dependency 'gettext-setup', ['>=0.24', '< 2.0.0']
   s.add_dependency 'fast_gettext', ['>= 1.1.0', '< 3.0.0']
   s.add_dependency 'gettext', ['>= 3.0.2', '< 4.0.0']
 
