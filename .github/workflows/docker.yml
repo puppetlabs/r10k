@@ -22,10 +22,10 @@ jobs:
         with: # This doesn't seem to work unless we point directly to the secrets
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - name: Set up Ruby 2.6
-        uses: actions/setup-ruby@v1
+      - name: Set up Ruby 2.7
+        uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6.x
+          ruby-version: '2.7'
       - run: gem install bundler
       - uses: actions/checkout@v2
       - name: Set up QEMU
