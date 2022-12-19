@@ -4,6 +4,8 @@ CHANGELOG
 Unreleased
 ----------
 
+3.15.3
+------
 - Fix dirty working copy debug logging [#1321](https://github.com/puppetlabs/r10k/pull/1321)
 - Allow gettext-setup < 2 for compatibility with Ruby 3.2 and Puppet 8 [#1325](https://github.com/puppetlabs/r10k/pull/1325)
 
