@@ -44,7 +44,7 @@ scp_to(master, helloworld_module_path, File.join(git_clone_module_path, 'hellowo
 git_add_commit_push(master, 'master', 'Add module.', git_clone_module_path)
 
 step 'Add "helloworld" Module Git Repo as Submodule'
-on(master, "cd #{git_environments_path};git submodule add file://#{git_repo_module_path} dist")
+on(master, "cd #{git_environments_path};git -c protocol.file.allow=always submodule add file://#{git_repo_module_path} dist")
 
 step 'Checkout "production" Branch'
 git_on(master, 'checkout production', git_environments_path)
