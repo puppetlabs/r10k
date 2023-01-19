@@ -32,7 +32,8 @@ jobs:
 
       - name: Install bundler and gems
         run: |
-          gem install bundler
+          # Pin bundler to maintain support for Ruby 2.4 and 2.5
+          gem install bundler -v 2.3.26
           bundle config set without packaging documentation
           bundle install --jobs 4 --retry 3
 
