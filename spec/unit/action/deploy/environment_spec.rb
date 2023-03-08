@@ -568,7 +568,7 @@ describe R10K::Action::Deploy::Environment do
 
     before(:all) do
       @tmp_path = "./tmp-r10k-test-dir/"
-      Dir.mkdir(@tmp_path) unless File.exists?(@tmp_path)
+      Dir.mkdir(@tmp_path) unless File.exist?(@tmp_path)
     end
 
     after(:all) do
