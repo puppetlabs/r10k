@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
     dynamic environments.
   DESCRIPTION
 
-  s.required_ruby_version = '>= 2.5.0'
+  s.required_ruby_version = '>= 2.6.0'
 
   s.license  = 'Apache-2.0'
 
