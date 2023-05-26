@@ -4,6 +4,8 @@ CHANGELOG
 Unreleased
 ----------
 
+- Drop Ruby 2.3/2.4/2.5 support; puppet_forge: Use 4.1 and newer [#1336](https://github.com/puppetlabs/r10k/pull/1336)
+
 3.15.4
 ------
 - Pin dependencies to maintain support for old Ruby versions [#1329](https://github.com/puppetlabs/r10k/pull/1329)
