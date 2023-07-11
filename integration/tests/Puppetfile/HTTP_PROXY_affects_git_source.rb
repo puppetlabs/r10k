@@ -36,7 +36,7 @@ sources:
 CONF
 
 teardown do
-  master.clear_env_var('HTTP_PROXY')
+  master.clear_env_var('HTTPS_PROXY')
 
   step 'Restore Original "r10k" Config'
   on(master, "mv #{r10k_config_bak_path} #{r10k_config_path}")
@@ -45,7 +45,7 @@ teardown do
   clean_up_r10k(master, last_commit, git_environments_path)
 end
 
-master.add_env_var('HTTP_PROXY', proxy_env_value)
+master.add_env_var('HTTPS_PROXY', proxy_env_value)
 
 step 'Backup Current "r10k" Config'
 on(master, "mv #{r10k_config_path} #{r10k_config_bak_path}")
