@@ -19,33 +19,27 @@ mod 'motd',
   :git => 'https://github.com/puppetlabs/puppetlabs-motd', :branch => 'main'
 EOS
 
-proxy_env_value = 'http://cattastic.net:3219'
-
 #In-line files
 r10k_conf = <<-CONF
 cachedir: '/var/cache/r10k'
 git:
   provider: '#{git_provider}'
   repositories:
-    - remote: 'http://example.com/fake_git_source.git'
+    - remote: 'https://something.else/repo'
       proxy: 'http://foooooooo.unresolvable:3128'
 sources:
   control:
     basedir: "#{env_path}"
-    remote: "http://example.com/fake_git_source.git"
+    remote: 'https://something.else/repo'
 CONF
 
 teardown do
-  master.clear_env_var('HTTP_PROXY')
-
   step 'Restore Original "r10k" Config'
   on(master, "mv #{r10k_config_bak_path} #{r10k_config_path}")
 
   step 'cleanup r10k'
   clean_up_r10k(master, last_commit, git_environments_path)
 end
-
-master.add_env_var('HTTP_PROXY', proxy_env_value)
 
 step 'Backup Current "r10k" Config'
 on(master, "mv #{r10k_config_path} #{r10k_config_bak_path}")
@@ -64,7 +58,12 @@ git_add_commit_push(master, 'production', 'add Puppetfile', git_environments_pat
 
 #test
 on(master, "#{r10k_fqp} deploy environment -p", :accept_all_exit_codes => true) do |r|
-  regex = /proxy.*foooooooo\.unresolvable/
+  # Rugged as of 0.28 has a different error message than shellgit
+  regex = if git_provider == 'rugged'
+            /failed to resolve address for foooooooo\.unresolvable/
+          else
+            /Could not resolve proxy: foooooooo\.unresolvable/
+          end
   assert(r.exit_code == 1, 'expected error code was not observed')
   assert_match(regex, r.stderr, 'The expected error message was not observed' )
 end
