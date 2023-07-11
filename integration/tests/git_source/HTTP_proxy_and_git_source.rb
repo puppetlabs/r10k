@@ -16,7 +16,7 @@ r10k_config_bak_path = "#{r10k_config_path}.bak"
 
 puppetfile =<<-EOS
 mod 'motd',
-  :git    => 'https://github.com/puppetlabs/puppetlabs-motd'
+  :git => 'https://github.com/puppetlabs/puppetlabs-motd', :branch => 'main'
 EOS
 
 proxy_env_value = 'http://cattastic.net:3219'
