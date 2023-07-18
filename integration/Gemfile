@@ -16,3 +16,4 @@ gem 'beaker-answers'
 gem 'beaker-hostgenerator', *location_for(ENV['BEAKER_HOSTGENERATOR_VERSION'] || '~> 1.1')
 gem 'beaker-abs', *location_for(ENV['BEAKER_ABS_VERSION'] || '~> 0.4')
 gem 'rototiller', '= 0.1.0'
+gem 'beaker-qa-i18n'
