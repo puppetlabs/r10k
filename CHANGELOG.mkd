@@ -4,6 +4,8 @@ CHANGELOG
 Unreleased
 ----------
 - Update GitHub Actions & introduce dependabot [#1337](https://github.com/puppetlabs/r10k/pull/1337)
+- Update Acceptance tests to be compatible with Puppet 8 [#1349](https://github.com/puppetlabs/r10k/pull/1349)
+- Update R10K proxy usage to follow newer rugged best practices [PE-35980](https://tickets.puppet.com/browse/PE-35980)
 
 3.15.4
 ------
