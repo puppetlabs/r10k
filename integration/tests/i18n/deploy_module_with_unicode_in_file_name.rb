@@ -1,10 +1,9 @@
 require 'git_utils'
 require 'r10k_utils'
 require 'master_manipulator'
-#require 'beaker-qa-i18n'
+require 'beaker-qa-i18n'
 
 test_name 'Deploy module with unicode file name'
-skip_test 'Not currently utilizing i18n and need to remove use of beaker-qa-i18n'
 
 #Init
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip

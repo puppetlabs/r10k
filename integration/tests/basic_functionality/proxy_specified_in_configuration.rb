@@ -50,7 +50,7 @@ forge:
 CONF
 
 #Verification
-squid_log_regex = /CONNECT forgeapi.puppetlabs.com:443/
+squid_log_regex = /CONNECT forgeapi.puppet.com:443/
 
 #Teardown
 teardown do
