@@ -68,6 +68,6 @@ on(master, "chmod 600 #{ssh_private_key_path}")
 
 #Tests
 step 'Attempt to Deploy via r10k'
-on(master, "#{r10k_fqp} deploy environment -v", :acceptable_exit_codes => 1) do |result|
+on(master, "SSH_AUTH_SOCK= SSH_CONNECTION= SSH_CLIENT= #{r10k_fqp} deploy environment -v", :acceptable_exit_codes => 1) do |result|
   assert_match(error_message_regex, result.stderr, 'Expected message not found!')
 end
