@@ -11,12 +11,11 @@ jobs:
     strategy:
       matrix:
         cfg:
-          - {os: ubuntu-latest, ruby: 2.5}
           - {os: ubuntu-latest, ruby: 2.6}
           - {os: ubuntu-latest, ruby: 2.7}
+          - {os: ubuntu-latest, ruby: 3.1}
           - {os: ubuntu-latest, ruby: 3.2}
-          - {os: ubuntu-latest, ruby: jruby-9.2.10.0}
-          - {os: windows-2019, ruby: 2.5}
+          - {os: ubuntu-latest, ruby: jruby-9.3}
           - {os: windows-2019, ruby: 2.6}
           - {os: windows-2019, ruby: 2.7}
 
@@ -32,8 +31,6 @@ jobs:
 
       - name: Install bundler and gems
         run: |
-          # Pin bundler to maintain support for Ruby 2.4 and 2.5
-          gem install bundler -v 2.3.26
           bundle config set without packaging documentation
           bundle install --jobs 4 --retry 3
 
