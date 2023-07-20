@@ -3,6 +3,7 @@ CHANGELOG
 
 Unreleased
 ----------
+- Update GitHub Actions & introduce dependabot [#1337](https://github.com/puppetlabs/r10k/pull/1337)
 
 - Drop Ruby 2.3/2.4/2.5 support; puppet_forge: Use 4.1 and newer [#1336](https://github.com/puppetlabs/r10k/pull/1336)
 
