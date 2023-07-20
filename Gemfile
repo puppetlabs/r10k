@@ -10,6 +10,6 @@ group :development do
   gem 'ruby-prof', :platforms => :ruby
 end
 
-if File.exists? "#{__FILE__}.local"
+if File.exist? "#{__FILE__}.local"
   eval(File.read("#{__FILE__}.local"), binding)
 end
