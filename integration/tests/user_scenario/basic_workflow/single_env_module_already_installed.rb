@@ -44,9 +44,6 @@ teardown do
 end
 
 #Setup
-step 'Stub Forge on Master'
-stub_forge_on(master)
-
 step 'Add motd module from the forge using the PMT'
 on(master, puppet('module', 'install', 'puppetlabs-motd', '--modulepath', forge_module_path))
 

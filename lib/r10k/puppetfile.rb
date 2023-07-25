@@ -72,7 +72,7 @@ class Puppetfile
     @overrides       = options.delete(:overrides) || {}
     @default_branch_override = @overrides.dig(:environments, :default_branch_override)
 
-    @forge   = 'forgeapi.puppetlabs.com'
+    @forge   = 'forgeapi.puppet.com'
 
     @loader = ::R10K::ModuleLoader::Puppetfile.new(
       basedir: @basedir,
