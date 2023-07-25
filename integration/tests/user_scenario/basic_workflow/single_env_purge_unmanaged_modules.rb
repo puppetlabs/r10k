@@ -43,9 +43,6 @@ teardown do
 end
 
 #Setup
-step 'Stub Forge on Master'
-stub_forge_on(master)
-
 step 'Checkout "production" Branch'
 git_on(master, 'checkout production', git_remote_environments_path)
 

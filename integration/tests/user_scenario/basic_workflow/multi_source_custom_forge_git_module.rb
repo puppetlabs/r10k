@@ -102,9 +102,6 @@ teardown do
 end
 
 #Setup
-step 'Stub Forge on Master'
-stub_forge_on(master)
-
 step 'Backup Current "r10k" Config'
 on(master, "mv #{r10k_config_path} #{r10k_config_bak_path}")
 

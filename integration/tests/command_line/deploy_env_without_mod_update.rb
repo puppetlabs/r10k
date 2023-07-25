@@ -46,9 +46,6 @@ teardown do
 end
 
 #Setup
-step 'Stub Forge on Master'
-stub_forge_on(master)
-
 step 'Inject New "site.pp" to the "production" Environment'
 inject_site_pp(master, site_pp_path, site_pp)
 
