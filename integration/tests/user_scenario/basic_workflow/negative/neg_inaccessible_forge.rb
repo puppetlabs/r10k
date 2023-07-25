@@ -35,7 +35,7 @@ on(master, "mv #{hosts_file_path} #{hosts_file_path}.bak")
 
 step 'Point Forge Hostname to Localhost'
 on(master, "echo '127.0.0.1  forgeapi.puppet.com' > #{hosts_file_path}")
-on(master, "echo '127.0.0.1  forgeapi.puppetlabs.com' > #{hosts_file_path}")
+on(master, "echo '127.0.0.1  forgeapi.puppetlabs.com' >> #{hosts_file_path}")
 
 step 'Checkout "production" Branch'
 git_on(master, 'checkout production', git_environments_path)
