@@ -6,7 +6,7 @@ group :extra do
 end
 
 group :development do
-  gem 'simplecov', '~> 0.17.1'
+  gem 'simplecov', '~> 0.22.0'
   gem 'ruby-prof', :platforms => :ruby
 end
 
