@@ -50,9 +50,6 @@ teardown do
   clean_up_r10k(master, last_commit, git_environments_path)
 end
 
-step 'Stub the forge'
-stub_forge_on(master)
-
 step 'Backup Current "r10k" Config'
 on(master, "mv #{r10k_config_path} #{r10k_config_bak_path}")
 

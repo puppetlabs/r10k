@@ -10,7 +10,7 @@ last_commit = git_last_commit(master, git_environments_path)
 r10k_fqp = get_r10k_fqp(master)
 
 #Verification
-error_notification_regex = /The module puppetlabs-regret does not appear to have any published releases/
+error_notification_regex = /(The module puppetlabs-regret does not appear to have any published releases)|(module puppetlabs-regret does not exist on)/
 
 #File
 puppet_file = <<-PUPPETFILE
@@ -23,10 +23,6 @@ puppet_file_path = File.join(git_environments_path, 'Puppetfile')
 teardown do
   clean_up_r10k(master, last_commit, git_environments_path)
 end
-
-#Setup
-step 'Stub Forge on Master'
-stub_forge_on(master)
 
 #Tests
 step 'Checkout "production" Branch'

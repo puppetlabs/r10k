@@ -1,16 +1,16 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2022 Puppet, Inc.
+# Copyright (C) 2023 Puppet, Inc.
 # This file is distributed under the same license as the r10k package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: r10k 3.9.3-265-gcb0a3463\n"
+"Project-Id-Version: r10k 3.9.3-289-g2f5deb72\n"
 "\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
-"POT-Creation-Date: 2022-12-08 22:58+0000\n"
-"PO-Revision-Date: 2022-12-08 22:58+0000\n"
+"POT-Creation-Date: 2023-06-27 17:39+0000\n"
+"PO-Revision-Date: 2023-06-27 17:39+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -95,7 +95,11 @@ msgstr ""
 msgid "Error during concurrent deploy of a module: %{message}"
 msgstr ""
 
-#: ../lib/r10k/content_synchronizer.rb:87
+#: ../lib/r10k/content_synchronizer.rb:86
+msgid "Module %{mod_name} failed to synchronize due to %{message}"
+msgstr ""
+
+#: ../lib/r10k/content_synchronizer.rb:92
 msgid "Module thread %{id} exiting: %{message}"
 msgstr ""
 

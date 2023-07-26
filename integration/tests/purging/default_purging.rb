@@ -51,9 +51,6 @@ fake_file_b_to_be_left_alone = "#{fake_environment_path_b}/fakefile2.txt"
 fake_file_c_to_be_purged     = "#{fake_environment_path_c}/fakefile3.txt"
 
 # initalize file content
-step 'Stub the forge'
-stub_forge_on(master)
-
 step 'Backup Current "r10k" Config'
 on(master, "mv #{r10k_config_path} #{r10k_config_bak_path}")
 

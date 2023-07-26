@@ -23,9 +23,6 @@ pe_version = get_puppet_version(master)
 fail_test('This pre-suite requires PE 3.7 or above!') if pe_version < 3.7
 
 #Setup
-step 'Stub Forge on Master'
-stub_forge_on(master)
-
 step 'Read module path'
 on(master, puppet('config print basemodulepath')) do |result|
   (result.stdout.include? ':') ? separator = ':' : separator = ';'

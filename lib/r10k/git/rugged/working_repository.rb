@@ -27,6 +27,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
   def clone(remote, opts = {})
     logger.debug1 { _("Cloning '%{remote}' into %{path}") % {remote: remote, path: @path } }
 
+    proxy = R10K::Git.get_proxy_for_remote(remote)
     # libgit2/rugged doesn't support cloning a repository and providing an
     # alternate object database, making the handling of :alternates a noop.
     # Unfortunately this means that this method can't really use alternates
@@ -34,10 +35,9 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
     # repository. However alternate databases can be handled when an existing
     # repository is loaded, so loading a cloned repo will correctly use
     # alternate object database.
-    options = {:credentials => credentials}
+    options = {:credentials => credentials, :proxy_url => proxy}
     options.merge!(:alternates => [File.join(opts[:reference], 'objects')]) if opts[:reference]
 
-    proxy = R10K::Git.get_proxy_for_remote(remote)
 
     R10K::Git.with_proxy(proxy) do
       @_rugged_repo = ::Rugged::Repository.clone_at(remote, @path.to_s, options)
@@ -85,11 +85,13 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
 
   def fetch(remote_name = 'origin')
     logger.debug1 { _("Fetching remote '%{remote}' at %{path}") % {remote: remote_name, path: @path} }
-    options = {:credentials => credentials}
-    refspecs = ["+refs/heads/*:refs/remotes/#{remote_name}/*"]
 
     remote = remotes[remote_name]
     proxy = R10K::Git.get_proxy_for_remote(remote)
+
+    options = {:credentials => credentials, :proxy_url => proxy}
+    refspecs = ["+refs/heads/*:refs/remotes/#{remote_name}/*"]
+
     results = nil
 
     R10K::Git.with_proxy(proxy) do

@@ -79,8 +79,13 @@ module R10K
         begin
           while mods = mods_queue.pop(true) do
             mods.each do |mod|
-              updated = mod.sync
-              updated_modules << mod.name if updated
+              begin
+                updated = mod.sync
+                updated_modules << mod.name if updated
+              rescue Exception => e
+                logger.error _("Module %{mod_name} failed to synchronize due to %{message}") % {mod_name: mod.name, message: e.message}
+                raise e
+              end
             end
           end
         rescue ThreadError => e
