@@ -3,9 +3,17 @@ CHANGELOG
 
 Unreleased
 ----------
-- Update GitHub Actions & introduce dependabot [#1337](https://github.com/puppetlabs/r10k/pull/1337)
 
-- Drop Ruby 2.3/2.4/2.5 support; puppet_forge: Use 4.1 and newer [#1336](https://github.com/puppetlabs/r10k/pull/1336)
+
+4.0.0
+-----
+- Drop Ruby 2.3/2.4/2.5 support; use puppet_forge 4.1 or newer [#1336](https://github.com/puppetlabs/r10k/pull/1336)
+- (maint) Add Ruby 3.0 to rspec CI matrix [#1261](https://github.com/puppetlabs/r10k/pull/1261)
+- (RK-368) remove `purge_whitelist` setting [#1277](https://github.com/puppetlabs/r10k/pull/1277)
+- (RK-390) Remove default ref for deploying git modules [#1275](http://github.com/puppetlabs/r10k/pull/1275)
+- (RK-391) Change `exclude_spec` default to true for module spec dir deletion [#1264](https://github.com/puppetlabs/r10k/pull/1261)
+- (RK-383) Remove deprecated `basedir` method from Puppetfile DSL. Users should use `environment_name` instead. [#1254](https://github.com/puppetlabs/r10k/pull/1254)
+- (RK-386) Remove deprecated `bare` environment type. [#1235](https://github.com/puppetlabs/r10k/issues/1235)
 
 
 3.16.0
@@ -32,14 +40,6 @@ Unreleased
 ------
 - Add TOC to configuration docs [#1298](https://github.com/puppetlabs/r10k/issues/1298)
 - Remove the spec folder from gemspec [#1316](https://github.com/puppetlabs/r10k/issues/1316)
-
-- (RK-368) remove `purge_whitelist` setting [#1277](https://github.com/puppetlabs/r10k/pull/1277)
-- (RK-390) Remove default ref for deploying git modules [#1275](http://github.com/puppetlabs/r10k/pull/1275)
-- (RK-391) Change `exclude_spec` default to true for module spec dir deletion [#1264](https://github.com/puppetlabs/r10k/pull/1261)
-- (maint) Add Ruby 3.0 to rspec CI matrix [#1261](https://github.com/puppetlabs/r10k/pull/1261)
-- (RK-383) Remove deprecated `basedir` method from Puppetfile DSL. Users should use `environment_name` instead. [#1254](https://github.com/puppetlabs/r10k/pull/1254)
-- (RK-386) Remove deprecated `bare` environment type. [#1235](https://github.com/puppetlabs/r10k/issues/1235)
-- Drop EoL Ruby 2.3/2.4 support [#1280](https://github.com/puppetlabs/r10k/pull/1208)
 
 3.15.0
 ------
