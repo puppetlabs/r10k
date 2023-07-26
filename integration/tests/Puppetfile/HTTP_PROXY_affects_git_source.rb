@@ -19,7 +19,7 @@ r10k_config_bak_path = "#{r10k_config_path}.bak"
 
 puppetfile =<<-EOS
 mod 'motd',
-  :git    => 'https://github.com/puppetlabs/puppetlabs-motd'
+  :git    => 'https://github.com/puppetlabs/puppetlabs-motd', :branch => 'main'
 EOS
 
 proxy_env_value = 'http://ferritsarebest.net:3219'
@@ -36,7 +36,7 @@ sources:
 CONF
 
 teardown do
-  master.clear_env_var('HTTP_PROXY')
+  master.clear_env_var('HTTPS_PROXY')
 
   step 'Restore Original "r10k" Config'
   on(master, "mv #{r10k_config_bak_path} #{r10k_config_path}")
@@ -45,7 +45,7 @@ teardown do
   clean_up_r10k(master, last_commit, git_environments_path)
 end
 
-master.add_env_var('HTTP_PROXY', proxy_env_value)
+master.add_env_var('HTTPS_PROXY', proxy_env_value)
 
 step 'Backup Current "r10k" Config'
 on(master, "mv #{r10k_config_path} #{r10k_config_bak_path}")
@@ -64,7 +64,8 @@ git_add_commit_push(master, 'production', 'add Puppetfile', git_environments_pat
 
 #test
 on(master, "#{r10k_fqp} deploy environment -p", :accept_all_exit_codes => true) do |r|
-  regex = /(Couldn't|Could not) resolve proxy.*ferritsarebest\.net/i
+  # Rugged as of 0.28 has a different error message than shellgit
+  regex = /((failed to resolve address for)|(Could not resolve proxy:)) ferritsarebest\.net/
   assert(r.exit_code == 1, 'expected error code was not observed')
   assert_match(regex, r.stderr, 'The expected error message was not observed' )
 end

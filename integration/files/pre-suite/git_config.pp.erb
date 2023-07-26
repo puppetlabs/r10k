@@ -1,4 +1,4 @@
-$git_package = $osfamily ? {
+$git_package = $facts['os']['family'] ? {
   'Debian' => 'git-core',
   default  => 'git'
 }

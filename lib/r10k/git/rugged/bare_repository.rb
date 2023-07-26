@@ -56,11 +56,12 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
       logger.warn { _("Rugged versions prior to 0.24.0 do not support pruning stale branches during fetch, please upgrade your \'rugged\' gem. (Current version is: %{version})") % {version: Rugged::Version} }
     end
 
-    options = {:credentials => credentials, :prune => true}
-    refspecs = ['+refs/*:refs/*']
-
     remote = remotes[remote_name]
     proxy = R10K::Git.get_proxy_for_remote(remote)
+
+    options = {:credentials => credentials, :prune => true, :proxy_url => proxy}
+    refspecs = ['+refs/*:refs/*']
+
     results = nil
 
     R10K::Git.with_proxy(proxy) do
