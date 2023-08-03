@@ -90,6 +90,7 @@ class R10K::Module::SVN < R10K::Module::Base
         updated = true
       end
       maybe_delete_spec_dir
+      maybe_extra_delete
     end
     updated
   end

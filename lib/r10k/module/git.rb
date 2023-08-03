@@ -104,6 +104,7 @@ class R10K::Module::Git < R10K::Module::Base
       updated = false
     end
     maybe_delete_spec_dir
+    maybe_extra_delete
     updated
   end
 

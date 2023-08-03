@@ -67,6 +67,7 @@ class R10K::Module::Tarball < R10K::Module::Base
         tarball.unpack(path.to_s)
       end
       maybe_delete_spec_dir
+      maybe_extra_delete
       true
     else
       false

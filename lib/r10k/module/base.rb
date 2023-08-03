@@ -42,6 +42,10 @@ class R10K::Module::Base
   #   @return [Boolean] set this to true if the spec dir can be safely removed, ie in the moduledir
   attr_accessor :spec_deletable
 
+  # @!attribute [rw] extra_delete
+  #   @return [List[String]] set this to non-empty array of strings of files to remove from module after sync
+  attr_accessor :extra_delete
+
   # There's been some churn over `author` vs `owner` and `full_name` over
   # `title`, so in the short run it's easier to support both and deprecate one
   # later.
@@ -65,6 +69,12 @@ class R10K::Module::Base
     if args.has_key?(:exclude_spec)
       logger.debug2 _("Overriding :exclude_spec setting with per module setting for #{@title}")
       @exclude_spec = args.delete(:exclude_spec)
+    end
+    @extra_delete = []
+    @extra_delete = @overrides.dig(:modules, :extra_delete) if @overrides.dig(:modules, :extra_delete)
+    if args.has_key?(:extra_delete)
+      logger.debug2 _("Overriding :extra_delete setting with per module setting for #{@title}")
+      @extra_delete = args.delete(:extra_delete)
     end
     @origin = 'external' # Expect Puppetfile or R10k::Environment to set this to a specific value
 
@@ -105,6 +115,38 @@ class R10K::Module::Base
       FileUtils.rm_rf(spec_path, secure: true)
     else
       logger.debug2 _("No spec dir detected at #{spec_path}, skipping deletion")
+    end
+  end
+
+  def maybe_extra_delete
+    unless @extra_delete.empty?
+        logger.info _("extra_delete for #{@title} enabled")
+        extra_delete_rm
+    end
+  end
+
+  def extra_delete_rm
+    @extra_delete.each do | to_delete |
+
+      to_delete_path = @path + to_delete
+      # Is this safe? What is the symlink is outside our path?
+      if to_delete_path.symlink?
+        to_delete_path = to_delete_path.realpath
+      end
+
+      to_delete_path_glob = Dir.glob(to_delete_path) # returns a list
+
+      to_delete_path_glob.each do | to_delete_path_i |
+        if File.directory?(to_delete_path_i)
+          logger.debug2 _("Deleting directory per extra_delete at #{to_delete_path_i}")
+          # Use the secure flag for the #rm_rf, see full notes in delete_spec_dir function
+          FileUtils.rm_rf(to_delete_path_i, secure: true)
+        else
+          logger.debug2 _("Deleting files per extra_delete at #{to_delete_path_i}")
+          # Use rm, not rm_rf or rm_r. Directories should be covered above
+          FileUtils.rm(to_delete_path_i)
+        end
+      end
     end
   end
 
