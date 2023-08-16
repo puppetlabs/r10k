@@ -10,7 +10,7 @@ confine(:to, :platform => ['el', 'ubuntu', 'sles'])
 
 if ENV['GIT_PROVIDER'] == 'shellgit'
   skip_test('Skipping test because removing Git from the system affects other "shellgit" tests.')
-elsif fact_on(master, 'osfamily') == 'RedHat' and fact_on(master, "operatingsystemmajrelease").to_i < 6
+elsif fact_on(master, 'osfamily') == 'RedHat' and fact_on(master, "os.release.major").to_i < 6
   skip_test('This version of EL is not supported by this test case!')
 end
 
@@ -87,7 +87,7 @@ step 'Remove "git" Package from System'
 if master_platform == 'RedHat'
   on(master, 'yum remove -y git')
 elsif master_platform == 'Debian'
-  if fact_on(master, "operatingsystemmajrelease") == '10.04'
+  if fact_on(master, "os.release.major") == '10.04'
     on(master, 'apt-get remove -y git-core')
   else
     on(master, 'apt-get remove -y git')
