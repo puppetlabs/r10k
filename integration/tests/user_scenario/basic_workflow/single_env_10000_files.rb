@@ -3,7 +3,7 @@ require 'r10k_utils'
 require 'master_manipulator'
 test_name 'CODEMGMT-62 - C59239 - Single Environment with 10,000 Files'
 
-if fact_on(master, 'osfamily') == 'RedHat' and fact_on(master, "operatingsystemmajrelease").to_i < 6
+if fact_on(master, 'osfamily') == 'RedHat' and fact_on(master, "os.release.major").to_i < 6
   skip_test('This version of EL is not supported by this test case!')
 end
 
