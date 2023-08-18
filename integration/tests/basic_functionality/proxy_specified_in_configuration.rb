@@ -6,7 +6,7 @@ test_name 'RK-110 - C87652 - Specify the proxy in the r10k.yaml'
 confine(:to, :platform => ['el', 'sles'])
 
 #Init
-master_platform = fact_on(master, 'osfamily')
+master_platform = fact_on(master, 'os.family')
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 r10k_fqp = get_r10k_fqp(master)
 

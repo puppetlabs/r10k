@@ -2,7 +2,7 @@ require 'git_utils'
 require 'r10k_utils'
 test_name 'CODEMGMT-86 - C59265 - Attempt to Deploy Environment to Disk with Insufficient Free Space'
 
-if fact_on(master, 'osfamily') == 'RedHat' and fact_on(master, "os.release.major").to_i < 6
+if fact_on(master, 'os.family') == 'RedHat' and fact_on(master, "os.release.major").to_i < 6
   skip_test('This version of EL is not supported by this test case!')
 end
 

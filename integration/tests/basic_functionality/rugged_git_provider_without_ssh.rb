@@ -8,12 +8,12 @@ confine(:to, :platform => ['el', 'ubuntu', 'sles'])
 
 if ENV['GIT_PROVIDER'] == 'shellgit'
   skip_test('Skipping test because removing Git from the system affects other "shellgit" tests.')
-elsif fact_on(master, 'osfamily') == 'RedHat' and fact_on(master, "os.release.major").to_i < 6
+elsif fact_on(master, 'os.family') == 'RedHat' and fact_on(master, "os.release.major").to_i < 6
   skip_test('This version of EL is not supported by this test case!')
 end
 
 #Init
-master_platform = fact_on(master, 'osfamily')
+master_platform = fact_on(master, 'os.family')
 master_certname = on(master, puppet('config', 'print', 'certname')).stdout.rstrip
 env_path = on(master, puppet('config print environmentpath')).stdout.rstrip
 r10k_fqp = get_r10k_fqp(master)
