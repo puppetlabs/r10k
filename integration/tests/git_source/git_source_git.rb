@@ -5,7 +5,7 @@ test_name 'CODEMGMT-92 - C59235 - Single Git Source Using "GIT" Transport Protoc
 
 confine(:to, :platform => 'el')
 
-if fact_on(master, "operatingsystemmajrelease").to_i < 6
+if fact_on(master, "os.release.major").to_i < 6 || fact_on(master, "os.release.major").to_i > 8
   skip_test('This version of EL is not supported by this test case!')
 end
 

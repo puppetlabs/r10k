@@ -6,7 +6,7 @@ test_name 'RK-110 - C88671 - Specify a bad proxy to r10k'
 confine(:to, :platform => ['el', 'sles'])
 
 #Init
-master_platform = fact_on(master, 'osfamily')
+master_platform = fact_on(master, 'os.family')
 r10k_fqp = get_r10k_fqp(master)
 
 #Verification
