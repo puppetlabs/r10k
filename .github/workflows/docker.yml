@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: azure/docker-login@v1
         with: # This doesn't seem to work unless we point directly to the secrets
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -27,7 +27,7 @@ jobs:
         with:
           ruby-version: 2.6.x
       - run: gem install bundler
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
