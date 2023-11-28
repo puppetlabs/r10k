@@ -4,6 +4,9 @@ CHANGELOG
 Unreleased
 ----------
 
+4.0.1
+-----
+
 - shellgit: Ensure the passed filepath to diff-index is interpreted as filepath [#1367](https://github.com/puppetlabs/r10k/pull/1367)
 
 4.0.0
