@@ -68,6 +68,9 @@ class R10K::Git::StatefulRepository
         logger.warn(_("Skipping %{repo_path} due to local modifications") % {repo_path: @repo.path})
         updated = false
       end
+    when :updatedtags
+      logger.debug(_("Updating tags in %{repo_path}") % {repo_path: @repo.path})
+      @repo.fetch
     else
       logger.debug(_("%{repo_path} is already at Git ref %{ref}") % {repo_path: @repo.path, ref: ref })
       updated = false
@@ -94,6 +97,8 @@ class R10K::Git::StatefulRepository
       :outdated
     elsif @cache.ref_type(ref) == :branch && !@cache.synced?
       :outdated
+    elsif @repo.updatedtags?
+      :updatedtags
     else
       :insync
     end
