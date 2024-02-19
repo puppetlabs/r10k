@@ -32,7 +32,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'gettext-setup', '>=0.24', '<2.0'
 
-  s.add_dependency 'jwt', '>= 2.2.3', '< 2.8.0'
+  s.add_dependency 'jwt', '>= 2.2.3', '< 2.9.0'
   s.add_dependency 'minitar', '~> 0.9'
 
   s.add_development_dependency 'rspec', '~> 3.1'
