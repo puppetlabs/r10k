@@ -104,7 +104,7 @@ module R10K
         @existing_module_versions_by_name = @existing_module_metadata.map {|mod| [ mod.name, mod.version ] }.to_h
         empty_load_output.merge(modules: @existing_module_metadata)
 
-      rescue SyntaxError, LoadError, ArgumentError, NameError, RuntimeError, R10K::Error => e
+      rescue ScriptError, StandardError => e
         logger.warn _("Unable to preload Puppetfile because of %{msg}" % { msg: e.message })
 
         @existing_module_metadata = []
