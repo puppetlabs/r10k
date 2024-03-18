@@ -106,6 +106,9 @@ module R10K
 
       rescue SyntaxError, LoadError, ArgumentError, NameError, RuntimeError, R10K::Error => e
         logger.warn _("Unable to preload Puppetfile because of %{msg}" % { msg: e.message })
+
+        @existing_module_metadata = []
+        @existing_module_versions_by_name = {}
       end
 
       def add_module_metadata(name, info)
