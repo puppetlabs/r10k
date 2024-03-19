@@ -3,6 +3,7 @@ CHANGELOG
 
 Unreleased
 ----------
+- (maint) Update beaker-pe to 3 [#1376](https://github.com/puppetlabs/r10k/pull/1376)
 
 4.0.1
 -----
