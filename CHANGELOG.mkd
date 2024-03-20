@@ -4,6 +4,7 @@ CHANGELOG
 Unreleased
 ----------
 - Make metadata loading during incremental deploys more robust [PE-34917](https://perforce.atlassian.net/browse/PE-34917)
+- Use the production forge for integration testing
 
 
 3.16.0
