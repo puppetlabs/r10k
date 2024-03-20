@@ -3,11 +3,17 @@ CHANGELOG
 
 Unreleased
 ----------
-- Make metadata loading during incremental deploys more robust [PE-34917](https://perforce.atlassian.net/browse/PE-34917)
 
+
+3.16.1
+------
+
+- Make metadata loading during incremental deploys more robust [PE-34917](https://perforce.atlassian.net/browse/PE-34917)
+- Use the production forge for integration testing
 
 3.16.0
 ------
+
 - Emit more debug output when modules fail to sync [#1347](https://github.com/puppetlabs/r10k/pull/1347)
 - Update GitHub Actions & introduce dependabot [#1337](https://github.com/puppetlabs/r10k/pull/1337)
 - Update R10K proxy usage to follow newer rugged best practices [PE-35980](https://tickets.puppet.com/browse/PE-35980)
@@ -15,19 +21,23 @@ Unreleased
 
 3.15.4
 ------
+
 - Pin dependencies to maintain support for old Ruby versions [#1329](https://github.com/puppetlabs/r10k/pull/1329)
 
 3.15.3
 ------
+
 - Fix dirty working copy debug logging [#1321](https://github.com/puppetlabs/r10k/pull/1321)
 - Allow gettext-setup < 2 for compatibility with Ruby 3.2 and Puppet 8 [#1325](https://github.com/puppetlabs/r10k/pull/1325)
 
 3.15.2
 ------
+
 - Implement exclude regex for puppetfile install [#1248](https://github.com/puppetlabs/r10k/issues/1248)
 
 3.15.1
 ------
+
 - Add TOC to configuration docs [#1298](https://github.com/puppetlabs/r10k/issues/1298)
 - Remove the spec folder from gemspec [#1316](https://github.com/puppetlabs/r10k/issues/1316)
 
