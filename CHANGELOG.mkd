@@ -3,6 +3,7 @@ CHANGELOG
 
 Unreleased
 ----------
+- Make metadata loading during incremental deploys more robust [PE-34917](https://perforce.atlassian.net/browse/PE-34917)
 
 
 3.16.0
