@@ -3,6 +3,12 @@ CHANGELOG
 
 Unreleased
 ----------
+
+4.0.2
+-----
+
+- Make metadata loading during incremental deploys more robust [PE-34917](https://perforce.atlassian.net/browse/PE-34917)
+- Use the production forge for integration testing
 - (maint) Update beaker-pe to 3 [#1376](https://github.com/puppetlabs/r10k/pull/1376)
 - (maint) Stop puppet service during tests [#1377](https://github.com/puppetlabs/r10k/pull/1377)
 
