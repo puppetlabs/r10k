@@ -4,6 +4,8 @@ CHANGELOG
 Unreleased
 ----------
 
+- r10k::module::git: expose remote as getter  [#1379](https://github.com/puppetlabs/r10k/pull/1379)
+
 4.0.2
 -----
 
