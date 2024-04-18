@@ -4,6 +4,10 @@ CHANGELOG
 Unreleased
 ----------
 
+4.1.0
+-----
+
+- Allow jwt gem >= 2.8
 - r10k::module::git: expose remote as getter  [#1379](https://github.com/puppetlabs/r10k/pull/1379)
 
 4.0.2
