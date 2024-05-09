@@ -46,6 +46,11 @@ class R10K::Module::Git < R10K::Module::Base
   #   @return [String]
   attr_reader :default_override_ref
 
+  # @!attribute[r] remote
+  #   @api private
+  #   @return [String]
+  attr_reader :remote
+
   include R10K::Util::Setopts
 
   def initialize(title, dirname, opts, environment=nil)
