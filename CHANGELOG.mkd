@@ -4,6 +4,8 @@ CHANGELOG
 Unreleased
 ----------
 
+- Limit Rugged Control Repo refspec to only clone refs/heads
+
 4.1.0
 -----
 
