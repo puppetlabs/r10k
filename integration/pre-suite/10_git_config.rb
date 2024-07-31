@@ -36,6 +36,7 @@ step 'Install and Configure Git'
 on(master, puppet('apply'), :stdin => git_manifest, :acceptable_exit_codes => [0,2]) do |result|
   assert_no_match(/Error:/, result.stderr, 'Unexpected error was detected!')
 end
+on(master, 'git config --system --add safe.directory "*"')
 
 step 'Create "production" Environment on Git'
 init_r10k_source_from_prod(master, git_repo_path, git_repo_name, git_environments_path, 'production')

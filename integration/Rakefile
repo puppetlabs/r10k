@@ -20,24 +20,6 @@ end
 desc 'The acceptance tests for r10k, run in the beaker framework'
 rototiller_task :beaker => [:beaker_hostgenerator] do |t|
 
-  common_setup = <<-EOS
-pre-suite/00_pe_install.rb,
-component/pre-suite/05_install_dev_r10k.rb,
-pre-suite/10_git_config.rb,
-pre-suite/20_pe_r10k.rb,
-EOS
-  common_setup.gsub!("\n", '')
-
-  flags = [
-      {:name => '--hosts', :default => 'configs/generated', :override_env => 'BEAKER_HOST'},
-      {:name => '--keyfile', :default => "#{ENV['HOME']}/.ssh/id_rsa-acceptance", :override_env => 'BEAKER_KEYFILE'},
-      {:name => '--load-path', :default => 'lib'},
-      {:name => '--pre-suite', :default => @acceptance_pre_suite || common_setup, :override_env => 'BEAKER_PRE_SUITE'},
-      {:name => '--tests', :default => 'tests', :override_env => 'BEAKER_TESTS'},
-      {:name => '--preserve-hosts', :default => 'onfail', :override_env => 'BEAKER_PRESERVE_HOSTS'},
-  ]
-  t.add_flag(*flags)
-
   t.add_env do |env|
     env.name = 'PE_FAMILY'
     env.message = 'The puppet enterprise major branch to install from'
@@ -54,7 +36,62 @@ EOS
     env.message = 'The git provider that r10k should use on a SUT'
   end
 
-  t.add_command({:name => 'beaker --debug', :override_env => 'BEAKER_EXECUTABLE'})
+  t.add_command do |cmd|
+    cmd.name = 'beaker --debug'
+
+    common_setup = <<-EOS
+pre-suite/00_pe_install.rb,
+component/pre-suite/05_install_dev_r10k.rb,
+pre-suite/10_git_config.rb,
+pre-suite/20_pe_r10k.rb,
+EOS
+    common_setup.gsub!("\n", '')
+
+    cmd.add_option do |opt|
+      opt.name = '--hosts'
+      opt.add_argument do |arg|
+        arg.name = 'configs/generated'
+        arg.add_env({name: 'BEAKER_HOST'})
+      end
+    end
+
+    cmd.add_option do |opt|
+      opt.name = '--keyfile'
+      opt.add_argument do |arg|
+        arg.name = "#{ENV['HOME']}/.ssh/id_rsa-acceptance"
+        arg.add_env({name: 'BEAKER_KEYFILE'})
+      end
+    end
+
+    cmd.add_option do |opt|
+      opt.name = '--pre-suite'
+      opt.add_argument do |arg|
+        arg.name = @acceptance_pre_suite || common_setup
+        arg.add_env({name: 'BEAKER_PRE_SUITE'})
+      end
+    end
+
+    cmd.add_option do |opt|
+      opt.name = '--tests'
+      opt.add_argument do |arg|
+        arg.name = 'tests'
+        arg.add_env({name: 'BEAKER_TESTS'})
+      end
+    end
+
+    cmd.add_option do |opt|
+      opt.name = '--preserve-hosts'
+      opt.add_argument do |arg|
+        arg.name = 'onfail'
+        arg.add_env({name: 'BEAKER_PRESERVE_HOSTS'})
+      end
+    end
+
+    cmd.add_option do |opt|
+      opt.name = '--load-path'
+      opt.add_argument({name: 'lib'})
+    end
+  end
 end
 
 desc 'Generate a host configuration used by Beaker'
@@ -64,12 +101,10 @@ rototiller_task :beaker_hostgenerator do |t|
     t.add_command do |c|
       c.name = 'beaker-hostgenerator'
       c.argument = '> configs/generated'
+      c.add_option(:name => '', :default => 'centos7-64mdca-64.fa', :override_env => 'TEST_TARGET')
+      c.add_option(:name => '--global-config', :default => '{forge_host=forgeapi.puppet.com}', :override_env => 'BHG_GLOBAL_CONFIG')
     end
 
-    # This is a hack :(
-    t.add_flag(:name => '', :default => 'centos7-64mdca-64.fa', :override_env => 'TEST_TARGET')
-
-    t.add_flag(:name => '--global-config', :default => '{forge_host=forgeapi.puppet.com}', :override_env => 'BHG_GLOBAL_CONFIG')
   end
 end
 
