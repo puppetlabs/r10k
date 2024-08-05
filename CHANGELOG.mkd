@@ -33,6 +33,10 @@ Unreleased
 - (RK-383) Remove deprecated `basedir` method from Puppetfile DSL. Users should use `environment_name` instead. [#1254](https://github.com/puppetlabs/r10k/pull/1254)
 - (RK-386) Remove deprecated `bare` environment type. [#1235](https://github.com/puppetlabs/r10k/issues/1235)
 
+3.16.2
+------
+
+- r10k::module::git: expose remote as getter  [#1379](https://github.com/puppetlabs/r10k/pull/1379)
 
 3.16.1
 ------
