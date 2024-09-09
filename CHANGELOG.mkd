@@ -3,6 +3,7 @@ CHANGELOG
 
 Unreleased
 ----------
+- allow librarian exclusion declaration as a noop
 
 4.1.0
 -----

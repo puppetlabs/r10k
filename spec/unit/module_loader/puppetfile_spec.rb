@@ -304,6 +304,14 @@ describe R10K::ModuleLoader::Puppetfile do
       end
     end
 
+    describe 'exclusion declaration' do
+      it 'is ignored and does not raise an exception' do
+        @path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'exclusion')
+        puppetfile = R10K::ModuleLoader::Puppetfile.new(basedir: @path)
+        puppetfile.load!
+      end
+    end
+
     it 'rejects Puppetfiles with duplicate module names' do
       @path = File.join(PROJECT_ROOT, 'spec', 'fixtures', 'unit', 'puppetfile', 'duplicate-module-error')
       pf_path = File.join(@path, 'Puppetfile')
