@@ -4,6 +4,8 @@ CHANGELOG
 Unreleased
 ----------
 
+- Add Ruby 3.3 to CI [#1403](https://github.com/puppetlabs/r10k/pull/1403)
+
 4.1.0
 -----
 

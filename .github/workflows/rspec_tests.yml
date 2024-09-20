@@ -16,10 +16,12 @@ jobs:
           - {os: ubuntu-latest, ruby: 2.7}
           - {os: ubuntu-latest, ruby: 3.1}
           - {os: ubuntu-latest, ruby: 3.2}
+          - {os: ubuntu-latest, ruby: 3.3}
           - {os: ubuntu-latest, ruby: jruby-9.3}
           - {os: ubuntu-latest, ruby: jruby-9.4}
           - {os: windows-latest, ruby: 2.6}
           - {os: windows-latest, ruby: 3.2}
+          - {os: windows-latest, ruby: 3.3}
 
     runs-on: ${{ matrix.cfg.os }}
     steps:
