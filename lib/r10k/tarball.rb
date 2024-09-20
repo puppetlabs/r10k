@@ -173,7 +173,7 @@ module R10K
     def each_tarball_entry(&block)
       File.open(cache_path, 'rb') do |file|
         Zlib::GzipReader.wrap(file) do |reader|
-          Archive::Tar::Minitar::Input.each_entry(reader) do |entry|
+          Minitar::Input.each_entry(reader) do |entry|
             yield entry
           end
         end
