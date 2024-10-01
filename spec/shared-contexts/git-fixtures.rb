@@ -1,4 +1,4 @@
-require 'archive/tar/minitar'
+require 'minitar'
 require 'tmpdir'
 
 shared_context "Git integration" do
@@ -26,7 +26,7 @@ shared_context "Git integration" do
   end
 
   def populate_remote_path
-    Archive::Tar::Minitar.unpack(File.join(fixture_path, 'puppet-boolean-bare.tar'), remote_path)
+    Minitar.unpack(File.join(fixture_path, 'puppet-boolean-bare.tar'), remote_path)
   end
 
   def clear_remote_path
