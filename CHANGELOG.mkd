@@ -4,8 +4,12 @@ CHANGELOG
 Unreleased
 ----------
 
+5.0.0
+-----
+
 - Add Ruby 3.3 to CI [#1403](https://github.com/puppetlabs/r10k/pull/1403)
 - Require Ruby 3.1 [#1402](https://github.com/puppetlabs/r10k/pull/1402)
+- Support minitar gem > 1.0. [#1407](https://github.com/puppetlabs/r10k/pull/1407)
 
 4.1.0
 -----
