@@ -24,21 +24,15 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'colored2', '~> 4.0'
   s.add_dependency 'cri', '>= 2.15.10'
-
   s.add_dependency 'log4r',     '1.1.10'
   s.add_dependency 'multi_json', '~> 1.10'
-
-  s.add_dependency 'puppet_forge', '~> 6.0'
-
+  s.add_dependency 'puppet_forge', '>= 4.1.0'
   s.add_dependency 'gettext-setup', '>=0.24', '<2.0'
-
   s.add_dependency 'jwt', '>= 2.2.3', '< 3'
-  s.add_dependency 'minitar', '~> 1.0', '>= 1.0.2'
+  s.add_dependency 'minitar', '>= 0.9'
 
   s.add_development_dependency 'rspec', '~> 3.1'
-
   s.add_development_dependency 'rake'
-
   s.add_development_dependency 'yard', '~> 0.9.11'
 
   s.files        = %x[git ls-files].split($/).reject { |f| f.match(%r{^spec}) }
