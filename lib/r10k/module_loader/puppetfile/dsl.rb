@@ -33,6 +33,10 @@ module R10K
           @librarian.set_moduledir(location)
         end
 
+        def exclusion(name)
+          # noop
+        end
+
         def method_missing(method, *args)
           raise NoMethodError, _("unrecognized declaration '%{method}'") % {method: method}
         end

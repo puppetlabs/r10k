@@ -1,0 +1,4 @@
+forge 'https://forgeapi.puppetlabs.com'
+
+mod 'puppetlabs/stdlib', '9.6.0'
+exclusion 'emacs'  # yuck
