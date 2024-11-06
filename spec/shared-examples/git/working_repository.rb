@@ -206,4 +206,43 @@ RSpec.shared_examples "a git working repository" do
       end
     end
   end
+
+  shared_examples "unequal tags" do
+    it "reports tags as unequal" do
+      expect(subject.logger).to receive(:debug).with(/found different tags in local and remote in/i)
+      expect(subject.updatedtags?).to be true
+    end
+  end
+
+  describe "checking if tags are different" do
+    let(:tag_090) { subject.git_dir + 'refs' + 'tags' + '0.9.0' }
+    let(:packed_refs) { subject.git_dir + 'packed-refs' }
+
+    before(:each) do
+      subject.clone(remote)
+    end
+
+    context "with equal tags local and remote" do
+      it "reports tags as equal" do
+        expect(subject.updatedtags?).to be false
+      end
+    end
+
+    context "with missing local tag" do
+      before do
+        tag_090.delete if tag_090.exist?
+        packed_refs.delete if packed_refs.exist?
+      end
+
+      it_behaves_like "unequal tags"
+    end
+
+    context "with additional local tag" do
+      before(:each) do
+        File.open(File.join(subject.git_dir, 'packed-refs'), 'a') { |f| f.write('157011a4eaa27f1202a9d94335ee4876b26d377e refs/tags/1.0.2') }
+      end
+
+      it_behaves_like "unequal tags"
+    end
+  end
 end
