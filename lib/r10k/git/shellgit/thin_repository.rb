@@ -31,7 +31,7 @@ class R10K::Git::ShellGit::ThinRepository < R10K::Git::ShellGit::WorkingReposito
 
   # Fetch refs from the backing bare Git repository.
   def fetch(remote = 'cache')
-    git ['fetch', remote], :path => @path.to_s
+    git ['fetch', remote, '--prune'], :path => @path.to_s
   end
 
   # @return [String] The origin remote URL
