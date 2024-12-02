@@ -3,6 +3,7 @@ CHANGELOG
 
 Unreleased
 ----------
+- allow librarian exclusion declaration as a noop
 
 - Add Ruby 3.3 to CI [#1403](https://github.com/puppetlabs/r10k/pull/1403)
 - Require Ruby 3.1 [#1402](https://github.com/puppetlabs/r10k/pull/1402)
