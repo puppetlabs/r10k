@@ -3,13 +3,16 @@ CHANGELOG
 
 Unreleased
 ----------
-- allow librarian exclusion declaration as a noop
+
+5.0.0
+-----
 
 - Add Ruby 3.3 to CI [#1403](https://github.com/puppetlabs/r10k/pull/1403)
 - Require Ruby 3.1 [#1402](https://github.com/puppetlabs/r10k/pull/1402)
 - Replace deprecated action: actions/setup-ruby->ruby/setup-ruby [#1406](https://github.com/puppetlabs/r10k/pull/1406)
 - Ensure git repositories are pruned on fetch [#1410](https://github.com/puppetlabs/r10k/pull/1410)
 - Limit Rugged Control Repo refspec to only clone refs/heads [#1412](https://github.com/puppetlabs/r10k/pull/1412)
+- Allow librarian exclusion declaration as a noop
 
 4.1.0
 -----
