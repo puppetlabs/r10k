@@ -59,8 +59,8 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
     remote = remotes[remote_name]
     proxy = R10K::Git.get_proxy_for_remote(remote)
 
-    options = {:credentials => credentials, :prune => true, :proxy_url => proxy}
-    refspecs = ['+refs/heads/*:refs/heads/*']
+    options = {:credentials => credentials, :prune => true, :proxy_url => proxy, :download_tags => true}
+    refspecs = ['+refs/heads/*:refs/heads/*', '+refs/tags/*:refs/tags/*']
 
     results = nil
 
