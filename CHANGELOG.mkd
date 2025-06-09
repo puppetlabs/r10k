@@ -4,7 +4,11 @@ CHANGELOG
 Unreleased
 ----------
 
-- ensure rugged downloads all tags [#1417](https://github.com/puppetlabs/r10k/pull/1417)
+
+5.0.1
+-----
+
+- Ensure rugged downloads all tags [#1417](https://github.com/puppetlabs/r10k/pull/1417)
 
 5.0.0
 -----
