@@ -36,7 +36,7 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
     @_rugged_repo = ::Rugged::Repository.init_at(@path.to_s, true).tap do |repo|
       config = repo.config
       config['remote.origin.url']    = remote
-      config['remote.origin.fetch']  = '+refs/heads/*:refs/heads/*'
+      config['remote.origin.fetch']  = '+refs/*:refs/*'
       config['remote.origin.mirror'] = 'true'
     end
 
@@ -59,8 +59,8 @@ class R10K::Git::Rugged::BareRepository < R10K::Git::Rugged::BaseRepository
     remote = remotes[remote_name]
     proxy = R10K::Git.get_proxy_for_remote(remote)
 
-    options = {:credentials => credentials, :prune => true, :proxy_url => proxy, :download_tags => true}
-    refspecs = ['+refs/heads/*:refs/heads/*', '+refs/tags/*:refs/tags/*']
+    options = {:credentials => credentials, :prune => true, :proxy_url => proxy}
+    refspecs = ['+refs/*:refs/*']
 
     results = nil
 
