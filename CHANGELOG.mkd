@@ -4,6 +4,9 @@ CHANGELOG
 Unreleased
 ----------
 
+5.0.2
+-----
+
 - Revert "Limit Rugged Control Repo refspec to only clone refs/heads" [#1422](https://github.com/puppetlabs/r10k/pull/1422)
 
 5.0.1
