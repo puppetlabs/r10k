@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
 
   s.license  = 'Apache-2.0'
 
-  s.add_dependency 'colored2', '~> 4.0'
+  s.add_dependency 'colored2', '>= 3.1.2', '< 5'
   s.add_dependency 'cri', '>= 2.15.10'
   s.add_dependency 'log4r',     '1.1.10'
   s.add_dependency 'multi_json', '~> 1.10'
