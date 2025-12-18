@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'multi_json', '~> 1.10'
   s.add_dependency 'puppet_forge', '>= 4.1.0', '< 7'
   s.add_dependency 'gettext-setup', '>=0.24', '<2.0'
-  s.add_dependency 'jwt', '>= 2.2.3', '< 3'
+  s.add_dependency 'jwt', '>= 2.2.3', '< 4'
   s.add_dependency 'minitar', '>= 0.9', '< 2'
 
   s.add_development_dependency 'rspec', '~> 3.1'
