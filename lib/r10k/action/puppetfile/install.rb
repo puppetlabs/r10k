@@ -25,7 +25,7 @@ module R10K
             if pool_size > 1
               R10K::ContentSynchronizer.concurrent_sync(modules, pool_size, logger)
             else
-              R10K::ContentSynchronizer.serial_sync(modules, logger)
+              R10K::ContentSynchronizer.serial_sync(modules)
             end
 
             R10K::Util::Cleaner.new(loaded_content[:managed_directories],
