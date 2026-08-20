@@ -48,6 +48,12 @@ describe R10K::Action::Puppetfile::Install do
       expect(installer.call).to eq true
     end
 
+    it "syncs modules serially when the pool size is one" do
+      modules.each { |m| expect(m).to receive(:sync).and_return(false) }
+
+      expect(installer({}, [], {pool_size: 1}).call).to eq true
+    end
+
     it "returns false if a module failed to install" do
       modules[0..2].each { |m| expect(m).to receive(:sync) }
       expect(modules[3]).to receive(:sync).and_raise

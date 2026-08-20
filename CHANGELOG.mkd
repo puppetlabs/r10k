@@ -4,6 +4,7 @@ CHANGELOG
 Unreleased
 ----------
 
+- Allow serial Puppetfile installs when pool size is one [#1427](https://github.com/puppetlabs/r10k/issues/1427)
 - Update minimum version of jwt to 2.10.3 to resolve CVE-2026-45363 [PE-44135](https://perforce.atlassian.net/browse/PE-44135)
 
 5.0.3
