@@ -90,7 +90,7 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
     proxy = R10K::Git.get_proxy_for_remote(remote)
 
     options = {:credentials => credentials, :proxy_url => proxy, :prune => true}
-    refspecs = ["+refs/heads/*:refs/remotes/#{remote_name}/*"]
+    refspecs = ["+refs/heads/*:refs/remotes/#{remote_name}/*", '+refs/tags/*:refs/tags/*']
 
     results = nil
 
@@ -133,6 +133,26 @@ class R10K::Git::Rugged::WorkingRepository < R10K::Git::Rugged::BaseRepository
       end
 
       return diff.size > 0
+    end
+  end
+
+  def updatedtags?
+    with_repo do |repo|
+      localtags = repo.tags.each_name.to_a
+
+      options = { :credentials => credentials }
+      remote = repo.remotes['origin']
+      remotetags = []
+      remote.ls(**options) do |hash|
+        if hash[:name].start_with?('refs/tags/') && !hash[:name].include?('^{}')
+          remotetags << hash[:name].split('/').last
+        end
+      end
+
+      return false unless remotetags.sort != localtags.sort
+
+      logger.debug(_("Found different tags in local and remote in %{file_path}" % {file_path: @path}))
+      return true
     end
   end
 

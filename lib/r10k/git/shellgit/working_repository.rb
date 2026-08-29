@@ -64,7 +64,7 @@ class R10K::Git::ShellGit::WorkingRepository < R10K::Git::ShellGit::BaseReposito
     proxy = R10K::Git.get_proxy_for_remote(remote)
 
     R10K::Git.with_proxy(proxy) do
-      git ['fetch', remote_name, '--prune'], :path => @path.to_s
+      git ['fetch', remote_name, '--prune', '--tags', '--prune-tags'], :path => @path.to_s
     end
   end
 
@@ -108,5 +108,16 @@ class R10K::Git::ShellGit::WorkingRepository < R10K::Git::ShellGit::BaseReposito
     else
       return false
     end
+  end
+
+  def updatedtags?
+    result = git(['ls-remote', '--tags', '--refs', 'origin'], :path => @path.to_s, :raise_on_fail => false)
+    remotetags = result.stdout.scan(/refs\/tags\/(\S+)$/).flatten
+    result = git(['tag'], :path => @path.to_s, :raise_on_fail => false)
+    localtags = result.stdout.scan(/(\S+)$/).flatten
+    return false unless remotetags.sort != localtags.sort
+
+    logger.debug(_("Found different tags in local and remote in %{file_path}" % {file_path: @path}))
+    return true
   end
 end
