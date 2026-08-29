@@ -10,11 +10,14 @@ jobs:
   rspec_tests:
     name: ${{ matrix.cfg.os }}(ruby ${{ matrix.cfg.ruby }})
     strategy:
+      fail-fast: false
       matrix:
         cfg:
           - {os: ubuntu-latest, ruby: 3.1}
           - {os: ubuntu-latest, ruby: 3.2}
           - {os: ubuntu-latest, ruby: 3.3}
+          - {os: ubuntu-latest, ruby: 3.4}
+          - {os: ubuntu-latest, ruby: 4.0}
           - {os: ubuntu-latest, ruby: jruby-9.4}
           - {os: windows-latest, ruby: 3.2}
           - {os: windows-latest, ruby: 3.3}

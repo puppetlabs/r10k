@@ -5,6 +5,9 @@ group :extra do
   gem 'rugged', '~> 1.0', :platforms => :ruby
 end
 
+# required by log4r. moved out of stdgems
+gem 'syslog', '~> 0.1.1', require: false, platforms: [:ruby]
+
 group :development do
   gem 'simplecov', '~> 0.22.0'
   gem 'ruby-prof', :platforms => :ruby
