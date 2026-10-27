@@ -4,6 +4,7 @@ CHANGELOG
 Unreleased
 ----------
 
+- Remove the unused multi_json dependency
 - Update minimum version of jwt to 2.10.3 to resolve CVE-2026-45363 [PE-44135](https://perforce.atlassian.net/browse/PE-44135)
 
 5.0.3
