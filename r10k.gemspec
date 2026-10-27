@@ -25,7 +25,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'colored2', '~> 4.0'
   s.add_dependency 'cri', '>= 2.15.10'
   s.add_dependency 'log4r',     '1.1.10'
-  s.add_dependency 'multi_json', '~> 1.10'
   s.add_dependency 'puppet_forge', '>= 6.1.0', '< 7'
   s.add_dependency 'gettext-setup', '>=0.24', '<2.0'
   s.add_dependency 'jwt', '>= 2.10.3', '< 3'
